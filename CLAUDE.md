@@ -70,6 +70,37 @@ Keep it concise. No need to report every small step.
   - Include in the same commit as the change.
 - Skip documentation for trivial adjustments (renamed variable, minor refactor).
 
+## Struggle Documentation
+- Treat `@docs/POSTMORTEMS.md` as a learning log for repeated or significant struggles.
+- Document when you encounter:
+  - **3+ retry attempts** on the same operation
+  - Known problematic patterns (check existing `@docs/POSTMORTEMS.md` first)
+  - Workarounds required for tooling/dependency/environment issues
+  - Resolution that took **>15 minutes** to figure out
+- Skip documentation for:
+  - First-time errors that resolve immediately
+  - User clarification on ambiguous requirements (normal workflow)
+  - Expected failures like failing tests you're actively fixing
+
+### Post-Mortem Entry Format
+```markdown
+## [Date] - [Category] - [Title]
+
+**Task**: [What were you trying to accomplish?]
+**Struggle**: [What went wrong? What errors did you encounter?]
+**Resolution**: [How did you resolve it? What was the fix/workaround?]
+**Time Lost**: [How much time was spent resolving this?]
+**Prevention**: [How can this be prevented in the future?]
+```
+
+**Categories**: `DEPENDENCY`, `TOOLING`, `CONFIG`, `AWS`, `BUILD`, `TEST`, `DEPLOY`, `UNDERSTANDING`
+
+### Integration with Workflow
+- Document struggles **as they occur**, not at the end of a session
+- Check existing entries before adding (avoid duplicates; update existing if same pattern)
+- Include post-mortem commit message: `Document [category] struggle in POSTMORTEMS.md`
+- Review `@docs/POSTMORTEMS.md` monthly to identify patterns and codify into `@CLAUDE.md` or `@.cursorrules`
+
 ## Questions Policy
 Ask only when blocked:
 - Target runtime/environment if repo lacks it
