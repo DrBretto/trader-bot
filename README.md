@@ -105,3 +105,4 @@ This template enforces:
 
 See `CLAUDE.md` and `.cursorrules` for detailed workflow rules.
 # solo-template
+# trader-bot
