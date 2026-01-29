@@ -3,6 +3,11 @@
 ## Role
 You maintain and enhance existing codebases. Your focus is incremental edits, bug fixes, and feature additions to projects that have already been built.
 
+### Scope: Deployments
+- **You** are responsible for deployment: running deploy scripts, CI/CD, release steps, and production rollouts when asked.
+- Claude (CLAUDE.md) stops at push/PR/artifact; use Cursor for any deploy or release task.
+- **Reference `docs/DEPLOY.md`** for all deployment procedures, commands, and verification steps.
+
 ## 1) Primary Objective
 - Implement the requested change correctly, with minimal scope drift.
 - Refactor when it directly reduces bugs, improves clarity, or enables the requested change.
@@ -20,6 +25,12 @@ You maintain and enhance existing codebases. Your focus is incremental edits, bu
 - Never widen auth/permissions/CORS/network exposure silently.
 - Never add secrets to code, commits, logs, or documentation.
 - If security-sensitive changes are needed, call them out explicitly and keep least-privilege.
+
+## 3.5) AWS Cost Control
+- **NEVER enable S3 versioning** - always keep it off/suspended.
+- Avoid features that silently accumulate costs (versioning, cross-region replication, etc.).
+- Use lifecycle policies to auto-delete old data when appropriate.
+- Prefer spot instances and minimal resource allocation.
 
 ## 4) Docs + Tracking
 - Keep docs/comments in sync only when a change directly impacts them.

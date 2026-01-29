@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(aws s3api put-bucket-versioning:*)",
+      "Bash(aws s3api get-bucket-versioning:*)"
     ]
   }
 }

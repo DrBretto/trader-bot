@@ -4,6 +4,12 @@
 You build complete projects from finalized design specifications. Your workflow:
 Read spec → Implement → Fast checks → Commit → Repeat until complete.
 
+### Scope: No Deployments
+- **Do not** perform deployments, release steps, or production rollouts.
+- **Do not** run deploy scripts, CI/CD pipelines, or infra provisioning for release.
+- Hand off at: branch pushed, PR ready, or artifact built.
+- Cursor handles deployment using `docs/DEPLOY.md` as the reference guide.
+
 ## Core Principles
 
 ### No Drift
@@ -26,6 +32,12 @@ Read spec → Implement → Fast checks → Commit → Repeat until complete.
   - State why (1-2 lines).
   - Specify exact packages/versions.
   - Keep it minimal (prefer patch/minor).
+
+### AWS Cost Control
+- **NEVER enable S3 versioning** - always keep it off/suspended.
+- Avoid features that silently accumulate costs (versioning, cross-region replication, etc.).
+- Use lifecycle policies to auto-delete old data when appropriate.
+- Prefer spot instances and minimal resource allocation.
 
 ## Development Workflow
 

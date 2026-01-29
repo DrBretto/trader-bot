@@ -28,27 +28,11 @@ aws s3api put-public-access-block \
     --public-access-block-configuration \
     "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
 
-# Enable versioning
-echo "Enabling versioning..."
-aws s3api put-bucket-versioning \
-    --bucket "$BUCKET_NAME" \
-    --versioning-configuration Status=Enabled
-
-# Set lifecycle policy to clean up old versions after 30 days
+# Set lifecycle policy to clean up old data after 1 year
 echo "Setting lifecycle policy..."
 cat > /tmp/lifecycle.json << 'EOF'
 {
     "Rules": [
-        {
-            "ID": "CleanupOldVersions",
-            "Status": "Enabled",
-            "NoncurrentVersionExpiration": {
-                "NoncurrentDays": 30
-            },
-            "Filter": {
-                "Prefix": ""
-            }
-        },
         {
             "ID": "CleanupOldDailyData",
             "Status": "Enabled",
