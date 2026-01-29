@@ -1,0 +1,7 @@
+# Training dependencies (local only)
+torch==2.1.2
+scikit-learn==1.3.2
+pandas==2.1.4
+numpy==1.24.3
+boto3==1.34.19
+tqdm==4.66.1

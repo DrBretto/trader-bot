@@ -1,0 +1,10 @@
+{
+  "s3_bucket": "investment-system-data",
+  "region": "us-east-1",
+  "lambda_function": "investment-system-daily-pipeline",
+  "secrets": {
+    "openai_key": "investment-system/openai-key",
+    "fred_key": "investment-system/fred-key",
+    "alphavantage_key": "investment-system/alphavantage-key"
+  }
+}

@@ -72,3 +72,15 @@ htmlcov/
 *.pid
 *.seed
 *.pid.lock
+
+# Lambda deployment
+lambda_deploy_*.zip
+
+# Training artifacts
+*.pkl
+*.pth
+models/*.pkl
+models/*.pth
+
+# Local config overrides
+config/local_*.json

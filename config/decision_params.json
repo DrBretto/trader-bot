@@ -1,0 +1,26 @@
+{
+  "max_positions": 8,
+  "max_position_weight": 0.20,
+  "max_sector_weight": 0.35,
+  "min_cash_reserve_by_regime": {
+    "calm_uptrend": 0.10,
+    "risk_on_trend": 0.10,
+    "choppy": 0.20,
+    "risk_off_trend": 0.40,
+    "high_vol_panic": 0.40
+  },
+  "leveraged_constraints": {
+    "max_weight": 0.10,
+    "max_hold_days": 10,
+    "stop_multiplier": 0.6
+  },
+  "buy_score_threshold": 0.65,
+  "min_health_buy": 0.60,
+  "sell_health_threshold": 0.35,
+  "sell_health_days": 3,
+  "reduce_health_drop": 0.20,
+  "trailing_stop_base": 0.10,
+  "trailing_stop_leveraged": 0.06,
+  "min_order_dollars": 250,
+  "initial_portfolio_value": 100000
+}

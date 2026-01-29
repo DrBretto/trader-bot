@@ -1,0 +1,17 @@
+{
+  "stooq": {
+    "base_url": "https://stooq.com/q/d/l/",
+    "timeout": 10
+  },
+  "fred": {
+    "base_url": "https://api.stlouisfed.org/fred/series/observations",
+    "series": ["DGS2", "DGS10", "VIXCLS", "DCOILWTICO", "DEXUSEU"]
+  },
+  "gdelt": {
+    "base_url": "http://data.gdeltproject.org/gdeltv2/"
+  },
+  "alphavantage": {
+    "base_url": "https://www.alphavantage.co/query",
+    "rate_limit": 25
+  }
+}

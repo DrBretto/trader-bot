@@ -1,0 +1,13 @@
+{
+  "Name": "investment-system-daily-trigger",
+  "Description": "Triggers the daily investment pipeline at 10 PM ET on weeknights",
+  "ScheduleExpression": "cron(0 3 ? * TUE-SAT *)",
+  "State": "ENABLED",
+  "Targets": [
+    {
+      "Id": "investment-system-lambda",
+      "Arn": "arn:aws:lambda:us-east-1:ACCOUNT_ID:function:investment-system-daily-pipeline",
+      "Input": "{\"bucket\": \"investment-system-data\", \"source\": \"eventbridge-scheduled\"}"
+    }
+  ]
+}
