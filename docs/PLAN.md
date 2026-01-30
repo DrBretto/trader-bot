@@ -45,13 +45,15 @@ Anytime:
 - [x] Lambda handler
 - [x] AWS infrastructure scripts
 - [x] Unit tests (44 passing)
-- [ ] Deploy to AWS and test end-to-end
+- [x] Deploy to AWS and test end-to-end
 
-### Phase 2: ML Models (Not Started)
-- [ ] Regime model (Transformer/GRU)
-- [ ] Health model (Autoencoder)
-- [ ] Training pipeline
-- [ ] Model versioning
+### Phase 2: ML Models ✅ COMPLETE
+- [x] Regime model (GRU + Transformer architectures)
+- [x] Health model (Autoencoder + VAE architectures)
+- [x] Training pipeline (train.py orchestrator)
+- [x] Training data loaders
+- [x] Model versioning (latest.json pointer)
+- [x] Lambda integration (model loader with fallback)
 
 ### Phase 3: Frontend Dashboard (Not Started)
 - [ ] React + Vite setup

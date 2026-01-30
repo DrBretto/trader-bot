@@ -99,6 +99,26 @@ class S3Client:
             print(f"Error reading CSV from {key}: {e}")
             return pd.DataFrame()
 
+    def read_bytes(self, key: str) -> Optional[bytes]:
+        """Read raw bytes from S3."""
+        try:
+            response = self.s3.get_object(Bucket=self.bucket, Key=key)
+            return response['Body'].read()
+        except self.s3.exceptions.NoSuchKey:
+            return None
+        except Exception as e:
+            print(f"Error reading bytes from {key}: {e}")
+            return None
+
+    def write_bytes(self, data: bytes, key: str) -> bool:
+        """Write raw bytes to S3."""
+        try:
+            self.s3.put_object(Bucket=self.bucket, Key=key, Body=data)
+            return True
+        except Exception as e:
+            print(f"Error writing bytes to {key}: {e}")
+            return False
+
     def file_exists(self, key: str) -> bool:
         """Check if a file exists in S3."""
         try:
