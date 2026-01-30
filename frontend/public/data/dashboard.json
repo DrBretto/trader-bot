@@ -1,0 +1,172 @@
+{
+  "metrics": {
+    "total_value": 108750.00,
+    "cash": 15234.50,
+    "invested": 93515.50,
+    "ytd_return": 0.0875,
+    "mtd_return": 0.0234,
+    "sharpe_ratio": 1.45,
+    "max_drawdown": -0.0823,
+    "current_drawdown": -0.0156,
+    "win_rate": 0.62,
+    "total_trades": 47,
+    "timestamp": "2026-01-30T10:00:00Z"
+  },
+  "holdings": [
+    {
+      "symbol": "AAPL",
+      "shares": 50,
+      "entry_price": 178.50,
+      "current_price": 192.35,
+      "market_value": 9617.50,
+      "unrealized_pnl": 692.50,
+      "unrealized_pnl_pct": 0.0776,
+      "health_score": 0.82,
+      "vol_bucket": "low",
+      "days_held": 23
+    },
+    {
+      "symbol": "MSFT",
+      "shares": 25,
+      "entry_price": 385.20,
+      "current_price": 402.15,
+      "market_value": 10053.75,
+      "unrealized_pnl": 423.75,
+      "unrealized_pnl_pct": 0.0440,
+      "health_score": 0.78,
+      "vol_bucket": "low",
+      "days_held": 31
+    },
+    {
+      "symbol": "NVDA",
+      "shares": 15,
+      "entry_price": 485.00,
+      "current_price": 512.80,
+      "market_value": 7692.00,
+      "unrealized_pnl": 417.00,
+      "unrealized_pnl_pct": 0.0574,
+      "health_score": 0.71,
+      "vol_bucket": "high",
+      "days_held": 14
+    },
+    {
+      "symbol": "XLF",
+      "shares": 200,
+      "entry_price": 38.25,
+      "current_price": 39.10,
+      "market_value": 7820.00,
+      "unrealized_pnl": 170.00,
+      "unrealized_pnl_pct": 0.0222,
+      "health_score": 0.65,
+      "vol_bucket": "med",
+      "days_held": 8
+    }
+  ],
+  "candidates": [
+    {
+      "symbol": "GOOGL",
+      "score": 0.85,
+      "health_score": 0.79,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.0456,
+      "return_63d": 0.1234,
+      "suggested_size": 8500
+    },
+    {
+      "symbol": "AMZN",
+      "score": 0.78,
+      "health_score": 0.74,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.0312,
+      "return_63d": 0.0987,
+      "suggested_size": 7200
+    },
+    {
+      "symbol": "META",
+      "score": 0.72,
+      "health_score": 0.68,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.0523,
+      "return_63d": 0.1567,
+      "suggested_size": 6100
+    },
+    {
+      "symbol": "XLE",
+      "score": 0.65,
+      "health_score": 0.61,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.0234,
+      "return_63d": 0.0456,
+      "suggested_size": 5000
+    }
+  ],
+  "equity_curve": [
+    {"date": "2025-02-01", "value": 100000, "benchmark": 100000},
+    {"date": "2025-03-01", "value": 101500, "benchmark": 101200},
+    {"date": "2025-04-01", "value": 103200, "benchmark": 102500},
+    {"date": "2025-05-01", "value": 102100, "benchmark": 101800},
+    {"date": "2025-06-01", "value": 104500, "benchmark": 103200},
+    {"date": "2025-07-01", "value": 106800, "benchmark": 104500},
+    {"date": "2025-08-01", "value": 105200, "benchmark": 103800},
+    {"date": "2025-09-01", "value": 104800, "benchmark": 102500},
+    {"date": "2025-10-01", "value": 106500, "benchmark": 104200},
+    {"date": "2025-11-01", "value": 107800, "benchmark": 105600},
+    {"date": "2025-12-01", "value": 106200, "benchmark": 104800},
+    {"date": "2026-01-01", "value": 108750, "benchmark": 106200}
+  ],
+  "drawdowns": [
+    {"date": "2025-02-01", "drawdown": 0},
+    {"date": "2025-03-01", "drawdown": 0},
+    {"date": "2025-04-01", "drawdown": 0},
+    {"date": "2025-05-01", "drawdown": -0.0107},
+    {"date": "2025-06-01", "drawdown": 0},
+    {"date": "2025-07-01", "drawdown": 0},
+    {"date": "2025-08-01", "drawdown": -0.0150},
+    {"date": "2025-09-01", "drawdown": -0.0187},
+    {"date": "2025-10-01", "drawdown": -0.0028},
+    {"date": "2025-11-01", "drawdown": 0},
+    {"date": "2025-12-01", "drawdown": -0.0148},
+    {"date": "2026-01-01", "drawdown": 0}
+  ],
+  "monthly_returns": [
+    {"year": 2025, "month": 2, "return_pct": 0.015},
+    {"year": 2025, "month": 3, "return_pct": 0.017},
+    {"year": 2025, "month": 4, "return_pct": -0.011},
+    {"year": 2025, "month": 5, "return_pct": 0.024},
+    {"year": 2025, "month": 6, "return_pct": 0.022},
+    {"year": 2025, "month": 7, "return_pct": -0.015},
+    {"year": 2025, "month": 8, "return_pct": -0.004},
+    {"year": 2025, "month": 9, "return_pct": 0.016},
+    {"year": 2025, "month": 10, "return_pct": 0.012},
+    {"year": 2025, "month": 11, "return_pct": -0.015},
+    {"year": 2025, "month": 12, "return_pct": 0.024},
+    {"year": 2026, "month": 1, "return_pct": 0.023}
+  ],
+  "weather": {
+    "headline": "Cautiously Optimistic",
+    "summary": "Markets showing resilience with moderating volatility. Tech sector leading gains while defensive sectors consolidate. Credit spreads remain tight suggesting low near-term stress.",
+    "regime": {
+      "regime": "risk_on_trend",
+      "description": "Favorable conditions for equity exposure with positive momentum",
+      "risk_level": "low",
+      "probs": {
+        "calm_uptrend": 0.15,
+        "risk_on_trend": 0.55,
+        "risk_off_trend": 0.10,
+        "choppy": 0.15,
+        "high_vol_panic": 0.05
+      }
+    },
+    "outlook": "Maintain current positioning with slight bias toward quality growth names. Monitor Fed commentary and earnings revisions.",
+    "risks": [
+      "Elevated valuations in mega-cap tech",
+      "Geopolitical uncertainty in emerging markets",
+      "Potential for yield curve steepening"
+    ],
+    "timestamp": "2026-01-30T10:00:00Z"
+  }
+}
