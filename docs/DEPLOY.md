@@ -128,6 +128,39 @@ aws lambda update-alias \
 
 ---
 
+## Deploy Frontend Dashboard
+
+Build and upload the React dashboard to S3 for static hosting:
+
+```bash
+# 1. Build the frontend
+cd frontend
+npm install
+npm run build
+
+# 2. Upload to S3
+aws s3 sync dist/ s3://investment-system-data/dashboard/ --delete --region us-east-1
+```
+
+**First-time only** (enables public read for the dashboard prefix only):
+
+```bash
+# Allow a bucket policy to grant public access (dashboard prefix only)
+aws s3api put-public-access-block --bucket investment-system-data --region us-east-1 \
+  --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+
+# Attach policy: public GetObject for dashboard/*
+aws s3api put-bucket-policy --bucket investment-system-data --region us-east-1 \
+  --policy file://infrastructure/dashboard_bucket_policy.json
+
+# Enable static website hosting
+aws s3 website s3://investment-system-data --index-document index.html --region us-east-1
+```
+
+Access the dashboard at: `http://investment-system-data.s3-website-us-east-1.amazonaws.com/dashboard/`
+
+---
+
 ## Cost Notes
 
 - **NEVER enable S3 versioning**

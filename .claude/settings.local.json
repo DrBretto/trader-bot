@@ -3,7 +3,20 @@
     "allow": [
       "Bash(tree:*)",
       "Bash(aws s3api put-bucket-versioning:*)",
-      "Bash(aws s3api get-bucket-versioning:*)"
+      "Bash(aws s3api get-bucket-versioning:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(.venv/bin/python -m pytest:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nImplement Phase 2: ML model training infrastructure\n\n- Add GRU and Transformer architectures for regime classification\n- Add Autoencoder and VAE architectures for health scoring\n- Create training data loaders with S3 integration\n- Implement training loops with early stopping and metrics\n- Create main training orchestrator \\(train.py\\)\n- Update model loader to support trained models with baseline fallback\n- Add read_bytes/write_bytes to S3Client for pickle files\n- Add ML model unit tests\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(.venv/bin/pip install:*)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(source .venv/bin/activate)",
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(ls:*)",
+      "Bash(npm run build:*)",
+      "Bash(source:*)"
     ]
   }
 }

@@ -16,9 +16,9 @@ from datetime import datetime
 from typing import Dict, Optional, Tuple
 from tqdm import tqdm
 
-from models import create_health_model, vae_loss, ASSET_FEATURES, VOL_BUCKETS, BEHAVIORS
-from utils.data_loader import create_health_dataloaders, HealthDataset
-from utils.metrics import HealthMetrics, EarlyStopping, compute_health_labels_from_baseline
+from training.models import create_health_model, vae_loss, ASSET_FEATURES, VOL_BUCKETS, BEHAVIORS
+from training.utils.data_loader import create_health_dataloaders, HealthDataset
+from training.utils.metrics import HealthMetrics, EarlyStopping, compute_health_labels_from_baseline
 
 
 def train_epoch(

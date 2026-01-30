@@ -8,6 +8,139 @@ import pandas as pd
 from src.utils.s3_client import S3Client
 
 
+def build_dashboard_data(
+    portfolio_state: Dict[str, Any],
+    inference_output: Dict[str, Any],
+    decisions: Dict[str, Any],
+    weather: Dict[str, Any],
+    s3: S3Client
+) -> Dict[str, Any]:
+    """Build the dashboard.json data structure for the frontend."""
+    timestamp = datetime.now().isoformat()
+
+    # Build metrics
+    metrics = {
+        'total_value': portfolio_state.get('portfolio_value', 100000),
+        'cash': portfolio_state.get('cash', 100000),
+        'invested': portfolio_state.get('invested', 0),
+        'ytd_return': portfolio_state.get('ytd_return', 0),
+        'mtd_return': portfolio_state.get('mtd_return', 0),
+        'sharpe_ratio': portfolio_state.get('sharpe_ratio', 0),
+        'max_drawdown': portfolio_state.get('max_drawdown', 0),
+        'current_drawdown': portfolio_state.get('current_drawdown', 0),
+        'win_rate': portfolio_state.get('win_rate', 0),
+        'total_trades': portfolio_state.get('total_trades', 0),
+        'timestamp': timestamp
+    }
+
+    # Build holdings
+    holdings = []
+    for h in portfolio_state.get('holdings', []):
+        holdings.append({
+            'symbol': h.get('symbol', ''),
+            'shares': h.get('shares', 0),
+            'entry_price': h.get('entry_price', 0),
+            'current_price': h.get('current_price', 0),
+            'market_value': h.get('market_value', 0),
+            'unrealized_pnl': h.get('unrealized_pnl', 0),
+            'unrealized_pnl_pct': h.get('unrealized_pnl_pct', 0),
+            'health_score': h.get('health_score', 0.5),
+            'vol_bucket': h.get('vol_bucket', 'med'),
+            'days_held': h.get('days_held', 0)
+        })
+
+    # Build candidates from decisions
+    candidates = []
+    for candidate in decisions.get('buy_candidates', []):
+        candidates.append({
+            'symbol': candidate.get('symbol', ''),
+            'score': candidate.get('score', 0),
+            'health_score': candidate.get('health_score', 0.5),
+            'vol_bucket': candidate.get('vol_bucket', 'med'),
+            'behavior': candidate.get('behavior', 'mixed'),
+            'return_21d': candidate.get('return_21d', 0),
+            'return_63d': candidate.get('return_63d', 0),
+            'suggested_size': candidate.get('suggested_size', 0)
+        })
+
+    # Load historical equity curve if available
+    equity_curve = load_historical_equity(s3)
+    drawdowns = load_historical_drawdowns(s3)
+    monthly_returns = load_monthly_returns(s3)
+
+    # Build regime info
+    regime_data = inference_output.get('regime', {})
+    regime_label = regime_data.get('label', 'unknown')
+
+    risk_level_map = {
+        'calm_uptrend': 'low',
+        'risk_on_trend': 'low',
+        'choppy': 'medium',
+        'risk_off_trend': 'high',
+        'high_vol_panic': 'extreme'
+    }
+
+    regime_info = {
+        'regime': regime_label,
+        'description': regime_data.get('description', ''),
+        'risk_level': risk_level_map.get(regime_label, 'medium'),
+        'probs': regime_data.get('probs', {})
+    }
+
+    # Build weather report
+    weather_report = {
+        'headline': weather.get('headline', 'Market Update'),
+        'summary': weather.get('summary', weather.get('blurb', '')),
+        'regime': regime_info,
+        'outlook': weather.get('outlook', ''),
+        'risks': weather.get('risks', []),
+        'timestamp': timestamp
+    }
+
+    return {
+        'metrics': metrics,
+        'holdings': holdings,
+        'candidates': candidates,
+        'equity_curve': equity_curve,
+        'drawdowns': drawdowns,
+        'monthly_returns': monthly_returns,
+        'weather': weather_report
+    }
+
+
+def load_historical_equity(s3: S3Client) -> List[Dict]:
+    """Load historical equity curve from portfolio history."""
+    try:
+        history = s3.read_json('portfolio/equity_history.json')
+        if history and isinstance(history, list):
+            return history[-365:]  # Last year
+    except:
+        pass
+    return []
+
+
+def load_historical_drawdowns(s3: S3Client) -> List[Dict]:
+    """Load historical drawdowns from portfolio history."""
+    try:
+        history = s3.read_json('portfolio/drawdown_history.json')
+        if history and isinstance(history, list):
+            return history[-365:]
+    except:
+        pass
+    return []
+
+
+def load_monthly_returns(s3: S3Client) -> List[Dict]:
+    """Load monthly returns from portfolio history."""
+    try:
+        returns = s3.read_json('portfolio/monthly_returns.json')
+        if returns and isinstance(returns, list):
+            return returns
+    except:
+        pass
+    return []
+
+
 def run(
     bucket: str,
     run_date: str,
@@ -173,6 +306,17 @@ def run(
     except Exception as e:
         print(f"Failed to update latest.json: {e}")
         failed.append("latest.json")
+
+    # 12. Generate dashboard.json for frontend
+    try:
+        dashboard_data = build_dashboard_data(
+            portfolio_state, inference_output, decisions, weather, s3
+        )
+        s3.write_json(dashboard_data, "dashboard/dashboard.json")
+        published.append("dashboard.json")
+    except Exception as e:
+        print(f"Failed to publish dashboard.json: {e}")
+        failed.append("dashboard.json")
 
     print(f"  Published: {len(published)} artifacts")
     if failed:
