@@ -108,37 +108,87 @@ def build_dashboard_data(
     }
 
 
+def _build_equity_curve_from_daily(s3: S3Client, max_days: int = 365) -> List[Dict]:
+    """Build equity curve from daily portfolio_state.json artifacts.
+    Returns list of {date, value, benchmark} for frontend EquityCurvePoint.
+    """
+    dates = s3.list_daily_dates(max_days=max_days)
+    if not dates:
+        return []
+    curve = []
+    for date_str in dates:
+        state = s3.read_json(f'daily/{date_str}/portfolio_state.json')
+        if state is not None and 'portfolio_value' in state:
+            pv = state['portfolio_value']
+            curve.append({
+                'date': date_str,
+                'value': pv,
+                'benchmark': state.get('benchmark_value', pv),
+            })
+    return curve
+
+
 def load_historical_equity(s3: S3Client) -> List[Dict]:
-    """Load historical equity curve from portfolio history."""
+    """Load historical equity curve from portfolio history or build from daily artifacts."""
     try:
         history = s3.read_json('portfolio/equity_history.json')
         if history and isinstance(history, list):
-            return history[-365:]  # Last year
-    except:
+            return history[-365:]
+    except Exception:
         pass
-    return []
+    return _build_equity_curve_from_daily(s3, max_days=365)
 
 
 def load_historical_drawdowns(s3: S3Client) -> List[Dict]:
-    """Load historical drawdowns from portfolio history."""
+    """Load historical drawdowns from portfolio history or build from daily artifacts."""
     try:
         history = s3.read_json('portfolio/drawdown_history.json')
         if history and isinstance(history, list):
             return history[-365:]
-    except:
+    except Exception:
         pass
-    return []
+    curve = _build_equity_curve_from_daily(s3, max_days=365)
+    if not curve:
+        return []
+    sorted_curve = sorted(curve, key=lambda x: x['date'])
+    peak = sorted_curve[0]['value']
+    drawdowns = []
+    for point in sorted_curve:
+        if point['value'] > peak:
+            peak = point['value']
+        dd = (point['value'] - peak) / peak if peak > 0 else 0.0
+        drawdowns.append({'date': point['date'], 'drawdown': dd})
+    return drawdowns
 
 
 def load_monthly_returns(s3: S3Client) -> List[Dict]:
-    """Load monthly returns from portfolio history."""
+    """Load monthly returns from portfolio history or build from daily artifacts."""
     try:
         returns = s3.read_json('portfolio/monthly_returns.json')
         if returns and isinstance(returns, list):
             return returns
-    except:
+    except Exception:
         pass
-    return []
+    curve = _build_equity_curve_from_daily(s3, max_days=730)
+    if not curve:
+        return []
+    by_month = {}
+    for point in curve:
+        date_str = point['date']
+        ym = date_str[:7]
+        if ym not in by_month:
+            by_month[ym] = []
+        by_month[ym].append(point['value'])
+    monthly = []
+    for ym in sorted(by_month.keys()):
+        vals = by_month[ym]
+        if len(vals) >= 2:
+            ret = (vals[-1] / vals[0]) - 1.0
+        else:
+            ret = 0.0
+        year, month = int(ym[:4]), int(ym[5:7])
+        monthly.append({'year': year, 'month': month, 'return_pct': ret})
+    return monthly
 
 
 def run(
@@ -312,6 +362,8 @@ def run(
         dashboard_data = build_dashboard_data(
             portfolio_state, inference_output, decisions, weather, s3
         )
+        # Write to both locations for compatibility
+        s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
         s3.write_json(dashboard_data, "dashboard/dashboard.json")
         published.append("dashboard.json")
     except Exception as e:
