@@ -7,6 +7,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+VENV_PYTHON="$PROJECT_DIR/.venv/bin/python"
 PLIST_NAME="com.investment-system.monthly-training.plist"
 PLIST_SRC="$SCRIPT_DIR/$PLIST_NAME"
 PLIST_DST="$HOME/Library/LaunchAgents/$PLIST_NAME"
@@ -14,6 +15,13 @@ LOG_DIR="$HOME/Library/Logs/investment-system"
 
 echo "Installing launchd job for investment system training..."
 echo "Project directory: $PROJECT_DIR"
+
+# Verify venv Python exists
+if [ ! -f "$VENV_PYTHON" ]; then
+    echo "ERROR: Virtual environment Python not found at $VENV_PYTHON"
+    echo "Please create the venv first: python -m venv .venv && pip install -r requirements.txt"
+    exit 1
+fi
 
 # Create log directory
 echo "Creating log directory at $LOG_DIR..."
@@ -27,8 +35,9 @@ fi
 
 # Copy plist to LaunchAgents with path substitution
 echo "Copying plist to $PLIST_DST..."
-sed -e "s|/Users/drbretto/Desktop/Projects/trader-bot|$PROJECT_DIR|g" \
-    -e "s|/Users/drbretto/Library/Logs|$HOME/Library/Logs|g" \
+sed -e "s|__PROJECT_DIR__|$PROJECT_DIR|g" \
+    -e "s|__VENV_PYTHON__|$VENV_PYTHON|g" \
+    -e "s|__LOG_DIR__|$LOG_DIR|g" \
     "$PLIST_SRC" > "$PLIST_DST"
 
 # Load the job
@@ -43,6 +52,9 @@ if launchctl list | grep -q "com.investment-system.monthly-training"; then
     echo ""
     echo "To run manually:"
     echo "  launchctl start com.investment-system.monthly-training"
+    echo ""
+    echo "To check logs:"
+    echo "  tail -f $LOG_DIR/training.log"
     echo ""
     echo "To uninstall:"
     echo "  launchctl unload $PLIST_DST"
