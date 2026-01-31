@@ -23,38 +23,32 @@ from evolution.genetic import GeneticAlgorithm
 from evolution.promotion import TemplatePromoter
 
 
-def load_data_from_s3(bucket: str, max_days: int = 365) -> tuple:
+def load_data_from_s3(bucket: str, region: str = 'us-east-1', max_days: int = 365) -> tuple:
     """
     Load historical data from S3 for backtesting.
 
+    Builds from daily artifacts (same as training) when historical/*.parquet
+    are not present.
+
     Args:
         bucket: S3 bucket name
+        region: AWS region
         max_days: Maximum days of history to load
 
     Returns:
         Tuple of (prices_df, features_df, context_df)
     """
-    from src.utils.s3_client import S3Client
+    from training.utils.data_loader import S3DataDownloader
 
-    s3 = S3Client(bucket)
-
-    # Load aggregated historical data
-    prices_df = s3.read_parquet('historical/prices.parquet')
-    features_df = s3.read_parquet('historical/features.parquet')
-    context_df = s3.read_parquet('historical/context.parquet')
-
-    # Filter to max_days
-    if len(prices_df) > 0:
-        cutoff_date = pd.Timestamp.now() - pd.Timedelta(days=max_days)
-        prices_df = prices_df[prices_df['date'] >= cutoff_date]
-        features_df = features_df[features_df['date'] >= cutoff_date]
-        context_df = context_df[context_df['date'] >= cutoff_date]
+    downloader = S3DataDownloader(bucket, region=region, cache_dir='/tmp/evolution_cache')
+    prices_df, features_df, context_df = downloader.build_historical_dataset(max_days=max_days)
 
     return prices_df, features_df, context_df
 
 
 def run_evolution(
     bucket: str,
+    region: str = 'us-east-1',
     population_size: int = 50,
     generations: int = 50,
     max_days: int = 365,
@@ -85,9 +79,9 @@ def run_evolution(
     print(f"Starting evolution run at {datetime.now()}")
     print(f"Population: {population_size}, Generations: {generations}")
 
-    # Load data
+    # Load data (build from daily artifacts, same as training)
     print("Loading historical data...")
-    prices_df, features_df, context_df = load_data_from_s3(bucket, max_days)
+    prices_df, features_df, context_df = load_data_from_s3(bucket, region=region, max_days=max_days)
 
     if len(prices_df) == 0:
         raise ValueError("No historical data available for evolution")
@@ -278,6 +272,7 @@ def create_dummy_data(n_days: int = 200, n_symbols: int = 20):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run evolutionary search')
     parser.add_argument('--bucket', type=str, default='investment-system-data')
+    parser.add_argument('--region', type=str, default='us-east-1')
     parser.add_argument('--population', type=int, default=50)
     parser.add_argument('--generations', type=int, default=50)
     parser.add_argument('--max-days', type=int, default=365)
@@ -315,6 +310,7 @@ if __name__ == '__main__':
     else:
         report = run_evolution(
             bucket=args.bucket,
+            region=args.region,
             population_size=args.population,
             generations=args.generations,
             max_days=args.max_days,

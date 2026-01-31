@@ -41,6 +41,8 @@ After code changes, deploy the updated Lambda:
 ./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1
 ```
 
+The script uses `requirements-lambda.txt` (slim deps; numpy/pandas/fastparquet come from the layer) so the deployment package stays under Lambda’s size limit with the layer.
+
 **Note**: If numpy/pandas dependencies change, you may need to rebuild the Lambda layer:
 
 ```bash
@@ -130,13 +132,15 @@ aws lambda update-alias \
 
 ## Deploy Frontend Dashboard
 
-Build and upload the React dashboard to S3 for static hosting:
+Build and upload the React dashboard to S3 for static hosting.
+
+**Production build:** Set `VITE_DATA_URL=dashboard.json` so the deployed app at `.../dashboard/` fetches data from `.../dashboard/dashboard.json` (same prefix). Without this, the app uses `./data/dashboard.json` (local dev).
 
 ```bash
-# 1. Build the frontend
+# 1. Build the frontend (production: load data from same origin)
 cd frontend
 npm install
-npm run build
+VITE_DATA_URL=dashboard.json npm run build
 
 # 2. Upload to S3
 aws s3 sync dist/ s3://investment-system-data/dashboard/ --delete --region us-east-1
@@ -158,6 +162,21 @@ aws s3 website s3://investment-system-data --index-document index.html --region 
 ```
 
 Access the dashboard at: `http://investment-system-data.s3-website-us-east-1.amazonaws.com/dashboard/`
+
+---
+
+## Go-Live Order
+
+Use this sequence for a full first-time go-live:
+
+1. **S3 bucket** – From repo root: `./infrastructure/s3_setup.sh investment-system-data us-east-1`
+2. **Secrets** – `./infrastructure/secrets_setup.sh us-east-1` (enter OpenAI, FRED, Alpha Vantage keys)
+3. **Lambda** – `./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1`
+4. **EventBridge** – `./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline us-east-1`
+5. **Dashboard (optional)** – First-time bucket policy and static website per "Deploy Frontend Dashboard" above; then `VITE_DATA_URL=dashboard.json npm run build` and `aws s3 sync dist/ s3://investment-system-data/dashboard/ --delete --region us-east-1`
+6. **Verify daily pipeline** – Invoke Lambda once (see "Verify Deployment" above); check `daily/latest.json`, `daily/<date>/*`, and `dashboard/dashboard.json` in S3.
+7. **After enough daily data (e.g. 30+ days)** – Run training: `python training/train.py --bucket investment-system-data --region us-east-1`; then evolution: `python evolution/evolve.py --bucket investment-system-data --generations 25`.
+8. **Monthly automation** – Edit the launchd plist path to point to your repo’s `automation/run_training.sh`, then run `./automation/install_launchd.sh`.
 
 ---
 

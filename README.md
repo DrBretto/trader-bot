@@ -1,108 +1,153 @@
-# Project Template
+# Investment System
 
-This is a reusable project template for bootstrapping new repositories with consistent workflow rules, documentation structure, and automation.
+Autonomous daily paper trading system with ML-powered market regime detection and asset health scoring.
+
+## Features
+
+- **Daily Pipeline** - Automated data ingestion, feature engineering, and trade execution
+- **ML Models** - GRU/Transformer for regime classification, Autoencoder/VAE for health scoring
+- **LLM Integration** - GPT-4 risk assessment and market weather reports
+- **React Dashboard** - Portfolio metrics, charts, and market analysis
+- **Evolutionary Optimization** - Genetic algorithm for policy parameter tuning
+- **Paper Trading** - Full portfolio simulation with realistic constraints
+
+## Architecture
+
+```
+Daily (10 PM ET):
+  EventBridge → Lambda → [Ingest → Features → Inference → Decisions] → S3
+
+Monthly (1st, 2 AM):
+  launchd → train.py → Models uploaded to S3
+
+Dashboard:
+  S3 Static Site → React App → Reads from S3 artifacts
+```
 
 ## Quick Start
 
-1. Copy this template folder into your new project repository
-2. Review and customize the following files:
-   - `CLAUDE.md` - Project driver instructions for AI assistants
-   - `.cursorrules` - Cursor IDE rules (also configure in Cursor settings for portability)
-   - `docs/PLAN.md` - Fill in your project goals, constraints, and architecture
-   - `.env.example` - Add your environment variable placeholders
-3. Run `make setup` to initialize your environment (or `make check` to verify setup)
+### Prerequisites
 
-## Key Files
+- Python 3.11+
+- AWS CLI configured
+- API keys: OpenAI, FRED (free tiers available)
 
-### Workflow & Rules
-- **`CLAUDE.md`** - Instructions for AI-driven development workflow
-- **`.cursorrules`** - Cursor IDE rules (project-agnostic workflow constraints)
-- **`CONTRIBUTING.md`** - Contribution guidelines (references CLAUDE.md and .cursorrules)
+### Local Development
 
-### Documentation
-- **`docs/PLAN.md`** - Project plan template (goals, constraints, architecture, milestones)
-- **`docs/DEVIATIONS.md`** - Log of plan pivots and deviations from the original plan
-- **`docs/ADR/`** - Architecture Decision Records (optional, for major decisions)
+```bash
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-### Configuration
-- **`.gitignore`** - General ignore patterns (OS, editors, build artifacts, Node/Python)
-- **`.editorconfig`** - Cross-editor formatting defaults
-- **`.env.example`** - Environment variable template
+# Install dependencies
+pip install -r requirements.txt
+pip install -r requirements-training.txt  # For ML training
 
-### Automation
-- **`Makefile`** - Common task shortcuts (`make check`, `make setup`, `make help`)
-- **`scripts/check.sh`** - Fast-check runner (detects and runs typecheck, lint, tests, build)
-- **`.github/workflows/ci.yml`** - CI workflow that runs fast checks
+# Run tests
+pytest tests/ -v
+```
 
-### Optional
-- **`LICENSE`** - Choose and specify your license
-- **`CODEOWNERS`** - Define code ownership (GitHub feature)
+### Deploy to AWS
 
-## Claude Code Commands
+See [docs/DEPLOY.md](docs/DEPLOY.md) for full deployment instructions.
 
-This template includes 10 Claude Code commands (markdown instruction files in `.claude/commands/`) that become slash commands in Claude Code CLI:
+```bash
+# Quick deploy
+./infrastructure/s3_setup.sh investment-system-data us-east-1
+./infrastructure/secrets_setup.sh us-east-1
+./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1
+./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline us-east-1
+```
 
-- **`/deploy`** - Complete deployment pipeline with retry logic and health checks
-  - *When to use*: Deploying to staging/production, verifying deployments
-  - *Usage*: `/deploy [environment]`
+### Run Dashboard Locally
 
-- **`/review`** - Comprehensive code review of changes
-  - *When to use*: Before committing, reviewing PRs, checking code quality
-  - *Usage*: `/review [file1] [file2] ...`
+```bash
+cd frontend
+npm install
+npm run dev
+# Visit http://localhost:5173
+```
 
-- **`/audit`** - Dependency audit and vulnerability scanning
-  - *When to use*: Checking for security vulnerabilities, outdated packages
-  - *Usage*: `/audit [--update]`
+## Project Structure
 
-- **`/test-coverage`** - Analyze test coverage and identify gaps
-  - *When to use*: Assessing test coverage, finding untested code paths
-  - *Usage*: `/test-coverage [directory]`
+```
+├── src/                    # Lambda function code
+│   ├── handler.py          # Main Lambda entry point
+│   ├── steps/              # Pipeline steps
+│   ├── models/             # Baseline + trained model loaders
+│   └── utils/              # S3 client, logging
+├── training/               # ML training code
+│   ├── models/             # GRU, Transformer, Autoencoder, VAE
+│   ├── utils/              # Data loaders, metrics
+│   ├── train.py            # Training orchestrator
+│   └── train_*.py          # Individual model training
+├── evolution/              # Evolutionary optimization
+│   ├── genome.py           # PolicyGenome class
+│   ├── fitness.py          # Backtest-based fitness
+│   ├── genetic.py          # Genetic algorithm
+│   └── promotion.py        # Template promotion
+├── frontend/               # React dashboard
+│   ├── src/components/     # UI components
+│   └── src/types/          # TypeScript interfaces
+├── automation/             # Operational scripts
+│   ├── run_training.sh     # Monthly training wrapper
+│   ├── check_costs.py      # AWS cost monitoring
+│   └── check_pipeline.py   # Pipeline health check
+├── infrastructure/         # AWS deployment scripts
+├── tests/                  # Test suites
+└── docs/                   # Documentation
+```
 
-- **`/security-scan`** - Security vulnerability scanner
-  - *When to use*: Scanning for secrets, insecure patterns, dependency vulnerabilities
-  - *Usage*: `/security-scan [--git-history]`
+## Documentation
 
-- **`/refactor`** - Code smell detection and refactoring assistant
-  - *When to use*: Identifying code smells, suggesting safe refactorings
-  - *Usage*: `/refactor [file1] [file2] ... [directory]`
+- [Deployment Guide](docs/DEPLOY.md) - AWS deployment procedures
+- [Training Guide](docs/TRAINING.md) - ML model training
+- [Frontend Guide](docs/FRONTEND.md) - Dashboard development
+- [Operations Guide](docs/OPERATIONS.md) - Day-to-day operations
+- [Architecture Plan](docs/PLAN.md) - Implementation plan and status
 
-- **`/docs`** - Auto-documentation generator
-  - *When to use*: Generating API docs, updating README, creating ADRs
-  - *Usage*: `/docs [target] [format]` (target: README/API/ADR)
+## Tests
 
-- **`/migrate`** - Migration helper for dependency/framework upgrades
-  - *When to use*: Upgrading dependencies, framework migrations
-  - *Usage*: `/migrate [target] [--dry-run]` (e.g., `/migrate react@18`)
+```bash
+# Run all tests
+pytest tests/ -v
 
-- **`/performance`** - Performance profiling and optimization
-  - *When to use*: Analyzing bundle sizes, profiling runtime performance
-  - *Usage*: `/performance [target]` (target: bundle/runtime/build)
+# Run specific test files
+pytest tests/test_ml_models.py -v      # ML model tests (20)
+pytest tests/test_evolution.py -v       # Evolution tests (28)
+pytest tests/test_baseline_models.py -v # Baseline tests
+```
 
-- **`/postmortem`** - Manually add post-mortem entry
-  - *When to use*: Documenting significant struggles after the fact
-  - *Usage*: `/postmortem [category] [title] [description]`
-  - *Example*: `/postmortem DEPENDENCY "Pandas Lambda size" "Standard pandas too large for Lambda"`
+Current: **92 tests passing**
 
-### Post-Mortem System
+## Configuration
 
-The post-mortem system tracks significant struggles to identify patterns and improve workflows:
+### Environment Variables
 
-- **Purpose**: Document struggles that meet criteria (3+ retries, >15min resolution, workarounds needed)
-- **Location**: `docs/POSTMORTEMS.md`
-- **When entries are added**: Automatically by commands when struggles are detected, or manually via `/postmortem`
-- **Review process**: Monthly review to identify patterns and codify into `CLAUDE.md` or `.cursorrules`
+| Variable | Description |
+|----------|-------------|
+| `S3_BUCKET` | S3 bucket name |
+| `AWS_REGION` | AWS region |
+| `INVESTMENT_SLACK_WEBHOOK` | Slack webhook for alerts |
+| `INVESTMENT_ALERT_EMAIL` | Email for SES alerts |
 
-See [`docs/POSTMORTEMS.md`](docs/POSTMORTEMS.md) for documented struggles and entry format.
+### AWS Secrets
 
-## Workflow Principles
+Stored in Secrets Manager:
+- `investment-system/openai-key`
+- `investment-system/fred-key`
+- `investment-system/alphavantage-key`
 
-This template enforces:
-- **Dependency discipline**: No random version upgrades; minimal, justified changes only
-- **Fast checks**: Run typecheck, lint, tests, build before moving on
-- **Feature branches**: Never push directly to `main`; commit + push after each coherent feature/fix
-- **Security defaults**: Never widen auth/CORS/permissions silently; never commit secrets
-- **Documentation sync**: Track meaningful plan pivots in `docs/DEVIATIONS.md`
+## Cost Estimate
 
-See `CLAUDE.md` and `.cursorrules` for detailed workflow rules.
-# solo-template
-# trader-bot
+| Service | Monthly |
+|---------|---------|
+| Lambda | ~$6 |
+| S3 | ~$1 |
+| Secrets Manager | ~$1 |
+| CloudWatch | ~$1 |
+| **Total** | **~$9** |
+
+## License
+
+Private project - not for distribution.

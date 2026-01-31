@@ -22,7 +22,13 @@ echo "Creating deployment package..."
 
 # Copy Lambda code
 cp -r src "$DEPLOY_DIR/"
-cp requirements.txt "$DEPLOY_DIR/"
+# Use slim requirements (numpy/pandas/fastparquet come from Lambda layer)
+REQ_FILE="requirements-lambda.txt"
+if [ -f "$PROJECT_ROOT/$REQ_FILE" ]; then
+    cp "$PROJECT_ROOT/$REQ_FILE" "$DEPLOY_DIR/requirements.txt"
+else
+    cp "$PROJECT_ROOT/requirements.txt" "$DEPLOY_DIR/"
+fi
 
 # Install dependencies
 echo "Installing dependencies..."
@@ -45,6 +51,12 @@ echo "Deployment package size: $(du -h "$DEPLOY_ZIP" | cut -f1)"
 # Get AWS account ID
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 ROLE_ARN="arn:aws:iam::$ACCOUNT_ID:role/$ROLE_NAME"
+
+# Use existing pandas layer if present (see DEPLOY.md)
+LAYER_ARN=$(aws lambda list-layer-versions --layer-name investment-system-pandas-x86 --region "$REGION" --query 'LayerVersions[0].LayerVersionArn' --output text 2>/dev/null || true)
+if [ -z "$LAYER_ARN" ] || [ "$LAYER_ARN" = "None" ]; then
+    LAYER_ARN=""
+fi
 
 # Check if role exists, create if not
 if ! aws iam get-role --role-name "$ROLE_NAME" 2>/dev/null; then
@@ -91,10 +103,22 @@ fi
 # Check if function exists
 if aws lambda get-function --function-name "$FUNCTION_NAME" --region "$REGION" 2>/dev/null; then
     echo "Updating existing function..."
-    aws lambda update-function-code \
-        --function-name "$FUNCTION_NAME" \
-        --zip-file "fileb://$DEPLOY_ZIP" \
-        --region "$REGION"
+    ZIP_SIZE=$(stat -f%z "$DEPLOY_ZIP" 2>/dev/null || stat -c%s "$DEPLOY_ZIP" 2>/dev/null)
+    if [ "$ZIP_SIZE" -gt 52428800 ]; then
+        echo "Zip exceeds 50MB ($((ZIP_SIZE / 1048576))MB), uploading via S3..."
+        S3_KEY="lambda/deploy-$(date +%Y%m%d-%H%M).zip"
+        aws s3 cp "$DEPLOY_ZIP" "s3://${BUCKET_NAME}/${S3_KEY}" --region "$REGION"
+        aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --s3-bucket "$BUCKET_NAME" \
+            --s3-key "$S3_KEY" \
+            --region "$REGION"
+    else
+        aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --zip-file "fileb://$DEPLOY_ZIP" \
+            --region "$REGION"
+    fi
 
     # Wait for update to complete
     aws lambda wait function-updated \

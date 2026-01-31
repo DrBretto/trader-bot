@@ -4,7 +4,8 @@ import json
 import boto3
 import pandas as pd
 from io import BytesIO
-from typing import Optional, Dict, Any
+from datetime import datetime
+from typing import Optional, Dict, Any, List
 
 
 class S3Client:
@@ -134,4 +135,25 @@ class S3Client:
             return [obj['Key'] for obj in response.get('Contents', [])]
         except Exception as e:
             print(f"Error listing keys with prefix {prefix}: {e}")
+            return []
+
+    def list_daily_dates(self, max_days: int = 365) -> List[str]:
+        """List date strings (YYYY-MM-DD) under daily/ prefix for build-from-daily."""
+        try:
+            paginator = self.s3.get_paginator('list_objects_v2')
+            dates = []
+            for page in paginator.paginate(
+                Bucket=self.bucket, Prefix='daily/', Delimiter='/'
+            ):
+                for prefix in page.get('CommonPrefixes', []):
+                    key = prefix['Prefix']
+                    date_part = key.replace('daily/', '').rstrip('/')
+                    try:
+                        datetime.strptime(date_part, '%Y-%m-%d')
+                        dates.append(date_part)
+                    except ValueError:
+                        continue
+            return sorted(dates)[-max_days:]
+        except Exception as e:
+            print(f"Error listing daily dates: {e}")
             return []

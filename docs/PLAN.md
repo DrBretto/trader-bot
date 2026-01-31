@@ -64,17 +64,17 @@ Anytime:
 - [x] Weather report
 - [x] Portfolio/candidates tables
 
-### Phase 4: Evolutionary Search (Not Started)
-- [ ] PolicyGenome class
-- [ ] Fitness evaluation
-- [ ] Genetic algorithm
-- [ ] Template promotion
+### Phase 4: Evolutionary Search ✅ COMPLETE
+- [x] PolicyGenome class
+- [x] Fitness evaluation
+- [x] Genetic algorithm
+- [x] Template promotion
 
-### Phase 5: Automation (Not Started)
-- [ ] launchd for monthly training
-- [ ] Cost monitoring
-- [ ] Error alerting
-- [ ] Documentation
+### Phase 5: Automation ✅ COMPLETE
+- [x] launchd for monthly training
+- [x] Cost monitoring
+- [x] Error alerting
+- [x] Documentation
 
 ## Non-Goals
 
