@@ -2,7 +2,7 @@
 
 **Author**: Claude Opus 4.5
 **Date**: 2026-01-31
-**Status**: Proposal for Review
+**Status**: Revised after technical review
 
 ---
 
@@ -10,7 +10,7 @@
 
 This proposal outlines enhancements to transform the investment system from a functional trading bot into a comprehensive learning and decision-transparency platform. The focus is on:
 
-1. **New predictive models** that reveal different aspects of market behavior
+1. **Model ensembling** with disagreement detection and uncertainty quantification
 2. **Additional data sources** that provide orthogonal signals (not duplicating existing data)
 3. **Rich visualizations** that expose the full decision-making process
 
@@ -20,181 +20,263 @@ This proposal outlines enhancements to transform the investment system from a fu
 - Training happens offline; inference is cheap
 - Transparency over black-box predictions
 - Learning value alongside profit potential
+- Pragmatic: skip complex implementations when simpler alternatives work
 
 ---
 
-## Part 1: Model Additions
+## Part 1: Model Enhancements
 
-### 1.1 Temporal Fusion Transformer (TFT) for Price Forecasting
+### 1.1 Ensemble Regime Classification with Disagreement Detection
 
-**What it adds**: Multi-horizon price predictions with interpretable attention weights showing *why* the model made each prediction.
-
-**Why TFT specifically**:
-- Designed for multi-horizon forecasting (predict 1, 5, 21 days ahead simultaneously)
-- Built-in interpretability: shows which features and time steps drove the prediction
-- Handles mixed inputs: static (sector, asset type), known future (day of week, holidays), observed (prices, volume)
-- State-of-the-art performance on financial time series
-
-**Architecture**:
-```
-Inputs:
-├── Static: sector, asset_class, market_cap_bucket
-├── Known Future: day_of_week, month, is_earnings_week
-└── Observed: price, volume, returns, volatility, sentiment
-
-Outputs:
-├── Price predictions: [+1d, +5d, +21d]
-├── Prediction intervals: [10%, 50%, 90% quantiles]
-└── Attention weights: which features/timesteps mattered
-```
-
-**Visualization**: Interactive prediction cones showing expected price range with confidence bands, plus attention heatmaps showing what drove each prediction.
-
----
-
-### 1.2 Ensemble Regime Classification
-
-**What it adds**: Robustness through model disagreement detection.
+**What it adds**: Robustness through model agreement/disagreement as a signal.
 
 **Implementation**:
-- Run both RegimeGRU and RegimeTransformer (already built)
-- When models agree: high confidence regime
-- When models disagree: "uncertain" regime → reduce position sizes
+- Run both RegimeGRU and RegimeTransformer (both already built)
+- Compute ensemble prediction (weighted average of probabilities)
+- Track disagreement as uncertainty signal
 
-**New insight**: Model disagreement is itself a signal. When sophisticated models can't agree on the market state, that's valuable information.
+**Key insight**: When models disagree, that's valuable information. Disagreement = uncertainty = reduce position sizes.
 
-**Visualization**: Regime timeline with confidence shading. Dark = both models agree. Light = models disagree.
+```python
+Ensemble Logic:
+├── Both agree with high confidence → Strong signal, full position sizes
+├── Both agree with low confidence → Weak signal, reduce sizes
+├── Models disagree → Uncertain regime, defensive posture
+└── Disagreement metric = 1 - cosine_similarity(probs_gru, probs_transformer)
+```
+
+**Visualization**:
+- Regime timeline with confidence shading (dark = agreement, light = disagreement)
+- Disagreement gauge (0-100%)
+
+---
+
+### 1.2 Ensemble-Based Prediction Confidence Bands
+
+**What it adds**: Uncertainty quantification for predictions without needing TFT.
+
+**Implementation**:
+- Use ensemble standard deviation across models as uncertainty estimate
+- Generate prediction bands from historical ensemble error distribution
+
+**Why this over TFT**: TFT is complex to implement and tune. Ensemble uncertainty is simpler, interpretable, and often just as useful for decision-making.
+
+```python
+Confidence Bands:
+├── Point estimate: ensemble mean prediction
+├── 68% band: ± 1 std of ensemble predictions
+├── 95% band: ± 2 std of ensemble predictions
+└── Calibrate bands using historical prediction errors
+```
+
+**Visualization**: Prediction cone showing expected range with shaded confidence intervals.
 
 ---
 
 ### 1.3 Anomaly Detection via Isolation Forest
 
-**What it adds**: Early warning system for unusual market conditions not captured by regime model.
+**What it adds**: Early warning system for unusual market conditions.
 
-**Why this approach**:
+**Why Isolation Forest**:
 - Unsupervised: doesn't need labeled "crisis" data
 - Fast inference
 - Catches "unknown unknowns" - conditions unlike anything in training
+- Simple to implement and interpret
 
 **Features to monitor**:
-- Cross-asset correlation spikes
-- Volume anomalies
-- Volatility term structure inversions
-- Sentiment extremes
+```python
+Anomaly Features:
+├── Cross-asset correlation (rolling 21-day)
+├── Correlation vs historical mean
+├── Volume z-score (vs 63-day average)
+├── Volatility z-score
+├── VIX term structure slope
+├── Credit spread change
+└── Regime model disagreement
+```
 
-**Visualization**: Anomaly score gauge (0-100) with historical context. "Current market unusualness" indicator.
+**Visualization**:
+- Anomaly score gauge (0-100) with color coding (green/yellow/red)
+- Historical anomaly timeline with market events marked
+- "Current market unusualness" indicator
 
 ---
 
-### 1.4 Momentum Decomposition Model
+### 1.4 Momentum Decomposition
 
-**What it adds**: Separates momentum into interpretable components.
+**What it adds**: Interpretable breakdown of why an asset has momentum.
+
+**The Problem**: A single "momentum score" hides important nuances. Two assets with the same score can have very different risk profiles.
 
 **Components**:
-1. **Trend momentum**: Long-term direction (63-day)
-2. **Mean reversion pressure**: Distance from moving averages
-3. **Relative momentum**: vs sector, vs market
-4. **Momentum quality**: Consistency of gains (Sharpe of returns)
 
-**Why decompose**: Raw momentum score hides *why* something is trending. A stock up 20% from steady gains vs up 20% from one spike are very different.
+| Component | Calculation | Interpretation |
+|-----------|-------------|----------------|
+| **Trend Strength** | Slope of 63-day OLS regression on log prices | Steady climb vs sideways chop |
+| **Mean Reversion Risk** | Z-score of price vs 21-day and 50-day MA | How stretched; >2 = likely snapback |
+| **Relative Momentum** | Return vs sector ETF, vs SPY | True alpha vs rising tide |
+| **Momentum Quality** | Rolling 21-day Sharpe of daily returns | Steady gains vs lucky spikes |
 
-**Visualization**: Stacked bar chart showing momentum breakdown per asset.
+**Combined Score**:
+```python
+momentum_score = (
+    0.30 * trend_strength_percentile +
+    0.25 * (1 - mean_reversion_risk_percentile) +  # Lower stretch = better
+    0.25 * relative_momentum_percentile +
+    0.20 * momentum_quality_percentile
+)
+```
+
+**Example Interpretation**:
+```
+Asset: XLB
+├── Trend Strength: 0.82 (strong upward slope)
+├── Mean Reversion Risk: 0.35 (not stretched, room to run)
+├── Relative Momentum: 0.71 (outperforming sector)
+├── Momentum Quality: 0.68 (consistent gains, not spiky)
+└── Combined: 0.72 (high quality momentum, likely to continue)
+
+Asset: MEME_STOCK
+├── Trend Strength: 0.45 (choppy, no clear trend)
+├── Mean Reversion Risk: 0.92 (way above MAs, stretched)
+├── Relative Momentum: 0.88 (outperforming everything)
+├── Momentum Quality: 0.15 (one big spike, not steady)
+└── Combined: 0.41 (low quality momentum, reversion likely)
+```
+
+**Visualization**: Stacked bar chart showing momentum breakdown per asset, color-coded by component.
 
 ---
 
 ## Part 2: Data Sources
 
-### 2.1 Reddit Sentiment (via PRAW)
+### 2.1 Google Trends (Retail Attention)
 
-**What it adds**: Retail investor sentiment and attention - orthogonal to news sentiment.
+**What it adds**: Retail investor attention signal - cleaner than Reddit scraping.
 
-**Subreddits to monitor**:
-- r/wallstreetbets (high-risk retail plays)
-- r/stocks (mainstream retail)
-- r/investing (conservative retail)
+**Why Google Trends over Reddit**:
+- No NLP required (just search volume)
+- Longer history available
+- Easier API (pytrends library)
+- Captures broader retail interest
+- More stable signal
 
-**Signals extracted**:
-- Mention velocity (sudden attention spikes)
-- Sentiment polarity (bullish/bearish language)
-- Rocket emoji density (meme stock indicator - seriously, it's predictive)
+**Implementation**:
+```python
+from pytrends.request import TrendReq
 
-**Why it matters**: Retail flows move small/mid caps. Crowded trades often reverse. Extreme bullishness is often a sell signal.
+def get_retail_attention(symbols: List[str]) -> Dict[str, float]:
+    pytrends = TrendReq()
 
-**Cost**: Free (Reddit API)
-
-**Visualization**: "Retail Radar" - heatmap of what retail is talking about and how bullish they are.
-
----
-
-### 2.2 Options Flow Data
-
-**What it adds**: What sophisticated money is betting on.
-
-**Source**: CBOE delayed data (free) or Polygon.io free tier
+    for symbol in symbols:
+        # Search for "buy {symbol} stock" type queries
+        pytrends.build_payload([f"{symbol} stock"], timeframe='now 7-d')
+        data = pytrends.interest_over_time()
+        # Return normalized attention score
+```
 
 **Signals**:
-- Put/Call ratio (market-wide and per-asset)
-- Unusual options activity (large trades)
-- Implied volatility skew (fear of downside)
-- Term structure (near vs far expiry IV)
+- Attention velocity (sudden spikes = crowded trade warning)
+- Attention level vs historical (percentile ranking)
+- Attention divergence from price (attention up but price flat = potential move coming)
 
-**Why it matters**: Options traders are often more sophisticated. Large unusual bets can signal informed trading. IV skew reveals expected distribution asymmetry.
+**Cost**: Free
 
-**Visualization**: Options sentiment gauge per asset + market-wide fear/greed from options.
+**Visualization**: "Retail Radar" heatmap showing attention levels across holdings.
 
 ---
 
-### 2.3 VIX Term Structure
+### 2.2 VIX Term Structure
 
 **What it adds**: Forward-looking volatility expectations across time horizons.
 
+**Why it matters**: VIX term structure is one of the strongest regime indicators.
+
+**Data Points**:
+```
+Source: CBOE (free delayed data)
+├── VIX (30-day implied vol)
+├── VIX3M (3-month implied vol)
+├── VIX6M (6-month implied vol)
+└── VIX futures curve (if available)
+```
+
 **Signals**:
-- VIX level (current fear)
-- VIX futures curve slope (contango = normal, backwardation = panic)
-- VIX/VIX3M ratio (short vs medium-term fear)
+| Signal | Calculation | Meaning |
+|--------|-------------|---------|
+| **Contango** | VIX < VIX3M < VIX6M | Normal, complacent market |
+| **Backwardation** | VIX > VIX3M | Panic, fear of near-term |
+| **VIX/VIX3M Ratio** | VIX / VIX3M | >1 = stress, <0.9 = calm |
+| **Term Slope** | (VIX6M - VIX) / VIX | Steeper = more normal |
 
-**Source**: CBOE (free delayed data)
+**Historical Context**: Backwardation has preceded or accompanied every major selloff.
 
-**Why it matters**: Backwardation (near VIX > far VIX) is one of the strongest crisis indicators. Extreme contango suggests complacency.
-
-**Visualization**: VIX term structure curve with historical percentile shading.
+**Visualization**:
+- VIX term structure curve chart
+- Current state vs historical percentile
+- Contango/backwardation indicator with color coding
 
 ---
 
-### 2.4 Insider Transaction Filings
+### 2.3 Options Put/Call Ratio
 
-**What it adds**: What company insiders are doing with their own money.
+**What it adds**: Sentiment from sophisticated options traders.
 
-**Source**: SEC EDGAR (free, public data)
+**Source**: CBOE free data (delayed is fine for daily system)
 
 **Signals**:
-- Cluster buys (multiple insiders buying)
-- Insider buy/sell ratio
-- Dollar-weighted insider sentiment
+```python
+Put/Call Signals:
+├── Equity P/C Ratio (CBOE)
+├── Index P/C Ratio (CBOE)
+├── Total P/C Ratio
+└── 5-day moving average (smoothed signal)
 
-**Why it matters**: Insiders sell for many reasons, but they only buy for one. Cluster buying is a strong signal.
+Interpretation:
+├── P/C > 1.0: Bearish sentiment (often contrarian bullish)
+├── P/C < 0.7: Bullish sentiment (often contrarian bearish)
+└── Extreme readings (>1.2 or <0.5) = potential reversal
+```
 
-**Processing**: Weekly batch job to pull Form 4 filings
+**Why it matters**: Options traders tend to be more sophisticated. Extreme readings often mark sentiment extremes that precede reversals.
 
-**Visualization**: Insider activity indicator per holding + aggregate insider sentiment.
+**Visualization**: Put/Call gauge with historical percentile shading.
 
 ---
 
-### 2.5 Economic Calendar
+### 2.4 Economic Calendar
 
 **What it adds**: Awareness of upcoming market-moving events.
 
-**Events to track**:
-- FOMC meetings (Fed decisions)
-- CPI/PPI releases (inflation)
-- NFP (employment)
-- Earnings dates for holdings
+**Implementation**: Simple, lightweight approach.
 
-**Source**: Finnhub free tier or scraped from investing.com
+**Events to Track**:
+```python
+HIGH_IMPACT_EVENTS = [
+    'FOMC',           # Fed rate decisions
+    'CPI',            # Inflation
+    'NFP',            # Employment
+    'GDP',            # Growth
+    'PCE',            # Fed's preferred inflation
+]
 
-**Why it matters**: Volatility clusters around events. The system should know when to expect turbulence.
+# Per-holding
+EARNINGS_CALENDAR = {
+    # Fetch from Finnhub free tier or Yahoo Finance
+}
+```
 
-**Visualization**: Calendar overlay on charts marking event dates.
+**Source**: Finnhub free API or investing.com scrape
+
+**Use in System**:
+- Flag holdings with earnings within 5 days
+- Reduce position sizes before FOMC
+- Note expected volatility windows
+
+**Visualization**:
+- Calendar overlay on price charts
+- Event markers with expected impact level
+- Countdown to next major event
 
 ---
 
@@ -202,229 +284,418 @@ Outputs:
 
 ### 3.1 Design Philosophy
 
-The dashboard should answer these questions at a glance:
+The dashboard answers these questions at a glance:
 
-1. **What is the market doing?** (Regime, trend, anomalies)
-2. **What is the model predicting?** (Forecasts with uncertainty)
-3. **Why is it predicting that?** (Feature importance, attention)
-4. **What are other signals saying?** (Sentiment, options, insiders)
-5. **What did we decide to do?** (Actions, reasoning)
-6. **How are we doing?** (Performance, attribution)
+1. **What is the market doing?** → Regime, trend, anomalies
+2. **How confident is the model?** → Ensemble agreement, confidence bands
+3. **Why does it think that?** → Attention weights, feature importance
+4. **What are other signals saying?** → Sentiment gauges, VIX structure
+5. **What did we decide?** → Actions with full reasoning
+6. **How are we doing?** → Performance attribution
 
-### 3.2 Main Chart Component
+### 3.2 Main Interactive Chart
 
-**Interactive multi-layer chart with**:
+**Multi-layer chart with toggleable overlays**:
 
 ```
-Layer 1: Price + Volume
-├── Candlestick or line chart
-├── Volume bars (colored by up/down)
-└── Event markers (earnings, FOMC, etc.)
+Layer 1: Price & Volume (always visible)
+├── Candlestick chart
+├── Volume bars (green/red by direction)
+└── Moving averages (21, 50, 200)
 
-Layer 2: Predictions
-├── TFT prediction cone (1/5/21 day forecasts)
-├── Confidence intervals (10/50/90%)
-└── Historical prediction accuracy overlay
+Layer 2: Predictions & Uncertainty
+├── Ensemble prediction direction
+├── Confidence bands (68%, 95%)
+└── Historical prediction markers (✓ right, ✗ wrong)
 
-Layer 3: Signals
-├── Regime band (color-coded background)
-├── Health score line
-├── Anomaly markers
+Layer 3: Regime & Anomaly
+├── Background color by regime
+├── Regime confidence shading
+├── Anomaly markers (unusual conditions)
 
-Layer 4: Sentiment
-├── News sentiment line
-├── Reddit sentiment line
-├── Options sentiment (put/call ratio)
+Layer 4: Momentum Decomposition
+├── Trend strength indicator
+├── Mean reversion risk zones
+├── Momentum quality line
 
-Layer 5: Decisions
-├── Buy/sell markers with reasoning tooltips
-├── Position size indicators
+Layer 5: Events & Decisions
+├── Economic event markers
+├── Earnings dates
+├── Buy/sell markers with tooltips
 └── Stop loss levels
 ```
 
-**Toggleable layers**: User can show/hide any layer for clarity.
+**Interaction**: Click any point to see full model state at that time.
 
 ### 3.3 Model Transparency Panel
 
-**Feature Importance View**:
-- Bar chart: which features most influenced today's prediction
-- Time attention: which historical days the model focused on
-- Comparison: "The model weighted volatility heavily today because..."
-
-**Model Agreement Matrix**:
+**Ensemble Agreement View**:
 ```
-           GRU    Transformer    TFT-direction
-Regime     ✓ risk_on  ✓ risk_on      -
-Direction     -           -       ✓ bullish
-Confidence   85%        78%         72%
-```
-
-**Decision Audit Trail**:
-```
-Decision: BUY XLB
-├── Health Score: 0.78 (above 0.60 threshold)
-├── Regime: risk_on_trend (compatible)
-├── TFT Forecast: +2.3% (5-day)
-├── Sentiment: Neutral news, Bullish reddit
-├── Options: Low put/call ratio
-├── Insider: 2 buys this month
-└── LLM Check: No red flags identified
+┌─────────────────────────────────────────────┐
+│ REGIME CLASSIFICATION                        │
+├─────────────────────────────────────────────┤
+│ GRU Model:         risk_on_trend (85%)      │
+│ Transformer:       risk_on_trend (78%)      │
+│ ─────────────────────────────────────────── │
+│ Ensemble:          risk_on_trend            │
+│ Agreement:         ████████████░░ 92%       │
+│ Confidence:        ████████░░░░░░ 81%       │
+└─────────────────────────────────────────────┘
 ```
 
-### 3.4 Sentiment Dashboard
+**Attention Weights Panel**:
+```
+┌─────────────────────────────────────────────┐
+│ WHAT THE MODEL FOCUSED ON TODAY             │
+├─────────────────────────────────────────────┤
+│ spy_vol_21d        ████████████████░ 0.23   │
+│ yield_slope        ██████████████░░░ 0.19   │
+│ vixy_return_21d    ████████████░░░░░ 0.15   │
+│ spy_return_21d     ██████████░░░░░░░ 0.12   │
+│ credit_spread      ████████░░░░░░░░░ 0.09   │
+│ ...                                          │
+└─────────────────────────────────────────────┘
+```
 
-**Three gauges**:
-1. **News Sentiment** (GDELT): Institutional/media view
-2. **Retail Sentiment** (Reddit): Individual investor view
-3. **Smart Money Sentiment** (Options): Derivatives trader view
+**Time Attention** (which historical days mattered):
+```
+┌─────────────────────────────────────────────┐
+│ TEMPORAL ATTENTION (last 21 days)           │
+├─────────────────────────────────────────────┤
+│ ░░░░▓▓░░░░░░▓▓▓░░░░░██                      │
+│ -21d        -10d         -1d    today       │
+│                                              │
+│ Model focused on: days -5, -4, -3 (recent   │
+│ volatility spike) and day -15 (Fed meeting) │
+└─────────────────────────────────────────────┘
+```
 
-**Historical context**: Each gauge shows current level vs 1-year range.
+### 3.4 Decision Audit Trail
 
-**Divergence alerts**: When signals disagree, highlight it. "Retail bullish but options traders hedging heavily."
+**Full transparency for every trade**:
 
-### 3.5 Risk & Anomaly Panel
+```
+┌─────────────────────────────────────────────┐
+│ DECISION: BUY XLB                           │
+├─────────────────────────────────────────────┤
+│ ✓ Health Score: 0.78 (threshold: 0.60)      │
+│ ✓ Regime: risk_on_trend (compatible)        │
+│ ✓ Ensemble Direction: bullish (72% conf)    │
+│ ✓ Model Agreement: 89%                      │
+│ ─────────────────────────────────────────── │
+│ MOMENTUM BREAKDOWN:                          │
+│   Trend Strength:      0.82 ████████░░      │
+│   Mean Reversion Risk: 0.35 ███░░░░░░░ LOW  │
+│   Relative Momentum:   0.71 ███████░░░      │
+│   Momentum Quality:    0.68 ██████░░░░      │
+│ ─────────────────────────────────────────── │
+│ SENTIMENT SIGNALS:                           │
+│   Google Trends:   neutral (52nd %ile)      │
+│   Put/Call Ratio:  0.82 (bullish)           │
+│   VIX Structure:   contango (normal)        │
+│ ─────────────────────────────────────────── │
+│ LLM RISK CHECK:                              │
+│   "No significant risks identified.          │
+│    Materials sector benefiting from          │
+│    infrastructure spending momentum."        │
+│ ─────────────────────────────────────────── │
+│ POSITION SIZE: $21,974 (22% of portfolio)   │
+│ STOP LOSS: $44.35 (-10% trailing)           │
+└─────────────────────────────────────────────┘
+```
 
-**Current Risk State**:
-- Portfolio VaR (Value at Risk)
-- Maximum drawdown (current vs historical)
-- Correlation to SPY
-- Beta exposure
+### 3.5 Sentiment Dashboard
 
-**Anomaly Monitor**:
-- Market anomaly score (0-100)
-- Specific anomalies detected
-- Historical anomaly events marked on timeline
+**Three gauges showing different perspectives**:
 
-### 3.6 Performance Attribution
+```
+┌─────────────────────────────────────────────┐
+│           SENTIMENT SIGNALS                  │
+├───────────────┬───────────────┬─────────────┤
+│  RETAIL       │  OPTIONS      │  VOLATILITY │
+│  (G.Trends)   │  (Put/Call)   │  (VIX)      │
+│               │               │             │
+│     ┌─┐       │     ┌─┐       │    ┌─┐      │
+│   ╱     ╲     │   ╱     ╲     │  ╱     ╲    │
+│  │   ●   │    │  │  ●    │    │ │    ●  │   │
+│   ╲     ╱     │   ╲     ╱     │  ╲     ╱    │
+│     └─┘       │     └─┘       │    └─┘      │
+│               │               │             │
+│   NEUTRAL     │   BULLISH     │   CALM      │
+│   52nd %ile   │   35th %ile   │  28th %ile  │
+├───────────────┴───────────────┴─────────────┤
+│ DIVERGENCE ALERT: None                       │
+└─────────────────────────────────────────────┘
+```
 
-**What drove returns**:
-- By asset (which positions made/lost money)
-- By signal (which models were right)
-- By regime (performance in each market state)
+**Divergence Detection**: When signals disagree, highlight it prominently.
 
-**Benchmark comparison**:
-- vs SPY (market)
-- vs 60/40 (traditional allocation)
-- vs equal-weight universe
+### 3.6 Anomaly Monitor
+
+```
+┌─────────────────────────────────────────────┐
+│ MARKET ANOMALY DETECTOR                      │
+├─────────────────────────────────────────────┤
+│                                              │
+│  Anomaly Score: 23/100                       │
+│  ████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   │
+│  [  NORMAL  ]                                │
+│                                              │
+│  Contributing Factors:                       │
+│  • Cross-asset correlation: normal           │
+│  • Volume levels: normal                     │
+│  • VIX structure: normal (contango)          │
+│  • Model agreement: high (92%)               │
+│                                              │
+│  Last Anomaly: 2025-12-18 (score: 78)       │
+│  "Correlation spike during Fed meeting"     │
+│                                              │
+└─────────────────────────────────────────────┘
+```
+
+### 3.7 Performance Attribution
+
+```
+┌─────────────────────────────────────────────┐
+│ WHAT'S DRIVING RETURNS                       │
+├─────────────────────────────────────────────┤
+│ BY POSITION (MTD):                           │
+│   SCHD    +$342   ████████████░░░░ +1.6%    │
+│   XLB     +$187   ██████░░░░░░░░░░ +0.9%    │
+│   VEA     -$54    ██░░░░░░░░░░░░░░ -0.2%    │
+│   VLUE    +$23    █░░░░░░░░░░░░░░░ +0.1%    │
+│                                              │
+│ BY SIGNAL (hit rate this month):             │
+│   Regime model:     6/8 correct (75%)        │
+│   Health scores:    5/7 correct (71%)        │
+│   Momentum decomp:  4/5 correct (80%)        │
+│   LLM risk check:   2/2 avoided losses       │
+│                                              │
+│ BY REGIME (historical):                      │
+│   risk_on_trend:    +12.3% (best)            │
+│   calm_uptrend:     +8.7%                    │
+│   choppy:           +1.2%                    │
+│   risk_off_trend:   -2.1%                    │
+│   high_vol_panic:   -4.5% (defensive helped) │
+│                                              │
+└─────────────────────────────────────────────┘
+```
 
 ---
 
 ## Part 4: Implementation Plan
 
-### Phase 2A: Quick Wins (Week 1)
+### Phase 2A: Foundation (Week 1)
 
-| Task | Effort | Impact |
-|------|--------|--------|
-| Switch to Claude Haiku | 30 min | Cost savings |
-| Enable RegimeTransformer ensemble | 1 hour | Better regime detection |
-| Add ensemble disagreement logic | 2 hours | New uncertainty signal |
-| Basic prediction chart component | 4 hours | Foundation for viz |
+| Task | Effort | Description |
+|------|--------|-------------|
+| Switch to Claude Haiku | 30 min | Update API calls to use Anthropic |
+| Enable RegimeTransformer | 1 hour | Change config, retrain |
+| Ensemble disagreement logic | 2 hours | Compute agreement score, adjust sizing |
+| Confidence bands from ensemble | 2 hours | Use prediction std as uncertainty |
+| Basic chart component scaffold | 4 hours | React component with layers |
 
 ### Phase 2B: Data Expansion (Week 2)
 
-| Task | Effort | Impact |
-|------|--------|--------|
-| Fix GDELT ingestion | 2 hours | Real sentiment |
-| Add Reddit sentiment | 4 hours | Retail signal |
-| Add VIX term structure | 2 hours | Vol expectations |
-| Add options put/call ratio | 3 hours | Smart money signal |
+| Task | Effort | Description |
+|------|--------|-------------|
+| Fix GDELT ingestion | 2 hours | Debug 404 issues |
+| Add Google Trends | 3 hours | pytrends integration |
+| Add VIX term structure | 2 hours | CBOE data fetch |
+| Add put/call ratio | 2 hours | CBOE equity P/C |
+| Add economic calendar | 3 hours | Finnhub or scrape |
 
-### Phase 2C: TFT Forecasting (Week 3)
+### Phase 2C: Model Enhancements (Week 3)
 
-| Task | Effort | Impact |
-|------|--------|--------|
-| Implement TFT architecture | 8 hours | Price forecasting |
-| Train TFT on historical data | 4 hours | Model ready |
-| Add prediction to pipeline | 4 hours | Daily forecasts |
-| Prediction cone visualization | 6 hours | See the forecasts |
+| Task | Effort | Description |
+|------|--------|-------------|
+| Anomaly detection (Isolation Forest) | 4 hours | Train on historical features |
+| Momentum decomposition | 4 hours | Implement 4 components |
+| Attention weight extraction | 3 hours | Export from transformer |
+| Integrate into decision engine | 4 hours | Use new signals in decisions |
 
-### Phase 2D: Full Dashboard (Week 4)
+### Phase 2D: Dashboard Build (Week 4)
 
-| Task | Effort | Impact |
-|------|--------|--------|
-| Multi-layer chart component | 8 hours | Main viz |
-| Model transparency panel | 6 hours | See the reasoning |
-| Sentiment dashboard | 4 hours | All signals at glance |
-| Decision audit trail | 4 hours | Full transparency |
+| Task | Effort | Description |
+|------|--------|-------------|
+| Multi-layer interactive chart | 8 hours | Price + overlays + toggles |
+| Model transparency panel | 4 hours | Agreement, attention, features |
+| Decision audit trail | 4 hours | Full reasoning display |
+| Sentiment gauges | 3 hours | Three-gauge component |
+| Anomaly monitor | 2 hours | Score + history |
+| Performance attribution | 3 hours | By position, signal, regime |
 
 ---
 
 ## Part 5: Technical Specifications
 
-### 5.1 TFT Model Specification
+### 5.1 Ensemble Configuration
 
 ```python
-TFT Config:
-  hidden_size: 64
-  attention_heads: 4
-  dropout: 0.1
-  lstm_layers: 2
-
-  static_features: ['sector', 'asset_class']
-  known_future: ['day_of_week', 'month', 'is_earnings_week']
-  observed: [
-    'close', 'volume', 'return_1d', 'return_5d',
-    'vol_21d', 'rsi_14', 'macd', 'news_sentiment',
-    'reddit_sentiment', 'put_call_ratio'
-  ]
-
-  forecast_horizons: [1, 5, 21]  # days
-  quantiles: [0.1, 0.5, 0.9]
+# training/config.py
+ENSEMBLE_CONFIG = {
+    'models': ['gru', 'transformer'],
+    'weights': {'gru': 0.5, 'transformer': 0.5},  # Equal weight
+    'disagreement_threshold': 0.3,  # Reduce size if disagreement > 30%
+    'low_confidence_threshold': 0.6,  # Reduce size if confidence < 60%
+}
 ```
 
-### 5.2 Data Pipeline Additions
+### 5.2 Momentum Decomposition
 
+```python
+# src/utils/momentum_decomposition.py
+def decompose_momentum(prices: pd.Series, benchmark: pd.Series) -> dict:
+    """
+    Decompose momentum into interpretable components.
+
+    Returns:
+        dict with keys: trend_strength, mean_reversion_risk,
+                       relative_momentum, momentum_quality
+    """
+    # Trend strength: slope of log-price regression
+    log_prices = np.log(prices)
+    X = np.arange(len(prices)).reshape(-1, 1)
+    slope = LinearRegression().fit(X, log_prices).coef_[0]
+    trend_strength = norm.cdf(slope, loc=0, scale=0.001)  # Percentile
+
+    # Mean reversion risk: z-score from moving averages
+    ma21 = prices.rolling(21).mean().iloc[-1]
+    ma50 = prices.rolling(50).mean().iloc[-1]
+    current = prices.iloc[-1]
+    z_score = ((current - ma21) / ma21 + (current - ma50) / ma50) / 2
+    mean_reversion_risk = norm.cdf(z_score, loc=0, scale=0.03)
+
+    # Relative momentum: return vs benchmark
+    asset_return = (prices.iloc[-1] / prices.iloc[-63]) - 1
+    bench_return = (benchmark.iloc[-1] / benchmark.iloc[-63]) - 1
+    relative = asset_return - bench_return
+    relative_momentum = norm.cdf(relative, loc=0, scale=0.1)
+
+    # Momentum quality: Sharpe of daily returns
+    daily_returns = prices.pct_change().dropna().tail(21)
+    sharpe = daily_returns.mean() / daily_returns.std() if daily_returns.std() > 0 else 0
+    momentum_quality = norm.cdf(sharpe, loc=0, scale=0.2)
+
+    return {
+        'trend_strength': trend_strength,
+        'mean_reversion_risk': mean_reversion_risk,
+        'relative_momentum': relative_momentum,
+        'momentum_quality': momentum_quality,
+        'combined': (
+            0.30 * trend_strength +
+            0.25 * (1 - mean_reversion_risk) +
+            0.25 * relative_momentum +
+            0.20 * momentum_quality
+        )
+    }
 ```
-Daily Pipeline (10 PM ET):
-├── [existing] Ingest prices
-├── [existing] Ingest FRED
-├── [fix] Ingest GDELT
-├── [new] Ingest Reddit sentiment
-├── [new] Ingest VIX term structure
-├── [new] Ingest options data
-├── [existing] Build features
-├── [new] Run TFT predictions
-├── [modified] Run ensemble regime
-├── [existing] Run health model
-├── [existing] LLM risk check (Haiku)
-├── [existing] Decision engine
-├── [existing] Paper trader
-├── [existing] LLM weather (Haiku)
-└── [existing] Publish artifacts
 
-Weekly Pipeline (Sunday):
-├── [new] Ingest insider transactions
-└── [new] Update economic calendar
+### 5.3 Anomaly Detection
+
+```python
+# src/models/anomaly_detector.py
+from sklearn.ensemble import IsolationForest
+
+ANOMALY_FEATURES = [
+    'cross_asset_correlation',
+    'correlation_vs_historical',
+    'volume_zscore',
+    'volatility_zscore',
+    'vix_term_slope',
+    'credit_spread_change',
+    'regime_disagreement',
+]
+
+class MarketAnomalyDetector:
+    def __init__(self, contamination=0.05):
+        self.model = IsolationForest(
+            contamination=contamination,
+            random_state=42,
+            n_estimators=100
+        )
+
+    def fit(self, historical_features: pd.DataFrame):
+        self.model.fit(historical_features[ANOMALY_FEATURES])
+
+    def score(self, current_features: pd.Series) -> float:
+        """Return anomaly score 0-100 (higher = more anomalous)."""
+        raw_score = self.model.decision_function([current_features])[0]
+        # Convert to 0-100 scale (more negative = more anomalous)
+        return max(0, min(100, 50 - raw_score * 50))
 ```
 
-### 5.3 Dashboard Data Structure
+### 5.4 Dashboard Data Structure
 
 ```json
 {
-  "charts": {
-    "prices": { "ohlcv": [...], "events": [...] },
-    "predictions": {
-      "horizons": [1, 5, 21],
-      "forecasts": { "SPY": { "1d": {...}, "5d": {...} } },
-      "attention": { "feature_weights": {...}, "time_weights": {...} }
+  "timestamp": "2026-01-31T22:00:00Z",
+
+  "regime": {
+    "gru": {"label": "risk_on_trend", "confidence": 0.85, "probs": {...}},
+    "transformer": {"label": "risk_on_trend", "confidence": 0.78, "probs": {...}},
+    "ensemble": {"label": "risk_on_trend", "confidence": 0.81},
+    "agreement": 0.92,
+    "attention_weights": {
+      "features": {"spy_vol_21d": 0.23, "yield_slope": 0.19, ...},
+      "temporal": [0.02, 0.03, 0.05, 0.12, 0.18, ...]
     }
   },
-  "models": {
-    "regime": {
-      "gru": { "label": "risk_on", "confidence": 0.85 },
-      "transformer": { "label": "risk_on", "confidence": 0.78 },
-      "ensemble": { "label": "risk_on", "agreement": true }
-    },
-    "anomaly": { "score": 23, "alerts": [] }
+
+  "predictions": {
+    "direction": "bullish",
+    "confidence": 0.72,
+    "bands": {
+      "lower_95": -0.02,
+      "lower_68": -0.01,
+      "point": 0.008,
+      "upper_68": 0.018,
+      "upper_95": 0.028
+    }
   },
+
+  "anomaly": {
+    "score": 23,
+    "level": "normal",
+    "contributing_factors": []
+  },
+
   "sentiment": {
-    "news": { "score": 0.12, "percentile": 55 },
-    "reddit": { "score": 0.45, "percentile": 78, "trending": ["XLB"] },
-    "options": { "put_call": 0.85, "percentile": 40 }
+    "google_trends": {"score": 0.52, "percentile": 52, "velocity": "stable"},
+    "put_call": {"ratio": 0.82, "percentile": 35, "signal": "bullish"},
+    "vix": {"level": 18.5, "term_structure": "contango", "percentile": 28}
   },
-  "decisions": {
-    "actions": [...],
-    "audit_trail": { "XLB": { "reasons": [...] } }
+
+  "holdings": [
+    {
+      "symbol": "XLB",
+      "momentum": {
+        "trend_strength": 0.82,
+        "mean_reversion_risk": 0.35,
+        "relative_momentum": 0.71,
+        "momentum_quality": 0.68,
+        "combined": 0.72
+      },
+      "decision_audit": {
+        "health_score": {"value": 0.78, "passed": true},
+        "regime_compatible": true,
+        "ensemble_direction": "bullish",
+        "model_agreement": 0.89,
+        "llm_risk_check": "No significant risks identified.",
+        "position_size": 21974,
+        "stop_loss": 44.35
+      }
+    }
+  ],
+
+  "calendar": {
+    "upcoming": [
+      {"date": "2026-02-05", "event": "FOMC", "impact": "high"},
+      {"date": "2026-02-12", "event": "CPI", "impact": "high"}
+    ],
+    "earnings": [
+      {"symbol": "XLB", "date": "2026-02-15", "days_until": 15}
+    ]
   }
 }
 ```
@@ -433,63 +704,85 @@ Weekly Pipeline (Sunday):
 
 ## Part 6: Cost Analysis
 
-### Monthly Operating Costs (Projected)
+### Monthly Operating Costs
 
 | Component | Current | After Phase 2 |
 |-----------|---------|---------------|
-| AWS Lambda | $6 | $8 (more compute) |
-| S3 Storage | $1 | $2 (more data) |
-| Claude Haiku LLM | $0 (GPT-4 broken) | $1 |
-| Data APIs | $0 | $0 (all free sources) |
-| **Total** | **$7** | **$11** |
+| AWS Lambda | $6 | $7 |
+| S3 Storage | $1 | $2 |
+| Claude Haiku | $0 | $1 |
+| Data APIs | $0 | $0 (all free) |
+| **Total** | **$7** | **$10** |
 
-### Training Costs (One-time, local)
+### Data Source Costs
 
-- TFT training: ~2 hours on M-series Mac (free)
-- Ensemble training: Already done (just enable)
-- Anomaly detector: ~10 minutes (simple model)
-
----
-
-## Part 7: Success Metrics
-
-### Model Quality
-- TFT directional accuracy > 55%
-- Regime model agreement > 80% of days
-- Anomaly detector catches > 70% of drawdowns with < 20% false positives
-
-### Dashboard Utility
-- All predictions visible with reasoning
-- Any decision auditable in < 3 clicks
-- Full historical data explorable
-
-### Learning Value
-- Can explain why any trade was made
-- Can see what signals contributed to decisions
-- Can compare what model said vs what happened
+| Source | Cost | Notes |
+|--------|------|-------|
+| Google Trends | Free | pytrends library |
+| CBOE VIX data | Free | Delayed data sufficient |
+| CBOE Put/Call | Free | Delayed data sufficient |
+| Finnhub calendar | Free | Free tier covers needs |
+| GDELT | Free | Already integrated |
 
 ---
 
-## Appendix: What We're NOT Adding (and Why)
+## Part 7: What We're NOT Doing (and Why)
 
-| Candidate | Reason to Skip |
-|-----------|----------------|
-| Twitter/X sentiment | API now expensive ($100+/mo) |
-| High-frequency data | Not relevant for daily trading |
-| Fundamental data | Slow-moving, less useful for tactical allocation |
-| More LLM calls | One risk check is enough; more adds latency and cost |
-| Reinforcement learning | Overkill for current scope; save for Phase 3 |
-| Local LLM | User requested to defer; future consideration |
+| Candidate | Decision | Reason |
+|-----------|----------|--------|
+| TFT (Temporal Fusion Transformer) | Defer | Complex to implement; ensemble uncertainty achieves similar goal |
+| SEC Insider Data | Skip | Too messy to parse reliably |
+| Reddit Sentiment | Defer | Google Trends is cleaner, easier |
+| Twitter/X | Skip | API too expensive ($100+/mo) |
+| Reinforcement Learning | Defer | Overkill for current scope |
+| Local LLM | Defer | User requested future consideration |
+
+---
+
+## Appendix: Migration Notes
+
+### Switching to Claude Haiku
+
+```python
+# Before (OpenAI)
+from openai import OpenAI
+client = OpenAI(api_key=openai_key)
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[...]
+)
+
+# After (Anthropic)
+from anthropic import Anthropic
+client = Anthropic(api_key=anthropic_key)
+response = client.messages.create(
+    model="claude-3-haiku-20240307",
+    max_tokens=1024,
+    messages=[...]
+)
+```
+
+### Enabling Transformer Ensemble
+
+```python
+# training/train.py - change model_type
+regime_model_gru = train_regime_model(context_df, model_type='gru', ...)
+regime_model_transformer = train_regime_model(context_df, model_type='transformer', ...)
+
+# Save both models
+save_model(regime_model_gru, 'regime_gru_v{date}.pkl')
+save_model(regime_model_transformer, 'regime_transformer_v{date}.pkl')
+```
 
 ---
 
 ## Next Steps
 
-1. **User Review**: Approve this proposal or request modifications
+1. **User Approval**: Confirm this revised proposal
 2. **API Key**: Provide Anthropic API key for Claude Haiku
-3. **Cursor Handoff**: Cursor implements Phase 2A-2D per this spec
-4. **Testing**: Validate each component before moving to next phase
+3. **Cursor Handoff**: Implement Phase 2A-2D per this spec
+4. **Weekly Check-ins**: Review progress, adjust as needed
 
 ---
 
-*This proposal represents an opinionated, practical path forward. Each addition provides unique signal, maintains low cost, and prioritizes transparency and learning over black-box complexity.*
+*This proposal prioritizes practical, interpretable enhancements over complex black-box models. Every addition provides transparency into the decision-making process while maintaining low operational costs.*
