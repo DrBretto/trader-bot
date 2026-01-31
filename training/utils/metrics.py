@@ -134,13 +134,13 @@ class HealthMetrics:
         """Update metrics with batch results."""
         # Reconstruction error
         recon_error = torch.mean((reconstruction - original) ** 2, dim=-1)
-        self.reconstruction_errors.extend(recon_error.cpu().numpy().tolist())
+        self.reconstruction_errors.extend(recon_error.detach().cpu().numpy().tolist())
 
         # Health score
         if health_pred is not None:
-            self.health_predictions.extend(health_pred.cpu().numpy().flatten().tolist())
+            self.health_predictions.extend(health_pred.detach().cpu().numpy().flatten().tolist())
         if health_target is not None:
-            self.health_targets.extend(health_target.cpu().numpy().flatten().tolist())
+            self.health_targets.extend(health_target.detach().cpu().numpy().flatten().tolist())
 
         # Volatility bucket
         if vol_pred is not None:
@@ -148,9 +148,9 @@ class HealthMetrics:
                 preds = vol_pred.argmax(dim=-1)
             else:
                 preds = vol_pred
-            self.vol_predictions.extend(preds.cpu().numpy().tolist())
+            self.vol_predictions.extend(preds.detach().cpu().numpy().tolist())
         if vol_target is not None:
-            self.vol_targets.extend(vol_target.cpu().numpy().tolist())
+            self.vol_targets.extend(vol_target.detach().cpu().numpy().tolist())
 
         # Behavior
         if behavior_pred is not None:

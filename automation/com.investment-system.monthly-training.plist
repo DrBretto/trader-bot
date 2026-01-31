@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.investment-system.monthly-training</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/drbretto/Desktop/Projects/trader-bot/automation/run_training.sh</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Day</key>
+        <integer>1</integer>
+        <key>Hour</key>
+        <integer>2</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/drbretto/Library/Logs/investment-system/training.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/drbretto/Library/Logs/investment-system/training.error.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>AWS_PROFILE</key>
+        <string>personal</string>
+        <key>AWS_REGION</key>
+        <string>us-east-1</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

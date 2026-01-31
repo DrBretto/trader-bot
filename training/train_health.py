@@ -232,7 +232,7 @@ def train_health_model(
     # Optimizer
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='min', factor=0.5, patience=5, verbose=True
+        optimizer, mode='min', factor=0.5, patience=5
     )
 
     # Metrics and early stopping
@@ -252,6 +252,12 @@ def train_health_model(
     best_model_state = None
     best_val_loss = float('inf')
 
+    # Check if validation set is available
+    has_validation = len(val_loader.dataset) > 0
+
+    if not has_validation:
+        print("Warning: No validation data available, using training loss for model selection")
+
     # Training loop
     for epoch in range(epochs):
         print(f"\nEpoch {epoch + 1}/{epochs}")
@@ -264,17 +270,21 @@ def train_health_model(
         print(f"  Train - Loss: {train_results.get('loss_total', 0):.4f}, "
               f"Recon MSE: {train_results['reconstruction_mse']:.4f}")
 
-        # Validate
-        val_results = validate(
-            model, val_loader, device,
-            val_metrics, is_vae=is_vae, kl_weight=kl_weight
-        )
-        print(f"  Val   - Loss: {val_results.get('loss_total', 0):.4f}, "
-              f"Recon MSE: {val_results['reconstruction_mse']:.4f}")
+        # Validate (if data available)
+        if has_validation:
+            val_results = validate(
+                model, val_loader, device,
+                val_metrics, is_vae=is_vae, kl_weight=kl_weight
+            )
+            print(f"  Val   - Loss: {val_results.get('loss_total', 0):.4f}, "
+                  f"Recon MSE: {val_results['reconstruction_mse']:.4f}")
+            loss_for_scheduler = val_results.get('loss_total', val_results['reconstruction_mse'])
+        else:
+            val_results = train_results  # Use train results when no validation data
+            loss_for_scheduler = train_results.get('loss_total', train_results['reconstruction_mse'])
 
         # Update scheduler
-        val_loss = val_results.get('loss_total', val_results['reconstruction_mse'])
-        scheduler.step(val_loss)
+        scheduler.step(loss_for_scheduler)
 
         # Record history
         history['train_loss'].append(train_results.get('loss_total', train_results['reconstruction_mse']))
@@ -284,8 +294,8 @@ def train_health_model(
         history['learning_rate'].append(optimizer.param_groups[0]['lr'])
 
         # Save best model
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
+        if loss_for_scheduler < best_val_loss:
+            best_val_loss = loss_for_scheduler
             best_model_state = model.state_dict().copy()
 
             if save_dir:
@@ -293,7 +303,7 @@ def train_health_model(
                 torch.save(model.state_dict(), os.path.join(save_dir, 'best_model.pt'))
 
         # Early stopping
-        if early_stopping(val_loss, epoch):
+        if early_stopping(loss_for_scheduler, epoch):
             print(f"\nEarly stopping at epoch {epoch + 1}")
             break
 
@@ -301,14 +311,19 @@ def train_health_model(
     if best_model_state:
         model.load_state_dict(best_model_state)
 
-    # Final evaluation on test set
-    print("\nEvaluating on test set...")
-    test_metrics = HealthMetrics(VOL_BUCKETS, BEHAVIORS)
-    test_results = validate(model, test_loader, device, test_metrics, is_vae=is_vae, kl_weight=kl_weight)
-    print(f"Test - Recon MSE: {test_results['reconstruction_mse']:.4f}")
-    if 'health_mse' in test_results:
-        print(f"Health MSE: {test_results['health_mse']:.4f}, "
-              f"Health Correlation: {test_results.get('health_correlation', 0):.4f}")
+    # Final evaluation on test set (if available)
+    has_test = len(test_loader.dataset) > 0
+    if has_test:
+        print("\nEvaluating on test set...")
+        test_metrics = HealthMetrics(VOL_BUCKETS, BEHAVIORS)
+        test_results = validate(model, test_loader, device, test_metrics, is_vae=is_vae, kl_weight=kl_weight)
+        print(f"Test - Recon MSE: {test_results['reconstruction_mse']:.4f}")
+        if 'health_mse' in test_results:
+            print(f"Health MSE: {test_results['health_mse']:.4f}, "
+                  f"Health Correlation: {test_results.get('health_correlation', 0):.4f}")
+    else:
+        print("\nNo test set available, using training results for evaluation")
+        test_results = {'reconstruction_mse': history['train_recon_mse'][-1]}
 
     # Add test results to history
     history['test_recon_mse'] = test_results['reconstruction_mse']

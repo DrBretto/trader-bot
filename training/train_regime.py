@@ -167,7 +167,7 @@ def train_regime_model(
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='min', factor=0.5, patience=5, verbose=True
+        optimizer, mode='min', factor=0.5, patience=5
     )
 
     # Metrics and early stopping
@@ -187,6 +187,12 @@ def train_regime_model(
     best_model_state = None
     best_val_loss = float('inf')
 
+    # Check if validation set is available
+    has_validation = len(val_loader.dataset) > 0
+
+    if not has_validation:
+        print("Warning: No validation data available, using training loss for model selection")
+
     # Training loop
     for epoch in range(epochs):
         print(f"\nEpoch {epoch + 1}/{epochs}")
@@ -195,12 +201,17 @@ def train_regime_model(
         train_results = train_epoch(model, train_loader, optimizer, criterion, device, train_metrics)
         print(f"  Train - Loss: {train_results['loss']:.4f}, Acc: {train_results['accuracy']:.4f}")
 
-        # Validate
-        val_results = validate(model, val_loader, criterion, device, val_metrics)
-        print(f"  Val   - Loss: {val_results['loss']:.4f}, Acc: {val_results['accuracy']:.4f}")
+        # Validate (if data available)
+        if has_validation:
+            val_results = validate(model, val_loader, criterion, device, val_metrics)
+            print(f"  Val   - Loss: {val_results['loss']:.4f}, Acc: {val_results['accuracy']:.4f}")
+            loss_for_scheduler = val_results['loss']
+        else:
+            val_results = {'loss': train_results['loss'], 'accuracy': train_results['accuracy']}
+            loss_for_scheduler = train_results['loss']
 
         # Update scheduler
-        scheduler.step(val_results['loss'])
+        scheduler.step(loss_for_scheduler)
 
         # Record history
         history['train_loss'].append(train_results['loss'])
@@ -210,8 +221,8 @@ def train_regime_model(
         history['learning_rate'].append(optimizer.param_groups[0]['lr'])
 
         # Save best model
-        if val_results['loss'] < best_val_loss:
-            best_val_loss = val_results['loss']
+        if loss_for_scheduler < best_val_loss:
+            best_val_loss = loss_for_scheduler
             best_model_state = model.state_dict().copy()
 
             if save_dir:
@@ -219,7 +230,7 @@ def train_regime_model(
                 torch.save(model.state_dict(), os.path.join(save_dir, 'best_model.pt'))
 
         # Early stopping
-        if early_stopping(val_results['loss'], epoch):
+        if early_stopping(loss_for_scheduler, epoch):
             print(f"\nEarly stopping at epoch {epoch + 1}")
             break
 
@@ -227,19 +238,24 @@ def train_regime_model(
     if best_model_state:
         model.load_state_dict(best_model_state)
 
-    # Final evaluation on test set
-    print("\nEvaluating on test set...")
-    test_metrics = RegimeMetrics(REGIME_LABELS)
-    test_results = validate(model, test_loader, criterion, device, test_metrics)
-    print(f"Test - Loss: {test_results['loss']:.4f}, Acc: {test_results['accuracy']:.4f}")
-    print(f"F1 (macro): {test_results['f1_macro']:.4f}")
-    print("\nClassification Report:")
-    print(test_metrics.get_classification_report())
+    # Final evaluation on test set (if available)
+    has_test = len(test_loader.dataset) > 0
+    if has_test:
+        print("\nEvaluating on test set...")
+        test_metrics = RegimeMetrics(REGIME_LABELS)
+        test_results = validate(model, test_loader, criterion, device, test_metrics)
+        print(f"Test - Loss: {test_results['loss']:.4f}, Acc: {test_results['accuracy']:.4f}")
+        print(f"F1 (macro): {test_results['f1_macro']:.4f}")
+        print("\nClassification Report:")
+        print(test_metrics.get_classification_report())
+    else:
+        print("\nNo test set available, using training results for evaluation")
+        test_results = {'loss': history['train_loss'][-1], 'accuracy': history['train_accuracy'][-1], 'f1_macro': 0.0}
 
     # Add test results to history
     history['test_loss'] = test_results['loss']
     history['test_accuracy'] = test_results['accuracy']
-    history['test_f1_macro'] = test_results['f1_macro']
+    history['test_f1_macro'] = test_results.get('f1_macro', 0.0)
     history['best_epoch'] = early_stopping.best_epoch
     history['feature_cols'] = available_features
     history['model_type'] = model_type
