@@ -1,12 +1,20 @@
-"""LLM risk check for structural risk assessment."""
+"""LLM risk check for structural risk assessment using Claude Haiku via Bedrock."""
 
 import json
+import os
 from typing import Dict, Any, List, Optional
-from openai import OpenAI
+
+import boto3
+
+# Try OpenAI as fallback
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
 
 
-RISK_CHECK_PROMPT = """
-You are a financial risk analyst. Analyze this ETF for structural risks.
+RISK_CHECK_PROMPT = """You are a financial risk analyst. Analyze this ETF for structural risks.
 
 ETF: {symbol} - {name}
 Asset Class: {asset_class}
@@ -35,30 +43,84 @@ Respond ONLY with JSON:
   "structural_risk_veto": false,
   "confidence_adjustment": 0.1,
   "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
-}}
-"""
+}}"""
 
 
-def call_llm_risk_check(
+def call_llm_risk_check_bedrock(
+    symbol: str,
+    metadata: Dict[str, Any],
+    performance: Dict[str, float],
+    context: Dict[str, Any],
+    region: str = 'us-east-1'
+) -> Dict[str, Any]:
+    """Call Claude Haiku via Amazon Bedrock for risk assessment."""
+    client = boto3.client('bedrock-runtime', region_name=region)
+
+    prompt = RISK_CHECK_PROMPT.format(
+        symbol=symbol,
+        name=metadata.get('name', symbol),
+        asset_class=metadata.get('asset_class', 'equity'),
+        sector=metadata.get('sector', 'broad'),
+        return_5d=performance.get('return_5d', 0),
+        return_21d=performance.get('return_21d', 0),
+        vol_21d=performance.get('vol_21d', 0.15),
+        regime=context.get('regime', 'risk_on_trend'),
+        gdelt_tone=context.get('gdelt_avg_tone', 0)
+    )
+
+    try:
+        # Bedrock request format for Claude
+        body = json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 256,
+            "system": "You are a financial risk analyst. Always respond with valid JSON only, no markdown.",
+            "messages": [{"role": "user", "content": prompt}]
+        })
+
+        response = client.invoke_model(
+            modelId="anthropic.claude-3-haiku-20240307-v1:0",
+            contentType="application/json",
+            accept="application/json",
+            body=body
+        )
+
+        response_body = json.loads(response['body'].read())
+        result_text = response_body['content'][0]['text']
+
+        # Clean up response (remove markdown code blocks if present)
+        if result_text.startswith('```'):
+            lines = result_text.split('\n')
+            result_text = '\n'.join(lines[1:-1] if lines[-1].strip() == '```' else lines[1:])
+
+        result = json.loads(result_text)
+
+        # Validate schema
+        required_keys = [
+            'risk_flags', 'severity', 'structural_risk_veto',
+            'confidence_adjustment', 'one_sentence_rationale'
+        ]
+        if not all(k in result for k in required_keys):
+            print(f"LLM risk check: Missing required keys for {symbol}")
+            return {}
+
+        return result
+
+    except json.JSONDecodeError as e:
+        print(f"LLM risk check (Bedrock): JSON parse error for {symbol}: {e}")
+        return {}
+    except Exception as e:
+        print(f"LLM risk check (Bedrock) failed for {symbol}: {e}")
+        return {}
+
+
+def call_llm_risk_check_openai(
     symbol: str,
     metadata: Dict[str, Any],
     performance: Dict[str, float],
     context: Dict[str, Any],
     api_key: str
 ) -> Dict[str, Any]:
-    """
-    Call OpenAI API for risk assessment.
-
-    Args:
-        symbol: Ticker symbol
-        metadata: Asset metadata (name, asset_class, sector)
-        performance: Performance metrics (return_5d, return_21d, vol_21d)
-        context: Market context (regime, gdelt_avg_tone)
-        api_key: OpenAI API key
-
-    Returns:
-        Risk assessment dict, or empty dict on failure
-    """
+    """Call OpenAI API for risk assessment (fallback)."""
     client = OpenAI(api_key=api_key)
 
     prompt = RISK_CHECK_PROMPT.format(
@@ -77,10 +139,7 @@ def call_llm_risk_check(
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are a financial risk analyst. Always respond with valid JSON only."
-                },
+                {"role": "system", "content": "You are a financial risk analyst. Always respond with valid JSON only."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,
@@ -89,7 +148,7 @@ def call_llm_risk_check(
 
         result_text = response.choices[0].message.content
 
-        # Clean up response (remove markdown code blocks if present)
+        # Clean up response
         if result_text.startswith('```'):
             result_text = result_text.split('\n', 1)[1]
         if result_text.endswith('```'):
@@ -97,23 +156,52 @@ def call_llm_risk_check(
 
         result = json.loads(result_text)
 
-        # Validate schema
-        required_keys = [
-            'risk_flags', 'severity', 'structural_risk_veto',
-            'confidence_adjustment', 'one_sentence_rationale'
-        ]
+        required_keys = ['risk_flags', 'severity', 'structural_risk_veto', 'confidence_adjustment', 'one_sentence_rationale']
         if not all(k in result for k in required_keys):
-            print(f"LLM risk check: Missing required keys for {symbol}")
             return {}
 
         return result
 
-    except json.JSONDecodeError as e:
-        print(f"LLM risk check: JSON parse error for {symbol}: {e}")
-        return {}
     except Exception as e:
-        print(f"LLM risk check failed for {symbol}: {e}")
+        print(f"LLM risk check (OpenAI) failed for {symbol}: {e}")
         return {}
+
+
+def call_llm_risk_check(
+    symbol: str,
+    metadata: Dict[str, Any],
+    performance: Dict[str, float],
+    context: Dict[str, Any],
+    api_key: str = '',
+    region: str = 'us-east-1'
+) -> Dict[str, Any]:
+    """
+    Call LLM for risk assessment.
+
+    Uses Claude Haiku via Amazon Bedrock (preferred), falls back to OpenAI if unavailable.
+
+    Args:
+        symbol: Ticker symbol
+        metadata: Asset metadata (name, asset_class, sector)
+        performance: Performance metrics (return_5d, return_21d, vol_21d)
+        context: Market context (regime, gdelt_avg_tone)
+        api_key: OpenAI API key (fallback only)
+        region: AWS region for Bedrock
+
+    Returns:
+        Risk assessment dict, or empty dict on failure
+    """
+    # Try Bedrock first (uses AWS credentials, no API key needed)
+    result = call_llm_risk_check_bedrock(symbol, metadata, performance, context, region)
+    if result:
+        return result
+
+    # Fall back to OpenAI if Bedrock fails and we have an API key
+    if OPENAI_AVAILABLE and api_key:
+        return call_llm_risk_check_openai(symbol, metadata, performance, context, api_key)
+
+    print(f"No LLM available for risk check on {symbol}")
+    return {}
 
 
 def run(
@@ -126,6 +214,8 @@ def run(
     """
     Run LLM risk checks for relevant symbols.
 
+    Uses Claude Haiku via Amazon Bedrock (preferred), falls back to OpenAI.
+
     Checks:
     - All current holdings
     - Top 5 buy candidates
@@ -137,7 +227,7 @@ def run(
         inference_output: Output from run_inference
         features_df: Asset features
         context_df: Market context
-        openai_key: OpenAI API key
+        openai_key: OpenAI API key (fallback)
         config: Configuration dict
 
     Returns:
@@ -145,7 +235,10 @@ def run(
     """
     import pandas as pd
 
-    print("Running LLM risk checks...")
+    print("Running LLM risk checks (Bedrock/Haiku)...")
+
+    # Get AWS region from config or environment
+    region = config.get('aws_region', os.environ.get('AWS_REGION', 'us-east-1'))
 
     # Get current portfolio state for holdings
     portfolio_state = config.get('portfolio_state', {'holdings': []})
@@ -202,8 +295,8 @@ def run(
                 'vol_21d': latest.get('vol_21d', 0.15) or 0.15
             }
 
-        # Call LLM
-        result = call_llm_risk_check(symbol, metadata, performance, context, openai_key)
+        # Call LLM (tries Bedrock first, falls back to OpenAI)
+        result = call_llm_risk_check(symbol, metadata, performance, context, openai_key, region)
 
         if result:
             results[symbol] = result

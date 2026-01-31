@@ -257,10 +257,22 @@ def compute_position_size(
     vol_bucket: str,
     regime_label: str,
     params: Dict[str, Any],
-    llm_confidence_adj: float = 0.0
+    llm_confidence_adj: float = 0.0,
+    ensemble_multiplier: float = 1.0
 ) -> Dict[str, Any]:
     """
     Compute target shares and dollars for a position.
+
+    Args:
+        symbol: Ticker symbol
+        portfolio_value: Total portfolio value
+        current_price: Current asset price
+        vol_bucket: Volatility bucket (low/med/high)
+        regime_label: Current market regime
+        params: Decision parameters
+        llm_confidence_adj: LLM-based position reduction (0-0.5)
+        ensemble_multiplier: Ensemble model sizing multiplier (0.5-1.0)
+            - Reduced when models disagree on regime
 
     Returns:
         {'shares': int, 'dollars': float, 'final_weight': float}
@@ -283,8 +295,11 @@ def compute_position_size(
     # Adjust by LLM confidence
     llm_adj = 1.0 - llm_confidence_adj
 
+    # Adjust by ensemble model agreement (reduces size when models disagree)
+    ensemble_adj = ensemble_multiplier
+
     # Final target
-    adjusted_dollars = base_dollars * vol_adj * regime_adj * llm_adj
+    adjusted_dollars = base_dollars * vol_adj * regime_adj * llm_adj * ensemble_adj
 
     # Shares
     shares = int(adjusted_dollars / current_price) if current_price > 0 else 0
@@ -300,7 +315,8 @@ def compute_position_size(
     return {
         'shares': shares,
         'dollars': actual_dollars,
-        'final_weight': final_weight
+        'final_weight': final_weight,
+        'ensemble_multiplier': ensemble_multiplier
     }
 
 
@@ -336,6 +352,13 @@ def run(
     regime_label = inference_output['regime']['label']
     asset_health = inference_output['asset_health']
     run_date = inference_output['date']
+
+    # Get ensemble position sizing multiplier (reduces size when models disagree)
+    ensemble_multiplier = inference_output['regime'].get('position_size_multiplier', 1.0)
+    regime_disagreement = inference_output['regime'].get('disagreement', 0.0)
+
+    if regime_disagreement > 0.3:
+        print(f"  Ensemble disagreement: {regime_disagreement:.2f} - reducing position sizes by {(1 - ensemble_multiplier) * 100:.0f}%")
 
     # Load current portfolio state
     portfolio_state = config.get('portfolio_state', {
@@ -419,7 +442,7 @@ def run(
         # Get LLM confidence adjustment
         llm_conf_adj = llm_risks.get(symbol, {}).get('confidence_adjustment', 0.0)
 
-        # Compute position size
+        # Compute position size (includes ensemble disagreement adjustment)
         position = compute_position_size(
             symbol,
             portfolio_value,
@@ -427,7 +450,8 @@ def run(
             candidate['vol_bucket'],
             regime_label,
             params,
-            llm_conf_adj
+            llm_conf_adj,
+            ensemble_multiplier
         )
 
         if position['shares'] > 0 and position['dollars'] <= available_cash:
@@ -459,5 +483,10 @@ def run(
             'price_coverage': validation.get('price_coverage', 0),
             'context_freshness': 1 if not validation.get('degraded_mode', False) else 0,
             'degraded_mode': validation.get('degraded_mode', False)
+        },
+        'ensemble_metrics': {
+            'disagreement': regime_disagreement,
+            'position_size_multiplier': ensemble_multiplier,
+            'confidence': inference_output['regime'].get('confidence', 1.0)
         }
     }

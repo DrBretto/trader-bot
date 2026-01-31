@@ -74,7 +74,7 @@ def main():
     parser.add_argument('--bucket', type=str, default='investment-system-data', help='S3 bucket name')
     parser.add_argument('--region', type=str, default='us-east-1', help='AWS region')
     parser.add_argument('--max-days', type=int, default=365, help='Max days of historical data')
-    parser.add_argument('--regime-type', type=str, default='gru', choices=['gru', 'transformer'])
+    parser.add_argument('--regime-type', type=str, default='ensemble', choices=['gru', 'transformer', 'ensemble'])
     parser.add_argument('--health-type', type=str, default='autoencoder', choices=['autoencoder', 'vae'])
     parser.add_argument('--epochs', type=int, default=100, help='Max training epochs')
     parser.add_argument('--skip-upload', action='store_true', help='Skip S3 upload (local testing)')
@@ -127,17 +127,47 @@ def main():
 
     print(f"Data loaded: {len(context_df)} context rows, {len(features_df)} feature rows")
 
-    # Train regime model
-    print("\n[2/5] Training regime model...")
-    regime_model, regime_history = train_regime_model(
-        context_df=context_df,
-        model_type=args.regime_type,
-        epochs=args.epochs,
-        save_dir=os.path.join(args.output_dir, 'regime_checkpoints')
-    )
+    # Train regime model(s)
+    if args.regime_type == 'ensemble':
+        # Train both GRU and Transformer for ensemble
+        print("\n[2/5] Training regime models (ensemble)...")
 
-    regime_path = os.path.join(args.output_dir, f'regime_v{version}.pkl')
-    save_regime_model(regime_model, regime_history, regime_path, version)
+        print("\n  Training GRU model...")
+        regime_gru, history_gru = train_regime_model(
+            context_df=context_df,
+            model_type='gru',
+            epochs=args.epochs,
+            save_dir=os.path.join(args.output_dir, 'regime_gru_checkpoints')
+        )
+        regime_gru_path = os.path.join(args.output_dir, f'regime_gru_v{version}.pkl')
+        save_regime_model(regime_gru, history_gru, regime_gru_path, version)
+
+        print("\n  Training Transformer model...")
+        regime_transformer, history_transformer = train_regime_model(
+            context_df=context_df,
+            model_type='transformer',
+            epochs=args.epochs,
+            save_dir=os.path.join(args.output_dir, 'regime_transformer_checkpoints')
+        )
+        regime_transformer_path = os.path.join(args.output_dir, f'regime_transformer_v{version}.pkl')
+        save_regime_model(regime_transformer, history_transformer, regime_transformer_path, version)
+
+        # Use GRU history for summary (both are trained)
+        regime_model = regime_gru
+        regime_history = history_gru
+        regime_history['ensemble'] = True
+        regime_history['transformer_accuracy'] = history_transformer.get('test_accuracy', 0)
+        regime_path = regime_gru_path
+    else:
+        print("\n[2/5] Training regime model...")
+        regime_model, regime_history = train_regime_model(
+            context_df=context_df,
+            model_type=args.regime_type,
+            epochs=args.epochs,
+            save_dir=os.path.join(args.output_dir, 'regime_checkpoints')
+        )
+        regime_path = os.path.join(args.output_dir, f'regime_v{version}.pkl')
+        save_regime_model(regime_model, regime_history, regime_path, version)
 
     # Train health model
     print("\n[3/5] Training health model...")
@@ -155,9 +185,16 @@ def main():
     if not args.skip_upload:
         print("\n[4/5] Uploading models to S3...")
 
-        # Upload regime model
-        s3_regime_key = f'models/regime_v{version}.pkl'
-        upload_model_to_s3(s3, bucket, regime_path, s3_regime_key)
+        # Upload regime model(s)
+        if args.regime_type == 'ensemble':
+            s3_regime_gru_key = f'models/regime_gru_v{version}.pkl'
+            s3_regime_transformer_key = f'models/regime_transformer_v{version}.pkl'
+            upload_model_to_s3(s3, bucket, regime_gru_path, s3_regime_gru_key)
+            upload_model_to_s3(s3, bucket, regime_transformer_path, s3_regime_transformer_key)
+            s3_regime_key = s3_regime_gru_key  # Primary for backwards compat
+        else:
+            s3_regime_key = f'models/regime_v{version}.pkl'
+            upload_model_to_s3(s3, bucket, regime_path, s3_regime_key)
 
         # Upload health model
         s3_health_key = f'models/health_v{version}.pkl'
@@ -170,10 +207,11 @@ def main():
             'timestamp': datetime.now().isoformat(),
             'regime_model': s3_regime_key,
             'health_model': s3_health_key,
+            'ensemble': args.regime_type == 'ensemble',
             'regime_metrics': {
                 'test_accuracy': regime_history.get('test_accuracy'),
                 'test_f1_macro': regime_history.get('test_f1_macro'),
-                'model_type': regime_history.get('model_type')
+                'model_type': 'ensemble' if args.regime_type == 'ensemble' else regime_history.get('model_type')
             },
             'health_metrics': {
                 'test_recon_mse': health_history.get('test_recon_mse'),
@@ -181,6 +219,13 @@ def main():
                 'model_type': health_history.get('model_type')
             }
         }
+
+        # Add ensemble-specific info
+        if args.regime_type == 'ensemble':
+            latest_config['regime_gru_model'] = s3_regime_gru_key
+            latest_config['regime_transformer_model'] = s3_regime_transformer_key
+            latest_config['regime_metrics']['gru_accuracy'] = regime_history.get('test_accuracy')
+            latest_config['regime_metrics']['transformer_accuracy'] = regime_history.get('transformer_accuracy')
 
         latest_path = os.path.join(args.output_dir, 'latest.json')
         with open(latest_path, 'w') as f:

@@ -1,0 +1,8 @@
+# Lambda deployment: only deps not in the pandas layer (numpy, pandas, fastparquet).
+# See docs/DEPLOY.md for layer build.
+# Pin httpx<0.28 so openai client does not get "proxies" TypeError (openai passes proxies to httpx.Client).
+boto3==1.34.19
+requests==2.31.0
+openai==1.6.1
+httpx<0.28
+python-dateutil==2.8.2

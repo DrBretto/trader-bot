@@ -9,6 +9,7 @@ from typing import Dict, Any, Optional
 from src.utils.s3_client import S3Client
 from src.models.baseline_regime import baseline_regime_model
 from src.models.baseline_health import baseline_health_model
+from src.models.ensemble_regime import EnsembleRegimeModel, baseline_ensemble_regime
 
 # Try to import PyTorch (optional for Lambda)
 try:
@@ -205,9 +206,11 @@ class ModelLoader:
     def __init__(self, s3_client: S3Client):
         self.s3 = s3_client
         self.regime_model = None
+        self.ensemble_model = None
         self.health_model = None
         self.model_version = 'baseline_v1'
         self.using_trained_models = False
+        self.is_ensemble = False
 
     def load_models(self) -> Dict[str, str]:
         """
@@ -223,22 +226,49 @@ class ModelLoader:
             print("No trained models found, using baselines")
             return {
                 'regime': 'baseline_v1',
-                'health': 'baseline_v1'
+                'health': 'baseline_v1',
+                'ensemble': False
             }
 
         self.model_version = latest_config.get('version', 'baseline_v1')
+        self.is_ensemble = latest_config.get('ensemble', False)
 
         # Try to load trained models
         if TORCH_AVAILABLE:
             try:
-                # Load regime model
-                regime_key = latest_config.get('regime_model')
-                if regime_key:
-                    print(f"Loading trained regime model: {regime_key}")
-                    regime_data = self._load_pickle(regime_key)
-                    if regime_data:
-                        self.regime_model = TrainedRegimeModel(regime_data)
-                        print(f"  Loaded regime model v{self.regime_model.version}")
+                # Check if ensemble mode
+                if self.is_ensemble:
+                    gru_key = latest_config.get('regime_gru_model')
+                    transformer_key = latest_config.get('regime_transformer_model')
+
+                    if gru_key and transformer_key:
+                        print(f"Loading ensemble regime models...")
+                        print(f"  GRU: {gru_key}")
+                        print(f"  Transformer: {transformer_key}")
+
+                        gru_data = self._load_pickle(gru_key)
+                        transformer_data = self._load_pickle(transformer_key)
+
+                        if gru_data and transformer_data:
+                            # Create ensemble wrapper
+                            self.ensemble_model = EnsembleRegimeModel(
+                                gru_model=gru_data.get('model'),
+                                transformer_model=transformer_data.get('model'),
+                                gru_weight=0.5,
+                                transformer_weight=0.5,
+                                disagreement_threshold=0.3
+                            )
+                            self.regime_model = self.ensemble_model
+                            print(f"  Loaded ensemble regime model v{self.model_version}")
+                else:
+                    # Load single regime model
+                    regime_key = latest_config.get('regime_model')
+                    if regime_key:
+                        print(f"Loading trained regime model: {regime_key}")
+                        regime_data = self._load_pickle(regime_key)
+                        if regime_data:
+                            self.regime_model = TrainedRegimeModel(regime_data)
+                            print(f"  Loaded regime model v{self.regime_model.version}")
 
                 # Load health model
                 health_key = latest_config.get('health_model')
@@ -256,13 +286,17 @@ class ModelLoader:
                 print(f"Error loading trained models: {e}")
                 print("Falling back to baseline models")
                 self.regime_model = None
+                self.ensemble_model = None
                 self.health_model = None
         else:
             print("PyTorch not available, using baseline models")
 
         return {
-            'regime': f'trained_v{self.model_version}' if self.regime_model else 'baseline_v1',
-            'health': f'trained_v{self.model_version}' if self.health_model else 'baseline_v1'
+            'regime': f'ensemble_v{self.model_version}' if self.is_ensemble and self.ensemble_model else (
+                f'trained_v{self.model_version}' if self.regime_model else 'baseline_v1'
+            ),
+            'health': f'trained_v{self.model_version}' if self.health_model else 'baseline_v1',
+            'ensemble': self.is_ensemble and self.ensemble_model is not None
         }
 
     def _load_pickle(self, key: str) -> Optional[dict]:
@@ -280,6 +314,16 @@ class ModelLoader:
         Predict market regime.
 
         Uses trained model if available, otherwise baseline.
+        For ensemble models, includes disagreement and confidence info.
+
+        Returns:
+            Dict with:
+                - regime_label: Predicted regime
+                - regime_probs: Probability distribution
+                - regime_embedding: Latent embedding
+                - confidence: Model confidence (ensemble: agreement-weighted)
+                - disagreement: Model disagreement (0-1, ensemble only)
+                - position_size_multiplier: Sizing adjustment (ensemble only)
         """
         import pandas as pd
 
@@ -287,13 +331,35 @@ class ModelLoader:
         if isinstance(context, dict):
             context = pd.Series(context)
 
+        # Try ensemble model first
+        if self.is_ensemble and self.ensemble_model:
+            try:
+                result = self.ensemble_model.predict(context)
+                return result
+            except Exception as e:
+                print(f"Ensemble regime model error: {e}, falling back to baseline")
+                return baseline_ensemble_regime(context)
+
+        # Try single trained model
         if self.regime_model:
             try:
-                return self.regime_model.predict(context)
+                result = self.regime_model.predict(context)
+                # Add default ensemble fields for compatibility
+                result['confidence'] = max(result.get('regime_probs', {}).values()) if result.get('regime_probs') else 1.0
+                result['disagreement'] = 0.0
+                result['agreement'] = 1.0
+                result['position_size_multiplier'] = 1.0
+                return result
             except Exception as e:
                 print(f"Trained regime model error: {e}, falling back to baseline")
 
-        return baseline_regime_model(context)
+        # Baseline fallback
+        result = baseline_regime_model(context)
+        result['confidence'] = 1.0
+        result['disagreement'] = 0.0
+        result['agreement'] = 1.0
+        result['position_size_multiplier'] = 1.0
+        return result
 
     def predict_health(self, features_df, latest_date) -> 'pd.DataFrame':
         """

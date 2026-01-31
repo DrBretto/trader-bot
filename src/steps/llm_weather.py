@@ -1,12 +1,20 @@
-"""LLM weather blurb generation for daily market summary."""
+"""LLM weather blurb generation for daily market summary using Claude Haiku via Bedrock."""
 
 import json
+import os
 from typing import Dict, Any, List
-from openai import OpenAI
+
+import boto3
+
+# Try OpenAI as fallback
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
 
 
-WEATHER_BLURB_PROMPT = """
-You are a portfolio manager writing a daily market brief.
+WEATHER_BLURB_PROMPT = """You are a portfolio manager writing a daily market brief.
 
 Date: {date}
 Regime: {regime}
@@ -35,13 +43,12 @@ Write a brief, professional daily update (80-140 words) explaining:
 
 Then provide 3 bullet takeaways (<15 words each).
 
-Respond with JSON:
+Respond with JSON only (no markdown):
 {{
   "headline": "12 word headline",
   "blurb": "80-140 word narrative",
   "takeaways": ["bullet 1", "bullet 2", "bullet 3"]
-}}
-"""
+}}"""
 
 
 def generate_fallback_weather(
@@ -85,20 +92,59 @@ def generate_fallback_weather(
     }
 
 
-def call_llm_weather_blurb(
+def call_llm_weather_bedrock(
+    snapshot: Dict[str, Any],
+    region: str = 'us-east-1'
+) -> Dict[str, Any]:
+    """Generate daily weather report using Claude Haiku via Amazon Bedrock."""
+    client = boto3.client('bedrock-runtime', region_name=region)
+
+    prompt = WEATHER_BLURB_PROMPT.format(**snapshot)
+
+    try:
+        body = json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 400,
+            "system": "You are a portfolio manager. Always respond with valid JSON only, no markdown.",
+            "messages": [{"role": "user", "content": prompt}]
+        })
+
+        response = client.invoke_model(
+            modelId="anthropic.claude-3-haiku-20240307-v1:0",
+            contentType="application/json",
+            accept="application/json",
+            body=body
+        )
+
+        response_body = json.loads(response['body'].read())
+        result_text = response_body['content'][0]['text']
+
+        # Clean up response (remove markdown code blocks if present)
+        if result_text.startswith('```'):
+            lines = result_text.split('\n')
+            result_text = '\n'.join(lines[1:-1] if lines[-1].strip() == '```' else lines[1:])
+
+        result = json.loads(result_text)
+
+        if not all(k in result for k in ['headline', 'blurb', 'takeaways']):
+            print("LLM weather (Bedrock): Missing required keys, using fallback")
+            return generate_fallback_weather(snapshot)
+
+        return result
+
+    except json.JSONDecodeError as e:
+        print(f"LLM weather (Bedrock): JSON parse error: {e}")
+        return generate_fallback_weather(snapshot)
+    except Exception as e:
+        print(f"LLM weather (Bedrock) failed: {e}")
+        return generate_fallback_weather(snapshot)
+
+
+def call_llm_weather_openai(
     snapshot: Dict[str, Any],
     api_key: str
 ) -> Dict[str, Any]:
-    """
-    Generate daily weather report using LLM.
-
-    Args:
-        snapshot: Dict with portfolio and market data
-        api_key: OpenAI API key
-
-    Returns:
-        {'headline': str, 'blurb': str, 'takeaways': list[str]}
-    """
+    """Generate daily weather report using OpenAI (fallback)."""
     client = OpenAI(api_key=api_key)
 
     prompt = WEATHER_BLURB_PROMPT.format(**snapshot)
@@ -107,10 +153,7 @@ def call_llm_weather_blurb(
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are a portfolio manager. Always respond with valid JSON only."
-                },
+                {"role": "system", "content": "You are a portfolio manager. Always respond with valid JSON only."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.5,
@@ -119,7 +162,6 @@ def call_llm_weather_blurb(
 
         result_text = response.choices[0].message.content
 
-        # Clean up response (remove markdown code blocks if present)
         if result_text.startswith('```'):
             result_text = result_text.split('\n', 1)[1]
         if result_text.endswith('```'):
@@ -127,19 +169,45 @@ def call_llm_weather_blurb(
 
         result = json.loads(result_text)
 
-        # Validate structure
         if not all(k in result for k in ['headline', 'blurb', 'takeaways']):
-            print("LLM weather: Missing required keys, using fallback")
             return generate_fallback_weather(snapshot)
 
         return result
 
-    except json.JSONDecodeError as e:
-        print(f"LLM weather: JSON parse error: {e}")
-        return generate_fallback_weather(snapshot)
     except Exception as e:
-        print(f"LLM weather blurb failed: {e}")
+        print(f"LLM weather (OpenAI) failed: {e}")
         return generate_fallback_weather(snapshot)
+
+
+def call_llm_weather_blurb(
+    snapshot: Dict[str, Any],
+    api_key: str = '',
+    region: str = 'us-east-1'
+) -> Dict[str, Any]:
+    """
+    Generate daily weather report using LLM.
+
+    Uses Claude Haiku via Amazon Bedrock (preferred), falls back to OpenAI.
+
+    Args:
+        snapshot: Dict with portfolio and market data
+        api_key: OpenAI API key (fallback only)
+        region: AWS region for Bedrock
+
+    Returns:
+        {'headline': str, 'blurb': str, 'takeaways': list[str]}
+    """
+    # Try Bedrock first (uses AWS credentials, no API key needed)
+    result = call_llm_weather_bedrock(snapshot, region)
+    if result and 'headline' in result:
+        return result
+
+    # Fall back to OpenAI if Bedrock fails and we have an API key
+    if OPENAI_AVAILABLE and api_key:
+        return call_llm_weather_openai(snapshot, api_key)
+
+    print("No LLM available for weather blurb")
+    return generate_fallback_weather(snapshot)
 
 
 def run(
@@ -147,24 +215,28 @@ def run(
     decisions: Dict[str, Any],
     portfolio_state: Dict[str, Any],
     context_df: 'pd.DataFrame',
-    openai_key: str
+    openai_key: str = '',
+    region: str = 'us-east-1'
 ) -> Dict[str, Any]:
     """
     Generate daily weather blurb.
+
+    Uses Claude Haiku via Amazon Bedrock (preferred), falls back to OpenAI.
 
     Args:
         inference_output: Output from run_inference
         decisions: Output from decision_engine
         portfolio_state: Current portfolio state
         context_df: Market context
-        openai_key: OpenAI API key
+        openai_key: OpenAI API key (fallback)
+        region: AWS region for Bedrock
 
     Returns:
         Weather blurb dict
     """
     import pandas as pd
 
-    print("Generating weather blurb...")
+    print("Generating weather blurb (Bedrock/Haiku)...")
 
     # Build snapshot for prompt
     regime = inference_output.get('regime', {}).get('label', 'risk_on_trend')
@@ -230,8 +302,8 @@ def run(
         'sells_summary': sells_summary
     }
 
-    # Generate weather blurb
-    weather = call_llm_weather_blurb(snapshot, openai_key)
+    # Generate weather blurb (tries Bedrock first, falls back to OpenAI)
+    weather = call_llm_weather_blurb(snapshot, openai_key, region)
 
     print(f"  Headline: {weather.get('headline', 'N/A')}")
 

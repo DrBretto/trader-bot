@@ -123,6 +123,7 @@ def lambda_handler(event: dict, context) -> dict:
             openai_key = get_secret('investment-system/openai-key', region)
             fred_key = get_secret('investment-system/fred-key', region)
             alphavantage_key = get_secret('investment-system/alphavantage-key', region)
+            logger.info("Using Claude Haiku via Bedrock for LLM calls")
 
         # Extract universe symbols
         universe = config['universe']
@@ -166,18 +167,17 @@ def lambda_handler(event: dict, context) -> dict:
         # Step 6: Run inference
         log_step(6, 10, "Running inference...", logger)
         with StepTimer("Run inference", logger):
+            # Add bucket to config for model loading
+            config['s3_bucket'] = bucket
             inference_output = run_inference.run(features_df, context_df, config)
 
-        # Step 7: LLM risk check
+        # Step 7: LLM risk check (uses Bedrock/Haiku, falls back to OpenAI)
         log_step(7, 10, "LLM risk check...", logger)
         with StepTimer("LLM risk check", logger):
-            if openai_key:
-                llm_risks = llm_risk_check.run(
-                    inference_output, features_df, context_df, openai_key, config
-                )
-            else:
-                logger.warning("OpenAI key not available, skipping LLM risk check")
-                llm_risks = {}
+            config['aws_region'] = region
+            llm_risks = llm_risk_check.run(
+                inference_output, features_df, context_df, openai_key, config
+            )
 
         # Step 8: Decision engine
         log_step(8, 10, "Running decision engine...", logger)
@@ -191,20 +191,12 @@ def lambda_handler(event: dict, context) -> dict:
         with StepTimer("Paper trader", logger):
             portfolio_state, trades = paper_trader.run(decisions, prices_df, bucket)
 
-        # Step 10: LLM weather blurb
+        # Step 10: LLM weather blurb (uses Bedrock/Haiku, falls back to OpenAI)
         log_step(10, 10, "Generating weather blurb...", logger)
         with StepTimer("LLM weather", logger):
-            if openai_key:
-                weather = llm_weather.run(
-                    inference_output, decisions, portfolio_state, context_df, openai_key
-                )
-            else:
-                logger.warning("OpenAI key not available, using fallback weather")
-                weather = llm_weather.generate_fallback_weather({
-                    'regime': inference_output.get('regime', {}).get('label', 'unknown'),
-                    'day_return': 0
-                })
-                weather['date'] = run_date
+            weather = llm_weather.run(
+                inference_output, decisions, portfolio_state, context_df, openai_key, region
+            )
 
         # Publish all artifacts to S3
         logger.info("Publishing artifacts to S3...")
