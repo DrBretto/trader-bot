@@ -166,13 +166,31 @@ Asset: MEME_STOCK
 from pytrends.request import TrendReq
 
 def get_retail_attention(symbols: List[str]) -> Dict[str, float]:
-    pytrends = TrendReq()
+    """
+    Fetch retail attention from Google Trends.
 
-    for symbol in symbols:
-        # Search for "buy {symbol} stock" type queries
-        pytrends.build_payload([f"{symbol} stock"], timeframe='now 7-d')
-        data = pytrends.interest_over_time()
-        # Return normalized attention score
+    NOTE: pytrends is an unofficial scraper - Google can break it anytime.
+    Always wrap in try/except and return neutral scores on failure.
+    """
+    try:
+        pytrends = TrendReq()
+        results = {}
+
+        for symbol in symbols:
+            pytrends.build_payload([f"{symbol} stock"], timeframe='now 7-d')
+            data = pytrends.interest_over_time()
+            if not data.empty:
+                # Normalize to 0-1 scale
+                results[symbol] = data[f"{symbol} stock"].iloc[-1] / 100.0
+            else:
+                results[symbol] = 0.5  # Neutral if no data
+
+        return results
+
+    except Exception as e:
+        print(f"Google Trends failed: {e}")
+        # Return neutral scores instead of crashing pipeline
+        return {symbol: 0.5 for symbol in symbols}
 ```
 
 **Signals**:
