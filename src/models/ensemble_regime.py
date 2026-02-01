@@ -116,7 +116,7 @@ class EnsembleRegimeModel:
         # Handle different input types
         if isinstance(context_data, dict):
             context_data = self._dict_to_tensor(context_data)
-        elif hasattr(context_data, 'values'):  # pandas Series
+        elif not isinstance(context_data, torch.Tensor) and hasattr(context_data, 'get'):  # pandas Series
             context_data = self._series_to_tensor(context_data)
 
         # Ensure tensor is on device

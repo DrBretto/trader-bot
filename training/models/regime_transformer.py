@@ -224,6 +224,7 @@ class RegimeTransformer(nn.Module):
 
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
         self.num_classes = num_classes
         self.embedding_dim = embedding_dim
 

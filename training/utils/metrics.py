@@ -259,27 +259,34 @@ def compute_regime_labels_from_baseline(context_df) -> np.ndarray:
     Generate regime labels using baseline model logic.
 
     This creates pseudo-labels for self-supervised or semi-supervised training.
+    Thresholds are calibrated to recent market data (2024-2026).
     """
     labels = []
 
-    vol_p85 = 0.25
-    vol_p50 = 0.18
-    vol_p40 = 0.15
+    # Volatility thresholds (calibrated to recent market conditions)
+    vol_p85 = 0.14  # elevated vol
+    vol_p50 = 0.10  # normal vol
+    vol_p40 = 0.08  # low vol
 
     for _, row in context_df.iterrows():
         spy_21d_ret = row.get('spy_return_21d', 0)
-        spy_21d_vol = row.get('spy_vol_21d', 0.15)
+        spy_21d_vol = row.get('spy_vol_21d', 0.10)
         credit_stress = row.get('credit_spread_proxy', 0)
         vixy_21d_ret = row.get('vixy_return_21d', 0)
 
-        if (vixy_21d_ret > 0.20 or spy_21d_vol > vol_p85) and spy_21d_ret < -0.08:
+        # 1. High Vol Panic: VIX spike + high vol + negative returns
+        if (vixy_21d_ret > 0.10 or spy_21d_vol > vol_p85) and spy_21d_ret < -0.02:
             label = 'high_vol_panic'
-        elif spy_21d_ret < -0.05 or credit_stress < -0.03:
+        # 2. Risk-Off Trend: Negative returns or credit stress
+        elif spy_21d_ret < -0.01 or credit_stress < -0.01:
             label = 'risk_off_trend'
-        elif spy_21d_ret > 0.06 and spy_21d_vol < vol_p40:
+        # 3. Calm Uptrend: Strong positive returns + low vol
+        elif spy_21d_ret > 0.03 and spy_21d_vol < vol_p40:
             label = 'calm_uptrend'
-        elif abs(spy_21d_ret) < 0.02 and spy_21d_vol > vol_p50:
+        # 4. Choppy: Low absolute returns + elevated vol
+        elif abs(spy_21d_ret) < 0.01 and spy_21d_vol > vol_p50:
             label = 'choppy'
+        # 5. Default: Risk-On Trend
         else:
             label = 'risk_on_trend'
 

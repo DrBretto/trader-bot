@@ -13,10 +13,11 @@ REGIMES = [
     'high_vol_panic'
 ]
 
-# Hardcoded volatility percentile thresholds (will be learned in Phase 2)
-VOL_P40 = 0.15  # 15% annualized
-VOL_P50 = 0.18  # 18% annualized
-VOL_P85 = 0.25  # 25% annualized
+# Volatility percentile thresholds (calibrated to recent market data)
+# These represent typical market conditions 2024-2026
+VOL_P40 = 0.08  # 8% annualized (low vol)
+VOL_P50 = 0.10  # 10% annualized (normal)
+VOL_P85 = 0.14  # 14% annualized (elevated)
 
 
 def baseline_regime_model(context: pd.Series) -> Dict[str, Any]:
@@ -49,19 +50,23 @@ def baseline_regime_model(context: pd.Series) -> Dict[str, Any]:
     # Classification rules (in priority order)
 
     # 1. High Vol Panic: VIX spike + high vol + negative returns
-    if (vixy_21d_ret > 0.20 or spy_21d_vol > VOL_P85) and spy_21d_ret < -0.08:
+    # Calibrated: vixy > 10% (spike) OR vol > P85, AND returns < -2%
+    if (vixy_21d_ret > 0.10 or spy_21d_vol > VOL_P85) and spy_21d_ret < -0.02:
         label = 'high_vol_panic'
 
     # 2. Risk-Off Trend: Negative returns or credit stress
-    elif spy_21d_ret < -0.05 or credit_stress < -0.03:
+    # Calibrated: returns < -1% OR credit stress < -1%
+    elif spy_21d_ret < -0.01 or credit_stress < -0.01:
         label = 'risk_off_trend'
 
     # 3. Calm Uptrend: Strong positive returns + low vol
-    elif spy_21d_ret > 0.06 and spy_21d_vol < VOL_P40:
+    # Calibrated: returns > 3% AND vol < P40
+    elif spy_21d_ret > 0.03 and spy_21d_vol < VOL_P40:
         label = 'calm_uptrend'
 
-    # 4. Choppy: Low returns + elevated vol
-    elif abs(spy_21d_ret) < 0.02 and spy_21d_vol > VOL_P50:
+    # 4. Choppy: Low absolute returns + elevated vol
+    # Calibrated: |returns| < 1% AND vol > P50
+    elif abs(spy_21d_ret) < 0.01 and spy_21d_vol > VOL_P50:
         label = 'choppy'
 
     # 5. Default: Risk-On Trend

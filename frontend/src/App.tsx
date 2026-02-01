@@ -8,6 +8,7 @@ import {
   WeatherReport,
   PortfolioTable,
   CandidatesTable,
+  EnsembleStatus,
 } from './components';
 
 export function App() {
@@ -91,6 +92,7 @@ export function App() {
             </div>
           ))}
         </div>
+        <EnsembleStatus ensemble={data.weather.regime.ensemble} />
       </div>
 
       <div className="tables-row">

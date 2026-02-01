@@ -53,11 +53,28 @@ export interface MonthlyReturn {
   return_pct: number;
 }
 
+export interface ModelPrediction {
+  label: string;
+  confidence: number;
+  probs: Record<string, number>;
+}
+
+export interface EnsembleMetrics {
+  confidence: number;
+  disagreement: number;
+  agreement: number;
+  position_size_multiplier: number;
+  gru_prediction?: ModelPrediction;
+  transformer_prediction?: ModelPrediction;
+  is_ensemble: boolean;
+}
+
 export interface RegimeInfo {
   regime: string;
   description: string;
   risk_level: 'low' | 'medium' | 'high' | 'extreme';
   probs: Record<string, number>;
+  ensemble?: EnsembleMetrics;
 }
 
 export interface WeatherReport {

@@ -250,15 +250,44 @@ class ModelLoader:
                         transformer_data = self._load_pickle(transformer_key)
 
                         if gru_data and transformer_data:
-                            # Create ensemble wrapper
+                            # Recreate models from state dicts
+                            from training.models.regime_transformer import create_regime_model
+
+                            gru_config = gru_data.get('model_config', {})
+                            gru_model = create_regime_model(
+                                model_type='gru',
+                                input_dim=gru_config.get('input_dim', 10),
+                                hidden_dim=gru_config.get('hidden_dim', 64),
+                                num_layers=gru_config.get('num_layers', 2),
+                                num_classes=gru_config.get('num_classes', 5),
+                                embedding_dim=gru_config.get('embedding_dim', 8)
+                            )
+                            gru_model.load_state_dict(gru_data['model_state'])
+                            gru_model.eval()
+
+                            trans_config = transformer_data.get('model_config', {})
+                            trans_model = create_regime_model(
+                                model_type='transformer',
+                                input_dim=trans_config.get('input_dim', 10),
+                                hidden_dim=trans_config.get('hidden_dim', 64),
+                                num_layers=trans_config.get('num_layers', 2),
+                                num_classes=trans_config.get('num_classes', 5),
+                                embedding_dim=trans_config.get('embedding_dim', 8)
+                            )
+                            trans_model.load_state_dict(transformer_data['model_state'])
+                            trans_model.eval()
+
+                            # Create ensemble wrapper with actual models
                             self.ensemble_model = EnsembleRegimeModel(
-                                gru_model=gru_data.get('model'),
-                                transformer_model=transformer_data.get('model'),
+                                gru_model=gru_model,
+                                transformer_model=trans_model,
                                 gru_weight=0.5,
                                 transformer_weight=0.5,
                                 disagreement_threshold=0.3
                             )
                             self.regime_model = self.ensemble_model
+                            self._gru_data = gru_data  # Store for normalization
+                            self._transformer_data = transformer_data
                             print(f"  Loaded ensemble regime model v{self.model_version}")
                 else:
                     # Load single regime model
@@ -334,10 +363,39 @@ class ModelLoader:
         # Try ensemble model first
         if self.is_ensemble and self.ensemble_model:
             try:
-                result = self.ensemble_model.predict(context)
+                # Use stored GRU data for normalization
+                gru_data = getattr(self, '_gru_data', {})
+                feature_cols = gru_data.get('feature_cols', [])
+                normalization = gru_data.get('normalization', {})
+                config = gru_data.get('model_config', {})
+
+                # Extract and normalize features
+                features = []
+                for col in feature_cols:
+                    val = context.get(col, 0.0)
+                    if pd.isna(val):
+                        val = 0.0
+                    features.append(float(val))
+
+                features = np.array(features, dtype=np.float32)
+                mean = np.array(normalization.get('mean', [0] * len(features)))
+                std = np.array(normalization.get('std', [1] * len(features)))
+                std = np.where(std == 0, 1, std)  # Avoid division by zero
+                features = (features - mean) / std
+
+                # Create sequence (repeat for seq_length)
+                seq_length = config.get('seq_length', 21)
+                seq = np.tile(features, (seq_length, 1))
+
+                # Convert to tensor
+                x = torch.tensor(seq, dtype=torch.float32).unsqueeze(0)
+
+                result = self.ensemble_model.predict(x)
                 return result
             except Exception as e:
                 print(f"Ensemble regime model error: {e}, falling back to baseline")
+                import traceback
+                traceback.print_exc()
                 return baseline_ensemble_regime(context)
 
         # Try single trained model

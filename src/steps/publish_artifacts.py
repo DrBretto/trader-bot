@@ -80,11 +80,39 @@ def build_dashboard_data(
         'high_vol_panic': 'extreme'
     }
 
+    # Build ensemble metrics if available
+    model_versions = inference_output.get('model_versions', {})
+    is_ensemble = model_versions.get('ensemble', False)
+
+    ensemble_metrics = {
+        'confidence': regime_data.get('confidence', 1.0),
+        'disagreement': regime_data.get('disagreement', 0.0),
+        'agreement': regime_data.get('agreement', 1.0),
+        'position_size_multiplier': regime_data.get('position_size_multiplier', 1.0),
+        'is_ensemble': is_ensemble,
+    }
+
+    # Add individual model predictions if ensemble
+    if is_ensemble:
+        gru_pred = regime_data.get('gru_prediction', {})
+        trans_pred = regime_data.get('transformer_prediction', {})
+        ensemble_metrics['gru_prediction'] = {
+            'label': gru_pred.get('label', ''),
+            'confidence': gru_pred.get('confidence', 0),
+            'probs': gru_pred.get('probs', {})
+        }
+        ensemble_metrics['transformer_prediction'] = {
+            'label': trans_pred.get('label', ''),
+            'confidence': trans_pred.get('confidence', 0),
+            'probs': trans_pred.get('probs', {})
+        }
+
     regime_info = {
         'regime': regime_label,
         'description': regime_data.get('description', ''),
         'risk_level': risk_level_map.get(regime_label, 'medium'),
-        'probs': regime_data.get('probs', {})
+        'probs': regime_data.get('probs', {}),
+        'ensemble': ensemble_metrics
     }
 
     # Build weather report

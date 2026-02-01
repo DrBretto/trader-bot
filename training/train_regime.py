@@ -18,6 +18,35 @@ from tqdm import tqdm
 from training.models import create_regime_model, REGIME_LABELS, CONTEXT_FEATURES
 from training.utils.data_loader import create_regime_dataloaders, RegimeDataset
 from training.utils.metrics import RegimeMetrics, EarlyStopping, compute_regime_labels_from_baseline
+import numpy as np
+
+
+def compute_class_weights(labels: np.ndarray, num_classes: int) -> torch.Tensor:
+    """
+    Compute class weights inversely proportional to class frequency.
+
+    Args:
+        labels: Array of class labels
+        num_classes: Total number of classes
+
+    Returns:
+        Tensor of class weights
+    """
+    # Count occurrences of each class
+    class_counts = np.bincount(labels.astype(int), minlength=num_classes)
+
+    # Avoid division by zero for missing classes
+    class_counts = np.maximum(class_counts, 1)
+
+    # Compute weights inversely proportional to frequency
+    # Using balanced class weights formula: n_samples / (n_classes * n_samples_per_class)
+    n_samples = len(labels)
+    weights = n_samples / (num_classes * class_counts)
+
+    # Normalize to have mean = 1
+    weights = weights / weights.mean()
+
+    return torch.tensor(weights, dtype=torch.float32)
 
 
 def train_epoch(
@@ -150,6 +179,16 @@ def train_regime_model(
 
     print(f"Train: {len(train_loader.dataset)}, Val: {len(val_loader.dataset)}, Test: {len(test_loader.dataset)}")
 
+    # Compute class weights to handle imbalanced data
+    train_labels = []
+    for i in range(len(train_loader.dataset)):
+        train_labels.append(train_loader.dataset[i]['label'].item())
+    train_labels = np.array(train_labels)
+
+    class_weights = compute_class_weights(train_labels, len(REGIME_LABELS)).to(device)
+    print(f"Class distribution: {np.bincount(train_labels, minlength=len(REGIME_LABELS))}")
+    print(f"Class weights: {class_weights.cpu().numpy().round(2)}")
+
     # Create model
     model = create_regime_model(
         model_type=model_type,
@@ -163,8 +202,8 @@ def train_regime_model(
 
     print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 
-    # Loss and optimizer
-    criterion = nn.CrossEntropyLoss()
+    # Loss and optimizer (use class weights for imbalanced data)
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode='min', factor=0.5, patience=5
