@@ -5,21 +5,11 @@ Loads both GRU and Transformer regime models, runs inference on both,
 and computes ensemble prediction with agreement/disagreement metrics.
 """
 
-from __future__ import annotations
-
+import torch
+import torch.nn.functional as F
 import numpy as np
 from typing import Dict, Optional, Tuple
 import pickle
-
-# Try to import PyTorch (optional for Lambda)
-try:
-    import torch
-    import torch.nn.functional as F
-    TORCH_AVAILABLE = True
-except ImportError:
-    torch = None
-    F = None
-    TORCH_AVAILABLE = False
 
 
 class EnsembleRegimeModel:
@@ -28,8 +18,6 @@ class EnsembleRegimeModel:
 
     Combines predictions from both models and tracks disagreement
     as an uncertainty signal.
-
-    Requires PyTorch to be installed.
     """
 
     def __init__(
@@ -41,9 +29,6 @@ class EnsembleRegimeModel:
         disagreement_threshold: float = 0.3,
         device: str = 'auto'
     ):
-        if not TORCH_AVAILABLE:
-            raise RuntimeError("PyTorch is required for EnsembleRegimeModel")
-
         self.gru_model = gru_model
         self.transformer_model = transformer_model
         self.gru_weight = gru_weight
