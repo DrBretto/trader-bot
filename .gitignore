@@ -81,6 +81,7 @@ lambda_deploy_*.zip
 *.pth
 models/*.pkl
 models/*.pth
+training/data/*.parquet
 
 # Local config overrides
 config/local_*.json
