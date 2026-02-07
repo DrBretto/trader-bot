@@ -147,7 +147,7 @@ Plan:
 - [x] Error alerting
 - [x] Documentation
 
-### Phase 6: Market Intelligence Expansion (Expert Regime Engine) 🚧 PLANNED
+### Phase 6: Market Intelligence Expansion (Expert Regime Engine) ✅ COMPLETE
 
 Goal: expand from the current ensemble regime model into a **6-expert regime engine** with rich
 time-series visualization, while preserving low operational cost and preserving/increasing prediction quality.

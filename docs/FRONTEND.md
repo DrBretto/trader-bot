@@ -29,9 +29,16 @@ frontend/
 │   │   ├── MonthlyReturnsHeatmap.tsx  # Calendar heatmap
 │   │   ├── WeatherReport.tsx      # Market weather + regime
 │   │   ├── PortfolioTable.tsx     # Current holdings
-│   │   └── CandidatesTable.tsx    # Buy candidates
+│   │   ├── CandidatesTable.tsx    # Buy candidates
+│   │   ├── EnsembleStatus.tsx     # Regime Decision panel (fusion trail)
+│   │   ├── RegimeStrip.tsx        # Market intelligence strip + regime history
+│   │   ├── MacroCreditPanel.tsx   # Macro/credit expert chart
+│   │   ├── VolComplexPanel.tsx    # Volatility complex expert chart
+│   │   ├── FragilityPanel.tsx     # Cross-asset fragility expert chart
+│   │   └── EntropyPanel.tsx       # Entropy/distribution shift expert chart
 │   ├── hooks/
-│   │   └── useDashboardData.ts    # Data fetching hook
+│   │   ├── useDashboardData.ts    # Dashboard data fetching hook
+│   │   └── useTimeseriesData.ts   # Timeseries data fetching hook
 │   ├── types/
 │   │   └── index.ts               # TypeScript interfaces
 │   ├── App.tsx                    # Main app component
@@ -49,11 +56,13 @@ The dashboard fetches data from `./data/dashboard.json` by default. In productio
 
 ### Environment Variable
 
-Set `VITE_DATA_URL` to customize the data endpoint:
+Set `VITE_DATA_URL` at build time. For production (S3 static hosting), use:
 
 ```bash
-VITE_DATA_URL=https://your-bucket.s3.amazonaws.com/dashboard/latest.json npm run build
+VITE_DATA_URL=dashboard.json npm run build
 ```
+
+This makes the app fetch `dashboard.json` and `timeseries.json` from the same S3 prefix. Without this variable, it defaults to `./data/dashboard.json` (local dev).
 
 ## Dashboard Components
 
@@ -84,8 +93,28 @@ VITE_DATA_URL=https://your-bucket.s3.amazonaws.com/dashboard/latest.json npm run
 - Key risks
 
 ### Portfolio Tables
-- Current holdings with P&L
-- Top buy candidates with scores
+- Current holdings with P&L, health scores, vol bucket, days held
+- Top buy candidates ranked by score with 21d returns, behavior type, suggested size
+
+### Market Intelligence (Phase 6)
+
+#### Regime Strip
+- Current regime label with confidence
+- Risk throttle indicator
+- Expert signal summary bars (macro, vol, fragility, entropy, position size)
+- 60-day regime history color strip
+
+#### Regime Decision Panel
+- Final fused regime with position size and throttle
+- Override reason badge when active
+- Two-column inputs: ensemble models (GRU/Transformer predictions + agreement) and expert signals (4 scores with threshold bars)
+- Fusion logic trail: 6 priority-ordered rules showing active/inactive state
+
+#### Expert Signal Charts (4 panels, driven by timeseries.json)
+- **Macro/Credit**: Score line + yield slope overlay
+- **Volatility Complex**: Vol score + VIX/VVIX percentiles with regime shading
+- **Cross-Asset Fragility**: Fragility score + avg correlation with 0.75 threshold line
+- **Entropy/Distribution Shift**: Entropy score + z-score + shift event markers
 
 ## Deployment to S3
 
@@ -96,15 +125,18 @@ The frontend is designed for S3 static website hosting.
 cd frontend
 npm run build
 
-# Upload to S3 (handled by Cursor via DEPLOY.md)
-aws s3 sync dist/ s3://investment-system-data/dashboard/ --delete
+# Upload to S3 (see docs/DEPLOY.md for full command with --exclude flags)
+aws s3 sync dist/ s3://investment-system-data/dashboard/ \
+  --exclude "dashboard.json" --exclude "timeseries.json" \
+  --exclude "timeseries.parquet" --exclude "data/*" \
+  --delete --region us-east-1
 ```
 
 ### S3 Static Website Configuration
 
 1. Enable static website hosting on bucket
 2. Set index document to `index.html`
-3. Ensure public read access or CloudFront distribution
+3. Ensure public read access for dashboard/* prefix (see DEPLOY.md)
 
 ## Data Schema
 
@@ -119,6 +151,8 @@ interface DashboardData {
   drawdowns: DrawdownPoint[];
   monthly_returns: MonthlyReturn[];
   weather: WeatherReport;
+  expert_signals?: ExpertSignals;   // Phase 6: expert signal scores + fusion outputs
+  timeseries_url?: string;          // Phase 6: URL to timeseries.json for charts
 }
 ```
 

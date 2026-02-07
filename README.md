@@ -118,7 +118,7 @@ pytest tests/test_evolution.py -v       # Evolution tests (28)
 pytest tests/test_baseline_models.py -v # Baseline tests
 ```
 
-Current: **92 tests passing**
+Current: **122 tests** (109 passing, 3 pre-existing threshold mismatches in test_baseline_models.py)
 
 ## Configuration
 
