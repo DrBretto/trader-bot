@@ -2,7 +2,7 @@
 
 import json
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import pandas as pd
 
 from src.utils.s3_client import S3Client
@@ -13,7 +13,8 @@ def build_dashboard_data(
     inference_output: Dict[str, Any],
     decisions: Dict[str, Any],
     weather: Dict[str, Any],
-    s3: S3Client
+    s3: S3Client,
+    expert_signals: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """Build the dashboard.json data structure for the frontend."""
     timestamp = datetime.now().isoformat()
@@ -68,9 +69,10 @@ def build_dashboard_data(
     drawdowns = load_historical_drawdowns(s3)
     monthly_returns = load_monthly_returns(s3)
 
-    # Build regime info
+    # Build regime info (use fused regime if available)
     regime_data = inference_output.get('regime', {})
-    regime_label = regime_data.get('label', 'unknown')
+    expert_metrics = decisions.get('expert_metrics', {})
+    regime_label = expert_metrics.get('final_regime_label', regime_data.get('label', 'unknown'))
 
     risk_level_map = {
         'calm_uptrend': 'low',
@@ -125,7 +127,7 @@ def build_dashboard_data(
         'timestamp': timestamp
     }
 
-    return {
+    result = {
         'metrics': metrics,
         'holdings': holdings,
         'candidates': candidates,
@@ -135,25 +137,69 @@ def build_dashboard_data(
         'weather': weather_report
     }
 
+    # Add expert signals if available
+    if expert_signals is not None:
+        macro = expert_signals.get('macro_credit', {})
+        vol = expert_signals.get('vol_uncertainty', {})
+        frag = expert_signals.get('fragility', {})
+        ent = expert_signals.get('entropy_shift', {})
+        result['expert_signals'] = {
+            'macro_credit_score': macro.get('macro_credit_score', 0.0),
+            'yield_slope_10y_3m': macro.get('yield_slope_10y_3m', 0.0),
+            'hy_spread_proxy': macro.get('hy_spread_proxy', 0.0),
+            'vol_uncertainty_score': vol.get('vol_uncertainty_score', 0.5),
+            'vol_regime_label': vol.get('vol_regime_label', 'calm'),
+            'vix_percentile': vol.get('vix_percentile', 0.5),
+            'vvix_percentile': vol.get('vvix_percentile', 0.5),
+            'fragility_score': frag.get('fragility_score', 0.5),
+            'avg_correlation': frag.get('avg_correlation', 0.0),
+            'pc1_explained': frag.get('pc1_explained', 0.0),
+            'entropy_score': ent.get('entropy_score', 0.5),
+            'entropy_z_score': ent.get('entropy_z_score', 0.0),
+            'entropy_shift_flag': ent.get('entropy_shift_flag', False),
+            'final_regime_label': expert_metrics.get('final_regime_label', regime_label),
+            'regime_confidence': expert_metrics.get('regime_confidence', 1.0),
+            'position_size_modifier': expert_metrics.get('position_size_modifier', 1.0),
+            'risk_throttle_factor': expert_metrics.get('risk_throttle_factor', 0.0),
+        }
+        result['timeseries_url'] = 'timeseries.json'
+
+    return result
+
 
 def _build_equity_curve_from_daily(s3: S3Client, max_days: int = 365) -> List[Dict]:
     """Build equity curve from daily portfolio_state.json artifacts.
     Returns list of {date, value, benchmark} for frontend EquityCurvePoint.
+    Only includes dates from when trading started (portfolio value changed).
     """
     dates = s3.list_daily_dates(max_days=max_days)
     if not dates:
         return []
-    curve = []
+
+    # Build full curve first
+    full_curve = []
     for date_str in dates:
         state = s3.read_json(f'daily/{date_str}/portfolio_state.json')
         if state is not None and 'portfolio_value' in state:
             pv = state['portfolio_value']
-            curve.append({
+            full_curve.append({
                 'date': date_str,
                 'value': pv,
                 'benchmark': state.get('benchmark_value', pv),
             })
-    return curve
+
+    # Find first date where portfolio value changed from initial (trading started)
+    # Use tolerance for floating point comparison
+    initial_value = 100000
+    tolerance = 1.0  # $1 tolerance
+    first_trade_idx = 0
+    for i, point in enumerate(full_curve):
+        if abs(point['value'] - initial_value) > tolerance:
+            # Include one day before first trade for context (the starting point)
+            first_trade_idx = max(0, i - 1)
+            break
+
+    return full_curve[first_trade_idx:]
 
 
 def load_historical_equity(s3: S3Client) -> List[Dict]:
@@ -219,6 +265,54 @@ def load_monthly_returns(s3: S3Client) -> List[Dict]:
     return monthly
 
 
+def _build_timeseries_row(
+    run_date: str,
+    expert_signals: Dict[str, Any],
+    inference_output: Dict[str, Any],
+    decisions: Dict[str, Any],
+    portfolio_state: Dict[str, Any],
+    context_df: pd.DataFrame
+) -> Dict[str, Any]:
+    """Build a single row for the rolling timeseries dataset."""
+    macro = expert_signals.get('macro_credit', {})
+    vol = expert_signals.get('vol_uncertainty', {})
+    frag = expert_signals.get('fragility', {})
+    ent = expert_signals.get('entropy_shift', {})
+    expert_metrics = decisions.get('expert_metrics', {})
+    regime_data = inference_output.get('regime', {})
+    ctx = context_df.iloc[0] if len(context_df) > 0 else {}
+
+    return {
+        'date': run_date,
+        'final_regime_label': expert_metrics.get('final_regime_label',
+                                                  regime_data.get('label', 'unknown')),
+        'regime_confidence': expert_metrics.get('regime_confidence',
+                                                 regime_data.get('confidence', 1.0)),
+        'trend_risk_on_prob': regime_data.get('probs', {}).get('risk_on_trend', 0.0),
+        'panic_prob': regime_data.get('probs', {}).get('high_vol_panic', 0.0),
+        'macro_credit_score': macro.get('macro_credit_score', 0.0),
+        'yield_slope_10y_3m': macro.get('yield_slope_10y_3m', 0.0),
+        'hy_spread_proxy': macro.get('hy_spread_proxy', 0.0),
+        'vol_uncertainty_score': vol.get('vol_uncertainty_score', 0.5),
+        'vol_regime_label': vol.get('vol_regime_label', 'calm'),
+        'vix_percentile': vol.get('vix_percentile', 0.5),
+        'vvix_percentile': vol.get('vvix_percentile', 0.5),
+        'skew_value': vol.get('skew_value', 0.0),
+        'fragility_score': frag.get('fragility_score', 0.5),
+        'avg_correlation': frag.get('avg_correlation', 0.0),
+        'pc1_explained': frag.get('pc1_explained', 0.0),
+        'entropy_score': ent.get('entropy_score', 0.5),
+        'entropy_z_score': ent.get('entropy_z_score', 0.0),
+        'entropy_shift_flag': ent.get('entropy_shift_flag', False),
+        'entropy_consecutive_days': ent.get('entropy_consecutive_days', 0),
+        'entropy_above_threshold': ent.get('entropy_above_threshold', False),
+        'position_size_modifier': expert_metrics.get('position_size_modifier', 1.0),
+        'risk_throttle_factor': expert_metrics.get('risk_throttle_factor', 0.0),
+        'spy_close': float(ctx.get('spy_return_1d', 0)) if hasattr(ctx, 'get') else 0.0,
+        'portfolio_value': portfolio_state.get('portfolio_value', 100000),
+    }
+
+
 def run(
     bucket: str,
     run_date: str,
@@ -231,7 +325,8 @@ def run(
     portfolio_state: Dict[str, Any],
     trades: List[Dict],
     weather: Dict[str, Any],
-    validation: Dict[str, Any]
+    validation: Dict[str, Any],
+    expert_signals: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Publish all pipeline artifacts to S3.
@@ -253,6 +348,7 @@ def run(
         trades: Trade records
         weather: Weather blurb
         validation: Data validation results
+        expert_signals: Expert signal outputs (None = skip signal artifacts)
 
     Returns:
         Dict with publish status
@@ -371,10 +467,14 @@ def run(
 
     # 11. Update latest.json pointer
     try:
+        fused_regime = decisions.get('expert_metrics', {}).get(
+            'final_regime_label',
+            inference_output.get('regime', {}).get('label', 'unknown')
+        )
         latest = {
             'date': run_date,
             'timestamp': datetime.now().isoformat(),
-            'regime': inference_output.get('regime', {}).get('label', 'unknown'),
+            'regime': fused_regime,
             'portfolio_value': portfolio_state.get('portfolio_value', 0),
             'positions_count': len(portfolio_state.get('holdings', [])),
             'actions_count': len(decisions.get('actions', []))
@@ -385,10 +485,58 @@ def run(
         print(f"Failed to update latest.json: {e}")
         failed.append("latest.json")
 
-    # 12. Generate dashboard.json for frontend
+    # 12. Expert signals parquet (if available)
+    if expert_signals is not None:
+        try:
+            signals_row = _build_timeseries_row(
+                run_date, expert_signals, inference_output,
+                decisions, portfolio_state, context_df
+            )
+            signals_df = pd.DataFrame([signals_row])
+            s3.write_parquet(signals_df, f"{base_path}/signals.parquet")
+            published.append("signals.parquet")
+        except Exception as e:
+            print(f"Failed to publish signals.parquet: {e}")
+            failed.append("signals.parquet")
+
+    # 13. Rolling timeseries (append today, trim to 400 days)
+    if expert_signals is not None:
+        try:
+            ts_row = _build_timeseries_row(
+                run_date, expert_signals, inference_output,
+                decisions, portfolio_state, context_df
+            )
+
+            # Read existing timeseries
+            existing_ts = s3.read_parquet('dashboard/timeseries.parquet')
+            if len(existing_ts) > 0:
+                # Remove any existing row for today (idempotent re-runs)
+                existing_ts['date'] = existing_ts['date'].astype(str)
+                existing_ts = existing_ts[existing_ts['date'] != run_date]
+                ts_df = pd.concat([existing_ts, pd.DataFrame([ts_row])], ignore_index=True)
+            else:
+                ts_df = pd.DataFrame([ts_row])
+
+            # Trim to last 400 rows
+            ts_df = ts_df.tail(400).reset_index(drop=True)
+
+            s3.write_parquet(ts_df, 'dashboard/timeseries.parquet')
+            published.append("timeseries.parquet")
+
+            # Also write JSON version for frontend
+            ts_json = ts_df.to_dict(orient='records')
+            s3.write_json(ts_json, 'dashboard/data/timeseries.json')
+            s3.write_json(ts_json, 'dashboard/timeseries.json')
+            published.append("timeseries.json")
+        except Exception as e:
+            print(f"Failed to publish timeseries: {e}")
+            failed.append("timeseries.parquet")
+
+    # 14. Generate dashboard.json for frontend
     try:
         dashboard_data = build_dashboard_data(
-            portfolio_state, inference_output, decisions, weather, s3
+            portfolio_state, inference_output, decisions, weather, s3,
+            expert_signals=expert_signals
         )
         # Write to both locations for compatibility
         s3.write_json(dashboard_data, "dashboard/data/dashboard.json")

@@ -30,7 +30,7 @@ Market Context:
 - VIX proxy: {vixy_return:.2%}
 - Treasury 10y: {rate_10y:.2%}
 - Credit spread: {credit_spread:.2%}
-
+{expert_context}
 Today's Actions:
 - Buys: {buys_summary}
 - Sells: {sells_summary}
@@ -216,7 +216,8 @@ def run(
     portfolio_state: Dict[str, Any],
     context_df: 'pd.DataFrame',
     openai_key: str = '',
-    region: str = 'us-east-1'
+    region: str = 'us-east-1',
+    expert_signals: Dict[str, Any] = None
 ) -> Dict[str, Any]:
     """
     Generate daily weather blurb.
@@ -230,6 +231,7 @@ def run(
         context_df: Market context
         openai_key: OpenAI API key (fallback)
         region: AWS region for Bedrock
+        expert_signals: Expert signal outputs for context (optional)
 
     Returns:
         Weather blurb dict
@@ -238,8 +240,12 @@ def run(
 
     print("Generating weather blurb (Bedrock/Haiku)...")
 
-    # Build snapshot for prompt
-    regime = inference_output.get('regime', {}).get('label', 'risk_on_trend')
+    # Use fused regime if available
+    expert_metrics = decisions.get('expert_metrics', {})
+    regime = expert_metrics.get(
+        'final_regime_label',
+        inference_output.get('regime', {}).get('label', 'risk_on_trend')
+    )
     run_date = inference_output.get('date', pd.Timestamp.now().strftime('%Y-%m-%d'))
 
     # Portfolio metrics
@@ -285,6 +291,26 @@ def run(
     else:
         sells_summary = "None"
 
+    # Build expert signal context string
+    expert_context = ''
+    if expert_signals is not None:
+        macro = expert_signals.get('macro_credit', {})
+        vol = expert_signals.get('vol_uncertainty', {})
+        frag = expert_signals.get('fragility', {})
+        ent = expert_signals.get('entropy_shift', {})
+        throttle = expert_metrics.get('risk_throttle_factor', 0.0)
+
+        expert_context = (
+            f"\nExpert Signals:\n"
+            f"- Macro/Credit: {macro.get('macro_credit_score', 0):.2f} "
+            f"(slope: {macro.get('yield_slope_10y_3m', 0):.2f}%)\n"
+            f"- Vol Uncertainty: {vol.get('vol_uncertainty_score', 0.5):.2f} "
+            f"({vol.get('vol_regime_label', 'calm')})\n"
+            f"- Fragility: {frag.get('fragility_score', 0.5):.2f}\n"
+            f"- Entropy Shift: {'YES' if ent.get('entropy_shift_flag', False) else 'no'}\n"
+            f"- Risk Throttle: {throttle:.0%}\n"
+        )
+
     snapshot = {
         'date': run_date,
         'regime': regime,
@@ -298,6 +324,7 @@ def run(
         'vixy_return': vixy_return,
         'rate_10y': rate_10y,
         'credit_spread': credit_spread,
+        'expert_context': expert_context,
         'buys_summary': buys_summary,
         'sells_summary': sells_summary
     }
