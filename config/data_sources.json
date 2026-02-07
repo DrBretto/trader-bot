@@ -1,11 +1,12 @@
 {
   "stooq": {
     "base_url": "https://stooq.com/q/d/l/",
-    "timeout": 10
+    "timeout": 10,
+    "index_symbols": ["^VVIX", "^SKEW"]
   },
   "fred": {
     "base_url": "https://api.stlouisfed.org/fred/series/observations",
-    "series": ["DGS2", "DGS10", "VIXCLS", "DCOILWTICO", "DEXUSEU"]
+    "series": ["DGS2", "DGS3MO", "DGS10", "VIXCLS", "DCOILWTICO", "DEXUSEU"]
   },
   "gdelt": {
     "base_url": "http://data.gdeltproject.org/gdeltv2/"

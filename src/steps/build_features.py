@@ -15,7 +15,9 @@ from src.steps.ingest_fred import get_latest_values
 def run(
     prices_df: pd.DataFrame,
     fred_df: pd.DataFrame,
-    gdelt_data: Dict[str, float]
+    gdelt_data: Dict[str, float],
+    vvix_value: float = None,
+    skew_value: float = None
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Build features from raw price and macro data.
@@ -24,6 +26,8 @@ def run(
         prices_df: Price data with columns [date, symbol, open, high, low, close, volume]
         fred_df: FRED data with columns [date, series_id, value]
         gdelt_data: GDELT aggregate features dict
+        vvix_value: Latest VVIX index value (from Stooq), or None
+        skew_value: Latest SKEW index value (from Stooq), or None
 
     Returns:
         Tuple of (features_df, context_df)
@@ -106,7 +110,9 @@ def run(
         ief_df=proxy_symbols['IEF'],
         vixy_df=proxy_symbols['VIXY'],
         fred_data=fred_latest,
-        gdelt_data=gdelt_data
+        gdelt_data=gdelt_data,
+        vvix_value=vvix_value,
+        skew_value=skew_value
     )
 
     # Clean up features_df - keep only latest values per symbol for decision making

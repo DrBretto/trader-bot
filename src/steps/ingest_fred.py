@@ -8,6 +8,7 @@ from typing import Dict, List, Optional
 # Required FRED series
 FRED_SERIES = {
     'DGS2': '2-Year Treasury Yield',
+    'DGS3MO': '3-Month Treasury Yield',
     'DGS10': '10-Year Treasury Yield',
     'VIXCLS': 'VIX Close',
     'DCOILWTICO': 'WTI Oil Price',

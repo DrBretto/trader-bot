@@ -85,7 +85,9 @@ def compute_context_features(
     vixy_df: pd.DataFrame,
     fred_data: Dict[str, float],
     gdelt_data: Dict[str, float],
-    target_date: Optional[pd.Timestamp] = None
+    target_date: Optional[pd.Timestamp] = None,
+    vvix_value: Optional[float] = None,
+    skew_value: Optional[float] = None
 ) -> pd.DataFrame:
     """
     Compute market-wide context features.
@@ -116,8 +118,10 @@ def compute_context_features(
 
     # Rates from FRED
     rate_2y = fred_data.get('DGS2', 0)
+    rate_3m = fred_data.get('DGS3MO', 0)
     rate_10y = fred_data.get('DGS10', 0)
     yield_slope = rate_10y - rate_2y
+    yield_slope_10y_3m = rate_10y - rate_3m
 
     # Credit spread proxy (HYG - IEF performance)
     credit_spread_proxy = 0
@@ -139,11 +143,15 @@ def compute_context_features(
         'spy_return_21d': spy_latest.get('return_21d', 0) or 0,
         'spy_vol_21d': spy_latest.get('vol_21d', 0) or 0,
         'rate_2y': rate_2y,
+        'rate_3m': rate_3m,
         'rate_10y': rate_10y,
         'yield_slope': yield_slope,
+        'yield_slope_10y_3m': yield_slope_10y_3m,
         'credit_spread_proxy': credit_spread_proxy,
         'risk_off_proxy': risk_off_proxy,
         'vixy_return_21d': vixy_latest.get('return_21d', 0) if len(vixy_latest) > 0 else 0,
+        'vvix_value': vvix_value if vvix_value is not None else 0,
+        'skew_value': skew_value if skew_value is not None else 0,
         'gdelt_doc_count': gdelt_data.get('gdelt_doc_count', 0),
         'gdelt_avg_tone': gdelt_data.get('gdelt_avg_tone', 0),
         'gdelt_tone_std': gdelt_data.get('gdelt_tone_std', 0),

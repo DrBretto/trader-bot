@@ -59,6 +59,52 @@ def fetch_stooq_daily(symbol: str, lookback_days: int = 365) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def fetch_stooq_index(symbol: str, lookback_days: int = 365) -> pd.DataFrame:
+    """
+    Fetch daily close data for a Stooq index (e.g., ^VVIX, ^SKEW).
+
+    Index symbols use no .US suffix and typically only have close data.
+
+    Args:
+        symbol: Stooq index symbol (e.g., '^VVIX', '^SKEW')
+        lookback_days: Days of history to fetch
+
+    Returns:
+        DataFrame with columns: date, symbol, close
+        Empty DataFrame on failure.
+    """
+    url = f"https://stooq.com/q/d/l/?s={symbol}&i=d"
+
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+
+        if len(response.text) < 50 or 'No data' in response.text:
+            print(f"Stooq index: No data for {symbol}")
+            return pd.DataFrame()
+
+        df = pd.read_csv(StringIO(response.text))
+        df.columns = df.columns.str.lower()
+
+        if 'date' not in df.columns or 'close' not in df.columns:
+            print(f"Stooq index: Missing columns for {symbol}")
+            return pd.DataFrame()
+
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.sort_values('date')
+
+        cutoff = pd.Timestamp.now() - pd.Timedelta(days=lookback_days)
+        df = df[df['date'] >= cutoff]
+
+        df['symbol'] = symbol
+
+        return df[['date', 'symbol', 'close']].reset_index(drop=True)
+
+    except Exception as e:
+        print(f"Stooq index fetch failed for {symbol}: {e}")
+        return pd.DataFrame()
+
+
 def fetch_alphavantage_daily(symbol: str, api_key: str) -> pd.DataFrame:
     """
     Fallback price source for critical symbols.
