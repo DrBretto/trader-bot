@@ -23,6 +23,8 @@ def load_portfolio_state(s3: S3Client) -> Dict[str, Any]:
             'cash': 100000,
             'holdings': [],
             'portfolio_value': 100000,
+            'benchmark_value': 100000,
+            'benchmark_start_price': None,  # Will be set on first run
             'trades_today': [],
             'last_updated': datetime.now().isoformat()
         }
@@ -38,6 +40,8 @@ def load_portfolio_state(s3: S3Client) -> Dict[str, Any]:
         'cash': 100000,
         'holdings': [],
         'portfolio_value': 100000,
+        'benchmark_value': 100000,
+        'benchmark_start_price': None,
         'trades_today': [],
         'last_updated': datetime.now().isoformat()
     }
@@ -188,11 +192,131 @@ def update_portfolio_values(
             current_price / holding['entry_price'] - 1
         ) if holding['entry_price'] > 0 else 0
 
+        # Compute days held
+        entry_date = holding.get('entry_date')
+        if entry_date:
+            holding['days_held'] = (datetime.now() - pd.to_datetime(entry_date)).days
+        else:
+            holding['days_held'] = 0
+
         holdings_value += holding['market_value']
 
     portfolio['holdings_value'] = holdings_value
+    portfolio['invested'] = holdings_value
     portfolio['portfolio_value'] = portfolio['cash'] + holdings_value
     portfolio['last_updated'] = datetime.now().isoformat()
+
+    # Update SPY buy-and-hold benchmark
+    spy_prices = prices_df[prices_df['symbol'] == 'SPY']
+    if len(spy_prices) > 0:
+        current_spy_price = spy_prices.sort_values('date')['close'].iloc[-1]
+
+        # Initialize benchmark start price if not set
+        if portfolio.get('benchmark_start_price') is None:
+            portfolio['benchmark_start_price'] = current_spy_price
+            portfolio['benchmark_value'] = 100000  # Initial investment
+        else:
+            # Calculate what $100k would be worth if we bought SPY at start
+            start_price = portfolio['benchmark_start_price']
+            if start_price > 0:
+                portfolio['benchmark_value'] = 100000 * (current_spy_price / start_price)
+
+    return portfolio
+
+
+def compute_portfolio_stats(
+    portfolio: Dict[str, Any],
+    s3: S3Client
+) -> Dict[str, Any]:
+    """Compute ytd_return, mtd_return, sharpe_ratio, max_drawdown, win_rate, total_trades."""
+    import numpy as np
+
+    pv = portfolio['portfolio_value']
+    initial = 100000
+
+    # Load trade history to compute win_rate and total_trades
+    dates = s3.list_daily_dates(max_days=365)
+    dates = sorted(dates)
+
+    total_trades = 0
+    winning_trades = 0
+    daily_values = []
+
+    # Find YTD and MTD start values
+    now = datetime.now()
+    ytd_start_value = initial
+    mtd_start_value = initial
+
+    for date_str in dates:
+        state = s3.read_json(f'daily/{date_str}/portfolio_state.json')
+        if state is None:
+            continue
+
+        val = state.get('portfolio_value', initial)
+        daily_values.append(val)
+
+        # Count trades
+        trades_today = state.get('trades_today', [])
+        for t in trades_today:
+            if t.get('action') == 'SELL' and 'pnl' in t:
+                total_trades += 1
+                if t['pnl'] > 0:
+                    winning_trades += 1
+
+        # Track YTD start (first trading day of current year)
+        if date_str[:4] == str(now.year) and ytd_start_value == initial:
+            # Use the value from the day before, or initial
+            idx = dates.index(date_str)
+            if idx > 0:
+                prev_state = s3.read_json(f'daily/{dates[idx-1]}/portfolio_state.json')
+                if prev_state:
+                    ytd_start_value = prev_state.get('portfolio_value', initial)
+
+        # Track MTD start (first trading day of current month)
+        if date_str[:7] == f"{now.year}-{now.month:02d}" and mtd_start_value == initial:
+            idx = dates.index(date_str)
+            if idx > 0:
+                prev_state = s3.read_json(f'daily/{dates[idx-1]}/portfolio_state.json')
+                if prev_state:
+                    mtd_start_value = prev_state.get('portfolio_value', initial)
+
+    # Compute returns
+    ytd_return = (pv / ytd_start_value - 1) if ytd_start_value > 0 else 0
+    mtd_return = (pv / mtd_start_value - 1) if mtd_start_value > 0 else 0
+
+    # Compute Sharpe ratio from daily returns
+    sharpe_ratio = 0.0
+    if len(daily_values) >= 20:
+        values = np.array(daily_values)
+        daily_returns = np.diff(values) / values[:-1]
+        if len(daily_returns) > 0 and np.std(daily_returns) > 0:
+            sharpe_ratio = float(np.mean(daily_returns) / np.std(daily_returns) * np.sqrt(252))
+
+    # Compute max drawdown
+    max_drawdown = 0.0
+    if len(daily_values) >= 2:
+        values = np.array(daily_values)
+        peak = np.maximum.accumulate(values)
+        drawdowns = (values - peak) / peak
+        max_drawdown = float(np.min(drawdowns))
+
+    # Current drawdown
+    current_drawdown = 0.0
+    if len(daily_values) >= 2:
+        peak_value = max(daily_values)
+        if peak_value > 0:
+            current_drawdown = (pv - peak_value) / peak_value
+
+    # Win rate
+    win_rate = (winning_trades / total_trades) if total_trades > 0 else 0
+
+    portfolio['ytd_return'] = ytd_return
+    portfolio['mtd_return'] = mtd_return
+    portfolio['sharpe_ratio'] = sharpe_ratio
+    portfolio['max_drawdown'] = max_drawdown
+    portfolio['current_drawdown'] = current_drawdown
+    portfolio['win_rate'] = win_rate
+    portfolio['total_trades'] = total_trades
 
     return portfolio
 
@@ -235,6 +359,12 @@ def run(
 
     # Update portfolio values
     portfolio = update_portfolio_values(portfolio, prices_df)
+
+    # Compute performance stats (ytd, sharpe, etc.)
+    try:
+        portfolio = compute_portfolio_stats(portfolio, s3)
+    except Exception as e:
+        print(f"  Warning: stats computation failed: {e}")
 
     # Store trades for today
     portfolio['trades_today'] = trades
