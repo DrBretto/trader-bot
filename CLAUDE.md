@@ -127,3 +127,4 @@ If a safe default exists, use it and proceed.
 - **Complete what you start**: No placeholder implementations or TODO stubs. Finish each feature before moving on.
 - **Read errors carefully**: When something fails, read the error and address the root cause. Don't retry blindly.
 - **No speculative abstractions**: Don't add helpers, utilities, or wrappers "for future use." Build only what's needed.
+- **Read before deploy**: Before running any deploy, sync, or infrastructure command, read `docs/DEPLOY.md` to verify the correct targets (buckets, function names, regions). Never guess deploy targets from AWS resource listings.
