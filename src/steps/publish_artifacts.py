@@ -161,6 +161,11 @@ def build_dashboard_data(
             'regime_confidence': expert_metrics.get('regime_confidence', 1.0),
             'position_size_modifier': expert_metrics.get('position_size_modifier', 1.0),
             'risk_throttle_factor': expert_metrics.get('risk_throttle_factor', 0.0),
+            'override_reason': expert_metrics.get('override_reason'),
+            'ensemble_regime_label': regime_data.get('label', 'unknown'),
+            'panic_prob': regime_data.get('probs', {}).get('high_vol_panic', 0.0),
+            'ensemble_disagreement': regime_data.get('disagreement', 0.0),
+            'ensemble_multiplier': regime_data.get('position_size_multiplier', 1.0),
         }
         result['timeseries_url'] = 'timeseries.json'
 

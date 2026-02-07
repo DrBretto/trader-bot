@@ -111,7 +111,7 @@ export function App() {
             </div>
           ))}
         </div>
-        <EnsembleStatus ensemble={data.weather.regime.ensemble} />
+        <EnsembleStatus ensemble={data.weather.regime.ensemble} signals={data.expert_signals} />
       </div>
 
       <div className="tables-row">

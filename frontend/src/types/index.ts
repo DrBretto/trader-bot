@@ -104,6 +104,11 @@ export interface ExpertSignals {
   regime_confidence: number;
   position_size_modifier: number;
   risk_throttle_factor: number;
+  override_reason?: string | null;
+  ensemble_regime_label?: string;
+  panic_prob?: number;
+  ensemble_disagreement?: number;
+  ensemble_multiplier?: number;
 }
 
 export interface TimeseriesPoint {
