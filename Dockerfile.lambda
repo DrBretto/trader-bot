@@ -1,0 +1,29 @@
+# Lambda container image with PyTorch for ensemble model inference
+FROM public.ecr.aws/lambda/python:3.11
+
+# Upgrade pip first
+RUN pip install --upgrade pip
+
+# Install core dependencies with pre-built wheels (avoid compilation)
+# Order matters: numpy first, then packages that depend on it
+RUN pip install --no-cache-dir --only-binary=:all: \
+    numpy==1.26.4 \
+    pandas==2.1.4 \
+    pyarrow==14.0.2
+
+# Install PyTorch CPU-only (pre-built wheel)
+RUN pip install --no-cache-dir torch==2.1.2 --index-url https://download.pytorch.org/whl/cpu
+
+# Install scikit-learn (pre-built wheel)
+RUN pip install --no-cache-dir --only-binary=:all: scikit-learn==1.3.2
+
+# Copy requirements and install remaining Lambda deps
+COPY requirements-lambda.txt ./
+RUN pip install --no-cache-dir -r requirements-lambda.txt
+
+# Copy application code
+COPY src/ ${LAMBDA_TASK_ROOT}/src/
+COPY training/models/ ${LAMBDA_TASK_ROOT}/training/models/
+
+# Set the handler
+CMD ["src.handler.lambda_handler"]
