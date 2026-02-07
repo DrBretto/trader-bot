@@ -117,10 +117,18 @@ body {
   gap: 24px;
 }
 
+.expert-panels-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
 @media (max-width: 1024px) {
   .charts-row,
   .weather-regime-row,
-  .tables-row {
+  .tables-row,
+  .expert-panels-grid {
     grid-template-columns: 1fr;
   }
 }

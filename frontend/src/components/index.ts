@@ -6,3 +6,8 @@ export { WeatherReport } from './WeatherReport';
 export { PortfolioTable } from './PortfolioTable';
 export { CandidatesTable } from './CandidatesTable';
 export { EnsembleStatus } from './EnsembleStatus';
+export { RegimeStrip } from './RegimeStrip';
+export { MacroCreditPanel } from './MacroCreditPanel';
+export { VolComplexPanel } from './VolComplexPanel';
+export { FragilityPanel } from './FragilityPanel';
+export { EntropyPanel } from './EntropyPanel';

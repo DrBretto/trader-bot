@@ -1,5 +1,6 @@
 import { format, parseISO } from 'date-fns';
 import { useDashboardData } from './hooks/useDashboardData';
+import { useTimeseriesData } from './hooks/useTimeseriesData';
 import {
   HeroMetrics,
   EquityCurve,
@@ -9,10 +10,16 @@ import {
   PortfolioTable,
   CandidatesTable,
   EnsembleStatus,
+  RegimeStrip,
+  MacroCreditPanel,
+  VolComplexPanel,
+  FragilityPanel,
+  EntropyPanel,
 } from './components';
 
 export function App() {
   const { data, loading, error } = useDashboardData();
+  const { data: timeseries } = useTimeseriesData();
 
   if (loading) {
     return <div className="loading">Loading dashboard...</div>;
@@ -47,6 +54,18 @@ export function App() {
         <EquityCurve data={data.equity_curve} />
         <DrawdownChart data={data.drawdowns} />
       </div>
+
+      {/* Market Intelligence Section */}
+      <RegimeStrip signals={data.expert_signals} timeseries={timeseries} />
+
+      {timeseries.length > 0 && (
+        <div className="expert-panels-grid">
+          <MacroCreditPanel timeseries={timeseries} />
+          <VolComplexPanel timeseries={timeseries} />
+          <FragilityPanel timeseries={timeseries} />
+          <EntropyPanel timeseries={timeseries} />
+        </div>
+      )}
 
       <MonthlyReturnsHeatmap data={data.monthly_returns} />
 

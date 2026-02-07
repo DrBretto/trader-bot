@@ -86,6 +86,52 @@ export interface WeatherReport {
   timestamp: string;
 }
 
+export interface ExpertSignals {
+  macro_credit_score: number;
+  yield_slope_10y_3m: number;
+  hy_spread_proxy: number;
+  vol_uncertainty_score: number;
+  vol_regime_label: 'calm' | 'unstable_calm' | 'panic';
+  vix_percentile: number;
+  vvix_percentile: number;
+  fragility_score: number;
+  avg_correlation: number;
+  pc1_explained: number;
+  entropy_score: number;
+  entropy_z_score: number;
+  entropy_shift_flag: boolean;
+  final_regime_label: string;
+  regime_confidence: number;
+  position_size_modifier: number;
+  risk_throttle_factor: number;
+}
+
+export interface TimeseriesPoint {
+  date: string;
+  final_regime_label: string;
+  regime_confidence: number;
+  trend_risk_on_prob: number;
+  panic_prob: number;
+  macro_credit_score: number;
+  yield_slope_10y_3m: number;
+  hy_spread_proxy: number;
+  vol_uncertainty_score: number;
+  vol_regime_label: string;
+  vix_percentile: number;
+  vvix_percentile: number;
+  skew_value: number;
+  fragility_score: number;
+  avg_correlation: number;
+  pc1_explained: number;
+  entropy_score: number;
+  entropy_z_score: number;
+  entropy_shift_flag: boolean;
+  position_size_modifier: number;
+  risk_throttle_factor: number;
+  spy_close: number;
+  portfolio_value: number;
+}
+
 export interface DashboardData {
   metrics: PortfolioMetrics;
   holdings: Holding[];
@@ -94,4 +140,6 @@ export interface DashboardData {
   drawdowns: DrawdownPoint[];
   monthly_returns: MonthlyReturn[];
   weather: WeatherReport;
+  expert_signals?: ExpertSignals;
+  timeseries_url?: string;
 }
