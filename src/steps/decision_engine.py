@@ -340,6 +340,90 @@ def compute_position_size(
     }
 
 
+def _build_watchlist(
+    scored_df: pd.DataFrame,
+    current_holdings: List[str],
+    features_df: pd.DataFrame,
+    portfolio_value: float,
+    regime_label: str,
+    params: Dict[str, Any],
+    ensemble_multiplier: float,
+    position_size_modifier: float,
+    risk_throttle_factor: float,
+    target_count: int = 10
+) -> List[Dict[str, Any]]:
+    """Build a ranked watchlist of top-scored candidates for the dashboard.
+
+    Returns all scored symbols (excluding current holdings), sorted by score,
+    enriched with return data, behavior classification, and suggested size.
+    """
+    if len(scored_df) == 0:
+        return []
+
+    # Exclude current holdings
+    watchlist_df = scored_df[~scored_df['symbol'].isin(current_holdings)].copy()
+    watchlist_df = watchlist_df.sort_values('final_score', ascending=False).head(target_count)
+
+    if len(watchlist_df) == 0:
+        return []
+
+    # Get return data from features
+    latest_features = pd.DataFrame()
+    if len(features_df) > 0:
+        latest_date = features_df['date'].max()
+        latest_features = features_df[features_df['date'] == latest_date]
+
+    result = []
+    for _, row in watchlist_df.iterrows():
+        symbol = row['symbol']
+
+        # Get returns from features
+        return_21d = 0.0
+        return_63d = 0.0
+        if len(latest_features) > 0:
+            sym_feat = latest_features[latest_features['symbol'] == symbol]
+            if len(sym_feat) > 0:
+                return_21d = float(sym_feat.iloc[0].get('return_21d', 0) or 0)
+                return_63d = float(sym_feat.iloc[0].get('return_63d', 0) or 0)
+
+        # Classify behavior from returns
+        if return_21d > 0.02:
+            behavior = 'momentum'
+        elif return_21d < -0.02:
+            behavior = 'mean_reversion'
+        else:
+            behavior = 'mixed'
+
+        # Get current price for sizing
+        symbol_prices = features_df[features_df['symbol'] == symbol] if len(features_df) > 0 else pd.DataFrame()
+        current_price = 0.0
+        if len(symbol_prices) > 0:
+            current_price = float(symbol_prices.sort_values('date')['close'].iloc[-1])
+
+        # Compute suggested size
+        suggested_size = 0.0
+        if current_price > 0:
+            position = compute_position_size(
+                symbol, portfolio_value, current_price,
+                row['vol_bucket'], regime_label, params,
+                0.0, ensemble_multiplier, position_size_modifier, risk_throttle_factor
+            )
+            suggested_size = position['dollars']
+
+        result.append({
+            'symbol': symbol,
+            'score': float(row['final_score']),
+            'health_score': float(row['health_score']),
+            'vol_bucket': row['vol_bucket'],
+            'behavior': behavior,
+            'return_21d': return_21d,
+            'return_63d': return_63d,
+            'suggested_size': suggested_size,
+        })
+
+    return result
+
+
 def run(
     inference_output: Dict[str, Any],
     llm_risks: Dict[str, Dict],
@@ -550,10 +634,19 @@ def run(
           f"{len([a for a in actions if a['action'] == 'BUY'])} buys, "
           f"{len([a for a in actions if a['action'] == 'SELL'])} sells")
 
+    # 4. Build watchlist of top candidates for dashboard
+    watchlist = _build_watchlist(
+        scored, current_holdings, features_df, portfolio_value,
+        regime_label, params, ensemble_multiplier if expert_signals is None else 1.0,
+        position_size_modifier, risk_throttle_factor,
+        target_count=max(len(current_holdings), 8)
+    )
+
     result = {
         'date': run_date,
         'regime': regime_label,
         'actions': actions,
+        'buy_candidates': watchlist,
         'pass_filters': {
             'price_coverage': validation.get('price_coverage', 0),
             'context_freshness': 1 if not validation.get('degraded_mode', False) else 0,

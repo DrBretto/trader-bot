@@ -32,42 +32,28 @@ Run these once when setting up a new environment:
 
 ---
 
-## Deploy Lambda Function
+## Deploy Lambda Function (Container)
 
-After code changes, deploy the updated Lambda:
+The Lambda uses a container image to include PyTorch for ensemble model inference.
 
 ```bash
-# Build and deploy
-./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1
+# Build and deploy container image
+./infrastructure/lambda_deploy_container.sh investment-system-daily-pipeline investment-system-data us-east-1
 ```
 
-The script uses `requirements-lambda.txt` (slim deps; numpy/pandas/fastparquet come from the layer) so the deployment package stays under Lambda’s size limit with the layer.
+This script:
+1. Builds a Docker image with PyTorch (CPU-only, ~1.2GB)
+2. Pushes to ECR (`investment-system-pipeline` repository)
+3. Updates the Lambda function to use the new image
 
-**Note**: If numpy/pandas dependencies change, you may need to rebuild the Lambda layer:
+**ECR costs**: ~$0.10/GB/month storage (~$0.12/month for the image)
+
+### Legacy Zip Deployment (no PyTorch)
+
+For deployments without PyTorch (baseline models only):
 
 ```bash
-# Build layer with Docker (x86_64 for Lambda)
-rm -rf /tmp/layer-build/*
-docker run --rm --platform linux/amd64 -v /tmp/layer-build:/output public.ecr.aws/sam/build-python3.11:latest \
-  pip install numpy pandas fastparquet -t /output/python --only-binary=:all: --quiet
-
-# Zip and upload
-cd /tmp/layer-build && zip -r /tmp/layer.zip python -q
-aws s3 cp /tmp/layer.zip s3://investment-system-data/layers/pandas-layer.zip --region us-east-1
-
-# Publish new layer version
-aws lambda publish-layer-version \
-  --layer-name investment-system-pandas-x86 \
-  --content S3Bucket=investment-system-data,S3Key=layers/pandas-layer.zip \
-  --compatible-runtimes python3.11 \
-  --compatible-architectures x86_64 \
-  --region us-east-1
-
-# Update Lambda to use new layer (get ARN from previous command)
-aws lambda update-function-configuration \
-  --function-name investment-system-daily-pipeline \
-  --layers "arn:aws:lambda:us-east-1:767398003959:layer:investment-system-pandas-x86:VERSION" \
-  --region us-east-1
+./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1
 ```
 
 ---

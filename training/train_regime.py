@@ -321,10 +321,13 @@ def save_regime_model(
 
     os.makedirs(os.path.dirname(save_path) if os.path.dirname(save_path) else '.', exist_ok=True)
 
+    # Move model to CPU before saving for Lambda compatibility
+    model_cpu = model.cpu()
+
     # Save model state and config
     model_data = {
         'version': version,
-        'model_state': model.state_dict(),
+        'model_state': model_cpu.state_dict(),
         'model_config': {
             'model_type': history.get('model_type', 'gru'),
             'input_dim': len(history.get('feature_cols', CONTEXT_FEATURES)),
@@ -360,6 +363,8 @@ if __name__ == '__main__':
     parser.add_argument('--model-type', type=str, default='gru', choices=['gru', 'transformer'])
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--batch-size', type=int, default=32)
+    parser.add_argument('--device', type=str, default='cpu', choices=['auto', 'cpu', 'cuda', 'mps'],
+                        help='Device to train on (default: cpu for Lambda compatibility)')
     args = parser.parse_args()
 
     if args.data:
@@ -384,7 +389,8 @@ if __name__ == '__main__':
         context_df,
         model_type=args.model_type,
         epochs=args.epochs,
-        batch_size=args.batch_size
+        batch_size=args.batch_size,
+        device=args.device
     )
 
     save_regime_model(model, history, args.output)

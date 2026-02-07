@@ -67,7 +67,9 @@ export function App() {
         </div>
       )}
 
-      <MonthlyReturnsHeatmap data={data.monthly_returns} />
+      <div style={{ marginBottom: '24px' }}>
+        <MonthlyReturnsHeatmap data={data.monthly_returns} />
+      </div>
 
       <div className="weather-regime-row">
         <WeatherReport weather={data.weather} />
