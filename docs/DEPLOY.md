@@ -128,8 +128,13 @@ cd frontend
 npm install
 VITE_DATA_URL=dashboard.json npm run build
 
-# 2. Upload to S3
-aws s3 sync dist/ s3://investment-system-data/dashboard/ --delete --region us-east-1
+# 2. Upload to S3 (--exclude protects data files written by the pipeline)
+aws s3 sync dist/ s3://investment-system-data/dashboard/ \
+  --exclude "dashboard.json" \
+  --exclude "timeseries.json" \
+  --exclude "timeseries.parquet" \
+  --exclude "data/*" \
+  --delete --region us-east-1
 ```
 
 **First-time only** (enables public read for the dashboard prefix only):
@@ -159,7 +164,7 @@ Use this sequence for a full first-time go-live:
 2. **Secrets** – `./infrastructure/secrets_setup.sh us-east-1` (enter OpenAI, FRED, Alpha Vantage keys)
 3. **Lambda** – `./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1`
 4. **EventBridge** – `./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline us-east-1`
-5. **Dashboard (optional)** – First-time bucket policy and static website per "Deploy Frontend Dashboard" above; then `VITE_DATA_URL=dashboard.json npm run build` and `aws s3 sync dist/ s3://investment-system-data/dashboard/ --delete --region us-east-1`
+5. **Dashboard (optional)** – First-time bucket policy and static website per "Deploy Frontend Dashboard" above; then build and sync per the commands in that section (includes `--exclude` flags to protect data files).
 6. **Verify daily pipeline** – Invoke Lambda once (see "Verify Deployment" above); check `daily/latest.json`, `daily/<date>/*`, and `dashboard/dashboard.json` in S3.
 7. **After enough daily data (e.g. 30+ days)** – Run training: `python training/train.py --bucket investment-system-data --region us-east-1`; then evolution: `python evolution/evolve.py --bucket investment-system-data --generations 25`.
 8. **Monthly automation** – Edit the launchd plist path to point to your repo’s `automation/run_training.sh`, then run `./automation/install_launchd.sh`.
