@@ -23,6 +23,7 @@ from src.steps import (
     llm_weather,
     publish_artifacts
 )
+from src.signals.compute_signals import run as compute_signals
 from src.utils.s3_client import S3Client
 from src.utils.logging_utils import setup_logger, log_step, StepTimer
 
@@ -134,22 +135,31 @@ def lambda_handler(event: dict, context) -> dict:
             symbols = ['SPY', 'QQQ', 'IWM', 'TLT', 'IEF', 'HYG', 'LQD', 'GLD', 'VIXY']
 
         # Step 1: Ingest prices
-        log_step(1, 10, "Ingesting prices...", logger)
+        log_step(1, 12, "Ingesting prices...", logger)
         with StepTimer("Ingest prices", logger):
             prices_df = ingest_prices.run(symbols, alphavantage_key)
 
         # Step 2: Ingest FRED
-        log_step(2, 10, "Ingesting FRED data...", logger)
+        log_step(2, 12, "Ingesting FRED data...", logger)
         with StepTimer("Ingest FRED", logger):
             fred_df = ingest_fred.run(fred_key)
 
-        # Step 3: Ingest GDELT
-        log_step(3, 10, "Ingesting GDELT...", logger)
+        # Step 3: Ingest vol complex indices (VVIX, SKEW from Stooq)
+        log_step(3, 12, "Ingesting vol indices...", logger)
+        with StepTimer("Ingest vol indices", logger):
+            vvix_data = ingest_prices.fetch_stooq_index('^VVIX')
+            skew_data = ingest_prices.fetch_stooq_index('^SKEW')
+            vvix_latest = float(vvix_data.sort_values('date')['close'].iloc[-1]) if len(vvix_data) > 0 else None
+            skew_latest = float(skew_data.sort_values('date')['close'].iloc[-1]) if len(skew_data) > 0 else None
+            logger.info(f"VVIX: {vvix_latest}, SKEW: {skew_latest}")
+
+        # Step 4: Ingest GDELT
+        log_step(4, 12, "Ingesting GDELT...", logger)
         with StepTimer("Ingest GDELT", logger):
             gdelt_data = ingest_gdelt.run(run_date)
 
-        # Step 4: Validate data
-        log_step(4, 10, "Validating data...", logger)
+        # Step 5: Validate data
+        log_step(5, 12, "Validating data...", logger)
         with StepTimer("Validate data", logger):
             validation = validate_data.run(prices_df, fred_df, config)
 
@@ -159,43 +169,59 @@ def lambda_handler(event: dict, context) -> dict:
         if validation.get('degraded_mode', False):
             logger.warning("Running in degraded mode due to data quality issues")
 
-        # Step 5: Build features
-        log_step(5, 10, "Building features...", logger)
+        # Step 6: Build features
+        log_step(6, 12, "Building features...", logger)
         with StepTimer("Build features", logger):
-            features_df, context_df = build_features.run(prices_df, fred_df, gdelt_data)
+            features_df, context_df = build_features.run(
+                prices_df, fred_df, gdelt_data,
+                vvix_value=vvix_latest,
+                skew_value=skew_latest
+            )
 
-        # Step 6: Run inference
-        log_step(6, 10, "Running inference...", logger)
+        # Step 7: Compute expert signals
+        log_step(7, 12, "Computing expert signals...", logger)
+        with StepTimer("Compute expert signals", logger):
+            expert_signals = compute_signals(
+                prices_df, fred_df, context_df,
+                vvix_data=vvix_data,
+                skew_data=skew_data,
+                s3_client=s3_client,
+            )
+
+        # Step 8: Run inference
+        log_step(8, 12, "Running inference...", logger)
         with StepTimer("Run inference", logger):
             # Add bucket to config for model loading
             config['s3_bucket'] = bucket
             inference_output = run_inference.run(features_df, context_df, config)
 
-        # Step 7: LLM risk check (uses Bedrock/Haiku, falls back to OpenAI)
-        log_step(7, 10, "LLM risk check...", logger)
+        # Step 9: LLM risk check (uses Bedrock/Haiku, falls back to OpenAI)
+        log_step(9, 12, "LLM risk check...", logger)
         with StepTimer("LLM risk check", logger):
             config['aws_region'] = region
             llm_risks = llm_risk_check.run(
                 inference_output, features_df, context_df, openai_key, config
             )
 
-        # Step 8: Decision engine
-        log_step(8, 10, "Running decision engine...", logger)
+        # Step 10: Decision engine (with expert signal fusion)
+        log_step(10, 12, "Running decision engine...", logger)
         with StepTimer("Decision engine", logger):
             decisions = decision_engine.run(
-                inference_output, llm_risks, features_df, config, validation
+                inference_output, llm_risks, features_df, config, validation,
+                expert_signals=expert_signals
             )
 
-        # Step 9: Paper trader
-        log_step(9, 10, "Executing paper trades...", logger)
+        # Step 11: Paper trader
+        log_step(11, 12, "Executing paper trades...", logger)
         with StepTimer("Paper trader", logger):
             portfolio_state, trades = paper_trader.run(decisions, prices_df, bucket)
 
-        # Step 10: LLM weather blurb (uses Bedrock/Haiku, falls back to OpenAI)
-        log_step(10, 10, "Generating weather blurb...", logger)
+        # Step 12: LLM weather blurb (uses Bedrock/Haiku, falls back to OpenAI)
+        log_step(12, 12, "Generating weather blurb...", logger)
         with StepTimer("LLM weather", logger):
             weather = llm_weather.run(
-                inference_output, decisions, portfolio_state, context_df, openai_key, region
+                inference_output, decisions, portfolio_state, context_df, openai_key, region,
+                expert_signals=expert_signals
             )
 
         # Publish all artifacts to S3
@@ -205,7 +231,8 @@ def lambda_handler(event: dict, context) -> dict:
                 bucket, run_date,
                 prices_df, context_df, features_df,
                 inference_output, llm_risks, decisions,
-                portfolio_state, trades, weather, validation
+                portfolio_state, trades, weather, validation,
+                expert_signals=expert_signals
             )
 
         end_time = datetime.now()

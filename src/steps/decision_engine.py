@@ -55,6 +55,11 @@ def score_candidates(
     # Filter to eligible only
     merged = merged[merged['eligible'] == 1]
 
+    # Ensure required columns exist (may be missing after merge if no matches)
+    for col, default in [('asset_class', 'equity'), ('sector', 'broad'), ('leverage_flag', 0)]:
+        if col not in merged.columns:
+            merged[col] = default
+
     # Get regime multiplier for each asset
     def get_multiplier(row):
         sector_key = row.get('sector', '')
@@ -106,24 +111,24 @@ def filter_buy_candidates(
     candidates = candidates[candidates['health_score'] >= params.get('min_health_buy', 0.60)]
 
     # Filter: vol bucket (high vol allowed only in calm_uptrend with exceptional score)
-    def check_vol(row):
-        if row['vol_bucket'] == 'high':
-            return regime_label == 'calm_uptrend' and row['final_score'] > 0.80
-        return True
-
-    candidates = candidates[candidates.apply(check_vol, axis=1)]
+    if len(candidates) > 0:
+        def check_vol(row):
+            if row['vol_bucket'] == 'high':
+                return regime_label == 'calm_uptrend' and row['final_score'] > 0.80
+            return True
+        candidates = candidates[candidates.apply(check_vol, axis=1)]
 
     # Filter: LLM veto
-    def check_llm_veto(row):
-        symbol = row['symbol']
-        if symbol in llm_risk_flags:
-            return not llm_risk_flags[symbol].get('structural_risk_veto', False)
-        return True
-
-    candidates = candidates[candidates.apply(check_llm_veto, axis=1)]
+    if len(candidates) > 0:
+        def check_llm_veto(row):
+            symbol = row['symbol']
+            if symbol in llm_risk_flags:
+                return not llm_risk_flags[symbol].get('structural_risk_veto', False)
+            return True
+        candidates = candidates[candidates.apply(check_llm_veto, axis=1)]
 
     # Filter: panic mode (only bonds/commodities/defensives)
-    if regime_label == 'high_vol_panic':
+    if regime_label == 'high_vol_panic' and len(candidates) > 0:
         candidates = candidates[candidates['asset_class'].isin(['bond', 'commodity'])]
 
     # Sort by score descending
@@ -258,7 +263,9 @@ def compute_position_size(
     regime_label: str,
     params: Dict[str, Any],
     llm_confidence_adj: float = 0.0,
-    ensemble_multiplier: float = 1.0
+    ensemble_multiplier: float = 1.0,
+    position_size_modifier: float = 1.0,
+    risk_throttle_factor: float = 0.0
 ) -> Dict[str, Any]:
     """
     Compute target shares and dollars for a position.
@@ -273,6 +280,10 @@ def compute_position_size(
         llm_confidence_adj: LLM-based position reduction (0-0.5)
         ensemble_multiplier: Ensemble model sizing multiplier (0.5-1.0)
             - Reduced when models disagree on regime
+        position_size_modifier: Expert signal sizing modifier (0.25-1.0)
+            - Incorporates fragility, entropy, panic overrides
+        risk_throttle_factor: Risk throttle from expert signals (0.0-1.0)
+            - Higher = more throttling applied to position
 
     Returns:
         {'shares': int, 'dollars': float, 'final_weight': float}
@@ -298,8 +309,17 @@ def compute_position_size(
     # Adjust by ensemble model agreement (reduces size when models disagree)
     ensemble_adj = ensemble_multiplier
 
+    # Expert signal adjustments (position_size_modifier already includes
+    # ensemble_multiplier via regime_fusion, but we keep ensemble_adj here
+    # for backward compat when expert_signals is None)
+    expert_adj = position_size_modifier
+
+    # Risk throttle: higher throttle = smaller positions
+    throttle_adj = 1.0 - (risk_throttle_factor * 0.5)
+
     # Final target
-    adjusted_dollars = base_dollars * vol_adj * regime_adj * llm_adj * ensemble_adj
+    adjusted_dollars = (base_dollars * vol_adj * regime_adj * llm_adj
+                        * expert_adj * throttle_adj)
 
     # Shares
     shares = int(adjusted_dollars / current_price) if current_price > 0 else 0
@@ -325,7 +345,8 @@ def run(
     llm_risks: Dict[str, Dict],
     features_df: pd.DataFrame,
     config: Dict[str, Any],
-    validation: Dict[str, Any]
+    validation: Dict[str, Any],
+    expert_signals: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Run decision engine to generate buy/sell actions.
@@ -336,6 +357,7 @@ def run(
         features_df: Asset features
         config: Configuration dict
         validation: Data validation results
+        expert_signals: Expert signal outputs (None = use legacy path)
 
     Returns:
         Decisions dict with actions list
@@ -349,13 +371,64 @@ def run(
     if isinstance(universe_df, list):
         universe_df = pd.DataFrame(universe_df)
 
-    regime_label = inference_output['regime']['label']
     asset_health = inference_output['asset_health']
     run_date = inference_output['date']
 
-    # Get ensemble position sizing multiplier (reduces size when models disagree)
+    # Get ensemble metrics
+    ensemble_regime_label = inference_output['regime']['label']
     ensemble_multiplier = inference_output['regime'].get('position_size_multiplier', 1.0)
     regime_disagreement = inference_output['regime'].get('disagreement', 0.0)
+
+    # Apply regime fusion v3 if expert signals available
+    position_size_modifier = 1.0
+    risk_throttle_factor = 0.0
+    expert_metrics = {}
+
+    if expert_signals is not None:
+        from src.signals.regime_fusion import decide_regime_v3
+
+        macro = expert_signals.get('macro_credit', {})
+        vol = expert_signals.get('vol_uncertainty', {})
+        frag = expert_signals.get('fragility', {})
+        ent = expert_signals.get('entropy_shift', {})
+
+        fusion = decide_regime_v3(
+            ensemble_regime_label=ensemble_regime_label,
+            trend_risk_on_prob=inference_output['regime'].get('probs', {}).get('risk_on_trend', 0.0),
+            panic_prob=inference_output['regime'].get('probs', {}).get('high_vol_panic', 0.0),
+            ensemble_disagreement=regime_disagreement,
+            ensemble_multiplier=ensemble_multiplier,
+            macro_credit_score=macro.get('macro_credit_score', 0.0),
+            vol_uncertainty_score=vol.get('vol_uncertainty_score', 0.5),
+            vol_regime_label=vol.get('vol_regime_label', 'calm'),
+            fragility_score=frag.get('fragility_score', 0.5),
+            entropy_score=ent.get('entropy_score', 0.5),
+            entropy_shift_flag=ent.get('entropy_shift_flag', False),
+        )
+
+        regime_label = fusion['final_regime_label']
+        position_size_modifier = fusion['position_size_modifier']
+        risk_throttle_factor = fusion['risk_throttle_factor']
+
+        expert_metrics = {
+            'final_regime_label': fusion['final_regime_label'],
+            'regime_confidence': fusion['regime_confidence'],
+            'position_size_modifier': position_size_modifier,
+            'risk_throttle_factor': risk_throttle_factor,
+            'override_reason': fusion.get('override_reason'),
+            'macro_credit_score': macro.get('macro_credit_score', 0.0),
+            'vol_uncertainty_score': vol.get('vol_uncertainty_score', 0.5),
+            'vol_regime_label': vol.get('vol_regime_label', 'calm'),
+            'fragility_score': frag.get('fragility_score', 0.5),
+            'entropy_shift_flag': ent.get('entropy_shift_flag', False),
+        }
+
+        if fusion.get('override_reason'):
+            print(f"  Regime fusion: {ensemble_regime_label} -> {regime_label} ({fusion['override_reason']})")
+        print(f"  Position size modifier: {position_size_modifier:.2f}, Risk throttle: {risk_throttle_factor:.2f}")
+    else:
+        # Legacy path: use ensemble label directly
+        regime_label = ensemble_regime_label
 
     if regime_disagreement > 0.3:
         print(f"  Ensemble disagreement: {regime_disagreement:.2f} - reducing position sizes by {(1 - ensemble_multiplier) * 100:.0f}%")
@@ -442,7 +515,7 @@ def run(
         # Get LLM confidence adjustment
         llm_conf_adj = llm_risks.get(symbol, {}).get('confidence_adjustment', 0.0)
 
-        # Compute position size (includes ensemble disagreement adjustment)
+        # Compute position size (includes ensemble + expert signal adjustments)
         position = compute_position_size(
             symbol,
             portfolio_value,
@@ -451,7 +524,9 @@ def run(
             regime_label,
             params,
             llm_conf_adj,
-            ensemble_multiplier
+            ensemble_multiplier if expert_signals is None else 1.0,
+            position_size_modifier,
+            risk_throttle_factor
         )
 
         if position['shares'] > 0 and position['dollars'] <= available_cash:
@@ -475,7 +550,7 @@ def run(
           f"{len([a for a in actions if a['action'] == 'BUY'])} buys, "
           f"{len([a for a in actions if a['action'] == 'SELL'])} sells")
 
-    return {
+    result = {
         'date': run_date,
         'regime': regime_label,
         'actions': actions,
@@ -490,3 +565,8 @@ def run(
             'confidence': inference_output['regime'].get('confidence', 1.0)
         }
     }
+
+    if expert_metrics:
+        result['expert_metrics'] = expert_metrics
+
+    return result
