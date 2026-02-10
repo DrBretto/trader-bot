@@ -150,6 +150,18 @@ else
         --region "$REGION"
 fi
 
+# Re-add EventBridge invoke permission (idempotent; needed after delete+recreate)
+RULE_NAME="investment-system-daily-trigger"
+RULE_ARN="arn:aws:events:$REGION:$ACCOUNT_ID:rule/$RULE_NAME"
+echo "Ensuring EventBridge invoke permission..."
+aws lambda add-permission \
+    --function-name "$FUNCTION_NAME" \
+    --statement-id "EventBridgeInvoke" \
+    --action "lambda:InvokeFunction" \
+    --principal "events.amazonaws.com" \
+    --source-arn "$RULE_ARN" \
+    --region "$REGION" 2>/dev/null || true
+
 echo ""
 echo "Lambda container deployed successfully!"
 echo ""
