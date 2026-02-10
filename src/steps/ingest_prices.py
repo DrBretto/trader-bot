@@ -212,3 +212,49 @@ def run(
     print(f"Ingested {len(result)} price records for {result['symbol'].nunique()} symbols")
 
     return result
+
+
+def fetch_morning_quotes(symbols: List[str]) -> pd.DataFrame:
+    """
+    Fetch current/morning prices via yfinance for a small set of symbols.
+
+    Used by the morning execution run to get fresh market prices.
+    Designed for ~10-20 symbols (held positions + intent symbols).
+
+    Args:
+        symbols: List of ticker symbols
+
+    Returns:
+        DataFrame with columns: symbol, price, open, high, low, volume, timestamp
+        Empty DataFrame if all fetches fail.
+    """
+    try:
+        import yfinance as yf
+    except ImportError:
+        print("yfinance not available, cannot fetch morning quotes")
+        return pd.DataFrame()
+
+    records = []
+    for symbol in symbols:
+        try:
+            ticker = yf.Ticker(symbol)
+            hist = ticker.history(period="1d")
+            if len(hist) > 0:
+                latest = hist.iloc[-1]
+                records.append({
+                    'symbol': symbol,
+                    'price': float(latest['Close']),
+                    'open': float(latest['Open']),
+                    'high': float(latest['High']),
+                    'low': float(latest['Low']),
+                    'volume': int(latest['Volume']),
+                    'timestamp': hist.index[-1].isoformat()
+                })
+        except Exception as e:
+            print(f"yfinance quote failed for {symbol}: {e}")
+
+    if not records:
+        print("Warning: No morning quotes fetched")
+        return pd.DataFrame()
+
+    return pd.DataFrame(records)

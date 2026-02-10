@@ -6,3 +6,4 @@ requests==2.31.0
 openai==1.6.1
 httpx<0.28
 python-dateutil==2.8.2
+yfinance==0.2.36

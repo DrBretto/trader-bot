@@ -478,11 +478,13 @@ def run(
         )
         latest = {
             'date': run_date,
+            'intents_date': run_date,
             'timestamp': datetime.now().isoformat(),
             'regime': fused_regime,
             'portfolio_value': portfolio_state.get('portfolio_value', 0),
             'positions_count': len(portfolio_state.get('holdings', [])),
-            'actions_count': len(decisions.get('actions', []))
+            'actions_count': len(decisions.get('actions', [])),
+            'phase': 'night'
         }
         s3.write_json(latest, "daily/latest.json")
         published.append("latest.json")
@@ -552,6 +554,99 @@ def run(
         failed.append("dashboard.json")
 
     print(f"  Published: {len(published)} artifacts")
+    if failed:
+        print(f"  Failed: {len(failed)} artifacts - {failed}")
+
+    return {
+        'success': len(failed) == 0,
+        'published': published,
+        'failed': failed,
+        'base_path': base_path
+    }
+
+
+def publish_morning_artifacts(
+    bucket: str,
+    run_date: str,
+    portfolio_state: Dict[str, Any],
+    trades: List[Dict],
+    morning_execution: Dict[str, Any],
+    night_inference: Dict[str, Any],
+    night_decisions: Dict[str, Any],
+    night_weather: Dict[str, Any],
+    expert_signals: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """Publish morning execution artifacts (lightweight subset).
+
+    Only publishes portfolio state, trades, execution report, dashboard.json,
+    and latest.json. All analysis artifacts (prices, features, signals, etc.)
+    were already published by the night run.
+    """
+    print("Publishing morning artifacts to S3...")
+
+    s3 = S3Client(bucket)
+    base_path = f"daily/{run_date}"
+    published = []
+    failed = []
+
+    # 1. Portfolio state (overwrite night's valuation-only snapshot)
+    try:
+        s3.write_json(portfolio_state, f"{base_path}/portfolio_state.json")
+        published.append("portfolio_state.json")
+    except Exception as e:
+        print(f"Failed to publish portfolio_state.json: {e}")
+        failed.append("portfolio_state.json")
+
+    # 2. Trades
+    try:
+        for trade in trades:
+            s3.append_jsonl(trade, f"{base_path}/trades.jsonl")
+        if trades:
+            published.append("trades.jsonl")
+    except Exception as e:
+        print(f"Failed to publish trades.jsonl: {e}")
+        failed.append("trades.jsonl")
+
+    # 3. Morning execution report
+    try:
+        s3.write_json(morning_execution, f"{base_path}/morning_execution.json")
+        published.append("morning_execution.json")
+    except Exception as e:
+        print(f"Failed to publish morning_execution.json: {e}")
+        failed.append("morning_execution.json")
+
+    # 4. Update latest.json
+    try:
+        latest = s3.read_json('daily/latest.json') or {}
+        latest.update({
+            'date': run_date,
+            'portfolio_value': portfolio_state.get('portfolio_value', 0),
+            'positions_count': len(portfolio_state.get('holdings', [])),
+            'morning_executed': True,
+            'trades_count': len(trades),
+            'phase': 'morning',
+            'timestamp': datetime.now().isoformat()
+        })
+        s3.write_json(latest, 'daily/latest.json')
+        published.append("latest.json")
+    except Exception as e:
+        print(f"Failed to update latest.json: {e}")
+        failed.append("latest.json")
+
+    # 5. Rebuild and publish dashboard.json with post-trade portfolio
+    try:
+        dashboard_data = build_dashboard_data(
+            portfolio_state, night_inference, night_decisions, night_weather, s3,
+            expert_signals=expert_signals
+        )
+        s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
+        s3.write_json(dashboard_data, "dashboard/dashboard.json")
+        published.append("dashboard.json")
+    except Exception as e:
+        print(f"Failed to publish dashboard.json: {e}")
+        failed.append("dashboard.json")
+
+    print(f"  Published: {len(published)} morning artifacts")
     if failed:
         print(f"  Failed: {len(failed)} artifacts - {failed}")
 

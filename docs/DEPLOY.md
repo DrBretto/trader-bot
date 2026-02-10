@@ -13,7 +13,8 @@ This document covers deployment procedures for the investment system. Cursor is 
 - **Region**: us-east-1
 - **S3 Bucket**: investment-system-data
 - **Lambda Function**: investment-system-daily-pipeline
-- **EventBridge Rule**: investment-system-daily-trigger
+- **EventBridge Rules**: investment-system-daily-trigger (night), investment-system-morning-trigger (morning)
+- **SNS Topic**: investment-system-alerts
 
 ---
 
@@ -60,16 +61,31 @@ For deployments without PyTorch (baseline models only):
 
 ## Set Up Schedule
 
-Enable the daily EventBridge trigger (10 PM ET weeknights):
+The pipeline runs in two phases: night analysis (10 PM ET) and morning execution (9:45 AM ET). Both are set up by a single script:
 
 ```bash
 ./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline us-east-1
 ```
 
-To disable the schedule:
+This creates two rules:
+- **Night** (`investment-system-daily-trigger`): 3 AM UTC Tue-Sat (10 PM ET Mon-Fri)
+- **Morning** (`investment-system-morning-trigger`): 14:45 UTC Mon-Fri (9:45 AM ET Mon-Fri)
+
+To disable both:
 ```bash
 aws events disable-rule --name investment-system-daily-trigger --region us-east-1
+aws events disable-rule --name investment-system-morning-trigger --region us-east-1
 ```
+
+---
+
+## Set Up Email Alerts
+
+```bash
+./infrastructure/sns_setup.sh us-east-1 drbretto82@gmail.com
+```
+
+**Important**: Confirm the subscription by clicking the link in the email you receive. Alerts are sent on every pipeline run (night summary, morning execution report) and on errors.
 
 ---
 
@@ -163,17 +179,20 @@ Use this sequence for a full first-time go-live:
 1. **S3 bucket** – From repo root: `./infrastructure/s3_setup.sh investment-system-data us-east-1`
 2. **Secrets** – `./infrastructure/secrets_setup.sh us-east-1` (enter OpenAI, FRED, Alpha Vantage keys)
 3. **Lambda** – `./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1`
-4. **EventBridge** – `./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline us-east-1`
-5. **Dashboard (optional)** – First-time bucket policy and static website per "Deploy Frontend Dashboard" above; then build and sync per the commands in that section (includes `--exclude` flags to protect data files).
-6. **Verify daily pipeline** – Invoke Lambda once (see "Verify Deployment" above); check `daily/latest.json`, `daily/<date>/*`, and `dashboard/dashboard.json` in S3.
-7. **After enough daily data (e.g. 30+ days)** – Run training: `python training/train.py --bucket investment-system-data --region us-east-1`; then evolution: `python evolution/evolve.py --bucket investment-system-data --generations 25`.
-8. **Monthly automation** – Edit the launchd plist path to point to your repo’s `automation/run_training.sh`, then run `./automation/install_launchd.sh`.
+4. **EventBridge** – `./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline us-east-1` (creates both night + morning rules)
+5. **SNS Alerts** – `./infrastructure/sns_setup.sh us-east-1 drbretto82@gmail.com` (confirm subscription via email)
+6. **Dashboard (optional)** – First-time bucket policy and static website per "Deploy Frontend Dashboard" above; then build and sync per the commands in that section (includes `--exclude` flags to protect data files).
+7. **Verify daily pipeline** – Invoke Lambda once (see "Verify Deployment" above); check `daily/latest.json`, `daily/<date>/*`, and `dashboard/dashboard.json` in S3.
+8. **After enough daily data (e.g. 30+ days)** – Run training: `python training/train.py --bucket investment-system-data --region us-east-1`; then evolution: `python evolution/evolve.py --bucket investment-system-data --generations 25`.
+9. **Monthly automation** – Edit the launchd plist path to point to your repo's `automation/run_training.sh`, then run `./automation/install_launchd.sh`.
 
 ---
 
 ## Cost Notes
 
 - **NEVER enable S3 versioning**
-- Lambda: ~$0.20/day at current usage (84s execution, 3GB memory)
+- Lambda night run: ~$0.20/day (110s execution, 3GB memory)
+- Lambda morning run: ~$0.02/day (~10-15s execution, 3GB memory)
 - S3: Minimal (lifecycle deletes data after 365 days)
+- SNS: Free tier (1M publishes/month free)
 - Total estimated: < $10/month

@@ -45,14 +45,54 @@ aws events put-targets \
     }]" \
     --region "$REGION"
 
+# --- Morning execution rule ---
+MORNING_RULE_NAME="investment-system-morning-trigger"
+
 echo ""
-echo "EventBridge rule created successfully!"
+echo "Setting up morning execution rule: $MORNING_RULE_NAME"
+
+# Schedule: 14:45 UTC = 9:45 AM ET, Mon-Fri
+aws events put-rule \
+    --name "$MORNING_RULE_NAME" \
+    --schedule-expression "cron(45 14 ? * MON-FRI *)" \
+    --state ENABLED \
+    --description "Triggers morning trade execution at 9:45 AM ET on weekdays" \
+    --region "$REGION"
+
+# Add Lambda permission for morning rule
+echo "Adding Lambda permission for morning rule..."
+aws lambda add-permission \
+    --function-name "$FUNCTION_NAME" \
+    --statement-id "EventBridgeMorningInvoke" \
+    --action "lambda:InvokeFunction" \
+    --principal "events.amazonaws.com" \
+    --source-arn "arn:aws:events:$REGION:$ACCOUNT_ID:rule/$MORNING_RULE_NAME" \
+    --region "$REGION" 2>/dev/null || true
+
+# Add Lambda as target for morning rule
+echo "Adding Lambda target for morning rule..."
+aws events put-targets \
+    --rule "$MORNING_RULE_NAME" \
+    --targets "[{
+        \"Id\": \"investment-system-lambda-morning\",
+        \"Arn\": \"$LAMBDA_ARN\",
+        \"Input\": \"{\\\"bucket\\\": \\\"investment-system-data\\\", \\\"source\\\": \\\"morning-execution\\\"}\"
+    }]" \
+    --region "$REGION"
+
 echo ""
-echo "Schedule: Every weeknight at 10 PM ET (3 AM UTC next day)"
-echo "Rule ARN: arn:aws:events:$REGION:$ACCOUNT_ID:rule/$RULE_NAME"
+echo "EventBridge rules created successfully!"
 echo ""
-echo "To disable the schedule:"
+echo "Night schedule:   Every weeknight at 10 PM ET (3 AM UTC next day, Tue-Sat)"
+echo "Morning schedule: Every weekday at 9:45 AM ET (14:45 UTC, Mon-Fri)"
+echo ""
+echo "Night rule ARN:   arn:aws:events:$REGION:$ACCOUNT_ID:rule/$RULE_NAME"
+echo "Morning rule ARN: arn:aws:events:$REGION:$ACCOUNT_ID:rule/$MORNING_RULE_NAME"
+echo ""
+echo "To disable:"
 echo "  aws events disable-rule --name $RULE_NAME --region $REGION"
+echo "  aws events disable-rule --name $MORNING_RULE_NAME --region $REGION"
 echo ""
-echo "To test immediately:"
-echo "  aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"investment-system-data\", \"source\": \"manual\"}' /tmp/response.json"
+echo "To test:"
+echo "  Night:   aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"investment-system-data\", \"source\": \"manual\"}' /tmp/response.json"
+echo "  Morning: aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"investment-system-data\", \"source\": \"morning-execution\"}' --invocation-type Event /tmp/response.json"
