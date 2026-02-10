@@ -294,7 +294,7 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
             inference_output.get('regime', {}).get('label', 'unknown')
         )
         send_alert(
-            subject=f"Night Analysis: {regime_label}, {len(trade_intents['actions'])} intents",
+            subject=f"[TraderBot] Night: {regime_label}, {len(trade_intents['actions'])} intents",
             body=format_night_summary(
                 run_date, regime_label,
                 portfolio_state.get('portfolio_value', 0),
@@ -322,7 +322,7 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
         logger.error(f"Pipeline failed: {e}", exc_info=True)
 
         send_alert(
-            subject="ALERT: Night analysis failed",
+            subject="[TraderBot] ALERT: Night analysis failed",
             body=format_error_alert('night', run_date, str(e)),
             region=region
         )
@@ -440,7 +440,7 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
         # Send email alert
         send_alert(
             subject=(
-                f"Morning Exec: {len(trades)} trades, "
+                f"[TraderBot] Morning: {len(trades)} trades, "
                 f"${portfolio_state.get('portfolio_value', 0):,.0f}"
             ),
             body=format_morning_summary(
@@ -467,7 +467,7 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
         logger.error(f"Morning phase failed: {e}", exc_info=True)
 
         send_alert(
-            subject="ALERT: Morning execution failed",
+            subject="[TraderBot] ALERT: Morning execution failed",
             body=format_error_alert('morning', run_date, str(e)),
             region=region
         )
