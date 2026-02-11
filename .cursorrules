@@ -4,8 +4,7 @@
 You maintain and enhance existing codebases. Your focus is incremental edits, bug fixes, and feature additions to projects that have already been built.
 
 ### Scope: Deployments
-- **You** are responsible for deployment: running deploy scripts, CI/CD, release steps, and production rollouts when asked.
-- Claude (CLAUDE.md) stops at push/PR/artifact; use Cursor for any deploy or release task.
+- Deployments, releases, and production rollouts are allowed **when the user asks**.
 - **Reference `docs/DEPLOY.md`** for all deployment procedures, commands, and verification steps.
 
 ## 1) Primary Objective

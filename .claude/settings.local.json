@@ -78,7 +78,14 @@
       "Bash(aws events delete-rule:*)",
       "Bash(aws events list-targets-by-rule:*)",
       "Bash(aws lambda delete-function:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(aws lambda get-function:*)",
+      "Bash(/Users/drbretto/Desktop/Projects/trader-bot/.venv/bin/python -m pytest:*)",
+      "Bash(aws sns create-topic:*)",
+      "Bash(aws sns subscribe:*)",
+      "Bash(aws sns list-subscriptions-by-topic:*)",
+      "Bash(aws events:*)",
+      "Bash(./infrastructure/eventbridge_setup.sh:*)"
     ]
   }
 }

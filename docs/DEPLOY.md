@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This document covers deployment procedures for the investment system. Cursor is responsible for running these steps.
+This document covers deployment procedures for the investment system.
 
 ## Prerequisites
 

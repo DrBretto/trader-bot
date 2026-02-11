@@ -23,8 +23,21 @@ Build a fully autonomous daily investment decision system that:
 ## Architecture
 
 ```text
-Daily (10pm ET):
-  EventBridge → Lambda → [Ingest → Features → Inference → Decisions → LLM] → S3 Artifacts
+Night (10 PM ET, Mon-Fri):
+  EventBridge → Lambda {"source": "night-analysis"}
+    → [Ingest → Features → Inference → Signals → Regime Fusion → Decisions → LLM Weather]
+    → Save trade_intents.json (queued, not executed)
+    → Update portfolio valuations at closing prices
+    → Publish all artifacts + SNS email alert
+
+Morning (9:45 AM ET, Mon-Fri):
+  EventBridge → Lambda {"source": "morning-execution"}
+    → Load trade_intents.json
+    → Fetch morning prices via yfinance
+    → Validate: freshness check, price gap check, re-evaluate stops
+    → Execute validated trades at morning prices
+    → Update portfolio + re-publish dashboard
+    → SNS email alert
 
 Monthly (1st, 2am):
   launchd → train.py → Models uploaded to S3
@@ -228,6 +241,51 @@ Phase 6 goal:
   - regime accuracy vs forward SPY returns (report + confusion matrix where applicable)
 
 Reports should be produced as artifacts so the dashboard can visualize them.
+
+### Phase 7: Two-Phase Pipeline + Email Alerts ✅ COMPLETE
+
+Goal: decouple night analysis from morning trade execution for realistic P&L, and add email alerting for pipeline monitoring.
+
+#### 7.1 Two-Phase Lambda Routing
+
+- [x] Night phase: full 12-step analysis pipeline, saves `trade_intents.json` instead of executing trades
+- [x] Morning phase: loads intents, fetches morning prices via yfinance, validates, executes trades
+- [x] Single Lambda function routed by `event.source` field
+- [x] Backward-compatible: existing `"eventbridge-scheduled"` and `"manual"` sources run night phase
+
+#### 7.2 Morning Execution Logic (`src/steps/morning_executor.py`)
+
+- [x] Intent freshness validation (max 3 calendar days, handles weekends)
+- [x] BUY validation: skip if price gap >5% from intent price
+- [x] SELL validation: health collapse/panic/LLM veto always execute; trailing stops re-checked with morning price
+- [x] BUY share counts recomputed at morning price (same dollar amount as intent)
+- [x] Portfolio valuations always updated even when no intents found
+
+#### 7.3 Morning Price Fetching (`ingest_prices.fetch_morning_quotes()`)
+
+- [x] Uses yfinance for ~15 symbols (held positions + intent symbols + SPY)
+- [x] Graceful per-symbol fallback (logs warning, skips failures)
+- [x] Added `yfinance==0.2.36` to `requirements-lambda.txt`
+
+#### 7.4 Email Alerts via SNS (`src/utils/sns_alerts.py`)
+
+- [x] `[TraderBot]` prefix on all email subjects for Gmail filtering
+- [x] Night summary: regime, intents queued, weather blurb
+- [x] Morning summary: trades executed, validation log, portfolio value
+- [x] Error alerts: phase, error message, CloudWatch log command
+- [x] Never crashes the pipeline (all sends wrapped in try/except)
+
+#### 7.5 Publishing Updates
+
+- [x] Night run saves `trade_intents.json` and includes `intents_date` + `phase` in `latest.json`
+- [x] Morning run publishes: portfolio_state, trades, morning_execution report, updated dashboard.json
+- [x] Morning run does NOT re-publish: prices, features, inference, signals, timeseries, weather
+
+#### 7.6 Infrastructure
+
+- [x] SNS topic: `investment-system-alerts` with email subscription
+- [x] EventBridge morning rule: `investment-system-morning-trigger` at 9:45 AM ET Mon-Fri
+- [x] Lambda deploy scripts re-add EventBridge permissions (prevents silent permission loss)
 
 ---
 
