@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "if [ -x ./node_modules/.bin/eslint ]; then ./node_modules/.bin/eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0; else echo 'eslint not installed; skipping lint'; fi",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -9,7 +9,6 @@ from typing import Dict, Any, Optional
 from src.utils.s3_client import S3Client
 from src.models.baseline_regime import baseline_regime_model
 from src.models.baseline_health import baseline_health_model
-from src.models.ensemble_regime import EnsembleRegimeModel, baseline_ensemble_regime
 
 # Try to import PyTorch (optional for Lambda)
 try:
@@ -252,6 +251,7 @@ class ModelLoader:
                         if gru_data and transformer_data:
                             # Recreate models from state dicts
                             from training.models.regime_transformer import create_regime_model
+                            from src.models.ensemble_regime import EnsembleRegimeModel
 
                             gru_config = gru_data.get('model_config', {})
                             gru_model = create_regime_model(
@@ -396,7 +396,7 @@ class ModelLoader:
                 print(f"Ensemble regime model error: {e}, falling back to baseline")
                 import traceback
                 traceback.print_exc()
-                return baseline_ensemble_regime(context)
+                return self._baseline_ensemble_result(context)
 
         # Try single trained model
         if self.regime_model:
@@ -418,6 +418,30 @@ class ModelLoader:
         result['agreement'] = 1.0
         result['position_size_multiplier'] = 1.0
         return result
+
+    def _baseline_ensemble_result(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Return baseline output in ensemble-compatible shape."""
+        result = baseline_regime_model(context)
+        return {
+            'regime_label': result['regime_label'],
+            'regime_probs': result['regime_probs'],
+            'regime_embedding': result['regime_embedding'],
+            'confidence': 1.0,
+            'disagreement': 0.0,
+            'agreement': 1.0,
+            'position_size_multiplier': 1.0,
+            'gru_prediction': {
+                'label': result['regime_label'],
+                'confidence': 1.0,
+                'probs': result['regime_probs'],
+            },
+            'transformer_prediction': {
+                'label': result['regime_label'],
+                'confidence': 1.0,
+                'probs': result['regime_probs'],
+            },
+            'is_baseline': True,
+        }
 
     def predict_health(self, features_df, latest_date) -> 'pd.DataFrame':
         """

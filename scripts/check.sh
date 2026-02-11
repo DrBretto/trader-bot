@@ -35,6 +35,9 @@ fi
 if [ -f package.json ] && grep -q '"test"' package.json; then
   echo "✓ Running tests..."
   npm test -- --passWithNoTests 2>/dev/null || FAILED+=("tests")
+elif [ -x .venv/bin/pytest ]; then
+  echo "✓ Running Python tests..."
+  .venv/bin/pytest -x --tb=short 2>/dev/null || FAILED+=("tests")
 elif command -v pytest &> /dev/null; then
   echo "✓ Running Python tests..."
   pytest -x --tb=short 2>/dev/null || FAILED+=("tests")

@@ -238,7 +238,12 @@ def run(
     print("Running LLM risk checks (Bedrock/Haiku)...")
 
     # Get AWS region from config or environment
-    region = config.get('aws_region', os.environ.get('AWS_REGION', 'us-east-1'))
+    region = (
+        config.get('aws_region')
+        or os.environ.get('AWS_REGION')
+        or os.environ.get('AWS_REGION_NAME')
+        or 'us-east-1'
+    )
 
     # Get current portfolio state for holdings
     portfolio_state = config.get('portfolio_state', {'holdings': []})

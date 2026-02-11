@@ -123,7 +123,7 @@ if [ -n "$EXISTING_FUNCTION" ]; then
             --role "$ROLE_ARN" \
             --timeout 900 \
             --memory-size 3008 \
-            --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
+            --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION=$REGION,AWS_REGION_NAME=$REGION}" \
             --region "$REGION"
     fi
 
@@ -141,7 +141,7 @@ else
         --role "$ROLE_ARN" \
         --timeout 900 \
         --memory-size 3008 \
-        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
+        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION=$REGION,AWS_REGION_NAME=$REGION}" \
         --region "$REGION"
 
     echo "Waiting for function to be active..."

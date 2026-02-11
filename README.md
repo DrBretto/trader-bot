@@ -56,7 +56,7 @@ See [docs/DEPLOY.md](docs/DEPLOY.md) for full deployment instructions.
 ./infrastructure/s3_setup.sh investment-system-data us-east-1
 ./infrastructure/secrets_setup.sh us-east-1
 ./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1
-./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline us-east-1
+./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline investment-system-data us-east-1
 ```
 
 ### Run Dashboard Locally

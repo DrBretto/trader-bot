@@ -64,7 +64,7 @@ For deployments without PyTorch (baseline models only):
 The pipeline runs in two phases: night analysis (10 PM ET) and morning execution (9:45 AM ET). Both are set up by a single script:
 
 ```bash
-./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline us-east-1
+./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline investment-system-data us-east-1
 ```
 
 This creates two rules:
@@ -179,7 +179,7 @@ Use this sequence for a full first-time go-live:
 1. **S3 bucket** – From repo root: `./infrastructure/s3_setup.sh investment-system-data us-east-1`
 2. **Secrets** – `./infrastructure/secrets_setup.sh us-east-1` (enter OpenAI, FRED, Alpha Vantage keys)
 3. **Lambda** – `./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1`
-4. **EventBridge** – `./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline us-east-1` (creates both night + morning rules)
+4. **EventBridge** – `./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline investment-system-data us-east-1` (creates both night + morning rules)
 5. **SNS Alerts** – `./infrastructure/sns_setup.sh us-east-1 drbretto82@gmail.com` (confirm subscription via email)
 6. **Dashboard (optional)** – First-time bucket policy and static website per "Deploy Frontend Dashboard" above; then build and sync per the commands in that section (includes `--exclude` flags to protect data files).
 7. **Verify daily pipeline** – Invoke Lambda once (see "Verify Deployment" above); check `daily/latest.json`, `daily/<date>/*`, and `dashboard/dashboard.json` in S3.

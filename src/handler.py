@@ -115,7 +115,12 @@ def lambda_handler(event: dict, context) -> dict:
     """
     source = event.get('source', 'eventbridge-scheduled')
     bucket = event.get('bucket', os.environ.get('S3_BUCKET', 'investment-system-data'))
-    region = event.get('region', os.environ.get('AWS_REGION', 'us-east-1'))
+    region = (
+        event.get('region')
+        or os.environ.get('AWS_REGION')
+        or os.environ.get('AWS_REGION_NAME')
+        or 'us-east-1'
+    )
 
     if source == 'morning-execution':
         return _run_morning_phase(event, bucket, region)

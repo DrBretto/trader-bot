@@ -5,7 +5,23 @@ set -e
 
 FUNCTION_NAME="${1:-investment-system-daily-pipeline}"
 RULE_NAME="investment-system-daily-trigger"
-REGION="${2:-us-east-1}"
+
+# Backward-compatible argument parsing:
+# - Old form: eventbridge_setup.sh <function> <region>
+# - New form: eventbridge_setup.sh <function> <bucket> <region>
+ARG2="${2:-}"
+ARG3="${3:-}"
+BUCKET_NAME="investment-system-data"
+REGION="us-east-1"
+
+if [ -n "$ARG3" ]; then
+    BUCKET_NAME="$ARG2"
+    REGION="$ARG3"
+elif [[ "$ARG2" =~ ^[a-z]{2}-[a-z]+-[0-9]+$ ]]; then
+    REGION="$ARG2"
+elif [ -n "$ARG2" ]; then
+    BUCKET_NAME="$ARG2"
+fi
 
 echo "Setting up EventBridge rule: $RULE_NAME"
 
@@ -41,7 +57,7 @@ aws events put-targets \
     --targets "[{
         \"Id\": \"investment-system-lambda\",
         \"Arn\": \"$LAMBDA_ARN\",
-        \"Input\": \"{\\\"bucket\\\": \\\"investment-system-data\\\", \\\"source\\\": \\\"eventbridge-scheduled\\\"}\"
+        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"eventbridge-scheduled\\\"}\"
     }]" \
     --region "$REGION"
 
@@ -76,7 +92,7 @@ aws events put-targets \
     --targets "[{
         \"Id\": \"investment-system-lambda-morning\",
         \"Arn\": \"$LAMBDA_ARN\",
-        \"Input\": \"{\\\"bucket\\\": \\\"investment-system-data\\\", \\\"source\\\": \\\"morning-execution\\\"}\"
+        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"morning-execution\\\"}\"
     }]" \
     --region "$REGION"
 
@@ -94,5 +110,5 @@ echo "  aws events disable-rule --name $RULE_NAME --region $REGION"
 echo "  aws events disable-rule --name $MORNING_RULE_NAME --region $REGION"
 echo ""
 echo "To test:"
-echo "  Night:   aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"investment-system-data\", \"source\": \"manual\"}' /tmp/response.json"
-echo "  Morning: aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"investment-system-data\", \"source\": \"morning-execution\"}' --invocation-type Event /tmp/response.json"
+echo "  Night:   aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"$BUCKET_NAME\", \"source\": \"manual\"}' /tmp/response.json"
+echo "  Morning: aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"$BUCKET_NAME\", \"source\": \"morning-execution\"}' --invocation-type Event /tmp/response.json"

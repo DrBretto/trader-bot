@@ -175,6 +175,7 @@ def evaluate_holdings(
 
         # Get current health
         current_health = health_map.get(symbol, {}).get('health_score', 0.5)
+        sell_health_threshold = params.get('sell_health_threshold', 0.35)
 
         # Days held
         entry_date = pd.to_datetime(holding.get('entry_date', pd.Timestamp.now()))
@@ -200,14 +201,14 @@ def evaluate_holdings(
             continue
 
         # 2. Health collapse
-        if current_health <= params.get('sell_health_threshold', 0.35):
+        if current_health <= sell_health_threshold:
             actions.append({
                 'symbol': symbol,
                 'action': 'SELL',
                 'reason': 'HEALTH_COLLAPSE',
                 'shares': shares,
                 'price': current_price,
-                'details': f'Health {current_health:.2f} <= {params["sell_health_threshold"]}'
+                'details': f'Health {current_health:.2f} <= {sell_health_threshold:.2f}'
             })
             continue
 
@@ -319,6 +320,7 @@ def compute_position_size(
 
     # Final target
     adjusted_dollars = (base_dollars * vol_adj * regime_adj * llm_adj
+                        * ensemble_adj
                         * expert_adj * throttle_adj)
 
     # Shares

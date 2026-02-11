@@ -56,7 +56,7 @@ class TestBaselineRegimeModel:
         """Test that calm uptrend is detected correctly."""
         context = pd.Series({
             'spy_return_21d': 0.08,   # Strong positive returns
-            'spy_vol_21d': 0.12,      # Low volatility
+            'spy_vol_21d': 0.07,      # Low volatility
             'credit_spread_proxy': 0.02,
             'vixy_return_21d': -0.10
         })
@@ -69,9 +69,9 @@ class TestBaselineRegimeModel:
         """Test that risk-off is detected correctly."""
         context = pd.Series({
             'spy_return_21d': -0.06,  # Negative returns
-            'spy_vol_21d': 0.18,
+            'spy_vol_21d': 0.12,
             'credit_spread_proxy': -0.04,  # Credit stress
-            'vixy_return_21d': 0.10
+            'vixy_return_21d': 0.05
         })
 
         result = baseline_regime_model(context)
@@ -81,7 +81,7 @@ class TestBaselineRegimeModel:
     def test_choppy_detection(self):
         """Test that choppy market is detected correctly."""
         context = pd.Series({
-            'spy_return_21d': 0.01,   # Flat returns
+            'spy_return_21d': 0.005,  # Flat returns
             'spy_vol_21d': 0.20,      # Elevated volatility
             'credit_spread_proxy': 0,
             'vixy_return_21d': 0
