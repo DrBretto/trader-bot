@@ -123,13 +123,25 @@ if [ -n "$EXISTING_FUNCTION" ]; then
             --role "$ROLE_ARN" \
             --timeout 900 \
             --memory-size 3008 \
-            --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION=$REGION,AWS_REGION_NAME=$REGION}" \
+            --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
             --region "$REGION"
     fi
 
-    # Wait for function to be active
-    echo "Waiting for function to be active..."
-    aws lambda wait function-active \
+    # Wait for code update to complete before updating configuration.
+    echo "Waiting for function code update..."
+    aws lambda wait function-updated \
+        --function-name "$FUNCTION_NAME" \
+        --region "$REGION"
+
+    # Keep runtime settings in sync on updates as well as creates.
+    aws lambda update-function-configuration \
+        --function-name "$FUNCTION_NAME" \
+        --timeout 900 \
+        --memory-size 3008 \
+        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
+        --region "$REGION"
+
+    aws lambda wait function-updated \
         --function-name "$FUNCTION_NAME" \
         --region "$REGION"
 else
@@ -141,7 +153,7 @@ else
         --role "$ROLE_ARN" \
         --timeout 900 \
         --memory-size 3008 \
-        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION=$REGION,AWS_REGION_NAME=$REGION}" \
+        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
         --region "$REGION"
 
     echo "Waiting for function to be active..."

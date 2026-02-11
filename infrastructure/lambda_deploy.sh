@@ -130,7 +130,7 @@ if aws lambda get-function --function-name "$FUNCTION_NAME" --region "$REGION" 2
         --function-name "$FUNCTION_NAME" \
         --timeout 900 \
         --memory-size 3008 \
-        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION=$REGION,AWS_REGION_NAME=$REGION}" \
+        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
         --region "$REGION"
 else
     echo "Creating new function..."
@@ -142,7 +142,7 @@ else
         --zip-file "fileb://$DEPLOY_ZIP" \
         --timeout 900 \
         --memory-size 3008 \
-        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION=$REGION,AWS_REGION_NAME=$REGION}" \
+        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
         --region "$REGION"
 fi
 

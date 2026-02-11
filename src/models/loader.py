@@ -333,10 +333,34 @@ class ModelLoader:
         try:
             data = self.s3.read_bytes(key)
             if data:
-                return pickle.loads(data)
+                try:
+                    return pickle.loads(data)
+                except Exception as e:
+                    # Compatibility fallback for tensors serialized on non-CPU devices
+                    # (e.g., MPS/CUDA) and unpickled on Lambda CPU runtime.
+                    if TORCH_AVAILABLE and "Storage device not recognized" in str(e):
+                        print(f"Retrying pickle load with CPU map_location for {key}")
+                        return self._load_pickle_cpu_compatible(data)
+                    raise
         except Exception as e:
             print(f"Error loading pickle {key}: {e}")
         return None
+
+    def _load_pickle_cpu_compatible(self, data: bytes) -> Optional[dict]:
+        """Load a PyTorch-containing pickle by forcing storages onto CPU."""
+        original_loader = torch.storage._load_from_bytes
+
+        def _cpu_load_from_bytes(blob: bytes):
+            return torch.load(io.BytesIO(blob), map_location='cpu')
+
+        try:
+            torch.storage._load_from_bytes = _cpu_load_from_bytes
+            return pickle.loads(data)
+        except Exception as e:
+            print(f"CPU-compatible pickle load failed: {e}")
+            return None
+        finally:
+            torch.storage._load_from_bytes = original_loader
 
     def predict_regime(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """

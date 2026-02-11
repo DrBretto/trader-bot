@@ -356,10 +356,13 @@ def save_health_model(
 
     os.makedirs(os.path.dirname(save_path) if os.path.dirname(save_path) else '.', exist_ok=True)
 
+    # Move model to CPU before saving for Lambda compatibility.
+    model_cpu = model.cpu()
+
     # Save model state and config
     model_data = {
         'version': version,
-        'model_state': model.state_dict(),
+        'model_state': model_cpu.state_dict(),
         'model_config': {
             'model_type': history.get('model_type', 'autoencoder'),
             'input_dim': len(history.get('feature_cols', ASSET_FEATURES)),

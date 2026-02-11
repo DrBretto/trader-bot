@@ -1,5 +1,6 @@
 """Tests for data ingestion modules."""
 
+import types
 import pytest
 import pandas as pd
 from unittest.mock import Mock, patch
@@ -7,7 +8,7 @@ from unittest.mock import Mock, patch
 import sys
 sys.path.insert(0, str(__file__).rsplit('/tests', 1)[0])
 
-from src.steps.ingest_prices import fetch_stooq_daily
+from src.steps.ingest_prices import fetch_stooq_daily, fetch_morning_quotes
 from src.steps.ingest_fred import fetch_fred_series, forward_fill_missing, get_latest_values
 from src.steps.ingest_gdelt import fetch_gdelt_daily_aggregate
 
@@ -59,6 +60,34 @@ class TestIngestPrices:
         result = fetch_stooq_daily('SPY', lookback_days=30)
 
         assert len(result) == 0
+
+    def test_fetch_morning_quotes_falls_back_to_stooq(self):
+        """Test morning quote fallback when yfinance returns no rows."""
+        class _FakeTicker:
+            def __init__(self, symbol):
+                self.symbol = symbol
+
+            def history(self, period="1d"):
+                return pd.DataFrame()  # Force fallback
+
+        fake_yf = types.SimpleNamespace(Ticker=_FakeTicker)
+        stooq_df = pd.DataFrame({
+            'date': [pd.Timestamp('2026-02-11')],
+            'symbol': ['SPY'],
+            'open': [600.0],
+            'high': [605.0],
+            'low': [598.0],
+            'close': [602.5],
+            'volume': [123456789]
+        })
+
+        with patch.dict('sys.modules', {'yfinance': fake_yf}):
+            with patch('src.steps.ingest_prices.fetch_stooq_daily', return_value=stooq_df):
+                quotes = fetch_morning_quotes(['SPY'])
+
+        assert len(quotes) == 1
+        assert quotes.iloc[0]['symbol'] == 'SPY'
+        assert quotes.iloc[0]['price'] == pytest.approx(602.5)
 
 
 class TestIngestFred:

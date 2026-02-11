@@ -228,33 +228,62 @@ def fetch_morning_quotes(symbols: List[str]) -> pd.DataFrame:
         DataFrame with columns: symbol, price, open, high, low, volume, timestamp
         Empty DataFrame if all fetches fail.
     """
+    records = []
+    missing_symbols = []
+
+    # Primary source: yfinance (intraday quote)
     try:
         import yfinance as yf
+        for symbol in symbols:
+            try:
+                ticker = yf.Ticker(symbol)
+                hist = ticker.history(period="1d")
+                if len(hist) > 0:
+                    latest = hist.iloc[-1]
+                    records.append({
+                        'symbol': symbol,
+                        'price': float(latest['Close']),
+                        'open': float(latest['Open']),
+                        'high': float(latest['High']),
+                        'low': float(latest['Low']),
+                        'volume': int(latest['Volume']),
+                        'timestamp': hist.index[-1].isoformat()
+                    })
+                else:
+                    missing_symbols.append(symbol)
+            except Exception as e:
+                print(f"yfinance quote failed for {symbol}: {e}")
+                missing_symbols.append(symbol)
     except ImportError:
-        print("yfinance not available, cannot fetch morning quotes")
-        return pd.DataFrame()
+        print("yfinance not available, falling back to Stooq close data")
+        missing_symbols = list(symbols)
 
-    records = []
-    for symbol in symbols:
+    # Fallback: Stooq latest daily close (better than dropping all morning execution)
+    for symbol in missing_symbols:
         try:
-            ticker = yf.Ticker(symbol)
-            hist = ticker.history(period="1d")
-            if len(hist) > 0:
-                latest = hist.iloc[-1]
+            stooq_df = fetch_stooq_daily(symbol, lookback_days=10)
+            if len(stooq_df) > 0:
+                latest = stooq_df.sort_values('date').iloc[-1]
+                close = float(latest['close'])
                 records.append({
                     'symbol': symbol,
-                    'price': float(latest['Close']),
-                    'open': float(latest['Open']),
-                    'high': float(latest['High']),
-                    'low': float(latest['Low']),
-                    'volume': int(latest['Volume']),
-                    'timestamp': hist.index[-1].isoformat()
+                    'price': close,
+                    'open': float(latest.get('open', close)),
+                    'high': float(latest.get('high', close)),
+                    'low': float(latest.get('low', close)),
+                    'volume': int(latest.get('volume', 0)),
+                    'timestamp': pd.to_datetime(latest['date']).isoformat()
                 })
+                print(f"Using Stooq fallback quote for {symbol}: ${close:.2f}")
+            else:
+                print(f"Stooq fallback quote unavailable for {symbol}")
         except Exception as e:
-            print(f"yfinance quote failed for {symbol}: {e}")
+            print(f"Stooq fallback failed for {symbol}: {e}")
 
     if not records:
         print("Warning: No morning quotes fetched")
         return pd.DataFrame()
 
-    return pd.DataFrame(records)
+    # Keep one row per symbol (prefer first source that succeeded)
+    result = pd.DataFrame(records).drop_duplicates(subset=['symbol'], keep='first')
+    return result.reset_index(drop=True)
