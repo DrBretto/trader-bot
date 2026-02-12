@@ -127,6 +127,9 @@ def build_dashboard_data(
         'timestamp': timestamp
     }
 
+    # Load recent trade history from trades.jsonl files
+    trades_history = load_recent_trades(s3, max_days=90)
+
     result = {
         'metrics': metrics,
         'holdings': holdings,
@@ -134,7 +137,8 @@ def build_dashboard_data(
         'equity_curve': equity_curve,
         'drawdowns': drawdowns,
         'monthly_returns': monthly_returns,
-        'weather': weather_report
+        'weather': weather_report,
+        'trades': trades_history
     }
 
     # Add expert signals if available
@@ -170,6 +174,18 @@ def build_dashboard_data(
         result['timeseries_url'] = 'timeseries.json'
 
     return result
+
+
+def load_recent_trades(s3: S3Client, max_days: int = 90) -> List[Dict]:
+    """Load recent trades from daily trades.jsonl files."""
+    dates = s3.list_daily_dates(max_days=max_days)
+    all_trades = []
+    for date_str in dates:
+        day_trades = s3.read_jsonl(f'daily/{date_str}/trades.jsonl')
+        all_trades.extend(day_trades)
+    # Sort newest first
+    all_trades.sort(key=lambda t: t.get('timestamp', ''), reverse=True)
+    return all_trades
 
 
 def _build_equity_curve_from_daily(s3: S3Client, max_days: int = 365) -> List[Dict]:

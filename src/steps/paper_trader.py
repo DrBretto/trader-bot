@@ -255,9 +255,9 @@ def compute_portfolio_stats(
         val = state.get('portfolio_value', initial)
         daily_values.append(val)
 
-        # Count trades
-        trades_today = state.get('trades_today', [])
-        for t in trades_today:
+        # Count trades from trades.jsonl (resilient to portfolio_state overwrites)
+        day_trades = s3.read_jsonl(f'daily/{date_str}/trades.jsonl')
+        for t in day_trades:
             if t.get('action') == 'SELL' and 'pnl' in t:
                 total_trades += 1
                 if t['pnl'] > 0:

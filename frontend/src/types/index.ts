@@ -137,6 +137,21 @@ export interface TimeseriesPoint {
   portfolio_value: number;
 }
 
+export interface Trade {
+  timestamp: string;
+  symbol: string;
+  action: 'BUY' | 'SELL' | 'REDUCE';
+  shares: number;
+  price: number;
+  dollars: number;
+  reason: string;
+  regime: string;
+  entry_price?: number;
+  pnl?: number;
+  pnl_pct?: number;
+  days_held?: number;
+}
+
 export interface DashboardData {
   metrics: PortfolioMetrics;
   holdings: Holding[];
@@ -145,6 +160,7 @@ export interface DashboardData {
   drawdowns: DrawdownPoint[];
   monthly_returns: MonthlyReturn[];
   weather: WeatherReport;
+  trades?: Trade[];
   expert_signals?: ExpertSignals;
   timeseries_url?: string;
 }

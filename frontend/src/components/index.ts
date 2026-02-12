@@ -11,3 +11,4 @@ export { MacroCreditPanel } from './MacroCreditPanel';
 export { VolComplexPanel } from './VolComplexPanel';
 export { FragilityPanel } from './FragilityPanel';
 export { EntropyPanel } from './EntropyPanel';
+export { TradeLog } from './TradeLog';

@@ -89,6 +89,19 @@ class S3Client:
             print(f"Error appending JSONL to {key}: {e}")
             return False
 
+    def read_jsonl(self, key: str) -> List[Dict[str, Any]]:
+        """Read a JSONL file from S3, returning a list of dicts."""
+        try:
+            response = self.s3.get_object(Bucket=self.bucket, Key=key)
+            content = response['Body'].read().decode('utf-8')
+            lines = [line.strip() for line in content.strip().split('\n') if line.strip()]
+            return [json.loads(line) for line in lines]
+        except self.s3.exceptions.NoSuchKey:
+            return []
+        except Exception as e:
+            print(f"Error reading JSONL from {key}: {e}")
+            return []
+
     def read_csv(self, key: str) -> pd.DataFrame:
         """Read a CSV file from S3."""
         try:

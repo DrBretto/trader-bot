@@ -15,6 +15,7 @@ import {
   VolComplexPanel,
   FragilityPanel,
   EntropyPanel,
+  TradeLog,
 } from './components';
 
 export function App() {
@@ -120,6 +121,8 @@ export function App() {
         <PortfolioTable holdings={data.holdings} />
         <CandidatesTable candidates={data.candidates} />
       </div>
+
+      <TradeLog trades={data.trades ?? []} />
     </div>
   );
 }
