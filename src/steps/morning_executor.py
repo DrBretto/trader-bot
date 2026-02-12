@@ -140,10 +140,22 @@ def _update_valuations_from_quotes(
     portfolio['portfolio_value'] = portfolio['cash'] + holdings_value
     portfolio['last_updated'] = datetime.now().isoformat()
 
-    # Update SPY benchmark
+    # Update SPY benchmark (dividend-adjusted total return)
     spy_price = price_map.get('SPY')
     if spy_price and portfolio.get('benchmark_start_price'):
-        portfolio['benchmark_value'] = 100000 * (spy_price / portfolio['benchmark_start_price'])
+        # Migrate legacy portfolios that lack benchmark_shares
+        if portfolio.get('benchmark_shares') is None:
+            start_price = portfolio['benchmark_start_price']
+            if start_price > 0:
+                portfolio['benchmark_shares'] = 100000 / start_price
+
+        # Reinvest estimated daily dividends (~1.3% annual yield)
+        shares = portfolio.get('benchmark_shares', 0)
+        if shares > 0:
+            daily_div_per_share = spy_price * (0.013 / 252)
+            div_cash = shares * daily_div_per_share
+            portfolio['benchmark_shares'] = shares + (div_cash / spy_price)
+            portfolio['benchmark_value'] = portfolio['benchmark_shares'] * spy_price
 
     return portfolio
 

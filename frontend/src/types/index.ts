@@ -9,6 +9,7 @@ export interface PortfolioMetrics {
   current_drawdown: number;
   win_rate: number;
   total_trades: number;
+  cumulative_transaction_costs?: number;
   timestamp: string;
 }
 
@@ -143,7 +144,9 @@ export interface Trade {
   action: 'BUY' | 'SELL' | 'REDUCE';
   shares: number;
   price: number;
+  market_price?: number;
   dollars: number;
+  transaction_cost_bps?: number;
   reason: string;
   regime: string;
   entry_price?: number;

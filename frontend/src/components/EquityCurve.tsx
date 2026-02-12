@@ -68,7 +68,7 @@ export function EquityCurve({ data }: Props) {
           <Line
             type="monotone"
             dataKey="benchmark"
-            name="SPY Benchmark"
+            name="SPY Total Return"
             stroke="#64748b"
             strokeWidth={1}
             strokeDasharray="5 5"

@@ -122,7 +122,10 @@ export function App() {
         <CandidatesTable candidates={data.candidates} />
       </div>
 
-      <TradeLog trades={data.trades ?? []} />
+      <TradeLog
+        trades={data.trades ?? []}
+        cumulativeCosts={data.metrics.cumulative_transaction_costs}
+      />
     </div>
   );
 }

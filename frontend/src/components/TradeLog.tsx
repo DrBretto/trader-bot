@@ -2,6 +2,7 @@ import { Trade } from '../types';
 
 interface Props {
   trades: Trade[];
+  cumulativeCosts?: number;
 }
 
 function formatCurrency(value: number): string {
@@ -29,7 +30,7 @@ const actionColors: Record<string, string> = {
   REDUCE: '#8b5cf6',
 };
 
-export function TradeLog({ trades }: Props) {
+export function TradeLog({ trades, cumulativeCosts }: Props) {
   const sellTrades = trades.filter((t) => t.action === 'SELL' && t.pnl !== undefined);
   const wins = sellTrades.filter((t) => (t.pnl ?? 0) > 0).length;
   const losses = sellTrades.length - wins;
@@ -57,6 +58,7 @@ export function TradeLog({ trades }: Props) {
             padding: '8px 0 16px',
             fontSize: '0.85rem',
             color: '#94a3b8',
+            flexWrap: 'wrap',
           }}
         >
           <span>
@@ -79,6 +81,11 @@ export function TradeLog({ trades }: Props) {
               {(winRate * 100).toFixed(0)}%
             </span>
           </span>
+          {cumulativeCosts != null && cumulativeCosts > 0 && (
+            <span>
+              Txn costs: <span style={{ color: '#f59e0b', fontWeight: 600 }}>{formatCurrency(cumulativeCosts)}</span>
+            </span>
+          )}
         </div>
       )}
       <div style={{ overflowX: 'auto' }}>
@@ -90,6 +97,7 @@ export function TradeLog({ trades }: Props) {
               <th style={{ textAlign: 'center' }}>Action</th>
               <th style={{ textAlign: 'right' }}>Shares</th>
               <th style={{ textAlign: 'right' }}>Price</th>
+              <th style={{ textAlign: 'right' }}>Cost</th>
               <th style={{ textAlign: 'right' }}>P&L</th>
               <th style={{ textAlign: 'right' }}>P&L %</th>
               <th style={{ textAlign: 'right' }}>Days</th>
@@ -114,6 +122,11 @@ export function TradeLog({ trades }: Props) {
                 </td>
                 <td style={{ textAlign: 'right' }}>{trade.shares}</td>
                 <td style={{ textAlign: 'right' }}>{formatCurrency(trade.price)}</td>
+                <td style={{ textAlign: 'right', color: '#94a3b8', fontSize: '0.8rem' }}>
+                  {trade.transaction_cost_bps != null
+                    ? `${trade.transaction_cost_bps.toFixed(1)} bps`
+                    : '\u2014'}
+                </td>
                 <td
                   style={{
                     textAlign: 'right',

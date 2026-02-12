@@ -115,6 +115,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
+  margin-bottom: 24px;
 }
 
 .expert-panels-grid {

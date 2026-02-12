@@ -31,6 +31,7 @@ def build_dashboard_data(
         'current_drawdown': portfolio_state.get('current_drawdown', 0),
         'win_rate': portfolio_state.get('win_rate', 0),
         'total_trades': portfolio_state.get('total_trades', 0),
+        'cumulative_transaction_costs': portfolio_state.get('cumulative_transaction_costs', 0),
         'timestamp': timestamp
     }
 

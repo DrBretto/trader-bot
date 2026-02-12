@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Tuple
 
 from src.utils.s3_client import S3Client
+from src.utils.transaction_costs import apply_transaction_costs
 
 
 def load_portfolio_state(s3: S3Client) -> Dict[str, Any]:
@@ -67,30 +68,54 @@ def execute_trade(
     """
     symbol = action['symbol']
     shares = action['shares']
-    price = action['price']
+    market_price = action['price']
     action_type = action['action']
+
+    # Look up asset metadata for transaction cost tier
+    asset_class = 'equity'
+    sector = 'broad'
+    if len(universe_df) > 0:
+        symbol_row = universe_df[universe_df['symbol'] == symbol]
+        if len(symbol_row) > 0:
+            asset_class = symbol_row.iloc[0].get('asset_class', 'equity')
+            sector = symbol_row.iloc[0].get('sector', 'broad')
+
+    # Apply bid-ask spread + slippage
+    fill_price, cost_bps = apply_transaction_costs(
+        market_price, action_type, sector=sector, asset_class=asset_class
+    )
+
+    # Use fill_price for all cash/P&L math
+    price = fill_price
 
     trade_record = {
         'timestamp': datetime.now().isoformat(),
         'symbol': symbol,
         'action': action_type,
         'shares': shares,
-        'price': price,
-        'dollars': shares * price,
+        'price': round(fill_price, 4),
+        'market_price': round(market_price, 4),
+        'dollars': round(shares * fill_price, 2),
+        'transaction_cost_bps': round(cost_bps, 2),
         'reason': action.get('reason', ''),
         'regime': regime_label
     }
+
+    # Track cumulative transaction costs
+    cost_dollars = abs(fill_price - market_price) * shares
+    portfolio.setdefault('cumulative_transaction_costs', 0.0)
+    portfolio['cumulative_transaction_costs'] += cost_dollars
 
     if action_type == 'BUY':
         # Deduct cash
         portfolio['cash'] -= shares * price
 
-        # Get asset metadata from universe
-        asset_info = {}
+        # Get leverage flag from universe
+        leverage_flag = 0
         if len(universe_df) > 0:
             symbol_row = universe_df[universe_df['symbol'] == symbol]
             if len(symbol_row) > 0:
-                asset_info = symbol_row.iloc[0].to_dict()
+                leverage_flag = symbol_row.iloc[0].get('leverage_flag', 0)
 
         # Add to holdings
         portfolio['holdings'].append({
@@ -102,9 +127,9 @@ def execute_trade(
             'entry_regime': regime_label,
             'entry_health': action.get('health', 0.5),
             'peak_health': action.get('health', 0.5),
-            'asset_class': asset_info.get('asset_class', 'equity'),
-            'sector': asset_info.get('sector', 'broad'),
-            'leverage_flag': asset_info.get('leverage_flag', 0)
+            'asset_class': asset_class,
+            'sector': sector,
+            'leverage_flag': leverage_flag
         })
 
         trade_record['entry_price'] = price
@@ -206,20 +231,30 @@ def update_portfolio_values(
     portfolio['portfolio_value'] = portfolio['cash'] + holdings_value
     portfolio['last_updated'] = datetime.now().isoformat()
 
-    # Update SPY buy-and-hold benchmark
+    # Update SPY buy-and-hold benchmark (dividend-adjusted total return)
     spy_prices = prices_df[prices_df['symbol'] == 'SPY']
     if len(spy_prices) > 0:
         current_spy_price = spy_prices.sort_values('date')['close'].iloc[-1]
 
-        # Initialize benchmark start price if not set
+        # Initialize benchmark on first run
         if portfolio.get('benchmark_start_price') is None:
             portfolio['benchmark_start_price'] = current_spy_price
-            portfolio['benchmark_value'] = 100000  # Initial investment
+            portfolio['benchmark_shares'] = 100000 / current_spy_price
+            portfolio['benchmark_value'] = 100000
         else:
-            # Calculate what $100k would be worth if we bought SPY at start
-            start_price = portfolio['benchmark_start_price']
-            if start_price > 0:
-                portfolio['benchmark_value'] = 100000 * (current_spy_price / start_price)
+            # Migrate legacy portfolios that lack benchmark_shares
+            if portfolio.get('benchmark_shares') is None:
+                start_price = portfolio['benchmark_start_price']
+                if start_price > 0:
+                    portfolio['benchmark_shares'] = 100000 / start_price
+
+            # Reinvest estimated daily dividends (~1.3% annual yield)
+            shares = portfolio.get('benchmark_shares', 0)
+            if shares > 0:
+                daily_div_per_share = current_spy_price * (0.013 / 252)
+                div_cash = shares * daily_div_per_share
+                portfolio['benchmark_shares'] = shares + (div_cash / current_spy_price)
+                portfolio['benchmark_value'] = portfolio['benchmark_shares'] * current_spy_price
 
     return portfolio
 
