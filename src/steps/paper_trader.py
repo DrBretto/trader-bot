@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Tuple
 
 from src.utils.s3_client import S3Client
+from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
 from src.utils.transaction_costs import apply_transaction_costs
 
 
@@ -263,95 +264,44 @@ def compute_portfolio_stats(
     portfolio: Dict[str, Any],
     s3: S3Client
 ) -> Dict[str, Any]:
-    """Compute ytd_return, mtd_return, sharpe_ratio, max_drawdown, win_rate, total_trades."""
-    import numpy as np
+    """Compute canonical performance + lifecycle stats from one coherent series."""
+    snapshot_date = datetime.now().strftime('%Y-%m-%d')
+    canonical = compute_canonical_dashboard_metrics(
+        s3=s3,
+        portfolio_state=portfolio,
+        snapshot_date=snapshot_date,
+        current_state=portfolio,
+        max_days=730,
+        initial_value=100000.0,
+        risk_free_rate_annual=0.0,
+        min_sharpe_observations=60,
+    )
+    metrics = canonical['metrics']
 
-    pv = portfolio['portfolio_value']
-    initial = 100000
-
-    # Load trade history to compute win_rate and total_trades
-    dates = s3.list_daily_dates(max_days=365)
-    dates = sorted(dates)
-
-    total_trades = 0
-    winning_trades = 0
-    daily_values = []
-
-    # Find YTD and MTD start values
-    now = datetime.now()
-    ytd_start_value = initial
-    mtd_start_value = initial
-
-    for date_str in dates:
-        state = s3.read_json(f'daily/{date_str}/portfolio_state.json')
-        if state is None:
-            continue
-
-        val = state.get('portfolio_value', initial)
-        daily_values.append(val)
-
-        # Count trades from trades.jsonl (resilient to portfolio_state overwrites)
-        day_trades = s3.read_jsonl(f'daily/{date_str}/trades.jsonl')
-        for t in day_trades:
-            if t.get('action') == 'SELL' and 'pnl' in t:
-                total_trades += 1
-                if t['pnl'] > 0:
-                    winning_trades += 1
-
-        # Track YTD start (first trading day of current year)
-        if date_str[:4] == str(now.year) and ytd_start_value == initial:
-            # Use the value from the day before, or initial
-            idx = dates.index(date_str)
-            if idx > 0:
-                prev_state = s3.read_json(f'daily/{dates[idx-1]}/portfolio_state.json')
-                if prev_state:
-                    ytd_start_value = prev_state.get('portfolio_value', initial)
-
-        # Track MTD start (first trading day of current month)
-        if date_str[:7] == f"{now.year}-{now.month:02d}" and mtd_start_value == initial:
-            idx = dates.index(date_str)
-            if idx > 0:
-                prev_state = s3.read_json(f'daily/{dates[idx-1]}/portfolio_state.json')
-                if prev_state:
-                    mtd_start_value = prev_state.get('portfolio_value', initial)
-
-    # Compute returns
-    ytd_return = (pv / ytd_start_value - 1) if ytd_start_value > 0 else 0
-    mtd_return = (pv / mtd_start_value - 1) if mtd_start_value > 0 else 0
-
-    # Compute Sharpe ratio from daily returns
-    sharpe_ratio = 0.0
-    if len(daily_values) >= 20:
-        values = np.array(daily_values)
-        daily_returns = np.diff(values) / values[:-1]
-        if len(daily_returns) > 0 and np.std(daily_returns) > 0:
-            sharpe_ratio = float(np.mean(daily_returns) / np.std(daily_returns) * np.sqrt(252))
-
-    # Compute max drawdown
-    max_drawdown = 0.0
-    if len(daily_values) >= 2:
-        values = np.array(daily_values)
-        peak = np.maximum.accumulate(values)
-        drawdowns = (values - peak) / peak
-        max_drawdown = float(np.min(drawdowns))
-
-    # Current drawdown
-    current_drawdown = 0.0
-    if len(daily_values) >= 2:
-        peak_value = max(daily_values)
-        if peak_value > 0:
-            current_drawdown = (pv - peak_value) / peak_value
-
-    # Win rate
-    win_rate = (winning_trades / total_trades) if total_trades > 0 else 0
-
-    portfolio['ytd_return'] = ytd_return
-    portfolio['mtd_return'] = mtd_return
-    portfolio['sharpe_ratio'] = sharpe_ratio
-    portfolio['max_drawdown'] = max_drawdown
-    portfolio['current_drawdown'] = current_drawdown
-    portfolio['win_rate'] = win_rate
-    portfolio['total_trades'] = total_trades
+    portfolio['ytd_return'] = metrics['ytd_return']
+    portfolio['mtd_return'] = metrics['mtd_return']
+    portfolio['sharpe_ratio'] = metrics['sharpe_ratio']
+    portfolio['sharpe_observations'] = metrics['sharpe_observations']
+    portfolio['max_drawdown'] = metrics['max_drawdown']
+    portfolio['current_drawdown'] = metrics['current_drawdown']
+    portfolio['win_rate'] = metrics['win_rate']
+    portfolio['total_trades'] = metrics['total_trades']
+    portfolio['wins'] = metrics['wins']
+    portfolio['losses'] = metrics['losses']
+    portfolio['breakeven_trades'] = metrics['breakeven_trades']
+    portfolio['realized_round_trips'] = metrics['realized_round_trips']
+    portfolio['total_fills'] = metrics['total_fills']
+    # Keep this derivable from fills. Falls back to existing value only if necessary.
+    portfolio['cumulative_transaction_costs'] = metrics.get(
+        'cumulative_transaction_costs',
+        portfolio.get('cumulative_transaction_costs', 0.0),
+    )
+    portfolio['cash_pct'] = metrics['cash_pct']
+    portfolio['gross_exposure'] = metrics['gross_exposure']
+    portfolio['net_exposure'] = metrics['net_exposure']
+    portfolio['top_position_pct'] = metrics['top_position_pct']
+    portfolio['beta_proxy'] = metrics['beta_proxy']
+    portfolio['metrics_reset_boundary'] = canonical.get('reset_boundary')
 
     return portfolio
 

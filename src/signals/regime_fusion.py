@@ -13,7 +13,7 @@ Priority-ordered logic:
 """
 
 import numpy as np
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 
 def decide_regime_v3(
@@ -49,56 +49,192 @@ def decide_regime_v3(
         Dict with final_regime_label, regime_confidence,
         position_size_modifier, risk_throttle_factor.
     """
+    panic_prob_threshold = 0.70
+    unstable_calm_panic_threshold = 0.30
+    macro_downgrade_threshold = -0.50
+    macro_upgrade_threshold = 0.50
+    fragility_threshold = 0.75
+    entropy_size_multiplier = 0.70
+    throttle_mapping = (
+        "effective_exposure_multiplier = position_size_modifier * "
+        "(1 - 0.5 * risk_throttle_factor)"
+    )
+
     # Start with defaults from ensemble
     final_regime = ensemble_regime_label
     confidence = 1.0 - ensemble_disagreement
     position_size_mod = 1.0
     risk_throttle = 0.0
-
     override_reason = None
+    hard_override = False
+    fusion_rules = []
+
+    def _add_rule(
+        order: int,
+        code: str,
+        label: str,
+        fired: bool,
+        inputs: str,
+        threshold: str,
+        effect: str,
+    ) -> None:
+        fusion_rules.append(
+            {
+                'order': order,
+                'code': code,
+                'label': label,
+                'fired': fired,
+                'inputs': inputs,
+                'threshold': threshold,
+                'effect': effect,
+            }
+        )
 
     # --- 1. Hard Override: Panic ---
-    if panic_prob > 0.7 or vol_regime_label == 'panic':
+    panic_fired = panic_prob > panic_prob_threshold or vol_regime_label == 'panic'
+    if panic_fired:
         final_regime = 'high_vol_panic'
         position_size_mod = 0.25
         risk_throttle = 1.0
         confidence = max(panic_prob, vol_uncertainty_score)
         override_reason = 'panic_override'
+        hard_override = True
+    _add_rule(
+        order=1,
+        code='panic_override',
+        label='Panic Override',
+        fired=panic_fired,
+        inputs=f"panic_prob={panic_prob:.2f}, vol_regime={vol_regime_label}",
+        threshold=f"panic_prob>{panic_prob_threshold:.2f} OR vol_regime='panic'",
+        effect=(
+            f"regime={final_regime}, size={position_size_mod:.2f}, "
+            f"throttle={risk_throttle:.2f}"
+            if panic_fired
+            else "no change"
+        ),
+    )
 
     # --- 2. Hard Override: Unstable Calm ---
-    elif vol_regime_label == 'unstable_calm' and panic_prob > 0.3:
+    unstable_fired = (not hard_override) and (
+        vol_regime_label == 'unstable_calm' and panic_prob > unstable_calm_panic_threshold
+    )
+    if unstable_fired:
         final_regime = 'risk_off_trend'
         position_size_mod = 0.50
         risk_throttle = 0.7
         confidence = vol_uncertainty_score
         override_reason = 'unstable_calm_override'
+        hard_override = True
+    _add_rule(
+        order=2,
+        code='unstable_calm_override',
+        label='Unstable Calm Override',
+        fired=unstable_fired,
+        inputs=f"vol_regime={vol_regime_label}, panic_prob={panic_prob:.2f}",
+        threshold=(
+            "vol_regime='unstable_calm' AND "
+            f"panic_prob>{unstable_calm_panic_threshold:.2f}"
+        ),
+        effect=(
+            f"regime={final_regime}, size={position_size_mod:.2f}, "
+            f"throttle={risk_throttle:.2f}"
+            if unstable_fired
+            else ("skipped (higher-priority hard override)" if panic_fired else "no change")
+        ),
+    )
 
     # --- 3. Macro Modulation (only if no hard override) ---
-    else:
-        if macro_credit_score < -0.5 and final_regime in ('risk_on_trend', 'calm_uptrend'):
+    macro_fired = False
+    if not hard_override:
+        if macro_credit_score < macro_downgrade_threshold and final_regime in (
+            'risk_on_trend',
+            'calm_uptrend',
+        ):
             final_regime = 'choppy'
             override_reason = 'macro_downgrade'
-        elif macro_credit_score > 0.5 and final_regime == 'choppy':
+            macro_fired = True
+        elif macro_credit_score > macro_upgrade_threshold and final_regime == 'choppy':
             final_regime = 'risk_on_trend'
             override_reason = 'macro_upgrade'
+            macro_fired = True
+    _add_rule(
+        order=3,
+        code='macro_modulation',
+        label='Macro Modulation',
+        fired=macro_fired,
+        inputs=f"macro_credit_score={macro_credit_score:.2f}, regime={ensemble_regime_label}",
+        threshold=(
+            f"score<{macro_downgrade_threshold:.2f} (downgrade) OR "
+            f"score>{macro_upgrade_threshold:.2f} (upgrade)"
+        ),
+        effect=(
+            f"regime={final_regime}"
+            if macro_fired
+            else ("skipped (hard override active)" if hard_override else "no change")
+        ),
+    )
 
     # --- 4. Caution Gate: Fragility ---
-    if fragility_score > 0.75:
+    fragility_fired = fragility_score > fragility_threshold
+    if fragility_fired:
         position_size_mod = min(position_size_mod, 0.60)
         risk_throttle = min(risk_throttle + 0.2, 1.0)
+    _add_rule(
+        order=4,
+        code='fragility_gate',
+        label='Fragility Gate',
+        fired=fragility_fired,
+        inputs=f"fragility_score={fragility_score:.2f}",
+        threshold=f"fragility_score>{fragility_threshold:.2f}",
+        effect=(
+            f"size={position_size_mod:.2f}, throttle={risk_throttle:.2f}"
+            if fragility_fired
+            else "no change"
+        ),
+    )
 
     # --- 5. Caution Gate: Entropy Shift ---
-    if entropy_shift_flag:
-        position_size_mod *= 0.7
+    entropy_fired = bool(entropy_shift_flag)
+    if entropy_fired:
+        position_size_mod *= entropy_size_multiplier
         risk_throttle = min(risk_throttle + 0.15, 1.0)
+    _add_rule(
+        order=5,
+        code='entropy_shift',
+        label='Entropy Shift Gate',
+        fired=entropy_fired,
+        inputs=f"entropy_shift_flag={entropy_shift_flag}, entropy_score={entropy_score:.2f}",
+        threshold="entropy_shift_flag=True",
+        effect=(
+            f"size×{entropy_size_multiplier:.2f}, throttle={risk_throttle:.2f}"
+            if entropy_fired
+            else "no change"
+        ),
+    )
 
     # --- 6. Ensemble Disagreement (preserves existing behavior) ---
+    disagreement_fired = abs(ensemble_multiplier - 1.0) > 1e-9
     position_size_mod *= ensemble_multiplier
+    _add_rule(
+        order=6,
+        code='ensemble_disagreement',
+        label='Ensemble Disagreement Sizing',
+        fired=disagreement_fired,
+        inputs=(
+            f"disagreement={ensemble_disagreement:.2f}, "
+            f"ensemble_multiplier={ensemble_multiplier:.2f}"
+        ),
+        threshold="multiplier<1.00 when disagreement is elevated",
+        effect=f"size={position_size_mod:.2f}",
+    )
 
     # --- Final Clamps ---
     position_size_mod = float(np.clip(position_size_mod, 0.25, 1.0))
     risk_throttle = float(np.clip(risk_throttle, 0.0, 1.0))
     confidence = float(np.clip(confidence, 0.0, 1.0))
+    effective_exposure_multiplier = float(
+        np.clip(position_size_mod * (1.0 - 0.5 * risk_throttle), 0.0, 1.0)
+    )
 
     return {
         'final_regime_label': final_regime,
@@ -106,4 +242,8 @@ def decide_regime_v3(
         'position_size_modifier': position_size_mod,
         'risk_throttle_factor': risk_throttle,
         'override_reason': override_reason,
+        'effective_exposure_multiplier': effective_exposure_multiplier,
+        'target_gross_exposure': effective_exposure_multiplier,
+        'throttle_mapping': throttle_mapping,
+        'fusion_rules': fusion_rules,
     }

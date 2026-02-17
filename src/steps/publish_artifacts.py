@@ -6,6 +6,26 @@ from typing import Dict, Any, List, Optional
 import pandas as pd
 
 from src.utils.s3_client import S3Client
+from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
+
+
+def _build_snapshot_meta(
+    run_date: str,
+    phase: str,
+    portfolio_state: Dict[str, Any],
+) -> Dict[str, str]:
+    """Build a stable snapshot identifier shared by all dashboard panels."""
+    timestamp = (
+        portfolio_state.get('last_updated')
+        or datetime.now().isoformat()
+    )
+    snapshot_id = f"{run_date}:{phase}:{timestamp}"
+    return {
+        'id': snapshot_id,
+        'date': run_date,
+        'phase': phase,
+        'timestamp': timestamp,
+    }
 
 
 def build_dashboard_data(
@@ -14,25 +34,63 @@ def build_dashboard_data(
     decisions: Dict[str, Any],
     weather: Dict[str, Any],
     s3: S3Client,
-    expert_signals: Optional[Dict[str, Any]] = None
+    expert_signals: Optional[Dict[str, Any]] = None,
+    snapshot_meta: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     """Build the dashboard.json data structure for the frontend."""
-    timestamp = datetime.now().isoformat()
+    snapshot = snapshot_meta or _build_snapshot_meta(
+        run_date=datetime.now().strftime('%Y-%m-%d'),
+        phase='night',
+        portfolio_state=portfolio_state,
+    )
+    timestamp = snapshot['timestamp']
+    snapshot_date = snapshot['date']
+    snapshot_id = snapshot['id']
+
+    canonical = compute_canonical_dashboard_metrics(
+        s3=s3,
+        portfolio_state=portfolio_state,
+        snapshot_date=snapshot_date,
+        current_state=portfolio_state,
+        max_days=730,
+        initial_value=100000.0,
+        risk_free_rate_annual=0.0,
+        min_sharpe_observations=60,
+    )
+    canonical_metrics = canonical['metrics']
+
+    # Keep invested aligned with current holdings if upstream field is missing.
+    invested = portfolio_state.get('invested')
+    if invested is None:
+        invested = sum(float(h.get('market_value', 0.0) or 0.0) for h in portfolio_state.get('holdings', []))
 
     # Build metrics
     metrics = {
         'total_value': portfolio_state.get('portfolio_value', 100000),
         'cash': portfolio_state.get('cash', 100000),
-        'invested': portfolio_state.get('invested', 0),
-        'ytd_return': portfolio_state.get('ytd_return', 0),
-        'mtd_return': portfolio_state.get('mtd_return', 0),
-        'sharpe_ratio': portfolio_state.get('sharpe_ratio', 0),
-        'max_drawdown': portfolio_state.get('max_drawdown', 0),
-        'current_drawdown': portfolio_state.get('current_drawdown', 0),
-        'win_rate': portfolio_state.get('win_rate', 0),
-        'total_trades': portfolio_state.get('total_trades', 0),
-        'cumulative_transaction_costs': portfolio_state.get('cumulative_transaction_costs', 0),
-        'timestamp': timestamp
+        'invested': invested,
+        'ytd_return': canonical_metrics['ytd_return'],
+        'mtd_return': canonical_metrics['mtd_return'],
+        'sharpe_ratio': canonical_metrics['sharpe_ratio'],
+        'sharpe_observations': canonical_metrics['sharpe_observations'],
+        'sharpe_min_observations': canonical_metrics['sharpe_min_observations'],
+        'max_drawdown': canonical_metrics['max_drawdown'],
+        'current_drawdown': canonical_metrics['current_drawdown'],
+        'win_rate': canonical_metrics['win_rate'],
+        'total_trades': canonical_metrics['total_trades'],
+        'wins': canonical_metrics['wins'],
+        'losses': canonical_metrics['losses'],
+        'breakeven_trades': canonical_metrics['breakeven_trades'],
+        'realized_round_trips': canonical_metrics['realized_round_trips'],
+        'total_fills': canonical_metrics['total_fills'],
+        'cumulative_transaction_costs': canonical_metrics['cumulative_transaction_costs'],
+        'cash_pct': canonical_metrics['cash_pct'],
+        'gross_exposure': canonical_metrics['gross_exposure'],
+        'net_exposure': canonical_metrics['net_exposure'],
+        'top_position_pct': canonical_metrics['top_position_pct'],
+        'beta_proxy': canonical_metrics['beta_proxy'],
+        'snapshot_id': snapshot_id,
+        'timestamp': timestamp,
     }
 
     # Build holdings
@@ -65,10 +123,10 @@ def build_dashboard_data(
             'suggested_size': candidate.get('suggested_size', 0)
         })
 
-    # Load historical equity curve if available
-    equity_curve = load_historical_equity(s3)
-    drawdowns = load_historical_drawdowns(s3)
-    monthly_returns = load_monthly_returns(s3)
+    # Canonical timeseries from the same snapshot context.
+    equity_curve = canonical['equity_curve']
+    drawdowns = canonical['drawdowns']
+    monthly_returns = canonical['monthly_returns']
 
     # Build regime info (use fused regime if available)
     regime_data = inference_output.get('regime', {})
@@ -125,13 +183,27 @@ def build_dashboard_data(
         'regime': regime_info,
         'outlook': weather.get('outlook', ''),
         'risks': weather.get('risks', []),
-        'timestamp': timestamp
+        'timestamp': timestamp,
     }
 
-    # Load recent trade history from trades.jsonl files
-    trades_history = load_recent_trades(s3, max_days=90)
+    # Canonical fill history and round-trip summary from same active segment.
+    fills = canonical.get('fills', [])
+    trades_history = []
+    for fill in fills:
+        trade = {k: v for k, v in fill.items() if not k.startswith('_')}
+        trades_history.append(trade)
+    trades_history.sort(key=lambda t: t.get('timestamp', ''), reverse=True)
 
     result = {
+        'snapshot': snapshot,
+        'panel_snapshot_ids': {
+            'metrics': snapshot_id,
+            'equity_curve': snapshot_id,
+            'drawdowns': snapshot_id,
+            'monthly_returns': snapshot_id,
+            'trade_log': snapshot_id,
+            'regime': snapshot_id,
+        },
         'metrics': metrics,
         'holdings': holdings,
         'candidates': candidates,
@@ -139,7 +211,10 @@ def build_dashboard_data(
         'drawdowns': drawdowns,
         'monthly_returns': monthly_returns,
         'weather': weather_report,
-        'trades': trades_history
+        'trades': trades_history,
+        'trade_summary': canonical.get('trade_summary', {}),
+        'round_trips': canonical.get('round_trips', []),
+        'reset_boundary': canonical.get('reset_boundary'),
     }
 
     # Add expert signals if available
@@ -167,6 +242,10 @@ def build_dashboard_data(
             'position_size_modifier': expert_metrics.get('position_size_modifier', 1.0),
             'risk_throttle_factor': expert_metrics.get('risk_throttle_factor', 0.0),
             'override_reason': expert_metrics.get('override_reason'),
+            'target_gross_exposure': expert_metrics.get('target_gross_exposure'),
+            'effective_exposure_multiplier': expert_metrics.get('effective_exposure_multiplier'),
+            'throttle_mapping': expert_metrics.get('throttle_mapping'),
+            'fusion_rules': expert_metrics.get('fusion_rules', []),
             'ensemble_regime_label': regime_data.get('label', 'unknown'),
             'panic_prob': regime_data.get('probs', {}).get('high_vol_panic', 0.0),
             'ensemble_disagreement': regime_data.get('disagreement', 0.0),
@@ -379,6 +458,7 @@ def run(
 
     s3 = S3Client(bucket)
     base_path = f"daily/{run_date}"
+    snapshot_meta = _build_snapshot_meta(run_date, 'night', portfolio_state)
 
     published = []
     failed = []
@@ -496,7 +576,8 @@ def run(
         latest = {
             'date': run_date,
             'intents_date': run_date,
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': snapshot_meta['timestamp'],
+            'snapshot_id': snapshot_meta['id'],
             'regime': fused_regime,
             'portfolio_value': portfolio_state.get('portfolio_value', 0),
             'positions_count': len(portfolio_state.get('holdings', [])),
@@ -560,7 +641,8 @@ def run(
     try:
         dashboard_data = build_dashboard_data(
             portfolio_state, inference_output, decisions, weather, s3,
-            expert_signals=expert_signals
+            expert_signals=expert_signals,
+            snapshot_meta=snapshot_meta,
         )
         # Write to both locations for compatibility
         s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
@@ -603,6 +685,7 @@ def publish_morning_artifacts(
 
     s3 = S3Client(bucket)
     base_path = f"daily/{run_date}"
+    snapshot_meta = _build_snapshot_meta(run_date, 'morning', portfolio_state)
     published = []
     failed = []
 
@@ -642,7 +725,8 @@ def publish_morning_artifacts(
             'morning_executed': True,
             'trades_count': len(trades),
             'phase': 'morning',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': snapshot_meta['timestamp'],
+            'snapshot_id': snapshot_meta['id'],
         })
         s3.write_json(latest, 'daily/latest.json')
         published.append("latest.json")
@@ -654,7 +738,8 @@ def publish_morning_artifacts(
     try:
         dashboard_data = build_dashboard_data(
             portfolio_state, night_inference, night_decisions, night_weather, s3,
-            expert_signals=expert_signals
+            expert_signals=expert_signals,
+            snapshot_meta=snapshot_meta,
         )
         s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
         s3.write_json(dashboard_data, "dashboard/dashboard.json")
