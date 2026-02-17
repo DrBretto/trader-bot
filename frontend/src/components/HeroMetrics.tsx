@@ -100,7 +100,7 @@ export function HeroMetrics({ metrics, holdings, equityCurve }: Props) {
         'Worst peak-to-trough decline on the canonical equity curve during the active history window (or post-reset segment when a reset boundary exists).',
     },
     {
-      label: 'Win Rate',
+      label: 'Realized Win Rate',
       value: `${(metrics.win_rate * 100).toFixed(0)}%`,
       colorBySign: false,
       tooltip:
@@ -148,7 +148,7 @@ export function HeroMetrics({ metrics, holdings, equityCurve }: Props) {
       colorBySign: true,
       rawValue: vsSpySpread ?? undefined,
       tooltip:
-        'Relative performance spread since the start of the displayed equity history: (Portfolio total return - SPY total return). Positive means outperformance.',
+        'Relative return spread over the displayed equity window: (Portfolio total return - SPY total return). Positive means outperformance.',
     },
   ];
 

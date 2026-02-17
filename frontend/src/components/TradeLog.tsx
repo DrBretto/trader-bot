@@ -98,8 +98,8 @@ Round-trips are realized entry+exit pairings (FIFO), used for win/loss accountin
               {breakeven} breakeven
             </span>
           )}
-          <span title="wins / (wins + losses), excluding breakeven outcomes.">
-            Win rate:{' '}
+          <span title="Realized round-trip wins / (wins + losses), excluding breakeven outcomes.">
+            Realized win rate:{' '}
             <span
               style={{
                 color: winRate >= 0.5 ? '#22c55e' : '#ef4444',
