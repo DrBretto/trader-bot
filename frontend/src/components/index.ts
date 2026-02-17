@@ -12,3 +12,4 @@ export { VolComplexPanel } from './VolComplexPanel';
 export { FragilityPanel } from './FragilityPanel';
 export { EntropyPanel } from './EntropyPanel';
 export { TradeLog } from './TradeLog';
+export { InfoTooltip } from './InfoTooltip';

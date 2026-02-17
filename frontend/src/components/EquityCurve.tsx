@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { EquityCurvePoint } from '../types';
 import { format, parseISO } from 'date-fns';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   data: EquityCurvePoint[];
@@ -32,7 +33,15 @@ export function EquityCurve({ data }: Props) {
 
   return (
     <div className="card">
-      <div className="card-title">Portfolio Value</div>
+      <div className="card-title">
+        <span>Portfolio Value</span>
+        <InfoTooltip
+          content={`Blue line: portfolio equity over time.
+Gray dashed line: SPY benchmark normalized to the same starting value.
+Use this chart to inspect absolute growth and benchmark-relative drift.`}
+          label="Portfolio value chart"
+        />
+      </div>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={formattedData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -54,7 +63,10 @@ export function EquityCurve({ data }: Props) {
               borderRadius: '8px',
             }}
             labelStyle={{ color: '#94a3b8' }}
-            formatter={(value: number) => [formatCurrency(value), '']}
+            formatter={(value: number, name: string) => [
+              formatCurrency(value),
+              name === 'value' ? 'Portfolio Equity' : 'SPY-Normalized Equity',
+            ]}
           />
           <Legend />
           <Line

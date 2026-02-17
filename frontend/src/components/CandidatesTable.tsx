@@ -1,4 +1,5 @@
 import { BuyCandidate } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   candidates: BuyCandidate[];
@@ -22,7 +23,14 @@ export function CandidatesTable({ candidates }: Props) {
   if (candidates.length === 0) {
     return (
       <div className="card">
-        <div className="card-title">Buy Candidates</div>
+        <div className="card-title">
+          <span>Buy Candidates</span>
+          <InfoTooltip
+            content={`Ranked watchlist produced by the decision engine.
+Score combines model health and decision filters, while Size is the suggested dollar allocation after regime and risk throttles.`}
+            label="Buy candidates"
+          />
+        </div>
         <p style={{ color: '#64748b', textAlign: 'center', padding: '40px 0' }}>
           No buy candidates at this time
         </p>
@@ -32,17 +40,24 @@ export function CandidatesTable({ candidates }: Props) {
 
   return (
     <div className="card">
-      <div className="card-title">Buy Candidates</div>
+      <div className="card-title">
+        <span>Buy Candidates</span>
+        <InfoTooltip
+          content={`Ranked watchlist produced by the decision engine.
+Score combines model health and decision filters, while Size is the suggested dollar allocation after regime and risk throttles.`}
+          label="Buy candidates"
+        />
+      </div>
       <div style={{ overflowX: 'auto' }}>
         <table>
           <thead>
             <tr>
-              <th>Symbol</th>
-              <th style={{ textAlign: 'right' }}>Score</th>
-              <th style={{ textAlign: 'right' }}>21d</th>
-              <th style={{ textAlign: 'center' }}>Health</th>
-              <th style={{ textAlign: 'center' }}>Type</th>
-              <th style={{ textAlign: 'right' }}>Size</th>
+              <th title="Ticker symbol for the candidate asset.">Symbol</th>
+              <th style={{ textAlign: 'right' }} title="Decision score used for candidate ranking; higher is more favorable.">Score</th>
+              <th style={{ textAlign: 'right' }} title="Recent 21-day trailing return.">21d</th>
+              <th style={{ textAlign: 'center' }} title="Model health score (0-100).">Health</th>
+              <th style={{ textAlign: 'center' }} title="Behavior classification inferred by the health model.">Type</th>
+              <th style={{ textAlign: 'right' }} title="Suggested dollar size after all sizing modifiers and constraints.">Size</th>
             </tr>
           </thead>
           <tbody>

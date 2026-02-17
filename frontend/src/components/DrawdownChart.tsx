@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { DrawdownPoint } from '../types';
 import { format, parseISO } from 'date-fns';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   data: DrawdownPoint[];
@@ -23,7 +24,15 @@ export function DrawdownChart({ data }: Props) {
 
   return (
     <div className="card">
-      <div className="card-title">Drawdown</div>
+      <div className="card-title">
+        <span>Drawdown</span>
+        <InfoTooltip
+          content={`Drawdown is the percent decline from the prior equity peak.
+0% means at a new high; more negative values mean deeper underwater periods.
+Max drawdown is the minimum value on this series.`}
+          label="Drawdown chart"
+        />
+      </div>
       <ResponsiveContainer width="100%" height={200}>
         <AreaChart data={formattedData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />

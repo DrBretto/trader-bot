@@ -1,4 +1,5 @@
 import { Trade, TradeSummary } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   trades: Trade[];
@@ -44,7 +45,14 @@ export function TradeLog({ trades, cumulativeCosts, tradeSummary }: Props) {
   if (trades.length === 0) {
     return (
       <div className="card">
-        <div className="card-title">Trade Log</div>
+        <div className="card-title">
+          <span>Trade Log</span>
+          <InfoTooltip
+            content={`Execution-level fill history. A fill is one executed order event.
+Round-trips are realized entry+exit pairings (FIFO), used for win/loss accounting and realized performance stats.`}
+            label="Trade log"
+          />
+        </div>
         <p style={{ color: '#64748b', textAlign: 'center', padding: '40px 0' }}>
           No trades recorded yet
         </p>
@@ -54,7 +62,14 @@ export function TradeLog({ trades, cumulativeCosts, tradeSummary }: Props) {
 
   return (
     <div className="card">
-      <div className="card-title">Trade Log</div>
+      <div className="card-title">
+        <span>Trade Log</span>
+        <InfoTooltip
+          content={`Execution-level fill history. A fill is one executed order event.
+Round-trips are realized entry+exit pairings (FIFO), used for win/loss accounting and realized performance stats.`}
+          label="Trade log"
+        />
+      </div>
       {(roundTrips > 0 || fillsTotal > 0) && (
         <div
           style={{
@@ -66,24 +81,24 @@ export function TradeLog({ trades, cumulativeCosts, tradeSummary }: Props) {
             flexWrap: 'wrap',
           }}
         >
-          <span>
+          <span title="Total executed fills (buys + sells + reductions).">
             {fillsTotal} fills
           </span>
-          <span>
+          <span title="Realized entry/exit pairs used for win/loss analytics.">
             {roundTrips} round-trips
           </span>
-          <span style={{ color: '#22c55e' }}>
+          <span style={{ color: '#22c55e' }} title="Count of round-trips with positive realized P&L.">
             {wins} wins
           </span>
-          <span style={{ color: '#ef4444' }}>
+          <span style={{ color: '#ef4444' }} title="Count of round-trips with negative realized P&L.">
             {losses} losses
           </span>
           {breakeven > 0 && (
-            <span style={{ color: '#f8fafc' }}>
+            <span style={{ color: '#f8fafc' }} title="Round-trips with near-zero realized P&L.">
               {breakeven} breakeven
             </span>
           )}
-          <span>
+          <span title="wins / (wins + losses), excluding breakeven outcomes.">
             Win rate:{' '}
             <span
               style={{
@@ -95,12 +110,15 @@ export function TradeLog({ trades, cumulativeCosts, tradeSummary }: Props) {
             </span>
           </span>
           {txnCosts != null && txnCosts > 0 && (
-            <span>
+            <span title="Cumulative estimated transaction costs from fills (commissions + slippage model).">
               Txn costs: <span style={{ color: '#f59e0b', fontWeight: 600 }}>{formatCurrency(txnCosts)}</span>
             </span>
           )}
           {(tradeSummary?.unmatched_closing_shares ?? 0) > 0 && (
-            <span style={{ color: '#eab308' }}>
+            <span
+              style={{ color: '#eab308' }}
+              title="Closing shares that could not be paired to open inventory lots; investigate data integrity if non-zero."
+            >
               Unmatched close qty: {tradeSummary?.unmatched_closing_shares}
             </span>
           )}
@@ -110,16 +128,16 @@ export function TradeLog({ trades, cumulativeCosts, tradeSummary }: Props) {
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Symbol</th>
-              <th style={{ textAlign: 'center' }}>Action</th>
-              <th style={{ textAlign: 'right' }}>Shares</th>
-              <th style={{ textAlign: 'right' }}>Price</th>
-              <th style={{ textAlign: 'right' }}>Cost</th>
-              <th style={{ textAlign: 'right' }}>P&L</th>
-              <th style={{ textAlign: 'right' }}>P&L %</th>
-              <th style={{ textAlign: 'right' }}>Days</th>
-              <th>Reason</th>
+              <th title="Execution date of the fill.">Date</th>
+              <th title="Ticker symbol.">Symbol</th>
+              <th style={{ textAlign: 'center' }} title="Execution action type: BUY, SELL, or REDUCE.">Action</th>
+              <th style={{ textAlign: 'right' }} title="Executed share quantity.">Shares</th>
+              <th style={{ textAlign: 'right' }} title="Executed fill price per share.">Price</th>
+              <th style={{ textAlign: 'right' }} title="Per-trade transaction-cost assumption in basis points (bps).">Cost</th>
+              <th style={{ textAlign: 'right' }} title="Realized dollar P&L for closing fills; blank for opening fills.">P&L</th>
+              <th style={{ textAlign: 'right' }} title="Realized percent P&L for closing fills; blank for opening fills.">P&L %</th>
+              <th style={{ textAlign: 'right' }} title="Holding period in days for realized exits.">Days</th>
+              <th title="Execution reason from the decision/risk pipeline.">Reason</th>
             </tr>
           </thead>
           <tbody>

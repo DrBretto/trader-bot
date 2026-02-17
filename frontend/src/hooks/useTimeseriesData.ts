@@ -12,7 +12,8 @@ export function useTimeseriesData() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch(TS_URL);
+        const cacheBustedUrl = `${TS_URL}${TS_URL.includes('?') ? '&' : '?'}t=${Date.now()}`;
+        const response = await fetch(cacheBustedUrl, { cache: 'no-store' });
         if (response.ok) {
           const json = await response.json();
           setData(json);

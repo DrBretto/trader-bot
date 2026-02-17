@@ -17,7 +17,8 @@ export function useDashboardData() {
 
       for (const url of urls) {
         try {
-          const response = await fetch(url);
+          const cacheBustedUrl = `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+          const response = await fetch(cacheBustedUrl, { cache: 'no-store' });
           if (!response.ok) continue;
           const json = await response.json();
           setData(json);

@@ -1,5 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { TimeseriesPoint } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   timeseries: TimeseriesPoint[];
@@ -17,7 +18,14 @@ export function FragilityPanel({ timeseries }: Props) {
 
   return (
     <div className="card">
-      <div className="card-title">Cross-Asset Fragility</div>
+      <div className="card-title">
+        <span>Cross-Asset Fragility</span>
+        <InfoTooltip
+          content={`Measures how tightly markets are moving together (correlation concentration).
+Values above the threshold (0.75) trigger defensive sizing caps because diversification tends to break down.`}
+          label="Fragility panel"
+        />
+      </div>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />

@@ -16,6 +16,7 @@ import {
   FragilityPanel,
   EntropyPanel,
   TradeLog,
+  InfoTooltip,
 } from './components';
 
 export function App() {
@@ -44,12 +45,20 @@ export function App() {
     <div className="dashboard">
       <header className="dashboard-header">
         <h1>Investment Dashboard</h1>
-        <span className="last-updated">
-          Last updated: {format(parseISO(data.metrics.timestamp), 'MMM d, yyyy h:mm a')}
-        </span>
+        <div className="last-updated" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span>
+            Last updated: {format(parseISO(data.metrics.timestamp), 'MMM d, yyyy h:mm a')}
+          </span>
+          <InfoTooltip
+            content={`Snapshot ID: ${data.snapshot?.id ?? data.metrics.snapshot_id ?? 'unknown'}
+All dashboard panels are computed from this single snapshot to prevent cross-panel timestamp drift.`}
+            label="Snapshot timestamp"
+            align="right"
+          />
+        </div>
       </header>
 
-      <HeroMetrics metrics={data.metrics} />
+      <HeroMetrics metrics={data.metrics} holdings={data.holdings} equityCurve={data.equity_curve} />
 
       <div className="charts-row">
         <EquityCurve data={data.equity_curve} />
@@ -75,7 +84,14 @@ export function App() {
       <div className="weather-regime-row">
         <WeatherReport weather={data.weather} />
         <div className="card">
-          <div className="card-title">Regime Probabilities</div>
+          <div className="card-title">
+            <span>Regime Probabilities</span>
+            <InfoTooltip
+              content={`Model probability distribution across regime classes before final expert-rule fusion.
+The highest raw probability can still lose if a higher-priority override rule fires.`}
+              label="Regime probabilities"
+            />
+          </div>
           {Object.entries(data.weather.regime.probs).map(([regime, prob]) => (
             <div
               key={regime}
@@ -86,6 +102,7 @@ export function App() {
                 padding: '8px 0',
                 borderBottom: '1px solid #334155',
               }}
+              title={`${regime.replace(/_/g, ' ')} probability: ${(prob * 100).toFixed(1)}%`}
             >
               <span style={{ textTransform: 'capitalize' }}>{regime.replace(/_/g, ' ')}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

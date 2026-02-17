@@ -80,13 +80,20 @@ Transaction costs are derived from fills:
 
 ### Exposure Transparency
 
-Published metrics now include:
+Published backend metrics now include:
 
 - `cash_pct`
 - `gross_exposure`
 - `net_exposure`
 - `top_position_pct`
 - `beta_proxy` (when holding-level beta exists, otherwise `null`)
+Dashboard hero metrics additionally include `portfolio_vs_spy` (frontend-derived from canonical equity curve):
+
+```text
+(portfolio_end / portfolio_start - 1) - (spy_end / spy_start - 1)
+```
+
+Positive values indicate benchmark outperformance over the displayed history window.
 
 ## Reset Handling
 
@@ -107,6 +114,15 @@ Detected boundary is exposed as `reset_boundary` in dashboard payload.
 - `throttle_mapping`
 
 Frontend `Regime Decision` renders this backend-provided rule trail directly, so display logic matches execution logic.
+
+## Dashboard Explainability UX
+
+- Added detailed on-hover tooltips across:
+  - hero metrics
+  - chart cards
+  - table headers
+  - regime/fusion panels
+- Dashboard data fetch now uses cache-busting query params + `cache: "no-store"` to reduce stale S3 object caching issues in browsers.
 
 ## Local Validation
 

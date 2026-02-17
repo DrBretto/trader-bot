@@ -62,6 +62,9 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .metrics-grid {
@@ -339,4 +342,69 @@ td {
 .model-confidence {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.info-tooltip {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid #64748b;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  padding: 0;
+}
+
+.info-tooltip:hover,
+.info-tooltip:focus-visible {
+  border-color: #3b82f6;
+  color: #cbd5e1;
+  outline: none;
+}
+
+.info-tooltip-content {
+  position: absolute;
+  z-index: 40;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(340px, 80vw);
+  border: 1px solid #334155;
+  background-color: #020617;
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left;
+  white-space: pre-wrap;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+  padding: 10px 12px;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 10px 20px rgba(2, 6, 23, 0.55);
+}
+
+.info-tooltip-left .info-tooltip-content {
+  left: 0;
+  transform: none;
+}
+
+.info-tooltip-right .info-tooltip-content {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.info-tooltip:hover .info-tooltip-content,
+.info-tooltip:focus-visible .info-tooltip-content {
+  opacity: 1;
 }

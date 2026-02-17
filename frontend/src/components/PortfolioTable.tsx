@@ -1,4 +1,5 @@
 import { Holding } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   holdings: Holding[];
@@ -22,7 +23,14 @@ export function PortfolioTable({ holdings }: Props) {
   if (holdings.length === 0) {
     return (
       <div className="card">
-        <div className="card-title">Current Holdings</div>
+        <div className="card-title">
+          <span>Current Holdings</span>
+          <InfoTooltip
+            content={`Inventory snapshot of open positions.
+P&L is unrealized (mark-to-market), Health is the model score (0-100), and Vol is the volatility bucket used in sizing logic.`}
+            label="Current holdings"
+          />
+        </div>
         <p style={{ color: '#64748b', textAlign: 'center', padding: '40px 0' }}>
           No current holdings
         </p>
@@ -32,17 +40,24 @@ export function PortfolioTable({ holdings }: Props) {
 
   return (
     <div className="card">
-      <div className="card-title">Current Holdings</div>
+      <div className="card-title">
+        <span>Current Holdings</span>
+        <InfoTooltip
+          content={`Inventory snapshot of open positions.
+P&L is unrealized (mark-to-market), Health is the model score (0-100), and Vol is the volatility bucket used in sizing logic.`}
+          label="Current holdings"
+        />
+      </div>
       <div style={{ overflowX: 'auto' }}>
         <table>
           <thead>
             <tr>
-              <th>Symbol</th>
-              <th style={{ textAlign: 'right' }}>Shares</th>
-              <th style={{ textAlign: 'right' }}>Value</th>
-              <th style={{ textAlign: 'right' }}>P&L</th>
-              <th style={{ textAlign: 'center' }}>Health</th>
-              <th style={{ textAlign: 'center' }}>Vol</th>
+              <th title="Ticker symbol for the holding.">Symbol</th>
+              <th style={{ textAlign: 'right' }} title="Current share count held in inventory.">Shares</th>
+              <th style={{ textAlign: 'right' }} title="Current market value of the position.">Value</th>
+              <th style={{ textAlign: 'right' }} title="Unrealized percent gain/loss since entry cost basis.">P&L</th>
+              <th style={{ textAlign: 'center' }} title="Model health score (0-100), where higher implies stronger modeled quality.">Health</th>
+              <th style={{ textAlign: 'center' }} title="Volatility bucket used by sizing and risk controls.">Vol</th>
             </tr>
           </thead>
           <tbody>

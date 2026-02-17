@@ -1,4 +1,5 @@
 import { EnsembleMetrics, ExpertSignals } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   ensemble?: EnsembleMetrics;
@@ -48,7 +49,9 @@ function FusionRule({ step, label, active, detail }: {
       display: 'flex', alignItems: 'center', gap: 8,
       padding: '6px 0',
       opacity: active ? 1 : 0.4,
-    }}>
+    }}
+      title={`${label}: ${detail}`}
+    >
       <span style={{
         fontSize: 11, fontWeight: 600, color: '#64748b',
         width: 16, textAlign: 'right', flexShrink: 0,
@@ -75,7 +78,14 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
     if (!ensemble || !ensemble.is_ensemble) {
       return (
         <div className="card ensemble-card">
-          <div className="card-title">Model Status</div>
+          <div className="card-title">
+            <span>Model Status</span>
+            <InfoTooltip
+              content={`Fallback mode when only one model is active.
+Ensemble-specific disagreement and fusion trail diagnostics are unavailable in this mode.`}
+              label="Model status"
+            />
+          </div>
           <div style={{ color: '#94a3b8', fontSize: '14px' }}>
             Single model (baseline)
           </div>
@@ -110,7 +120,14 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
 
   return (
     <div className="card" style={{ minHeight: 200 }}>
-      <div className="card-title">Regime Decision</div>
+      <div className="card-title">
+        <span>Regime Decision</span>
+        <InfoTooltip
+          content={`Canonical fusion output used by the decision engine.
+Shows final regime, exposure throttle, model/expert inputs, and ordered rule effects so every decision is auditable.`}
+          label="Regime decision"
+        />
+      </div>
 
       {/* A) Final Decision Banner */}
       <div style={{
@@ -259,7 +276,10 @@ function ModelRow({ label, prediction, confidence }: {
 }) {
   const regimeColor = REGIME_COLORS[prediction] || '#64748b';
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div
+      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+      title={`${label} predicts ${prediction.replace(/_/g, ' ')} at ${(confidence * 100).toFixed(1)}% confidence.`}
+    >
       <span style={{ fontSize: 11, color: '#64748b', width: 36 }}>{label}</span>
       <span style={{ fontSize: 12, fontWeight: 500, color: regimeColor, textTransform: 'capitalize', flex: 1 }}>
         {prediction.replace(/_/g, ' ')}
@@ -273,7 +293,7 @@ function SignalRow({ label, value, bar, alert }: {
   label: string; value: string; bar: React.ReactNode; alert?: boolean;
 }) {
   return (
-    <div>
+    <div title={`${label}: ${value}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
         <span style={{ fontSize: 11, color: alert ? '#eab308' : '#94a3b8' }}>
           {alert ? '! ' : ''}{label}
@@ -295,7 +315,14 @@ function LegacyEnsembleView({ ensemble }: { ensemble: EnsembleMetrics }) {
 
   return (
     <div className="card ensemble-card">
-      <div className="card-title">Ensemble Model Status</div>
+      <div className="card-title">
+        <span>Ensemble Model Status</span>
+        <InfoTooltip
+          content={`Legacy view for ensemble quality when detailed fusion diagnostics are unavailable.
+Agreement and confidence summarize model alignment and uncertainty.`}
+          label="Ensemble model status"
+        />
+      </div>
       <div className="ensemble-status-row" style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{

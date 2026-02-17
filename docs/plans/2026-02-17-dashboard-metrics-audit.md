@@ -4,6 +4,11 @@
 
 Dashboard metrics currently come from mixed computation paths and timestamps (precomputed portfolio fields + independently rebuilt chart tables), which can produce visible mismatches in YTD/MTD, Sharpe/drawdown behavior, trade counts, and "last updated" semantics. This task aligns analytics and regime explainability around one canonical snapshot and one return/trade accounting definition.
 
+Post-deploy UI feedback (same task scope) identified:
+- new exposure cards appearing as zeros in the live dashboard view
+- a remaining gap in the hero grid (wants one additional metric card)
+- request for educational, detailed tooltips across dashboard panels
+
 ## Plan
 
 - [x] Orient on roadmap and prior plans (`docs/PLAN.md`, `docs/plans/*`, `docs/POSTMORTEMS.md`, `CLAUDE.md`)
@@ -28,6 +33,10 @@ Dashboard metrics currently come from mixed computation paths and timestamps (pr
 - [x] Document definitions + local validation in `docs/metrics_audit.md`
 - [x] Run checks/tests
 - [x] Commit in logical groups
+- [x] Diagnose and fix hero metric zero rendering in live dashboard view
+- [x] Add one more hero metric: portfolio total return vs SPY total return
+- [x] Add detailed explanatory tooltips across dashboard UI
+- [x] Rebuild + redeploy frontend and verify live payload/render consistency
 
 ## Execution Log
 
@@ -63,6 +72,21 @@ Dashboard metrics currently come from mixed computation paths and timestamps (pr
 - Created logical commits:
   - `6c01973` — canonical metrics engine + snapshot cohesion + tests/docs
   - `74ac424` — frontend alignment with canonical metric semantics
+- Follow-up diagnostics for live "zero" report:
+  - verified both `s3://investment-system-data/dashboard/dashboard.json` and `s3://investment-system-data/dashboard/data/dashboard.json`
+  - confirmed non-zero canonical values are present in payload (`cash_pct=0.7955`, `gross_exposure=0.2045`, `net_exposure=0.2045`, `top_position_pct=0.0684`)
+  - likely issue narrowed to frontend fetch/render path (stale cache or missing-field fallback), not backend metric computation
+- Implemented frontend follow-up polish/fixes:
+  - `HeroMetrics` now computes robust fallback exposure values from current holdings if optional metrics are missing
+  - added cache-busting + `cache: "no-store"` for dashboard/timeseries fetches to avoid stale snapshot rendering
+  - added new hero card: `Portfolio vs SPY` (relative total-return spread)
+  - added reusable `InfoTooltip` component and applied detailed explanatory tooltips across dashboard cards/tables/charts
+- Validation:
+  - `cd frontend && npm run build` (success)
+- Deployed frontend update:
+  - `cd frontend && VITE_DATA_URL=dashboard.json npm run build`
+  - `aws s3 sync dist/ s3://investment-system-data/dashboard/ --exclude "dashboard.json" --exclude "timeseries.json" --exclude "timeseries.parquet" --exclude "data/*" --delete --region us-east-1`
+  - verified upload and object timestamps via `aws s3 ls s3://investment-system-data/dashboard/ --region us-east-1`
 
 ## Follow-ups
 
