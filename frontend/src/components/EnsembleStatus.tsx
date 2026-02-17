@@ -173,12 +173,12 @@ Shows final regime, exposure throttle, model/expert inputs, and ordered rule eff
         {/* Left: Ensemble Models */}
         <div>
           <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
-            Ensemble Models
+            Ensemble Model Votes
           </div>
           {ensemble?.gru_prediction && ensemble?.transformer_prediction ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <ModelRow label="GRU" prediction={ensemble.gru_prediction.label} confidence={ensemble.gru_prediction.confidence} />
-              <ModelRow label="XFMR" prediction={ensemble.transformer_prediction.label} confidence={ensemble.transformer_prediction.confidence} />
+              <ModelRow label="GRU vote" prediction={ensemble.gru_prediction.label} confidence={ensemble.gru_prediction.confidence} />
+              <ModelRow label="XFMR vote" prediction={ensemble.transformer_prediction.label} confidence={ensemble.transformer_prediction.confidence} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                 <div style={{
                   width: 8, height: 8, borderRadius: '50%',
@@ -191,7 +191,7 @@ Shows final regime, exposure throttle, model/expert inputs, and ordered rule eff
             </div>
           ) : (
             <div style={{ fontSize: 12, color: '#64748b' }}>
-              Raw: {(signals.ensemble_regime_label || 'unknown').replace(/_/g, ' ')}
+              Ensemble vote: {(signals.ensemble_regime_label || 'unknown').replace(/_/g, ' ')}
             </div>
           )}
         </div>
@@ -278,9 +278,9 @@ function ModelRow({ label, prediction, confidence }: {
   return (
     <div
       style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-      title={`${label} predicts ${prediction.replace(/_/g, ' ')} at ${(confidence * 100).toFixed(1)}% confidence.`}
+      title={`${label} suggests ${prediction.replace(/_/g, ' ')} at ${(confidence * 100).toFixed(1)}% confidence.`}
     >
-      <span style={{ fontSize: 11, color: '#64748b', width: 36 }}>{label}</span>
+      <span style={{ fontSize: 11, color: '#64748b', width: 56 }}>{label}</span>
       <span style={{ fontSize: 12, fontWeight: 500, color: regimeColor, textTransform: 'capitalize', flex: 1 }}>
         {prediction.replace(/_/g, ' ')}
       </span>
