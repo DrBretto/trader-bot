@@ -52,32 +52,11 @@ export function App() {
     detailLoading: optimizerDetailLoading,
   } = useOptimizerData(selectedOptimizerRun);
 
-  if (loading) {
-    return <div className="loading">Loading dashboard...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="error">
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>:(</div>
-        <div>Failed to load dashboard data</div>
-        <div style={{ fontSize: '14px', marginTop: '8px' }}>{error}</div>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return <div className="error">No data available</div>;
-  }
-
-  const selectedRegime = data.expert_signals?.final_regime_label ?? data.weather.regime.regime;
-  const argmaxRegime = getArgmaxRegime(data.weather.regime.probs);
-  const probabilityRows = Object.entries(data.weather.regime.probs)
-    .sort((a, b) => b[1] - a[1]);
-
   useEffect(() => {
-    if (!import.meta.env.DEV) return;
+    if (!import.meta.env.DEV || !data) return;
 
+    const selectedRegime = data.expert_signals?.final_regime_label ?? data.weather.regime.regime;
+    const argmaxRegime = getArgmaxRegime(data.weather.regime.probs);
     const warnings: string[] = [];
     const overrideReason = data.expert_signals?.override_reason;
     if (argmaxRegime && argmaxRegime !== selectedRegime && !overrideReason) {
@@ -111,7 +90,30 @@ export function App() {
       // eslint-disable-next-line no-console
       console.warn(`[dashboard-coherence] ${warning}`);
     });
-  }, [argmaxRegime, data, selectedRegime]);
+  }, [data]);
+
+  if (loading) {
+    return <div className="loading">Loading dashboard...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="error">
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>:(</div>
+        <div>Failed to load dashboard data</div>
+        <div style={{ fontSize: '14px', marginTop: '8px' }}>{error}</div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return <div className="error">No data available</div>;
+  }
+
+  const selectedRegime = data.expert_signals?.final_regime_label ?? data.weather.regime.regime;
+  const argmaxRegime = getArgmaxRegime(data.weather.regime.probs);
+  const probabilityRows = Object.entries(data.weather.regime.probs)
+    .sort((a, b) => b[1] - a[1]);
 
   return (
     <div className="dashboard">
