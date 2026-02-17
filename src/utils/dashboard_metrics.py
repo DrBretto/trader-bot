@@ -264,6 +264,7 @@ def _monthly_returns(return_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "year": int(year),
                 "month": int(month),
                 "return_pct": _compound(monthly_map[ym]),
+                "observations": len(monthly_map[ym]),
             }
         )
     return result

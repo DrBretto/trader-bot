@@ -65,6 +65,7 @@ export interface MonthlyReturn {
   year: number;
   month: number;
   return_pct: number;
+  observations?: number;
 }
 
 export interface ModelPrediction {
