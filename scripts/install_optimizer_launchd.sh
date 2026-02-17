@@ -10,6 +10,7 @@ PLIST_NAME="com.traderbot.optimizer.plist"
 PLIST_SRC="$SCRIPT_DIR/launchd/$PLIST_NAME"
 PLIST_DST="$HOME/Library/LaunchAgents/$PLIST_NAME"
 LOG_DIR="$HOME/Library/Logs/traderbot"
+AWS_PROFILE_VALUE="${AWS_PROFILE:-default}"
 
 if [ ! -f "$VENV_PYTHON" ]; then
   echo "ERROR: Python virtual environment not found at $VENV_PYTHON"
@@ -28,6 +29,7 @@ fi
 sed \
   -e "s|__PROJECT_DIR__|$PROJECT_DIR|g" \
   -e "s|__VENV_PYTHON__|$VENV_PYTHON|g" \
+  -e "s|__AWS_PROFILE__|$AWS_PROFILE_VALUE|g" \
   -e "s|__LOG_DIR__|$LOG_DIR|g" \
   "$PLIST_SRC" > "$PLIST_DST"
 
@@ -35,5 +37,6 @@ launchctl load "$PLIST_DST"
 
 echo "Installed launchd job: com.traderbot.optimizer"
 echo "Schedule: Weekly Sunday at 03:30 local time"
+echo "AWS profile: $AWS_PROFILE_VALUE"
 echo "Run now: launchctl start com.traderbot.optimizer"
 echo "Logs: $LOG_DIR/optimizer.log and $LOG_DIR/optimizer.error.log"

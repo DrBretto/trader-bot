@@ -40,6 +40,12 @@
         <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
         <key>AWS_REGION</key>
         <string>us-east-1</string>
+        <key>AWS_PROFILE</key>
+        <string>__AWS_PROFILE__</string>
+        <key>AWS_DEFAULT_PROFILE</key>
+        <string>__AWS_PROFILE__</string>
+        <key>AWS_SDK_LOAD_CONFIG</key>
+        <string>1</string>
         <key>PYTHONPATH</key>
         <string>__PROJECT_DIR__</string>
     </dict>
