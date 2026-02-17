@@ -27,7 +27,7 @@ Dashboard metrics currently come from mixed computation paths and timestamps (pr
   - [x] snapshot cohesion
 - [x] Document definitions + local validation in `docs/metrics_audit.md`
 - [x] Run checks/tests
-- [ ] Commit in logical groups
+- [x] Commit in logical groups
 
 ## Execution Log
 
@@ -60,6 +60,9 @@ Dashboard metrics currently come from mixed computation paths and timestamps (pr
 - Ran checks:
   - `pytest -q` (117 passed, 1 skipped)
   - `npm run build` in `frontend` (success)
+- Created logical commits:
+  - `6c01973` — canonical metrics engine + snapshot cohesion + tests/docs
+  - `74ac424` — frontend alignment with canonical metric semantics
 
 ## Follow-ups
 
