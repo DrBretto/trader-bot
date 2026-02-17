@@ -174,6 +174,7 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
     """
     s3 = S3Client(bucket)
     params = config.get('decision_params', {})
+    transaction_cost_config = config.get('transaction_cost_overrides')
     validation_log: List[str] = []
 
     # Load trade intents
@@ -302,7 +303,11 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
                 'dollars': shares * morning_price
             }
             trade = paper_trader.execute_trade(
-                portfolio, adjusted_intent, regime_label, universe_df
+                portfolio,
+                adjusted_intent,
+                regime_label,
+                universe_df,
+                transaction_cost_config=transaction_cost_config,
             )
             trades.append(trade)
             gap_pct = (morning_price / intent['price'] - 1) * 100
@@ -324,7 +329,11 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
 
             adjusted_intent = {**intent, 'price': morning_price}
             trade = paper_trader.execute_trade(
-                portfolio, adjusted_intent, regime_label, universe_df
+                portfolio,
+                adjusted_intent,
+                regime_label,
+                universe_df,
+                transaction_cost_config=transaction_cost_config,
             )
             trades.append(trade)
             validation_log.append(

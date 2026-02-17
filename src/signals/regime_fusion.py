@@ -28,6 +28,7 @@ def decide_regime_v3(
     fragility_score: float,
     entropy_score: float,
     entropy_shift_flag: bool,
+    params: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     """
     Compute final regime decision from all expert inputs.
@@ -49,15 +50,28 @@ def decide_regime_v3(
         Dict with final_regime_label, regime_confidence,
         position_size_modifier, risk_throttle_factor.
     """
-    panic_prob_threshold = 0.70
-    unstable_calm_panic_threshold = 0.30
-    macro_downgrade_threshold = -0.50
-    macro_upgrade_threshold = 0.50
-    fragility_threshold = 0.75
-    entropy_size_multiplier = 0.70
+    params = params or {}
+    panic_prob_threshold = float(params.get('panic_prob_threshold', 0.70))
+    unstable_calm_panic_threshold = float(params.get('unstable_calm_panic_threshold', 0.30))
+    macro_downgrade_threshold = float(params.get('macro_downgrade_threshold', -0.50))
+    macro_upgrade_threshold = float(params.get('macro_upgrade_threshold', 0.50))
+    fragility_threshold = float(params.get('fragility_threshold', 0.75))
+    entropy_size_multiplier = float(params.get('entropy_size_multiplier', 0.70))
+    panic_position_size = float(params.get('panic_position_size', 0.25))
+    panic_risk_throttle = float(params.get('panic_risk_throttle', 1.0))
+    unstable_position_size = float(params.get('unstable_position_size', 0.50))
+    unstable_risk_throttle = float(params.get('unstable_risk_throttle', 0.7))
+    fragility_position_cap = float(params.get('fragility_position_cap', 0.60))
+    fragility_throttle_increment = float(params.get('fragility_throttle_increment', 0.2))
+    entropy_throttle_increment = float(params.get('entropy_throttle_increment', 0.15))
+    throttle_to_exposure_scale = float(params.get('throttle_to_exposure_scale', 0.5))
+    final_position_size_clip_min = float(params.get('final_position_size_clip_min', 0.25))
+    final_position_size_clip_max = float(params.get('final_position_size_clip_max', 1.0))
+    final_risk_throttle_clip_min = float(params.get('final_risk_throttle_clip_min', 0.0))
+    final_risk_throttle_clip_max = float(params.get('final_risk_throttle_clip_max', 1.0))
     throttle_mapping = (
         "effective_exposure_multiplier = position_size_modifier * "
-        "(1 - 0.5 * risk_throttle_factor)"
+        f"(1 - {throttle_to_exposure_scale:.2f} * risk_throttle_factor)"
     )
 
     # Start with defaults from ensemble
@@ -94,8 +108,8 @@ def decide_regime_v3(
     panic_fired = panic_prob > panic_prob_threshold or vol_regime_label == 'panic'
     if panic_fired:
         final_regime = 'high_vol_panic'
-        position_size_mod = 0.25
-        risk_throttle = 1.0
+        position_size_mod = panic_position_size
+        risk_throttle = panic_risk_throttle
         confidence = max(panic_prob, vol_uncertainty_score)
         override_reason = 'panic_override'
         hard_override = True
@@ -120,8 +134,8 @@ def decide_regime_v3(
     )
     if unstable_fired:
         final_regime = 'risk_off_trend'
-        position_size_mod = 0.50
-        risk_throttle = 0.7
+        position_size_mod = unstable_position_size
+        risk_throttle = unstable_risk_throttle
         confidence = vol_uncertainty_score
         override_reason = 'unstable_calm_override'
         hard_override = True
@@ -177,8 +191,8 @@ def decide_regime_v3(
     # --- 4. Caution Gate: Fragility ---
     fragility_fired = fragility_score > fragility_threshold
     if fragility_fired:
-        position_size_mod = min(position_size_mod, 0.60)
-        risk_throttle = min(risk_throttle + 0.2, 1.0)
+        position_size_mod = min(position_size_mod, fragility_position_cap)
+        risk_throttle = min(risk_throttle + fragility_throttle_increment, 1.0)
     _add_rule(
         order=4,
         code='fragility_gate',
@@ -197,7 +211,7 @@ def decide_regime_v3(
     entropy_fired = bool(entropy_shift_flag)
     if entropy_fired:
         position_size_mod *= entropy_size_multiplier
-        risk_throttle = min(risk_throttle + 0.15, 1.0)
+        risk_throttle = min(risk_throttle + entropy_throttle_increment, 1.0)
     _add_rule(
         order=5,
         code='entropy_shift',
@@ -229,11 +243,19 @@ def decide_regime_v3(
     )
 
     # --- Final Clamps ---
-    position_size_mod = float(np.clip(position_size_mod, 0.25, 1.0))
-    risk_throttle = float(np.clip(risk_throttle, 0.0, 1.0))
+    position_size_mod = float(np.clip(
+        position_size_mod,
+        final_position_size_clip_min,
+        final_position_size_clip_max,
+    ))
+    risk_throttle = float(np.clip(
+        risk_throttle,
+        final_risk_throttle_clip_min,
+        final_risk_throttle_clip_max,
+    ))
     confidence = float(np.clip(confidence, 0.0, 1.0))
     effective_exposure_multiplier = float(
-        np.clip(position_size_mod * (1.0 - 0.5 * risk_throttle), 0.0, 1.0)
+        np.clip(position_size_mod * (1.0 - throttle_to_exposure_scale * risk_throttle), 0.0, 1.0)
     )
 
     return {

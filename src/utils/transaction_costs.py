@@ -1,7 +1,8 @@
 """Simulate realistic transaction costs (bid-ask spread + slippage) for paper trading."""
 
 import random
-from typing import Tuple
+from copy import deepcopy
+from typing import Any, Dict, Optional, Tuple
 
 # Half-spread in basis points by sector/asset_class.
 # These are conservative estimates for ETF trading during regular market hours.
@@ -81,6 +82,15 @@ _ASSET_CLASS_DEFAULTS = {
 _SLIPPAGE_RANGE_BPS = 2.0
 
 
+def get_cost_config_snapshot() -> Dict[str, Any]:
+    """Return a copy of the current transaction-cost configuration."""
+    return {
+        'spread_bps': deepcopy(_SPREAD_BPS),
+        'asset_class_default_bps': deepcopy(_ASSET_CLASS_DEFAULTS),
+        'slippage_range_bps': float(_SLIPPAGE_RANGE_BPS),
+    }
+
+
 def get_half_spread_bps(sector: str, asset_class: str = 'equity') -> float:
     """Look up the half-spread in basis points for a given sector/asset_class."""
     if sector in _SPREAD_BPS:
@@ -93,6 +103,8 @@ def apply_transaction_costs(
     action: str,
     sector: str = 'broad',
     asset_class: str = 'equity',
+    rng: Optional[random.Random] = None,
+    cost_config: Optional[Dict[str, Any]] = None,
 ) -> Tuple[float, float]:
     """Apply bid-ask spread and slippage to a trade price.
 
@@ -106,11 +118,23 @@ def apply_transaction_costs(
         (fill_price, total_cost_bps) where total_cost_bps is the signed
         cost in basis points (always positive = cost to trader).
     """
-    half_spread_bps = get_half_spread_bps(sector, asset_class)
+    spread_map = _SPREAD_BPS
+    asset_defaults = _ASSET_CLASS_DEFAULTS
+    slippage_range_bps = _SLIPPAGE_RANGE_BPS
+    if cost_config:
+        spread_map = cost_config.get('spread_bps', spread_map)
+        asset_defaults = cost_config.get('asset_class_default_bps', asset_defaults)
+        slippage_range_bps = float(cost_config.get('slippage_range_bps', slippage_range_bps))
+
+    if sector in spread_map:
+        half_spread_bps = float(spread_map[sector])
+    else:
+        half_spread_bps = float(asset_defaults.get(asset_class, 3.0))
 
     # Random slippage: uniform in [-range, +range], but biased against trader
     # (adds to cost on average by using abs for the adverse component)
-    slippage_bps = random.uniform(-_SLIPPAGE_RANGE_BPS, _SLIPPAGE_RANGE_BPS)
+    random_source = rng if rng is not None else random
+    slippage_bps = random_source.uniform(-slippage_range_bps, slippage_range_bps)
 
     if action == 'BUY':
         # Buyer pays more: spread + slippage

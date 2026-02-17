@@ -18,6 +18,7 @@ def compute_entropy_shift(
     consecutive_days_required: int = 3,
     prev_consecutive_days: int = 0,
     prev_above_threshold: bool = False,
+    params: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Compute entropy-based distribution shift detection.
@@ -34,6 +35,18 @@ def compute_entropy_shift(
     Returns:
         Dict with entropy_score, entropy_shift_flag, and diagnostics.
     """
+    params = params or {}
+    window = int(params.get('window_days', window))
+    num_bins = int(params.get('num_bins', num_bins))
+    z_threshold = float(params.get('z_threshold', z_threshold))
+    consecutive_days_required = int(
+        params.get('consecutive_days_required', consecutive_days_required)
+    )
+    max_lookback_days = int(params.get('max_lookback_days', 252))
+    min_rolling_samples_for_zscore = int(
+        params.get('min_rolling_samples_for_zscore', 10)
+    )
+
     if spy_returns is None or len(spy_returns) < window:
         return _neutral_result('Insufficient SPY return history')
 
@@ -51,7 +64,7 @@ def compute_entropy_shift(
 
     # Compute rolling entropy for z-score
     # Use all available data for a robust z-score
-    lookback = min(len(spy_returns), 252)
+    lookback = min(len(spy_returns), max_lookback_days)
     rolling_entropies = []
     for i in range(window, lookback + 1):
         start = max(0, len(spy_returns) - lookback + i - window)
@@ -60,7 +73,7 @@ def compute_entropy_shift(
             chunk = spy_returns.iloc[start:end].values
             rolling_entropies.append(_shannon_entropy(chunk, num_bins))
 
-    if len(rolling_entropies) >= 10:
+    if len(rolling_entropies) >= min_rolling_samples_for_zscore:
         ent_mean = np.mean(rolling_entropies)
         ent_std = np.std(rolling_entropies)
         entropy_z_score = (entropy - ent_mean) / ent_std if ent_std > 0 else 0.0

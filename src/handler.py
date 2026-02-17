@@ -72,28 +72,40 @@ def load_config_from_s3(s3_client: S3Client) -> dict:
         logger.warning("Universe not found in S3, using empty")
         config['universe'] = pd.DataFrame()
 
-    # Load decision params
-    decision_params = s3_client.read_json('config/decision_params.json')
-    if decision_params:
-        config['decision_params'] = decision_params
-    else:
-        logger.warning("Decision params not found, using defaults")
-        config['decision_params'] = {
-            'max_positions': 8,
-            'max_position_weight': 0.20,
-            'buy_score_threshold': 0.65,
-            'min_health_buy': 0.60,
-            'trailing_stop_base': 0.10,
-            'min_order_dollars': 250,
-            'initial_portfolio_value': 100000
-        }
+    # Load active decision bundle (single live source of truth).
+    # Expected schema:
+    # {
+    #   "decision_params": {...},
+    #   "regime_compatibility": {...},
+    #   "signals": {...},
+    #   "regime_fusion": {...},
+    #   "decision_engine": {...},
+    #   "ensemble": {...},
+    #   "transaction_costs": {...}
+    # }
+    active_bundle = s3_client.read_json('config/decision_params.active.json')
+    if not active_bundle:
+        raise RuntimeError(
+            "Missing required live params bundle at config/decision_params.active.json"
+        )
 
-    # Load regime compatibility
-    regime_compat = s3_client.read_json('config/regime_compatibility.json')
-    if regime_compat:
-        config['regime_compatibility'] = regime_compat
-    else:
-        config['regime_compatibility'] = {}
+    config['decision_params'] = active_bundle.get('decision_params', {})
+    config['regime_compatibility'] = active_bundle.get('regime_compatibility', {})
+    config['signal_overrides'] = active_bundle.get('signals', {})
+    config['regime_fusion_overrides'] = active_bundle.get('regime_fusion', {})
+    config['decision_engine_overrides'] = active_bundle.get('decision_engine', {})
+    config['ensemble_overrides'] = active_bundle.get('ensemble', {})
+    config['transaction_cost_overrides'] = active_bundle.get('transaction_costs', {})
+    config['active_params_metadata'] = {
+        'version_id': active_bundle.get('version_id'),
+        'source_run_id': active_bundle.get('source_run_id'),
+        'updated_at': active_bundle.get('updated_at'),
+    }
+
+    if not config['decision_params'] or not config['regime_compatibility']:
+        raise RuntimeError(
+            "Invalid config/decision_params.active.json: missing decision_params or regime_compatibility"
+        )
 
     # Load current portfolio state
     portfolio_state = paper_trader.load_portfolio_state(s3_client)
@@ -214,6 +226,7 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
                 vvix_data=vvix_data,
                 skew_data=skew_data,
                 s3_client=s3_client,
+                signal_params=config.get('signal_overrides'),
             )
 
         # Step 8: Run inference

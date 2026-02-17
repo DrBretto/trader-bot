@@ -2,7 +2,8 @@
 
 import pandas as pd
 from datetime import datetime
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Optional, Tuple
+import random
 
 from src.utils.s3_client import S3Client
 from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
@@ -53,7 +54,10 @@ def execute_trade(
     portfolio: Dict[str, Any],
     action: Dict[str, Any],
     regime_label: str,
-    universe_df: pd.DataFrame
+    universe_df: pd.DataFrame,
+    timestamp: Optional[datetime] = None,
+    rng: Optional[random.Random] = None,
+    transaction_cost_config: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Execute a single trade and return trade record.
@@ -83,14 +87,21 @@ def execute_trade(
 
     # Apply bid-ask spread + slippage
     fill_price, cost_bps = apply_transaction_costs(
-        market_price, action_type, sector=sector, asset_class=asset_class
+        market_price,
+        action_type,
+        sector=sector,
+        asset_class=asset_class,
+        rng=rng,
+        cost_config=transaction_cost_config,
     )
 
     # Use fill_price for all cash/P&L math
     price = fill_price
 
+    trade_time = timestamp or datetime.now()
+
     trade_record = {
-        'timestamp': datetime.now().isoformat(),
+        'timestamp': trade_time.isoformat(),
         'symbol': symbol,
         'action': action_type,
         'shares': shares,
@@ -123,7 +134,7 @@ def execute_trade(
             'symbol': symbol,
             'shares': shares,
             'entry_price': price,
-            'entry_date': datetime.now().isoformat(),
+            'entry_date': trade_time.isoformat(),
             'peak_price': price,
             'entry_regime': regime_label,
             'entry_health': action.get('health', 0.5),
@@ -155,7 +166,7 @@ def execute_trade(
             trade_record['pnl'] = pnl
             trade_record['pnl_pct'] = pnl_pct
             trade_record['days_held'] = (
-                datetime.now() - pd.to_datetime(holding['entry_date'])
+                trade_time - pd.to_datetime(holding['entry_date'])
             ).days
 
             # Add cash
@@ -183,7 +194,8 @@ def execute_trade(
 
 def update_portfolio_values(
     portfolio: Dict[str, Any],
-    prices_df: pd.DataFrame
+    prices_df: pd.DataFrame,
+    current_time: Optional[datetime] = None,
 ) -> Dict[str, Any]:
     """
     Update portfolio values based on current prices.
@@ -195,6 +207,8 @@ def update_portfolio_values(
     Returns:
         Updated portfolio state
     """
+    valuation_time = current_time or datetime.now()
+
     holdings_value = 0
 
     for holding in portfolio['holdings']:
@@ -221,7 +235,7 @@ def update_portfolio_values(
         # Compute days held
         entry_date = holding.get('entry_date')
         if entry_date:
-            holding['days_held'] = (datetime.now() - pd.to_datetime(entry_date)).days
+            holding['days_held'] = (valuation_time - pd.to_datetime(entry_date)).days
         else:
             holding['days_held'] = 0
 
@@ -230,7 +244,7 @@ def update_portfolio_values(
     portfolio['holdings_value'] = holdings_value
     portfolio['invested'] = holdings_value
     portfolio['portfolio_value'] = portfolio['cash'] + holdings_value
-    portfolio['last_updated'] = datetime.now().isoformat()
+    portfolio['last_updated'] = valuation_time.isoformat()
 
     # Update SPY buy-and-hold benchmark (dividend-adjusted total return)
     spy_prices = prices_df[prices_df['symbol'] == 'SPY']
@@ -309,7 +323,8 @@ def compute_portfolio_stats(
 def run(
     decisions: Dict[str, Any],
     prices_df: pd.DataFrame,
-    bucket: str
+    bucket: str,
+    transaction_cost_config: Optional[Dict[str, Any]] = None,
 ) -> Tuple[Dict[str, Any], List[Dict]]:
     """
     Execute paper trades based on decisions.
@@ -338,7 +353,13 @@ def run(
     # Execute each action
     trades = []
     for action in decisions.get('actions', []):
-        trade = execute_trade(portfolio, action, regime_label, universe_df)
+        trade = execute_trade(
+            portfolio,
+            action,
+            regime_label,
+            universe_df,
+            transaction_cost_config=transaction_cost_config,
+        )
         trades.append(trade)
         print(f"  {trade['action']} {trade['shares']} {trade['symbol']} @ ${trade['price']:.2f}")
 

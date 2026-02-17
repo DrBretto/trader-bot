@@ -1,0 +1,308 @@
+{
+  "generated_at": "2026-02-17T15:06:01.459616+00:00",
+  "entrypoints": {
+    "lambda_handler": {
+      "location": "src/handler.py:105",
+      "function": "lambda_handler",
+      "routes": {
+        "night": "_run_night_phase (src/handler.py:131)",
+        "morning": "_run_morning_phase (src/handler.py:355)"
+      }
+    },
+    "live_decision_entrypoint": {
+      "location": "src/steps/decision_engine.py:429",
+      "function": "run",
+      "produces": [
+        "regime (final_regime_label or ensemble label)",
+        "position_size_modifier / risk_throttle_factor (via expert_metrics)",
+        "actions (BUY/SELL/REDUCE intents)"
+      ]
+    }
+  },
+  "night_pipeline_stages": [
+    {
+      "id": "night.load_config",
+      "location": "src/handler.py:147",
+      "function": "load_config_from_s3",
+      "inputs": [
+        "S3 config/universe.csv",
+        "S3 config/decision_params.json",
+        "S3 config/regime_compatibility.json",
+        "S3 daily/latest portfolio state"
+      ],
+      "outputs": [
+        "config dict (universe, decision_params, regime_compatibility, portfolio_state)"
+      ]
+    },
+    {
+      "id": "night.ingest_prices",
+      "location": "src/handler.py:168",
+      "function": "src/steps/ingest_prices.run",
+      "inputs": [
+        "universe symbols",
+        "Alpha Vantage key (fallback)",
+        "Stooq HTTP responses"
+      ],
+      "outputs": [
+        "prices_df (date,symbol,open,high,low,close,volume)"
+      ]
+    },
+    {
+      "id": "night.ingest_fred",
+      "location": "src/handler.py:173",
+      "function": "src/steps/ingest_fred.run",
+      "inputs": [
+        "FRED API key",
+        "series list in src/steps/ingest_fred.py:9"
+      ],
+      "outputs": [
+        "fred_df (date,series_id,value)"
+      ]
+    },
+    {
+      "id": "night.ingest_vol_indices",
+      "location": "src/handler.py:178",
+      "function": "src/steps/ingest_prices.fetch_stooq_index",
+      "inputs": [
+        "^VVIX",
+        "^SKEW"
+      ],
+      "outputs": [
+        "vvix_data DataFrame",
+        "skew_data DataFrame",
+        "vvix_latest",
+        "skew_latest"
+      ]
+    },
+    {
+      "id": "night.ingest_gdelt",
+      "location": "src/handler.py:187",
+      "function": "src/steps/ingest_gdelt.run",
+      "inputs": [
+        "run_date"
+      ],
+      "outputs": [
+        "gdelt_data aggregate dict"
+      ]
+    },
+    {
+      "id": "night.validate_data",
+      "location": "src/handler.py:192",
+      "function": "src/steps/validate_data.run",
+      "inputs": [
+        "prices_df",
+        "fred_df",
+        "config.universe"
+      ],
+      "outputs": [
+        "validation dict (critical_failure,degraded_mode,coverage,issues)"
+      ]
+    },
+    {
+      "id": "night.build_features",
+      "location": "src/handler.py:203",
+      "function": "src/steps/build_features.run",
+      "inputs": [
+        "prices_df",
+        "fred_df",
+        "gdelt_data",
+        "vvix_latest",
+        "skew_latest"
+      ],
+      "outputs": [
+        "features_df",
+        "context_df"
+      ]
+    },
+    {
+      "id": "night.compute_expert_signals",
+      "location": "src/handler.py:212",
+      "function": "src/signals/compute_signals.run",
+      "inputs": [
+        "prices_df",
+        "fred_df",
+        "context_df",
+        "vvix_data",
+        "skew_data",
+        "dashboard/timeseries.parquet previous entropy state"
+      ],
+      "outputs": [
+        "expert_signals{macro_credit,vol_uncertainty,fragility,entropy_shift}"
+      ]
+    },
+    {
+      "id": "night.model_inference",
+      "location": "src/handler.py:224",
+      "function": "src/steps/run_inference.run",
+      "inputs": [
+        "features_df",
+        "context_df",
+        "models/latest.json + model artifacts"
+      ],
+      "outputs": [
+        "inference_output.regime{label,probs,disagreement,position_size_multiplier,gru_prediction,transformer_prediction}",
+        "inference_output.asset_health"
+      ]
+    },
+    {
+      "id": "night.llm_risk_overlay",
+      "location": "src/handler.py:230",
+      "function": "src/steps/llm_risk_check.run",
+      "inputs": [
+        "inference_output",
+        "features_df",
+        "context_df",
+        "portfolio holdings",
+        "universe metadata"
+      ],
+      "outputs": [
+        "llm_risks[symbol]={structural_risk_veto,confidence_adjustment,severity,...}"
+      ]
+    },
+    {
+      "id": "night.decision_engine",
+      "location": "src/handler.py:237",
+      "function": "src/steps/decision_engine.run",
+      "inputs": [
+        "inference_output",
+        "llm_risks",
+        "features_df",
+        "config.decision_params",
+        "config.regime_compatibility",
+        "validation",
+        "expert_signals"
+      ],
+      "outputs": [
+        "decisions.actions",
+        "decisions.regime",
+        "decisions.buy_candidates",
+        "decisions.expert_metrics"
+      ]
+    },
+    {
+      "id": "night.fusion_substep",
+      "location": "src/steps/decision_engine.py:481",
+      "function": "src/signals/regime_fusion.decide_regime_v3",
+      "inputs": [
+        "ensemble probabilities + disagreement",
+        "expert scores",
+        "ensemble multiplier"
+      ],
+      "outputs": [
+        "final_regime_label",
+        "position_size_modifier",
+        "risk_throttle_factor",
+        "effective_exposure_multiplier",
+        "fusion_rules"
+      ]
+    },
+    {
+      "id": "night.intent_persistence",
+      "location": "src/handler.py:252",
+      "function": "S3Client.write_json",
+      "inputs": [
+        "decisions"
+      ],
+      "outputs": [
+        "daily/<date>/trade_intents.json"
+      ]
+    },
+    {
+      "id": "night.portfolio_valuation",
+      "location": "src/handler.py:258",
+      "function": "src/steps/paper_trader.update_portfolio_values + compute_portfolio_stats",
+      "inputs": [
+        "portfolio_state",
+        "prices_df",
+        "daily history + trades from S3"
+      ],
+      "outputs": [
+        "updated portfolio_state with canonical metrics"
+      ]
+    },
+    {
+      "id": "night.publish_artifacts",
+      "location": "src/handler.py:283",
+      "function": "src/steps/publish_artifacts.run",
+      "inputs": [
+        "all prior stage outputs"
+      ],
+      "outputs": [
+        "daily/<date>/*",
+        "daily/latest.json",
+        "dashboard/dashboard.json",
+        "dashboard/timeseries.parquet/json"
+      ]
+    }
+  ],
+  "decision_engine_call_graph": [
+    {
+      "from": "src/steps/decision_engine.py:429 run",
+      "to": "src/signals/regime_fusion.py:19 decide_regime_v3",
+      "condition": "expert_signals is not None"
+    },
+    {
+      "from": "src/steps/decision_engine.py:560 run",
+      "to": "score_candidates (src/steps/decision_engine.py:19)",
+      "condition": "always"
+    },
+    {
+      "from": "src/steps/decision_engine.py:568 run",
+      "to": "filter_buy_candidates (src/steps/decision_engine.py:86)",
+      "condition": "always"
+    },
+    {
+      "from": "src/steps/decision_engine.py:539 run",
+      "to": "evaluate_holdings (src/steps/decision_engine.py:140)",
+      "condition": "always"
+    },
+    {
+      "from": "src/steps/decision_engine.py:609 run",
+      "to": "compute_position_size (src/steps/decision_engine.py:259)",
+      "condition": "per buy candidate"
+    },
+    {
+      "from": "src/steps/decision_engine.py:644 run",
+      "to": "_build_watchlist (src/steps/decision_engine.py:345)",
+      "condition": "always"
+    }
+  ],
+  "morning_execution_pipeline": [
+    {
+      "id": "morning.entry",
+      "location": "src/handler.py:355",
+      "function": "_run_morning_phase",
+      "outputs": [
+        "post-open execution and dashboard refresh"
+      ]
+    },
+    {
+      "id": "morning.execute",
+      "location": "src/steps/morning_executor.py:163",
+      "function": "run",
+      "inputs": [
+        "daily/<night>/trade_intents.json",
+        "morning quotes",
+        "decision_params",
+        "portfolio state"
+      ],
+      "outputs": [
+        "trades",
+        "validation_log",
+        "updated portfolio_state"
+      ]
+    },
+    {
+      "id": "morning.publish",
+      "location": "src/handler.py:434",
+      "function": "publish_artifacts.publish_morning_artifacts",
+      "inputs": [
+        "night inference/decisions/weather + morning portfolio/trades"
+      ],
+      "outputs": [
+        "daily/latest.json phase=morning",
+        "dashboard/dashboard.json"
+      ]
+    }
+  ]
+}

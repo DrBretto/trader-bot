@@ -1,8 +1,111 @@
 """Decision engine for buy/sell/hold decisions."""
 
-import pandas as pd
-import json
+import math
 from typing import Dict, Any, List, Optional
+
+import pandas as pd
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _get_nested(overrides: Dict[str, Any], path: str, default: float) -> float:
+    node: Any = overrides
+    for key in path.split('.'):
+        if not isinstance(node, dict) or key not in node:
+            return default
+        node = node[key]
+    return _safe_float(node, default)
+
+
+def _clip(value: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, value))
+
+
+def _apply_ensemble_overrides(
+    regime_data: Dict[str, Any],
+    ensemble_overrides: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Recompute ensemble regime fields when optimizer overrides are provided."""
+    if not ensemble_overrides:
+        return regime_data
+
+    gru = regime_data.get('gru_prediction', {})
+    transformer = regime_data.get('transformer_prediction', {})
+    gru_probs_raw = gru.get('probs', {})
+    transformer_probs_raw = transformer.get('probs', {})
+
+    if not isinstance(gru_probs_raw, dict) or not isinstance(transformer_probs_raw, dict):
+        return regime_data
+    if not gru_probs_raw or not transformer_probs_raw:
+        return regime_data
+
+    labels = sorted(set(gru_probs_raw.keys()) | set(transformer_probs_raw.keys()))
+    if not labels:
+        return regime_data
+
+    gru_weight = _safe_float(ensemble_overrides.get('gru_weight'), 0.5)
+    transformer_weight = _safe_float(ensemble_overrides.get('transformer_weight'), 0.5)
+    weight_total = gru_weight + transformer_weight
+    if weight_total <= 0:
+        gru_weight, transformer_weight = 0.5, 0.5
+        weight_total = 1.0
+    gru_weight /= weight_total
+    transformer_weight /= weight_total
+
+    gru_vec = [max(_safe_float(gru_probs_raw.get(label), 0.0), 0.0) for label in labels]
+    transformer_vec = [max(_safe_float(transformer_probs_raw.get(label), 0.0), 0.0) for label in labels]
+    ensemble_vec = [
+        gru_weight * g + transformer_weight * t
+        for g, t in zip(gru_vec, transformer_vec)
+    ]
+
+    ensemble_sum = sum(ensemble_vec)
+    if ensemble_sum > 0:
+        ensemble_vec = [v / ensemble_sum for v in ensemble_vec]
+
+    probs = {label: ensemble_vec[idx] for idx, label in enumerate(labels)}
+    best_idx = max(range(len(labels)), key=lambda idx: ensemble_vec[idx])
+    label = labels[best_idx]
+    confidence = ensemble_vec[best_idx]
+
+    dot = sum(g * t for g, t in zip(gru_vec, transformer_vec))
+    norm_gru = math.sqrt(sum(g * g for g in gru_vec))
+    norm_transformer = math.sqrt(sum(t * t for t in transformer_vec))
+    if norm_gru > 0 and norm_transformer > 0:
+        disagreement = 1.0 - (dot / (norm_gru * norm_transformer))
+    else:
+        disagreement = _safe_float(regime_data.get('disagreement'), 0.0)
+    disagreement = _clip(disagreement, 0.0, 1.0)
+
+    base_floor = _safe_float(ensemble_overrides.get('multiplier', {}).get('base_floor'), 0.5)
+    base_span = _safe_float(ensemble_overrides.get('multiplier', {}).get('base_span'), 0.5)
+    disagreement_threshold = _safe_float(ensemble_overrides.get('disagreement_threshold'), 0.3)
+    penalty_scale = _safe_float(
+        ensemble_overrides.get('multiplier', {}).get('disagreement_penalty_scale'),
+        0.5,
+    )
+    clip_min = _safe_float(ensemble_overrides.get('multiplier', {}).get('clip_min'), 0.5)
+    clip_max = _safe_float(ensemble_overrides.get('multiplier', {}).get('clip_max'), 1.0)
+
+    position_multiplier = base_floor + base_span * confidence
+    if disagreement > disagreement_threshold and disagreement_threshold < 1.0:
+        penalty_ratio = (disagreement - disagreement_threshold) / (1.0 - disagreement_threshold)
+        position_multiplier *= (1.0 - penalty_scale * penalty_ratio)
+    position_multiplier = _clip(position_multiplier, clip_min, clip_max)
+
+    updated = dict(regime_data)
+    updated['label'] = label
+    updated['probs'] = probs
+    updated['confidence'] = confidence
+    updated['disagreement'] = disagreement
+    updated['agreement'] = 1.0 - disagreement
+    updated['position_size_multiplier'] = position_multiplier
+    return updated
 
 
 def load_regime_compatibility(config: Dict[str, Any]) -> Dict[str, Dict[str, float]]:
@@ -88,7 +191,8 @@ def filter_buy_candidates(
     current_holdings: List[str],
     params: Dict[str, Any],
     regime_label: str,
-    llm_risk_flags: Dict[str, Dict]
+    llm_risk_flags: Dict[str, Dict],
+    high_vol_exception_score: float = 0.80,
 ) -> pd.DataFrame:
     """
     Apply buy filters.
@@ -114,7 +218,7 @@ def filter_buy_candidates(
     if len(candidates) > 0:
         def check_vol(row):
             if row['vol_bucket'] == 'high':
-                return regime_label == 'calm_uptrend' and row['final_score'] > 0.80
+                return regime_label == 'calm_uptrend' and row['final_score'] > high_vol_exception_score
             return True
         candidates = candidates[candidates.apply(check_vol, axis=1)]
 
@@ -266,7 +370,8 @@ def compute_position_size(
     llm_confidence_adj: float = 0.0,
     ensemble_multiplier: float = 1.0,
     position_size_modifier: float = 1.0,
-    risk_throttle_factor: float = 0.0
+    risk_throttle_factor: float = 0.0,
+    decision_engine_overrides: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Compute target shares and dollars for a position.
@@ -293,15 +398,21 @@ def compute_position_size(
     base_dollars = portfolio_value * target_weight
 
     # Adjust by volatility bucket
-    vol_adj = {'low': 1.10, 'med': 1.0, 'high': 0.80}.get(vol_bucket, 1.0)
+    overrides = decision_engine_overrides or {}
+    vol_adj_map = {
+        'low': _get_nested(overrides, 'position_size.vol_adj.low', 1.10),
+        'med': _get_nested(overrides, 'position_size.vol_adj.med', 1.0),
+        'high': _get_nested(overrides, 'position_size.vol_adj.high', 0.80),
+    }
+    vol_adj = vol_adj_map.get(vol_bucket, 1.0)
 
     # Adjust by regime
     regime_adj = {
-        'calm_uptrend': 1.10,
-        'risk_on_trend': 1.10,
-        'choppy': 0.90,
-        'risk_off_trend': 0.80,
-        'high_vol_panic': 0.50
+        'calm_uptrend': _get_nested(overrides, 'position_size.regime_adj.calm_uptrend', 1.10),
+        'risk_on_trend': _get_nested(overrides, 'position_size.regime_adj.risk_on_trend', 1.10),
+        'choppy': _get_nested(overrides, 'position_size.regime_adj.choppy', 0.90),
+        'risk_off_trend': _get_nested(overrides, 'position_size.regime_adj.risk_off_trend', 0.80),
+        'high_vol_panic': _get_nested(overrides, 'position_size.regime_adj.high_vol_panic', 0.50),
     }.get(regime_label, 1.0)
 
     # Adjust by LLM confidence
@@ -316,7 +427,8 @@ def compute_position_size(
     expert_adj = position_size_modifier
 
     # Risk throttle: higher throttle = smaller positions
-    throttle_adj = 1.0 - (risk_throttle_factor * 0.5)
+    throttle_scale = _get_nested(overrides, 'position_size.throttle_scale', 0.5)
+    throttle_adj = 1.0 - (risk_throttle_factor * throttle_scale)
 
     # Final target
     adjusted_dollars = (base_dollars * vol_adj * regime_adj * llm_adj
@@ -352,7 +464,8 @@ def _build_watchlist(
     ensemble_multiplier: float,
     position_size_modifier: float,
     risk_throttle_factor: float,
-    target_count: int = 10
+    target_count: int = 10,
+    decision_engine_overrides: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, Any]]:
     """Build a ranked watchlist of top-scored candidates for the dashboard.
 
@@ -408,7 +521,8 @@ def _build_watchlist(
             position = compute_position_size(
                 symbol, portfolio_value, current_price,
                 row['vol_bucket'], regime_label, params,
-                0.0, ensemble_multiplier, position_size_modifier, risk_throttle_factor
+                0.0, ensemble_multiplier, position_size_modifier, risk_throttle_factor,
+                decision_engine_overrides=decision_engine_overrides,
             )
             suggested_size = position['dollars']
 
@@ -452,18 +566,27 @@ def run(
 
     params = config.get('decision_params', {})
     regime_compat = config.get('regime_compatibility', {})
+    decision_engine_overrides = config.get('decision_engine_overrides', {})
+    regime_fusion_overrides = config.get('regime_fusion_overrides')
+    ensemble_overrides = config.get('ensemble_overrides')
     universe_df = config.get('universe', pd.DataFrame())
 
     if isinstance(universe_df, list):
         universe_df = pd.DataFrame(universe_df)
 
-    asset_health = inference_output['asset_health']
-    run_date = inference_output['date']
+    run_input = dict(inference_output)
+    run_input['regime'] = _apply_ensemble_overrides(
+        dict(inference_output.get('regime', {})),
+        ensemble_overrides,
+    )
+
+    asset_health = run_input['asset_health']
+    run_date = run_input['date']
 
     # Get ensemble metrics
-    ensemble_regime_label = inference_output['regime']['label']
-    ensemble_multiplier = inference_output['regime'].get('position_size_multiplier', 1.0)
-    regime_disagreement = inference_output['regime'].get('disagreement', 0.0)
+    ensemble_regime_label = run_input['regime']['label']
+    ensemble_multiplier = run_input['regime'].get('position_size_multiplier', 1.0)
+    regime_disagreement = run_input['regime'].get('disagreement', 0.0)
 
     # Apply regime fusion v3 if expert signals available
     position_size_modifier = 1.0
@@ -480,8 +603,8 @@ def run(
 
         fusion = decide_regime_v3(
             ensemble_regime_label=ensemble_regime_label,
-            trend_risk_on_prob=inference_output['regime'].get('probs', {}).get('risk_on_trend', 0.0),
-            panic_prob=inference_output['regime'].get('probs', {}).get('high_vol_panic', 0.0),
+            trend_risk_on_prob=run_input['regime'].get('probs', {}).get('risk_on_trend', 0.0),
+            panic_prob=run_input['regime'].get('probs', {}).get('high_vol_panic', 0.0),
             ensemble_disagreement=regime_disagreement,
             ensemble_multiplier=ensemble_multiplier,
             macro_credit_score=macro.get('macro_credit_score', 0.0),
@@ -490,6 +613,7 @@ def run(
             fragility_score=frag.get('fragility_score', 0.5),
             entropy_score=ent.get('entropy_score', 0.5),
             entropy_shift_flag=ent.get('entropy_shift_flag', False),
+            params=regime_fusion_overrides,
         )
 
         regime_label = fusion['final_regime_label']
@@ -570,7 +694,12 @@ def run(
         current_holdings,
         params,
         regime_label,
-        llm_risks
+        llm_risks,
+        high_vol_exception_score=_get_nested(
+            decision_engine_overrides,
+            'high_vol_bucket_exception_score',
+            0.80,
+        ),
     )
 
     # 3. Generate buy orders (respect max positions and cash reserve)
@@ -616,7 +745,8 @@ def run(
             llm_conf_adj,
             ensemble_multiplier if expert_signals is None else 1.0,
             position_size_modifier,
-            risk_throttle_factor
+            risk_throttle_factor,
+            decision_engine_overrides=decision_engine_overrides,
         )
 
         if position['shares'] > 0 and position['dollars'] <= available_cash:
@@ -645,7 +775,11 @@ def run(
         scored, current_holdings, features_df, portfolio_value,
         regime_label, params, ensemble_multiplier if expert_signals is None else 1.0,
         position_size_modifier, risk_throttle_factor,
-        target_count=max(len(current_holdings), 8)
+        target_count=max(
+            len(current_holdings),
+            int(_get_nested(decision_engine_overrides, 'watchlist.min_target_count', 8)),
+        ),
+        decision_engine_overrides=decision_engine_overrides,
     )
 
     result = {
@@ -661,7 +795,7 @@ def run(
         'ensemble_metrics': {
             'disagreement': regime_disagreement,
             'position_size_multiplier': ensemble_multiplier,
-            'confidence': inference_output['regime'].get('confidence', 1.0)
+            'confidence': run_input['regime'].get('confidence', 1.0)
         }
     }
 

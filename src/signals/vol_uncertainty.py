@@ -39,6 +39,7 @@ def compute_vol_uncertainty(
     skew: Optional[float] = None,
     vix_history: Optional[pd.Series] = None,
     vvix_history: Optional[pd.Series] = None,
+    params: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Compute volatility uncertainty score and regime label.
@@ -53,22 +54,35 @@ def compute_vol_uncertainty(
     Returns:
         Dict with vol_uncertainty_score, vol_regime_label, and diagnostics.
     """
+    params = params or {}
+    vix_thresholds = params.get('vix_thresholds', VIX_THRESHOLDS)
+    vvix_thresholds = params.get('vvix_thresholds', VVIX_THRESHOLDS)
+    skew_thresholds = params.get('skew_thresholds', SKEW_THRESHOLDS)
+    dynamic_history_min_obs = int(params.get('dynamic_history_min_obs', 60))
+    regime_thresholds = params.get('regime_thresholds', {})
+    panic_thresholds = regime_thresholds.get('panic', {})
+    unstable_thresholds = regime_thresholds.get('unstable', {})
+    panic_vix_pctile = float(panic_thresholds.get('vix_pctile', 0.80))
+    panic_vvix_pctile = float(panic_thresholds.get('vvix_pctile', 0.80))
+    unstable_vvix_pctile = float(unstable_thresholds.get('vvix_pctile', 0.80))
+    unstable_vix_pctile_max = float(unstable_thresholds.get('vix_pctile_max', 0.60))
+
     # Compute percentiles
-    if vix_history is not None and len(vix_history) >= 60:
+    if vix_history is not None and len(vix_history) >= dynamic_history_min_obs:
         vix_pctile = float((vix_history < vix).mean())
     else:
-        vix_pctile = _percentile_score(vix, VIX_THRESHOLDS)
+        vix_pctile = _percentile_score(vix, vix_thresholds)
 
     if vvix is not None:
-        if vvix_history is not None and len(vvix_history) >= 60:
+        if vvix_history is not None and len(vvix_history) >= dynamic_history_min_obs:
             vvix_pctile = float((vvix_history < vvix).mean())
         else:
-            vvix_pctile = _percentile_score(vvix, VVIX_THRESHOLDS)
+            vvix_pctile = _percentile_score(vvix, vvix_thresholds)
     else:
         vvix_pctile = 0.5  # neutral if unavailable
 
     if skew is not None:
-        skew_pctile = _percentile_score(skew, SKEW_THRESHOLDS)
+        skew_pctile = _percentile_score(skew, skew_thresholds)
     else:
         skew_pctile = 0.5  # neutral if unavailable
 
@@ -85,9 +99,9 @@ def compute_vol_uncertainty(
     score = float(np.clip(score, 0.0, 1.0))
 
     # Regime label
-    if vix_pctile > 0.80 and vvix_pctile > 0.80:
+    if vix_pctile > panic_vix_pctile and vvix_pctile > panic_vvix_pctile:
         vol_regime_label = 'panic'
-    elif vvix_pctile > 0.80 and vix_pctile < 0.60:
+    elif vvix_pctile > unstable_vvix_pctile and vix_pctile < unstable_vix_pctile_max:
         vol_regime_label = 'unstable_calm'
     else:
         vol_regime_label = 'calm'

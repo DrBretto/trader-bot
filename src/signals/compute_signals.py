@@ -66,6 +66,7 @@ def run(
     vvix_data: Optional[pd.DataFrame] = None,
     skew_data: Optional[pd.DataFrame] = None,
     s3_client: Optional[S3Client] = None,
+    signal_params: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Run all expert signal modules.
@@ -86,6 +87,11 @@ def run(
     result = {
         'computed_at': datetime.now().isoformat(),
     }
+    signal_params = signal_params or {}
+    macro_params = signal_params.get('macro_credit', {})
+    vol_params = signal_params.get('vol_uncertainty', {})
+    fragility_params = signal_params.get('fragility', {})
+    entropy_params = signal_params.get('entropy_shift', {})
 
     # Extract context values
     ctx = context_df.iloc[0] if len(context_df) > 0 else {}
@@ -104,6 +110,7 @@ def run(
             hyg_prices=hyg_closes if len(hyg_closes) > 0 else None,
             ief_prices=ief_closes if len(ief_closes) > 0 else None,
             rate_2y=fred_latest.get('DGS2', 0),
+            params=macro_params,
         )
         result['macro_credit'] = macro
         print(f"  Macro/Credit score: {macro['macro_credit_score']:.3f}")
@@ -144,6 +151,7 @@ def run(
             skew=skew_value,
             vix_history=vix_history,
             vvix_history=vvix_history,
+            params=vol_params,
         )
         result['vol_uncertainty'] = vol
         print(f"  Vol Uncertainty score: {vol['vol_uncertainty_score']:.3f} ({vol['vol_regime_label']})")
@@ -163,7 +171,7 @@ def run(
 
     # --- 3. Fragility ---
     try:
-        frag = compute_fragility(prices_df)
+        frag = compute_fragility(prices_df, params=fragility_params)
         result['fragility'] = frag
         print(f"  Fragility score: {frag['fragility_score']:.3f}")
     except Exception as e:
@@ -188,6 +196,7 @@ def run(
             spy_returns=spy_returns,
             prev_consecutive_days=prev_state['prev_consecutive_days'],
             prev_above_threshold=prev_state['prev_above_threshold'],
+            params=entropy_params,
         )
         result['entropy_shift'] = ent
         flag_str = 'SHIFT DETECTED' if ent['entropy_shift_flag'] else 'normal'
