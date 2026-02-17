@@ -339,6 +339,34 @@ td {
   margin-bottom: 2px;
 }
 
+.optimizer-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.optimizer-status-kv {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.optimizer-status-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.optimizer-status-value {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+
 .model-confidence {
   font-size: 12px;
   color: var(--text-muted);

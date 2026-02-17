@@ -227,3 +227,51 @@ export interface DashboardData {
   expert_signals?: ExpertSignals;
   timeseries_url?: string;
 }
+
+export interface OptimizerRunSummary {
+  run_id: string;
+  started_at: string;
+  finished_at: string;
+  status: 'promoted' | 'completed' | 'failed' | 'rejected_guardrails' | 'rejected_objective' | string;
+  decision: 'promoted' | 'not_promoted' | string;
+  champion_version_before?: string;
+  challenger_version?: string;
+  wf_delta?: number;
+  gate_delta?: number;
+}
+
+export interface OptimizerRunsIndex {
+  updated_at: string;
+  active_version: string;
+  runs: OptimizerRunSummary[];
+}
+
+export interface OptimizerLineageEvent {
+  event_type: 'promotion' | 'rollback' | string;
+  timestamp: string;
+  from_version?: string | null;
+  to_version?: string | null;
+  run_id?: string | null;
+  reason?: string;
+  operator?: string;
+}
+
+export interface OptimizerLineage {
+  updated_at: string;
+  active_version: string;
+  history: OptimizerLineageEvent[];
+}
+
+export interface OptimizerRunDetail {
+  run_id: string;
+  run_manifest: Record<string, unknown>;
+  walk_forward_folds: Record<string, unknown>;
+  champion_metrics: Record<string, unknown>;
+  challenger_metrics: Record<string, unknown>;
+  gate_segment_metrics: Record<string, unknown>;
+  guardrail_results: Record<string, unknown>;
+  promotion_decision: Record<string, unknown>;
+  candidate_params_bundle: Record<string, unknown>;
+  generation_log: Record<string, unknown>[];
+  run_log_path?: string;
+}

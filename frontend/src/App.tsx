@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useDashboardData } from './hooks/useDashboardData';
 import { useTimeseriesData } from './hooks/useTimeseriesData';
+import { useOptimizerData } from './hooks/useOptimizerData';
 import { isStrictlyIncreasingByDate } from './utils/timeseries';
 import {
   HeroMetrics,
@@ -19,6 +20,8 @@ import {
   EntropyPanel,
   TradeLog,
   InfoTooltip,
+  OptimizerStatus,
+  OptimizerRunDetail,
 } from './components';
 
 function formatRegimeLabel(regime: string): string {
@@ -40,6 +43,14 @@ function computeCompoundedYtd(data: { year: number; return_pct: number; observat
 export function App() {
   const { data, loading, error } = useDashboardData();
   const { data: timeseries } = useTimeseriesData();
+  const [selectedOptimizerRun, setSelectedOptimizerRun] = useState<string | undefined>(undefined);
+  const {
+    index: optimizerIndex,
+    lineage: optimizerLineage,
+    detail: optimizerDetail,
+    loading: optimizerLoading,
+    detailLoading: optimizerDetailLoading,
+  } = useOptimizerData(selectedOptimizerRun);
 
   if (loading) {
     return <div className="loading">Loading dashboard...</div>;
@@ -229,6 +240,17 @@ The "Selected" tag marks the post-fusion regime used by the decision engine; it 
         trades={data.trades ?? []}
         cumulativeCosts={data.metrics.cumulative_transaction_costs}
         tradeSummary={data.trade_summary}
+      />
+
+      <OptimizerStatus
+        index={optimizerIndex}
+        lineage={optimizerLineage}
+        selectedRunId={selectedOptimizerRun}
+        onSelectRun={(runId) => setSelectedOptimizerRun(runId)}
+      />
+      <OptimizerRunDetail
+        detail={optimizerDetail}
+        loading={optimizerLoading || optimizerDetailLoading}
       />
     </div>
   );

@@ -13,3 +13,5 @@ export { FragilityPanel } from './FragilityPanel';
 export { EntropyPanel } from './EntropyPanel';
 export { TradeLog } from './TradeLog';
 export { InfoTooltip } from './InfoTooltip';
+export { OptimizerStatus } from './OptimizerStatus';
+export { OptimizerRunDetail } from './OptimizerRunDetail';
