@@ -125,6 +125,7 @@ export function App() {
       <TradeLog
         trades={data.trades ?? []}
         cumulativeCosts={data.metrics.cumulative_transaction_costs}
+        tradeSummary={data.trade_summary}
       />
     </div>
   );

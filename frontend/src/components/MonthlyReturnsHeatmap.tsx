@@ -42,7 +42,7 @@ export function MonthlyReturnsHeatmap({ data }: Props) {
           <tbody>
             {years.map((year) => {
               const yearData = data.filter((d) => d.year === year);
-              const ytd = yearData.reduce((sum, d) => sum + d.return_pct, 0);
+              const ytd = yearData.reduce((acc, d) => acc * (1 + d.return_pct), 1) - 1;
 
               return (
                 <tr key={year}>

@@ -89,6 +89,8 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
   const regimeColor = REGIME_COLORS[regime] || '#64748b';
   const sizePct = (signals.position_size_modifier * 100).toFixed(0);
   const throttlePct = (signals.risk_throttle_factor * 100).toFixed(0);
+  const targetGrossPct = ((signals.target_gross_exposure ?? signals.effective_exposure_multiplier ?? signals.position_size_modifier) * 100).toFixed(0);
+  const fusionRules = [...(signals.fusion_rules ?? [])].sort((a, b) => a.order - b.order);
 
   // Fusion rule evaluation
   const panicProb = signals.panic_prob ?? 0;
@@ -127,6 +129,9 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
           <span style={{ fontSize: 12, color: '#94a3b8' }}>
             Size: <span style={{ color: Number(sizePct) < 60 ? '#ef4444' : '#22c55e', fontWeight: 600 }}>{sizePct}%</span>
+          </span>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>
+            Target Gross: <span style={{ color: '#22c55e', fontWeight: 600 }}>{targetGrossPct}%</span>
           </span>
           {Number(throttlePct) > 0 && (
             <span style={{ fontSize: 12, color: '#eab308' }}>
@@ -211,18 +216,39 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
         <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
           Fusion Rules
         </div>
-        <FusionRule step={1} label="Panic Override" active={isPanicActive}
-          detail={isPanicActive ? `panic ${(panicProb * 100).toFixed(0)}%` : `panic ${(panicProb * 100).toFixed(1)}%`} />
-        <FusionRule step={2} label="Unstable Calm" active={isUnstableActive}
-          detail={`vol: ${volLabel}`} />
-        <FusionRule step={3} label="Macro Modulation" active={isMacroActive}
-          detail={`score: ${macroScore.toFixed(2)}`} />
-        <FusionRule step={4} label="Fragility Gate" active={isFragilityActive}
-          detail={isFragilityActive ? `${fragScore.toFixed(2)} > 0.75 → cap 60%` : `${fragScore.toFixed(2)}`} />
-        <FusionRule step={5} label="Entropy Shift" active={isEntropyActive}
-          detail={isEntropyActive ? 'shift detected → size ×0.7' : 'no shift'} />
-        <FusionRule step={6} label="Ensemble Disagreement" active={isDisagreementActive}
-          detail={isDisagreementActive ? `${(ensDisagreement * 100).toFixed(0)}% → size ×${((signals.ensemble_multiplier ?? 1) * 100).toFixed(0)}%` : `${(ensDisagreement * 100).toFixed(0)}%`} />
+        {fusionRules.length > 0 ? (
+          <>
+            {fusionRules.map((rule) => (
+              <FusionRule
+                key={rule.code}
+                step={rule.order}
+                label={rule.label}
+                active={rule.fired}
+                detail={rule.fired ? rule.effect : `${rule.inputs} | ${rule.threshold}`}
+              />
+            ))}
+            {signals.throttle_mapping && (
+              <div style={{ marginTop: 8, fontSize: 11, color: '#64748b' }}>
+                {signals.throttle_mapping}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <FusionRule step={1} label="Panic Override" active={isPanicActive}
+              detail={isPanicActive ? `panic ${(panicProb * 100).toFixed(0)}%` : `panic ${(panicProb * 100).toFixed(1)}%`} />
+            <FusionRule step={2} label="Unstable Calm" active={isUnstableActive}
+              detail={`vol: ${volLabel}`} />
+            <FusionRule step={3} label="Macro Modulation" active={isMacroActive}
+              detail={`score: ${macroScore.toFixed(2)}`} />
+            <FusionRule step={4} label="Fragility Gate" active={isFragilityActive}
+              detail={isFragilityActive ? `${fragScore.toFixed(2)} > 0.75 → cap 60%` : `${fragScore.toFixed(2)}`} />
+            <FusionRule step={5} label="Entropy Shift" active={isEntropyActive}
+              detail={isEntropyActive ? 'shift detected → size ×0.7' : 'no shift'} />
+            <FusionRule step={6} label="Ensemble Disagreement" active={isDisagreementActive}
+              detail={isDisagreementActive ? `${(ensDisagreement * 100).toFixed(0)}% → size ×${((signals.ensemble_multiplier ?? 1) * 100).toFixed(0)}%` : `${(ensDisagreement * 100).toFixed(0)}%`} />
+          </>
+        )}
       </div>
     </div>
   );

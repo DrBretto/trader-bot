@@ -1,8 +1,9 @@
-import { Trade } from '../types';
+import { Trade, TradeSummary } from '../types';
 
 interface Props {
   trades: Trade[];
   cumulativeCosts?: number;
+  tradeSummary?: TradeSummary;
 }
 
 function formatCurrency(value: number): string {
@@ -30,11 +31,15 @@ const actionColors: Record<string, string> = {
   REDUCE: '#8b5cf6',
 };
 
-export function TradeLog({ trades, cumulativeCosts }: Props) {
+export function TradeLog({ trades, cumulativeCosts, tradeSummary }: Props) {
   const sellTrades = trades.filter((t) => t.action === 'SELL' && t.pnl !== undefined);
-  const wins = sellTrades.filter((t) => (t.pnl ?? 0) > 0).length;
-  const losses = sellTrades.length - wins;
-  const winRate = sellTrades.length > 0 ? wins / sellTrades.length : 0;
+  const wins = tradeSummary?.wins ?? sellTrades.filter((t) => (t.pnl ?? 0) > 0).length;
+  const losses = tradeSummary?.losses ?? sellTrades.filter((t) => (t.pnl ?? 0) < 0).length;
+  const breakeven = tradeSummary?.breakeven ?? (sellTrades.length - wins - losses);
+  const roundTrips = tradeSummary?.realized_round_trips ?? sellTrades.length;
+  const fillsTotal = tradeSummary?.fills_total ?? trades.length;
+  const winRate = tradeSummary?.win_rate ?? (wins + losses > 0 ? wins / (wins + losses) : 0);
+  const txnCosts = tradeSummary?.cumulative_transaction_costs ?? cumulativeCosts;
 
   if (trades.length === 0) {
     return (
@@ -50,7 +55,7 @@ export function TradeLog({ trades, cumulativeCosts }: Props) {
   return (
     <div className="card">
       <div className="card-title">Trade Log</div>
-      {sellTrades.length > 0 && (
+      {(roundTrips > 0 || fillsTotal > 0) && (
         <div
           style={{
             display: 'flex',
@@ -62,7 +67,10 @@ export function TradeLog({ trades, cumulativeCosts }: Props) {
           }}
         >
           <span>
-            {trades.length} trades total
+            {fillsTotal} fills
+          </span>
+          <span>
+            {roundTrips} round-trips
           </span>
           <span style={{ color: '#22c55e' }}>
             {wins} wins
@@ -70,6 +78,11 @@ export function TradeLog({ trades, cumulativeCosts }: Props) {
           <span style={{ color: '#ef4444' }}>
             {losses} losses
           </span>
+          {breakeven > 0 && (
+            <span style={{ color: '#f8fafc' }}>
+              {breakeven} breakeven
+            </span>
+          )}
           <span>
             Win rate:{' '}
             <span
@@ -81,9 +94,14 @@ export function TradeLog({ trades, cumulativeCosts }: Props) {
               {(winRate * 100).toFixed(0)}%
             </span>
           </span>
-          {cumulativeCosts != null && cumulativeCosts > 0 && (
+          {txnCosts != null && txnCosts > 0 && (
             <span>
-              Txn costs: <span style={{ color: '#f59e0b', fontWeight: 600 }}>{formatCurrency(cumulativeCosts)}</span>
+              Txn costs: <span style={{ color: '#f59e0b', fontWeight: 600 }}>{formatCurrency(txnCosts)}</span>
+            </span>
+          )}
+          {(tradeSummary?.unmatched_closing_shares ?? 0) > 0 && (
+            <span style={{ color: '#eab308' }}>
+              Unmatched close qty: {tradeSummary?.unmatched_closing_shares}
             </span>
           )}
         </div>

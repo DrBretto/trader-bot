@@ -4,12 +4,25 @@ export interface PortfolioMetrics {
   invested: number;
   ytd_return: number;
   mtd_return: number;
-  sharpe_ratio: number;
+  sharpe_ratio: number | null;
+  sharpe_observations?: number;
+  sharpe_min_observations?: number;
   max_drawdown: number;
   current_drawdown: number;
   win_rate: number;
   total_trades: number;
+  wins?: number;
+  losses?: number;
+  breakeven_trades?: number;
+  realized_round_trips?: number;
+  total_fills?: number;
   cumulative_transaction_costs?: number;
+  cash_pct?: number;
+  gross_exposure?: number;
+  net_exposure?: number;
+  top_position_pct?: number;
+  beta_proxy?: number | null;
+  snapshot_id?: string;
   timestamp: string;
 }
 
@@ -106,10 +119,24 @@ export interface ExpertSignals {
   position_size_modifier: number;
   risk_throttle_factor: number;
   override_reason?: string | null;
+  target_gross_exposure?: number;
+  effective_exposure_multiplier?: number;
+  throttle_mapping?: string;
+  fusion_rules?: FusionRule[];
   ensemble_regime_label?: string;
   panic_prob?: number;
   ensemble_disagreement?: number;
   ensemble_multiplier?: number;
+}
+
+export interface FusionRule {
+  order: number;
+  code: string;
+  label: string;
+  fired: boolean;
+  inputs: string;
+  threshold: string;
+  effect: string;
 }
 
 export interface TimeseriesPoint {
@@ -155,7 +182,36 @@ export interface Trade {
   days_held?: number;
 }
 
+export interface TradeSummary {
+  fills_total: number;
+  realized_round_trips: number;
+  wins: number;
+  losses: number;
+  breakeven: number;
+  win_rate: number;
+  unmatched_closing_shares: number;
+  cumulative_transaction_costs: number;
+}
+
+export interface SnapshotMeta {
+  id: string;
+  date: string;
+  phase: string;
+  timestamp: string;
+}
+
+export interface PanelSnapshotIds {
+  metrics: string;
+  equity_curve: string;
+  drawdowns: string;
+  monthly_returns: string;
+  trade_log: string;
+  regime: string;
+}
+
 export interface DashboardData {
+  snapshot?: SnapshotMeta;
+  panel_snapshot_ids?: PanelSnapshotIds;
   metrics: PortfolioMetrics;
   holdings: Holding[];
   candidates: BuyCandidate[];
@@ -164,6 +220,9 @@ export interface DashboardData {
   monthly_returns: MonthlyReturn[];
   weather: WeatherReport;
   trades?: Trade[];
+  trade_summary?: TradeSummary;
+  round_trips?: Record<string, unknown>[];
+  reset_boundary?: Record<string, unknown> | null;
   expert_signals?: ExpertSignals;
   timeseries_url?: string;
 }

@@ -18,40 +18,70 @@ function formatPercent(value: number): string {
   return `${sign}${(value * 100).toFixed(2)}%`;
 }
 
+function formatUnsignedPercent(value: number): string {
+  return `${(value * 100).toFixed(1)}%`;
+}
+
 export function HeroMetrics({ metrics }: Props) {
   const metricItems = [
     {
       label: 'Total Value',
       value: formatCurrency(metrics.total_value),
-      isPercentage: false,
+      colorBySign: false,
     },
     {
       label: 'YTD Return',
       value: formatPercent(metrics.ytd_return),
-      isPercentage: true,
+      colorBySign: true,
       rawValue: metrics.ytd_return,
     },
     {
       label: 'MTD Return',
       value: formatPercent(metrics.mtd_return),
-      isPercentage: true,
+      colorBySign: true,
       rawValue: metrics.mtd_return,
     },
     {
       label: 'Sharpe Ratio',
-      value: metrics.sharpe_ratio.toFixed(2),
-      isPercentage: false,
+      value: metrics.sharpe_ratio != null ? metrics.sharpe_ratio.toFixed(2) : 'N/A',
+      colorBySign: false,
     },
     {
       label: 'Max Drawdown',
       value: formatPercent(metrics.max_drawdown),
-      isPercentage: true,
+      colorBySign: true,
       rawValue: metrics.max_drawdown,
     },
     {
       label: 'Win Rate',
       value: `${(metrics.win_rate * 100).toFixed(0)}%`,
-      isPercentage: false,
+      colorBySign: false,
+    },
+    {
+      label: 'Cash %',
+      value: formatUnsignedPercent(metrics.cash_pct ?? 0),
+      colorBySign: false,
+    },
+    {
+      label: 'Gross Exposure',
+      value: formatUnsignedPercent(metrics.gross_exposure ?? 0),
+      colorBySign: false,
+    },
+    {
+      label: 'Net Exposure',
+      value: formatPercent(metrics.net_exposure ?? 0),
+      colorBySign: true,
+      rawValue: metrics.net_exposure ?? 0,
+    },
+    {
+      label: 'Top Position',
+      value: formatUnsignedPercent(metrics.top_position_pct ?? 0),
+      colorBySign: false,
+    },
+    {
+      label: 'Beta Proxy',
+      value: metrics.beta_proxy != null ? metrics.beta_proxy.toFixed(2) : 'N/A',
+      colorBySign: false,
     },
   ];
 
@@ -62,7 +92,7 @@ export function HeroMetrics({ metrics }: Props) {
           <div className="metric-label">{item.label}</div>
           <div
             className={`metric-value ${
-              item.isPercentage
+              item.colorBySign
                 ? (item.rawValue ?? 0) >= 0
                   ? 'positive'
                   : 'negative'
