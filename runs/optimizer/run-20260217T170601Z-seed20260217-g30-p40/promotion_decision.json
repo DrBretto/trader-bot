@@ -1,0 +1,15 @@
+{
+  "run_id": "run-20260217T170601Z-seed20260217-g30-p40",
+  "decision": "not_promoted",
+  "reason_codes": [
+    "runtime_error"
+  ],
+  "champion_version_before": "opt-bootstrap",
+  "challenger_version": "unknown",
+  "champion_wf_objective": null,
+  "challenger_wf_objective": null,
+  "champion_gate_score": null,
+  "challenger_gate_score": null,
+  "promoted_at": null,
+  "error": "Insufficient daily artifacts in S3 for optimizer replay"
+}

@@ -1,0 +1,15 @@
+{
+  "run_id": "run-20260217T163648Z-seed20260217-g30-p40",
+  "decision": "not_promoted",
+  "reason_codes": [
+    "runtime_error"
+  ],
+  "champion_version_before": "opt-bootstrap",
+  "challenger_version": "unknown",
+  "champion_wf_objective": null,
+  "challenger_wf_objective": null,
+  "champion_gate_score": null,
+  "challenger_gate_score": null,
+  "promoted_at": null,
+  "error": "Insufficient aligned snapshots for configured train/test/gate windows (have=5)"
+}

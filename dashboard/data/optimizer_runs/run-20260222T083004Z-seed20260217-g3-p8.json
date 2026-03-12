@@ -1,0 +1,1627 @@
+{
+  "run_id": "run-20260222T083004Z-seed20260217-g3-p8",
+  "run_manifest": {
+    "run_id": "run-20260222T083004Z-seed20260217-g3-p8",
+    "started_at": "2026-02-22T08:30:04Z",
+    "finished_at": "2026-02-22T08:31:46Z",
+    "status": "rejected_guardrails",
+    "seed": 20260217,
+    "population": 8,
+    "generations": 3,
+    "max_days": 900,
+    "train_days": 2,
+    "test_days": 1,
+    "step_days": 1,
+    "gate_days": 1,
+    "bucket": "investment-system-data",
+    "region": "us-east-1",
+    "git_commit": "8c4e7f71ea6778dbab943b2f30702bed5bbce54b",
+    "param_inventory_hash": "04c772c7280b1afb95212b46b2153fb6937ddd2ffb55c1357626339409288490",
+    "pipeline_map_hash": "c0965045313658cece534e90d9da3617bdc0a1d2694171f409a6efa1d7601d7a",
+    "data_inventory_hash": "7169dcf6a98b18709d7a64d7705c34bdab1132cfa04067685185547b4ca6d8fc",
+    "max_runtime_minutes": 30,
+    "max_workers": 1
+  },
+  "walk_forward_folds": {
+    "folds": [
+      {
+        "fold_id": 1,
+        "train_dates": [
+          "2026-02-07",
+          "2026-02-10"
+        ],
+        "test_dates": [
+          "2026-02-11"
+        ],
+        "train_start": "2026-02-07",
+        "train_end": "2026-02-10",
+        "test_start": "2026-02-11",
+        "test_end": "2026-02-11",
+        "test_days": 1,
+        "complete_dates": 1
+      },
+      {
+        "fold_id": 2,
+        "train_dates": [
+          "2026-02-10",
+          "2026-02-11"
+        ],
+        "test_dates": [
+          "2026-02-12"
+        ],
+        "train_start": "2026-02-10",
+        "train_end": "2026-02-11",
+        "test_start": "2026-02-12",
+        "test_end": "2026-02-12",
+        "test_days": 1,
+        "complete_dates": 1
+      },
+      {
+        "fold_id": 3,
+        "train_dates": [
+          "2026-02-11",
+          "2026-02-12"
+        ],
+        "test_dates": [
+          "2026-02-13"
+        ],
+        "train_start": "2026-02-11",
+        "train_end": "2026-02-12",
+        "test_start": "2026-02-13",
+        "test_end": "2026-02-13",
+        "test_days": 1,
+        "complete_dates": 1
+      },
+      {
+        "fold_id": 4,
+        "train_dates": [
+          "2026-02-12",
+          "2026-02-13"
+        ],
+        "test_dates": [
+          "2026-02-17"
+        ],
+        "train_start": "2026-02-12",
+        "train_end": "2026-02-13",
+        "test_start": "2026-02-17",
+        "test_end": "2026-02-17",
+        "test_days": 1,
+        "complete_dates": 1
+      },
+      {
+        "fold_id": 5,
+        "train_dates": [
+          "2026-02-13",
+          "2026-02-17"
+        ],
+        "test_dates": [
+          "2026-02-18"
+        ],
+        "train_start": "2026-02-13",
+        "train_end": "2026-02-17",
+        "test_start": "2026-02-18",
+        "test_end": "2026-02-18",
+        "test_days": 1,
+        "complete_dates": 1
+      },
+      {
+        "fold_id": 6,
+        "train_dates": [
+          "2026-02-17",
+          "2026-02-18"
+        ],
+        "test_dates": [
+          "2026-02-19"
+        ],
+        "train_start": "2026-02-17",
+        "train_end": "2026-02-18",
+        "test_start": "2026-02-19",
+        "test_end": "2026-02-19",
+        "test_days": 1,
+        "complete_dates": 1
+      }
+    ],
+    "gate_segment": {
+      "start": "2026-02-20",
+      "end": "2026-02-20",
+      "days": 1
+    }
+  },
+  "champion_metrics": {
+    "wf_objective": 0.2756902611371368,
+    "wf_mean": 0.3275080757199254,
+    "wf_stability_penalty": 0.05181781458278859,
+    "fold_metrics": [
+      {
+        "days": 1,
+        "annualized_return": 0.7293865348385256,
+        "sharpe": 0.0,
+        "max_drawdown": 0.0,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0,
+        "traded_notional": 0,
+        "cumulative_transaction_costs": 0.0,
+        "fold_score": 0.5766363899751578
+      },
+      {
+        "days": 1,
+        "annualized_return": 2.0406511753397023,
+        "sharpe": 0.0,
+        "max_drawdown": 0.0,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0,
+        "traded_notional": 0,
+        "cumulative_transaction_costs": 0.0,
+        "fold_score": 0.5874999999999999
+      },
+      {
+        "days": 1,
+        "annualized_return": -0.9442740351549637,
+        "sharpe": 0.0,
+        "max_drawdown": -0.011392187682855881,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0005769414845530423,
+        "traded_notional": 8462.21,
+        "cumulative_transaction_costs": 4.8821999999995995,
+        "fold_score": 0.0875
+      },
+      {
+        "days": 0,
+        "annualized_return": 0.0,
+        "sharpe": 0.0,
+        "max_drawdown": 0.0,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0,
+        "traded_notional": 0.0,
+        "cumulative_transaction_costs": 0.0,
+        "fold_score": 0.0
+      },
+      {
+        "days": 1,
+        "annualized_return": -0.25032158176143215,
+        "sharpe": 0.0,
+        "max_drawdown": -0.001142644065837417,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0003814404007013384,
+        "traded_notional": 36815.45,
+        "cumulative_transaction_costs": 14.042900000000088,
+        "fold_score": 0.12591206434439506
+      },
+      {
+        "days": 1,
+        "annualized_return": 10.999241483717713,
+        "sharpe": 0.0,
+        "max_drawdown": 0.0,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0,
+        "traded_notional": 0,
+        "cumulative_transaction_costs": 0.0,
+        "fold_score": 0.5874999999999999
+      }
+    ],
+    "guardrails": {
+      "passed": false,
+      "checks": [
+        {
+          "name": "max_drawdown_cap",
+          "passed": true,
+          "value": -0.011392187682855881,
+          "threshold": -0.25
+        },
+        {
+          "name": "cost_ratio_cap",
+          "passed": true,
+          "value": 0.0005769414845530423,
+          "threshold": 0.015
+        },
+        {
+          "name": "min_round_trips_total",
+          "passed": false,
+          "value": 0.0,
+          "threshold": 20.0
+        },
+        {
+          "name": "min_gate_round_trips",
+          "passed": false,
+          "value": 0.0,
+          "threshold": 5.0
+        },
+        {
+          "name": "min_gate_win_rate",
+          "passed": false,
+          "value": 0.0,
+          "threshold": 0.45
+        },
+        {
+          "name": "min_fold_ann_return",
+          "passed": false,
+          "value": -0.9442740351549637,
+          "threshold": -0.2
+        }
+      ]
+    },
+    "gate_metrics": {
+      "days": 1,
+      "annualized_return": 0.49340603818766793,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "win_rate": 0.0,
+      "realized_round_trips": 0,
+      "wins": 0,
+      "losses": 0,
+      "breakeven": 0,
+      "cost_ratio": 0.0,
+      "traded_notional": 0,
+      "cumulative_transaction_costs": 0.0,
+      "fold_score": 0.5403316981827181
+    }
+  },
+  "challenger_metrics": {
+    "wf_objective": 0.2773428699342651,
+    "wf_mean": 0.32948769436494935,
+    "wf_stability_penalty": 0.05214482443068424,
+    "fold_metrics": [
+      {
+        "days": 1,
+        "annualized_return": 3.0100434090921198,
+        "sharpe": 0.0,
+        "max_drawdown": 0.0,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0,
+        "traded_notional": 0,
+        "cumulative_transaction_costs": 0.0,
+        "fold_score": 0.5874999999999999
+      },
+      {
+        "days": 1,
+        "annualized_return": 1.9901849695110863,
+        "sharpe": 0.0,
+        "max_drawdown": 0.0,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0,
+        "traded_notional": 0,
+        "cumulative_transaction_costs": 0.0,
+        "fold_score": 0.5874999999999999
+      },
+      {
+        "days": 1,
+        "annualized_return": -0.9998017949824095,
+        "sharpe": 0.0,
+        "max_drawdown": -0.03326818700481737,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0005281409202377,
+        "traded_notional": 48391.630000000005,
+        "cumulative_transaction_costs": 25.557600000002296,
+        "fold_score": 0.0875
+      },
+      {
+        "days": 0,
+        "annualized_return": 0.0,
+        "sharpe": 0.0,
+        "max_drawdown": 0.0,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0,
+        "traded_notional": 0.0,
+        "cumulative_transaction_costs": 0.0,
+        "fold_score": 0.0
+      },
+      {
+        "days": 1,
+        "annualized_return": -0.24372991976697334,
+        "sharpe": 0.0,
+        "max_drawdown": -0.0011079441793574452,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0003391036658915079,
+        "traded_notional": 67268.22,
+        "cumulative_transaction_costs": 22.81089999999645,
+        "fold_score": 0.1269261661896964
+      },
+      {
+        "days": 1,
+        "annualized_return": 48.509907111171536,
+        "sharpe": 0.0,
+        "max_drawdown": 0.0,
+        "win_rate": 0.0,
+        "realized_round_trips": 0,
+        "wins": 0,
+        "losses": 0,
+        "breakeven": 0,
+        "cost_ratio": 0.0,
+        "traded_notional": 0,
+        "cumulative_transaction_costs": 0.0,
+        "fold_score": 0.5874999999999999
+      }
+    ],
+    "guardrails": {
+      "passed": false,
+      "checks": [
+        {
+          "name": "max_drawdown_cap",
+          "passed": true,
+          "value": -0.03326818700481737,
+          "threshold": -0.25
+        },
+        {
+          "name": "cost_ratio_cap",
+          "passed": true,
+          "value": 0.0005281409202377,
+          "threshold": 0.015
+        },
+        {
+          "name": "min_round_trips_total",
+          "passed": false,
+          "value": 0.0,
+          "threshold": 20.0
+        },
+        {
+          "name": "min_gate_round_trips",
+          "passed": false,
+          "value": 0.0,
+          "threshold": 5.0
+        },
+        {
+          "name": "min_gate_win_rate",
+          "passed": false,
+          "value": 0.0,
+          "threshold": 0.45
+        },
+        {
+          "name": "min_fold_ann_return",
+          "passed": false,
+          "value": -0.9998017949824095,
+          "threshold": -0.2
+        }
+      ]
+    },
+    "gate_metrics": {
+      "days": 1,
+      "annualized_return": 0.4401846497164321,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "win_rate": 0.0,
+      "realized_round_trips": 0,
+      "wins": 0,
+      "losses": 0,
+      "breakeven": 0,
+      "cost_ratio": 0.0,
+      "traded_notional": 0,
+      "cumulative_transaction_costs": 0.0,
+      "fold_score": 0.5321437922640664
+    }
+  },
+  "gate_segment_metrics": {
+    "champion_gate_score": 0.5403316981827181,
+    "challenger_gate_score": 0.5321437922640664,
+    "champion_gate_max_drawdown": 0.0,
+    "challenger_gate_max_drawdown": 0.0,
+    "gate_guardrails": {
+      "passed": false,
+      "checks": [
+        {
+          "name": "max_drawdown_cap",
+          "passed": true,
+          "value": -0.03326818700481737,
+          "threshold": -0.25
+        },
+        {
+          "name": "cost_ratio_cap",
+          "passed": true,
+          "value": 0.0005281409202377,
+          "threshold": 0.015
+        },
+        {
+          "name": "min_round_trips_total",
+          "passed": false,
+          "value": 0.0,
+          "threshold": 20.0
+        },
+        {
+          "name": "min_gate_round_trips",
+          "passed": false,
+          "value": 0.0,
+          "threshold": 5.0
+        },
+        {
+          "name": "min_gate_win_rate",
+          "passed": false,
+          "value": 0.0,
+          "threshold": 0.45
+        },
+        {
+          "name": "min_fold_ann_return",
+          "passed": false,
+          "value": -0.9998017949824095,
+          "threshold": -0.2
+        }
+      ]
+    }
+  },
+  "guardrail_results": {
+    "passed": false,
+    "checks": [
+      {
+        "name": "max_drawdown_cap",
+        "passed": true,
+        "value": -0.03326818700481737,
+        "threshold": -0.25
+      },
+      {
+        "name": "cost_ratio_cap",
+        "passed": true,
+        "value": 0.0005281409202377,
+        "threshold": 0.015
+      },
+      {
+        "name": "min_round_trips_total",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 20.0
+      },
+      {
+        "name": "min_gate_round_trips",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 5.0
+      },
+      {
+        "name": "min_gate_win_rate",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 0.45
+      },
+      {
+        "name": "min_fold_ann_return",
+        "passed": false,
+        "value": -0.9998017949824095,
+        "threshold": -0.2
+      }
+    ]
+  },
+  "promotion_decision": {
+    "run_id": "run-20260222T083004Z-seed20260217-g3-p8",
+    "decision": "not_promoted",
+    "reason_codes": [
+      "gate_drawdown_ok"
+    ],
+    "champion_version_before": "opt-bootstrap",
+    "challenger_version": "opt-20260222T083146Z-f0822268-20260222T083004Z",
+    "champion_wf_objective": 0.2756902611371368,
+    "challenger_wf_objective": 0.2773428699342651,
+    "champion_gate_score": 0.5403316981827181,
+    "challenger_gate_score": 0.5321437922640664,
+    "promoted_at": null
+  },
+  "candidate_params_bundle": {
+    "version_id": "opt-20260222T083146Z-f0822268-20260222T083004Z",
+    "decision_params": {
+      "max_positions": 15,
+      "max_position_weight": 0.2,
+      "max_sector_weight": 0.35,
+      "min_cash_reserve_by_regime": {
+        "calm_uptrend": 0.1,
+        "risk_on_trend": 0.1,
+        "choppy": 0.2,
+        "risk_off_trend": 0.4,
+        "high_vol_panic": 0.4
+      },
+      "leveraged_constraints": {
+        "max_weight": 0.1,
+        "max_hold_days": 5,
+        "stop_multiplier": 0.6
+      },
+      "buy_score_threshold": 0.8112376012062714,
+      "min_health_buy": 0.6299217934655816,
+      "sell_health_threshold": 0.2535039779617272,
+      "sell_health_days": 3,
+      "reduce_health_drop": 0.2,
+      "trailing_stop_base": 0.1,
+      "trailing_stop_leveraged": 0.23919897344194707,
+      "min_order_dollars": 250,
+      "initial_portfolio_value": 419110
+    },
+    "regime_compatibility": {
+      "risk_on_trend": {
+        "equity": 1.1,
+        "bond": 0.95,
+        "commodity": 1.0,
+        "vol": 0.5044543012122208,
+        "fx": 0.982085911838129,
+        "sector_tech": 1.15,
+        "sector_energy": 1.1,
+        "sector_utilities": 0.9,
+        "sector_financials": 1.1,
+        "sector_cons_disc": 1.1099917538645405,
+        "sector_cons_staples": 0.6938890966067232,
+        "sector_industrials": 1.0610327814943354,
+        "sector_healthcare": 1.0,
+        "sector_materials": 1.021178940769595,
+        "sector_comm": 0.7034024947426218,
+        "sector_reit": 1.0,
+        "treas_long": 0.9,
+        "credit_high_yield": 1.05
+      },
+      "risk_off_trend": {
+        "equity": 0.673190836597088,
+        "bond": 1.1,
+        "commodity": 1.331557059212746,
+        "vol": 1.05,
+        "fx": 1.0,
+        "sector_tech": 0.8,
+        "sector_energy": 0.85,
+        "sector_utilities": 1.1,
+        "sector_financials": 0.85,
+        "sector_cons_disc": 0.8,
+        "sector_cons_staples": 1.1,
+        "sector_industrials": 0.9,
+        "sector_healthcare": 0.390684263915744,
+        "sector_materials": 1.0119768008328527,
+        "sector_comm": 0.9,
+        "sector_reit": 1.099087364478065,
+        "treas_long": 0.9245751454821433,
+        "credit_high_yield": 0.6
+      },
+      "high_vol_panic": {
+        "equity": 0.5633094363406796,
+        "bond": 1.2,
+        "commodity": 1.093109068742108,
+        "vol": 1.6309147954183163,
+        "fx": 1.575135430195087,
+        "sector_tech": 0.4119062960016748,
+        "sector_energy": 0.5,
+        "sector_utilities": 1.0,
+        "sector_financials": 0.4,
+        "sector_cons_disc": 0.08324243462516445,
+        "sector_cons_staples": 0.5346863588119338,
+        "sector_industrials": 0.5,
+        "sector_healthcare": 0.2269716106776204,
+        "sector_materials": 0.5,
+        "sector_comm": 0.3189605455935386,
+        "sector_reit": 0.5,
+        "treas_long": 1.25,
+        "credit_high_yield": 0.4
+      },
+      "choppy": {
+        "equity": 0.792431306534232,
+        "bond": 1.1652315703852039,
+        "commodity": 1.0,
+        "vol": 0.8066386842557581,
+        "fx": 0.6810048808463798,
+        "sector_tech": 1.1186050694078888,
+        "sector_energy": 0.8934445034982501,
+        "sector_utilities": 1.0,
+        "sector_financials": 0.6483445779014338,
+        "sector_cons_disc": 0.95,
+        "sector_cons_staples": 1.3730416799078786,
+        "sector_industrials": 0.9115170820925291,
+        "sector_healthcare": 1.0,
+        "sector_materials": 0.95,
+        "sector_comm": 0.708020433412198,
+        "sector_reit": 0.95,
+        "treas_long": 1.3270553582405902,
+        "credit_high_yield": 0.9
+      },
+      "calm_uptrend": {
+        "equity": 0.8866836952609142,
+        "bond": 1.2967150337861038,
+        "commodity": 1.0,
+        "vol": 0.85,
+        "fx": 1.0,
+        "sector_tech": 1.1,
+        "sector_energy": 1.3534891746331001,
+        "sector_utilities": 0.95,
+        "sector_financials": 1.05,
+        "sector_cons_disc": 1.05,
+        "sector_cons_staples": 0.95,
+        "sector_industrials": 1.05,
+        "sector_healthcare": 1.0,
+        "sector_materials": 1.0,
+        "sector_comm": 1.0,
+        "sector_reit": 1.3649556470584305,
+        "treas_long": 0.9,
+        "credit_high_yield": 0.7295188125896509
+      }
+    },
+    "signals": {
+      "entropy_shift": {
+        "consecutive_days_required": 3,
+        "max_lookback_days": 252,
+        "min_rolling_samples_for_zscore": 10,
+        "num_bins": 115,
+        "window_days": 60,
+        "z_threshold": 1.5
+      },
+      "fragility": {
+        "AVG_CORR_MEAN": 0.3,
+        "AVG_CORR_STD": 1.8306578211522346,
+        "MIN_DAYS": 40,
+        "MIN_SYMBOLS": 35,
+        "PC1_MEAN": 0.45,
+        "PC1_STD": 0.12,
+        "window_days": 60
+      },
+      "macro_credit": {
+        "HY_SPREAD_MEAN": 1.565021636210746,
+        "HY_SPREAD_STD": -1.3030730351701076,
+        "SLOPE_MEAN": 0.19380602216845233,
+        "SLOPE_STD": 1.0,
+        "hy_lookback_days": 21,
+        "hy_spread_weight": 0.2769301725740865,
+        "slope_weight": 0.6
+      },
+      "vol_uncertainty": {
+        "dynamic_history_min_obs": 60,
+        "regime_thresholds": {
+          "panic": {
+            "vix_pctile": 2.7647263547046594,
+            "vvix_pctile": 0.8
+          },
+          "unstable": {
+            "vix_pctile_max": 0.6,
+            "vvix_pctile": 0.8
+          }
+        },
+        "skew_thresholds": {
+          "p20": 115.0,
+          "p50": 125.0,
+          "p80": 140.0,
+          "p95": 184.01129114582886
+        },
+        "vix_thresholds": {
+          "p20": 13.0,
+          "p50": 0.0,
+          "p80": 34.47062220256268,
+          "p95": 30.0
+        },
+        "vvix_thresholds": {
+          "p20": 75.0,
+          "p50": 115.09707849334512,
+          "p80": 105.0,
+          "p95": 145.95181398296336
+        }
+      }
+    },
+    "regime_fusion": {
+      "entropy_size_multiplier": 0.7,
+      "entropy_throttle_increment": 0.07182815181644243,
+      "final_position_size_clip_max": 0.9220674307797541,
+      "final_position_size_clip_min": 0.25,
+      "final_risk_throttle_clip_max": 1.0,
+      "final_risk_throttle_clip_min": 0.0,
+      "fragility_position_cap": 0.6,
+      "fragility_threshold": 0.5557504692220997,
+      "fragility_throttle_increment": 0.21961295100035733,
+      "macro_downgrade_threshold": -0.5,
+      "macro_upgrade_threshold": 0.10951343036164854,
+      "panic_position_size": 0.3093507542504373,
+      "panic_prob_threshold": 0.5825121780174181,
+      "panic_risk_throttle": 1.0,
+      "throttle_to_exposure_scale": 0.3837496100134487,
+      "unstable_calm_panic_threshold": 0.2011867655499211,
+      "unstable_position_size": 0.5396181718646179,
+      "unstable_risk_throttle": 0.5690149038814771
+    },
+    "decision_engine": {
+      "high_vol_bucket_exception_score": 0.8,
+      "position_size": {
+        "regime_adj": {
+          "calm_uptrend": 1.1,
+          "choppy": 0.9,
+          "high_vol_panic": 0.7102712826765486,
+          "risk_off_trend": 0.7014053620003776,
+          "risk_on_trend": 1.1
+        },
+        "throttle_scale": 0.5,
+        "vol_adj": {
+          "high": 0.8,
+          "low": 1.1,
+          "med": 1.3303881088501333
+        }
+      },
+      "watchlist": {
+        "min_target_count": 14
+      }
+    },
+    "ensemble": {
+      "disagreement_threshold": 0.16417696672524235,
+      "gru_weight": 0.6566236980156481,
+      "multiplier": {
+        "base_floor": 0.43306213547360073,
+        "base_span": 0.6587695956473698,
+        "clip_max": 1.0,
+        "clip_min": 0.6091259974413872,
+        "disagreement_penalty_scale": 0.5
+      },
+      "transformer_weight": 0.5
+    },
+    "transaction_costs": {
+      "asset_class_default_bps": {
+        "bond": 2.5,
+        "commodity": 8.480880173463216,
+        "equity": 3.0,
+        "fx": 3.0,
+        "vol": 8.0
+      },
+      "slippage_range_bps": 2.0,
+      "spread_bps": {
+        "aggregate": 2.0,
+        "broad": 1.0,
+        "broad_commodities": 0.0,
+        "country_brazil": 6.0,
+        "country_china": 4.465050112736597,
+        "country_india": 6.0,
+        "country_japan": 5.0,
+        "credit_high_yield": 2.844171233021428,
+        "credit_investment_grade": 0.0,
+        "eur": 3.0,
+        "factor_dividend": 3.0,
+        "factor_dividend_growth": 4.641730898439999,
+        "factor_minvol": 3.0,
+        "factor_momentum": 0.4372734364161297,
+        "factor_quality": 2.0084984949671814,
+        "factor_value": 3.0,
+        "global": 2.0,
+        "gold": 2.0,
+        "industry_aerospace_defense": 4.0,
+        "industry_biotech": 7.492138045926037,
+        "industry_regional_banks": 7.019346174554065,
+        "industry_retail": 3.9771367735719054,
+        "industry_semis": 0.0,
+        "industry_transport": 3.7433956494566365,
+        "international_dev": 0.0,
+        "international_em": 5.0,
+        "muni": 3.0,
+        "natural_gas": 8.0,
+        "oil": 1.3469713303645983,
+        "region_europe": 8.225483993888133,
+        "sector_comm": 4.106443721080729,
+        "sector_cons_disc": 3.0,
+        "sector_cons_staples": 3.0,
+        "sector_energy": 3.0,
+        "sector_financials": 2.5,
+        "sector_healthcare": 2.5,
+        "sector_industrials": 9.08971588484939,
+        "sector_materials": 3.0,
+        "sector_reit": 2.255343518685713,
+        "sector_tech": 6.339118724177656,
+        "sector_utilities": 3.0,
+        "silver": 3.0,
+        "style_growth": 3.8254636040800456,
+        "style_value": 0.0,
+        "theme_innovation": 5.0,
+        "treas_intermediate": 1.5,
+        "treas_long": 2.0,
+        "treas_short": 2.7099896656021096,
+        "treas_tips": 0.8257406024922331,
+        "usd": 5.933367246664654,
+        "volatility": 8.0
+      }
+    },
+    "source_run_id": "run-20260222T083004Z-seed20260217-g3-p8",
+    "safe_param_names": [
+      "decision_engine.high_vol_bucket_exception_score",
+      "decision_engine.position_size.regime_adj.calm_uptrend",
+      "decision_engine.position_size.regime_adj.choppy",
+      "decision_engine.position_size.regime_adj.high_vol_panic",
+      "decision_engine.position_size.regime_adj.risk_off_trend",
+      "decision_engine.position_size.regime_adj.risk_on_trend",
+      "decision_engine.position_size.throttle_scale",
+      "decision_engine.position_size.vol_adj.high",
+      "decision_engine.position_size.vol_adj.low",
+      "decision_engine.position_size.vol_adj.med",
+      "decision_engine.watchlist.min_target_count",
+      "decision_params.buy_score_threshold",
+      "decision_params.initial_portfolio_value",
+      "decision_params.leveraged_constraints.max_hold_days",
+      "decision_params.max_position_weight",
+      "decision_params.max_positions",
+      "decision_params.min_cash_reserve_by_regime.calm_uptrend",
+      "decision_params.min_cash_reserve_by_regime.choppy",
+      "decision_params.min_cash_reserve_by_regime.high_vol_panic",
+      "decision_params.min_cash_reserve_by_regime.risk_off_trend",
+      "decision_params.min_cash_reserve_by_regime.risk_on_trend",
+      "decision_params.min_health_buy",
+      "decision_params.min_order_dollars",
+      "decision_params.sell_health_threshold",
+      "decision_params.trailing_stop_base",
+      "decision_params.trailing_stop_leveraged",
+      "ensemble.disagreement_threshold",
+      "ensemble.gru_weight",
+      "ensemble.multiplier.base_floor",
+      "ensemble.multiplier.base_span",
+      "ensemble.multiplier.clip_max",
+      "ensemble.multiplier.clip_min",
+      "ensemble.multiplier.disagreement_penalty_scale",
+      "ensemble.transformer_weight",
+      "entropy_shift.consecutive_days_required",
+      "entropy_shift.max_lookback_days",
+      "entropy_shift.min_rolling_samples_for_zscore",
+      "entropy_shift.num_bins",
+      "entropy_shift.window_days",
+      "entropy_shift.z_threshold",
+      "fragility.AVG_CORR_MEAN",
+      "fragility.AVG_CORR_STD",
+      "fragility.MIN_DAYS",
+      "fragility.MIN_SYMBOLS",
+      "fragility.PC1_MEAN",
+      "fragility.PC1_STD",
+      "fragility.window_days",
+      "macro_credit.HY_SPREAD_MEAN",
+      "macro_credit.HY_SPREAD_STD",
+      "macro_credit.SLOPE_MEAN",
+      "macro_credit.SLOPE_STD",
+      "macro_credit.hy_lookback_days",
+      "macro_credit.hy_spread_weight",
+      "macro_credit.slope_weight",
+      "regime_compatibility.calm_uptrend.bond",
+      "regime_compatibility.calm_uptrend.commodity",
+      "regime_compatibility.calm_uptrend.credit_high_yield",
+      "regime_compatibility.calm_uptrend.equity",
+      "regime_compatibility.calm_uptrend.fx",
+      "regime_compatibility.calm_uptrend.sector_comm",
+      "regime_compatibility.calm_uptrend.sector_cons_disc",
+      "regime_compatibility.calm_uptrend.sector_cons_staples",
+      "regime_compatibility.calm_uptrend.sector_energy",
+      "regime_compatibility.calm_uptrend.sector_financials",
+      "regime_compatibility.calm_uptrend.sector_healthcare",
+      "regime_compatibility.calm_uptrend.sector_industrials",
+      "regime_compatibility.calm_uptrend.sector_materials",
+      "regime_compatibility.calm_uptrend.sector_reit",
+      "regime_compatibility.calm_uptrend.sector_tech",
+      "regime_compatibility.calm_uptrend.sector_utilities",
+      "regime_compatibility.calm_uptrend.treas_long",
+      "regime_compatibility.calm_uptrend.vol",
+      "regime_compatibility.choppy.bond",
+      "regime_compatibility.choppy.commodity",
+      "regime_compatibility.choppy.credit_high_yield",
+      "regime_compatibility.choppy.equity",
+      "regime_compatibility.choppy.fx",
+      "regime_compatibility.choppy.sector_comm",
+      "regime_compatibility.choppy.sector_cons_disc",
+      "regime_compatibility.choppy.sector_cons_staples",
+      "regime_compatibility.choppy.sector_energy",
+      "regime_compatibility.choppy.sector_financials",
+      "regime_compatibility.choppy.sector_healthcare",
+      "regime_compatibility.choppy.sector_industrials",
+      "regime_compatibility.choppy.sector_materials",
+      "regime_compatibility.choppy.sector_reit",
+      "regime_compatibility.choppy.sector_tech",
+      "regime_compatibility.choppy.sector_utilities",
+      "regime_compatibility.choppy.treas_long",
+      "regime_compatibility.choppy.vol",
+      "regime_compatibility.high_vol_panic.bond",
+      "regime_compatibility.high_vol_panic.commodity",
+      "regime_compatibility.high_vol_panic.credit_high_yield",
+      "regime_compatibility.high_vol_panic.equity",
+      "regime_compatibility.high_vol_panic.fx",
+      "regime_compatibility.high_vol_panic.sector_comm",
+      "regime_compatibility.high_vol_panic.sector_cons_disc",
+      "regime_compatibility.high_vol_panic.sector_cons_staples",
+      "regime_compatibility.high_vol_panic.sector_energy",
+      "regime_compatibility.high_vol_panic.sector_financials",
+      "regime_compatibility.high_vol_panic.sector_healthcare",
+      "regime_compatibility.high_vol_panic.sector_industrials",
+      "regime_compatibility.high_vol_panic.sector_materials",
+      "regime_compatibility.high_vol_panic.sector_reit",
+      "regime_compatibility.high_vol_panic.sector_tech",
+      "regime_compatibility.high_vol_panic.sector_utilities",
+      "regime_compatibility.high_vol_panic.treas_long",
+      "regime_compatibility.high_vol_panic.vol",
+      "regime_compatibility.risk_off_trend.bond",
+      "regime_compatibility.risk_off_trend.commodity",
+      "regime_compatibility.risk_off_trend.credit_high_yield",
+      "regime_compatibility.risk_off_trend.equity",
+      "regime_compatibility.risk_off_trend.fx",
+      "regime_compatibility.risk_off_trend.sector_comm",
+      "regime_compatibility.risk_off_trend.sector_cons_disc",
+      "regime_compatibility.risk_off_trend.sector_cons_staples",
+      "regime_compatibility.risk_off_trend.sector_energy",
+      "regime_compatibility.risk_off_trend.sector_financials",
+      "regime_compatibility.risk_off_trend.sector_healthcare",
+      "regime_compatibility.risk_off_trend.sector_industrials",
+      "regime_compatibility.risk_off_trend.sector_materials",
+      "regime_compatibility.risk_off_trend.sector_reit",
+      "regime_compatibility.risk_off_trend.sector_tech",
+      "regime_compatibility.risk_off_trend.sector_utilities",
+      "regime_compatibility.risk_off_trend.treas_long",
+      "regime_compatibility.risk_off_trend.vol",
+      "regime_compatibility.risk_on_trend.bond",
+      "regime_compatibility.risk_on_trend.commodity",
+      "regime_compatibility.risk_on_trend.credit_high_yield",
+      "regime_compatibility.risk_on_trend.equity",
+      "regime_compatibility.risk_on_trend.fx",
+      "regime_compatibility.risk_on_trend.sector_comm",
+      "regime_compatibility.risk_on_trend.sector_cons_disc",
+      "regime_compatibility.risk_on_trend.sector_cons_staples",
+      "regime_compatibility.risk_on_trend.sector_energy",
+      "regime_compatibility.risk_on_trend.sector_financials",
+      "regime_compatibility.risk_on_trend.sector_healthcare",
+      "regime_compatibility.risk_on_trend.sector_industrials",
+      "regime_compatibility.risk_on_trend.sector_materials",
+      "regime_compatibility.risk_on_trend.sector_reit",
+      "regime_compatibility.risk_on_trend.sector_tech",
+      "regime_compatibility.risk_on_trend.sector_utilities",
+      "regime_compatibility.risk_on_trend.treas_long",
+      "regime_compatibility.risk_on_trend.vol",
+      "regime_fusion.entropy_size_multiplier",
+      "regime_fusion.entropy_throttle_increment",
+      "regime_fusion.final_position_size_clip_max",
+      "regime_fusion.final_position_size_clip_min",
+      "regime_fusion.final_risk_throttle_clip_max",
+      "regime_fusion.final_risk_throttle_clip_min",
+      "regime_fusion.fragility_position_cap",
+      "regime_fusion.fragility_threshold",
+      "regime_fusion.fragility_throttle_increment",
+      "regime_fusion.macro_downgrade_threshold",
+      "regime_fusion.macro_upgrade_threshold",
+      "regime_fusion.panic_position_size",
+      "regime_fusion.panic_prob_threshold",
+      "regime_fusion.panic_risk_throttle",
+      "regime_fusion.throttle_to_exposure_scale",
+      "regime_fusion.unstable_calm_panic_threshold",
+      "regime_fusion.unstable_position_size",
+      "regime_fusion.unstable_risk_throttle",
+      "transaction_costs.asset_class_default_bps.bond",
+      "transaction_costs.asset_class_default_bps.commodity",
+      "transaction_costs.asset_class_default_bps.equity",
+      "transaction_costs.asset_class_default_bps.fx",
+      "transaction_costs.asset_class_default_bps.vol",
+      "transaction_costs.slippage_range_bps",
+      "transaction_costs.spread_bps.aggregate",
+      "transaction_costs.spread_bps.broad",
+      "transaction_costs.spread_bps.broad_commodities",
+      "transaction_costs.spread_bps.country_brazil",
+      "transaction_costs.spread_bps.country_china",
+      "transaction_costs.spread_bps.country_india",
+      "transaction_costs.spread_bps.country_japan",
+      "transaction_costs.spread_bps.credit_high_yield",
+      "transaction_costs.spread_bps.credit_investment_grade",
+      "transaction_costs.spread_bps.eur",
+      "transaction_costs.spread_bps.factor_dividend",
+      "transaction_costs.spread_bps.factor_dividend_growth",
+      "transaction_costs.spread_bps.factor_minvol",
+      "transaction_costs.spread_bps.factor_momentum",
+      "transaction_costs.spread_bps.factor_quality",
+      "transaction_costs.spread_bps.factor_value",
+      "transaction_costs.spread_bps.global",
+      "transaction_costs.spread_bps.gold",
+      "transaction_costs.spread_bps.industry_aerospace_defense",
+      "transaction_costs.spread_bps.industry_biotech",
+      "transaction_costs.spread_bps.industry_regional_banks",
+      "transaction_costs.spread_bps.industry_retail",
+      "transaction_costs.spread_bps.industry_semis",
+      "transaction_costs.spread_bps.industry_transport",
+      "transaction_costs.spread_bps.international_dev",
+      "transaction_costs.spread_bps.international_em",
+      "transaction_costs.spread_bps.muni",
+      "transaction_costs.spread_bps.natural_gas",
+      "transaction_costs.spread_bps.oil",
+      "transaction_costs.spread_bps.region_europe",
+      "transaction_costs.spread_bps.sector_comm",
+      "transaction_costs.spread_bps.sector_cons_disc",
+      "transaction_costs.spread_bps.sector_cons_staples",
+      "transaction_costs.spread_bps.sector_energy",
+      "transaction_costs.spread_bps.sector_financials",
+      "transaction_costs.spread_bps.sector_healthcare",
+      "transaction_costs.spread_bps.sector_industrials",
+      "transaction_costs.spread_bps.sector_materials",
+      "transaction_costs.spread_bps.sector_reit",
+      "transaction_costs.spread_bps.sector_tech",
+      "transaction_costs.spread_bps.sector_utilities",
+      "transaction_costs.spread_bps.silver",
+      "transaction_costs.spread_bps.style_growth",
+      "transaction_costs.spread_bps.style_value",
+      "transaction_costs.spread_bps.theme_innovation",
+      "transaction_costs.spread_bps.treas_intermediate",
+      "transaction_costs.spread_bps.treas_long",
+      "transaction_costs.spread_bps.treas_short",
+      "transaction_costs.spread_bps.treas_tips",
+      "transaction_costs.spread_bps.usd",
+      "transaction_costs.spread_bps.volatility",
+      "vol_uncertainty.dynamic_history_min_obs",
+      "vol_uncertainty.regime_thresholds.panic.vix_pctile",
+      "vol_uncertainty.regime_thresholds.panic.vvix_pctile",
+      "vol_uncertainty.regime_thresholds.unstable.vix_pctile_max",
+      "vol_uncertainty.regime_thresholds.unstable.vvix_pctile",
+      "vol_uncertainty.skew_thresholds.p20",
+      "vol_uncertainty.skew_thresholds.p50",
+      "vol_uncertainty.skew_thresholds.p80",
+      "vol_uncertainty.skew_thresholds.p95",
+      "vol_uncertainty.vix_thresholds.p20",
+      "vol_uncertainty.vix_thresholds.p50",
+      "vol_uncertainty.vix_thresholds.p80",
+      "vol_uncertainty.vix_thresholds.p95",
+      "vol_uncertainty.vvix_thresholds.p20",
+      "vol_uncertainty.vvix_thresholds.p50",
+      "vol_uncertainty.vvix_thresholds.p80",
+      "vol_uncertainty.vvix_thresholds.p95"
+    ],
+    "param_diffs": [
+      {
+        "name": "decision_engine.position_size.regime_adj.high_vol_panic",
+        "from": 0.5,
+        "to": 0.7102712826765486
+      },
+      {
+        "name": "decision_engine.position_size.regime_adj.risk_off_trend",
+        "from": 0.8,
+        "to": 0.7014053620003776
+      },
+      {
+        "name": "decision_engine.position_size.vol_adj.med",
+        "from": 1.0,
+        "to": 1.3303881088501333
+      },
+      {
+        "name": "decision_engine.watchlist.min_target_count",
+        "from": 8,
+        "to": 14
+      },
+      {
+        "name": "decision_params.buy_score_threshold",
+        "from": 0.65,
+        "to": 0.8112376012062714
+      },
+      {
+        "name": "decision_params.initial_portfolio_value",
+        "from": 100000,
+        "to": 419110
+      },
+      {
+        "name": "decision_params.leveraged_constraints.max_hold_days",
+        "from": 10,
+        "to": 5
+      },
+      {
+        "name": "decision_params.max_positions",
+        "from": 8,
+        "to": 15
+      },
+      {
+        "name": "decision_params.min_health_buy",
+        "from": 0.6,
+        "to": 0.6299217934655816
+      },
+      {
+        "name": "decision_params.sell_health_threshold",
+        "from": 0.35,
+        "to": 0.2535039779617272
+      },
+      {
+        "name": "decision_params.trailing_stop_leveraged",
+        "from": 0.06,
+        "to": 0.23919897344194707
+      },
+      {
+        "name": "ensemble.disagreement_threshold",
+        "from": 0.3,
+        "to": 0.16417696672524235
+      },
+      {
+        "name": "ensemble.gru_weight",
+        "from": 0.5,
+        "to": 0.6566236980156481
+      },
+      {
+        "name": "ensemble.multiplier.base_floor",
+        "from": 0.5,
+        "to": 0.43306213547360073
+      },
+      {
+        "name": "ensemble.multiplier.base_span",
+        "from": 0.5,
+        "to": 0.6587695956473698
+      },
+      {
+        "name": "ensemble.multiplier.clip_min",
+        "from": 0.5,
+        "to": 0.6091259974413872
+      },
+      {
+        "name": "entropy_shift.num_bins",
+        "from": 20,
+        "to": 115
+      },
+      {
+        "name": "fragility.AVG_CORR_STD",
+        "from": 0.15,
+        "to": 1.8306578211522346
+      },
+      {
+        "name": "fragility.MIN_SYMBOLS",
+        "from": 6,
+        "to": 35
+      },
+      {
+        "name": "macro_credit.HY_SPREAD_MEAN",
+        "from": 0.0,
+        "to": 1.565021636210746
+      },
+      {
+        "name": "macro_credit.HY_SPREAD_STD",
+        "from": 0.02,
+        "to": -1.3030730351701076
+      },
+      {
+        "name": "macro_credit.SLOPE_MEAN",
+        "from": 1.5,
+        "to": 0.19380602216845233
+      },
+      {
+        "name": "macro_credit.hy_spread_weight",
+        "from": 0.4,
+        "to": 0.2769301725740865
+      },
+      {
+        "name": "regime_compatibility.calm_uptrend.bond",
+        "from": 0.95,
+        "to": 1.2967150337861038
+      },
+      {
+        "name": "regime_compatibility.calm_uptrend.credit_high_yield",
+        "from": 1.0,
+        "to": 0.7295188125896509
+      },
+      {
+        "name": "regime_compatibility.calm_uptrend.equity",
+        "from": 1.1,
+        "to": 0.8866836952609142
+      },
+      {
+        "name": "regime_compatibility.calm_uptrend.sector_energy",
+        "from": 1.05,
+        "to": 1.3534891746331001
+      },
+      {
+        "name": "regime_compatibility.calm_uptrend.sector_reit",
+        "from": 1.0,
+        "to": 1.3649556470584305
+      },
+      {
+        "name": "regime_compatibility.choppy.bond",
+        "from": 1.05,
+        "to": 1.1652315703852039
+      },
+      {
+        "name": "regime_compatibility.choppy.equity",
+        "from": 0.95,
+        "to": 0.792431306534232
+      },
+      {
+        "name": "regime_compatibility.choppy.fx",
+        "from": 1.0,
+        "to": 0.6810048808463798
+      },
+      {
+        "name": "regime_compatibility.choppy.sector_comm",
+        "from": 0.95,
+        "to": 0.708020433412198
+      },
+      {
+        "name": "regime_compatibility.choppy.sector_cons_staples",
+        "from": 1.05,
+        "to": 1.3730416799078786
+      },
+      {
+        "name": "regime_compatibility.choppy.sector_energy",
+        "from": 0.95,
+        "to": 0.8934445034982501
+      },
+      {
+        "name": "regime_compatibility.choppy.sector_financials",
+        "from": 0.95,
+        "to": 0.6483445779014338
+      },
+      {
+        "name": "regime_compatibility.choppy.sector_industrials",
+        "from": 0.95,
+        "to": 0.9115170820925291
+      },
+      {
+        "name": "regime_compatibility.choppy.sector_tech",
+        "from": 0.95,
+        "to": 1.1186050694078888
+      },
+      {
+        "name": "regime_compatibility.choppy.treas_long",
+        "from": 1.05,
+        "to": 1.3270553582405902
+      },
+      {
+        "name": "regime_compatibility.choppy.vol",
+        "from": 1.0,
+        "to": 0.8066386842557581
+      },
+      {
+        "name": "regime_compatibility.high_vol_panic.commodity",
+        "from": 1.1,
+        "to": 1.093109068742108
+      },
+      {
+        "name": "regime_compatibility.high_vol_panic.equity",
+        "from": 0.5,
+        "to": 0.5633094363406796
+      },
+      {
+        "name": "regime_compatibility.high_vol_panic.fx",
+        "from": 0.9,
+        "to": 1.575135430195087
+      },
+      {
+        "name": "regime_compatibility.high_vol_panic.sector_comm",
+        "from": 0.5,
+        "to": 0.3189605455935386
+      },
+      {
+        "name": "regime_compatibility.high_vol_panic.sector_cons_disc",
+        "from": 0.45,
+        "to": 0.08324243462516445
+      },
+      {
+        "name": "regime_compatibility.high_vol_panic.sector_cons_staples",
+        "from": 0.9,
+        "to": 0.5346863588119338
+      },
+      {
+        "name": "regime_compatibility.high_vol_panic.sector_healthcare",
+        "from": 0.7,
+        "to": 0.2269716106776204
+      },
+      {
+        "name": "regime_compatibility.high_vol_panic.sector_tech",
+        "from": 0.4,
+        "to": 0.4119062960016748
+      },
+      {
+        "name": "regime_compatibility.high_vol_panic.vol",
+        "from": 1.3,
+        "to": 1.6309147954183163
+      },
+      {
+        "name": "regime_compatibility.risk_off_trend.commodity",
+        "from": 0.95,
+        "to": 1.331557059212746
+      },
+      {
+        "name": "regime_compatibility.risk_off_trend.equity",
+        "from": 0.85,
+        "to": 0.673190836597088
+      },
+      {
+        "name": "regime_compatibility.risk_off_trend.sector_healthcare",
+        "from": 1.05,
+        "to": 0.390684263915744
+      },
+      {
+        "name": "regime_compatibility.risk_off_trend.sector_materials",
+        "from": 0.85,
+        "to": 1.0119768008328527
+      },
+      {
+        "name": "regime_compatibility.risk_off_trend.sector_reit",
+        "from": 0.9,
+        "to": 1.099087364478065
+      },
+      {
+        "name": "regime_compatibility.risk_off_trend.treas_long",
+        "from": 1.15,
+        "to": 0.9245751454821433
+      },
+      {
+        "name": "regime_compatibility.risk_on_trend.fx",
+        "from": 1.0,
+        "to": 0.982085911838129
+      },
+      {
+        "name": "regime_compatibility.risk_on_trend.sector_comm",
+        "from": 1.05,
+        "to": 0.7034024947426218
+      },
+      {
+        "name": "regime_compatibility.risk_on_trend.sector_cons_disc",
+        "from": 1.1,
+        "to": 1.1099917538645405
+      },
+      {
+        "name": "regime_compatibility.risk_on_trend.sector_cons_staples",
+        "from": 0.95,
+        "to": 0.6938890966067232
+      },
+      {
+        "name": "regime_compatibility.risk_on_trend.sector_industrials",
+        "from": 1.05,
+        "to": 1.0610327814943354
+      },
+      {
+        "name": "regime_compatibility.risk_on_trend.sector_materials",
+        "from": 1.05,
+        "to": 1.021178940769595
+      },
+      {
+        "name": "regime_compatibility.risk_on_trend.vol",
+        "from": 0.9,
+        "to": 0.5044543012122208
+      },
+      {
+        "name": "regime_fusion.entropy_throttle_increment",
+        "from": 0.15,
+        "to": 0.07182815181644243
+      },
+      {
+        "name": "regime_fusion.final_position_size_clip_max",
+        "from": 1.0,
+        "to": 0.9220674307797541
+      },
+      {
+        "name": "regime_fusion.fragility_threshold",
+        "from": 0.75,
+        "to": 0.5557504692220997
+      },
+      {
+        "name": "regime_fusion.fragility_throttle_increment",
+        "from": 0.2,
+        "to": 0.21961295100035733
+      },
+      {
+        "name": "regime_fusion.macro_upgrade_threshold",
+        "from": 0.5,
+        "to": 0.10951343036164854
+      },
+      {
+        "name": "regime_fusion.panic_position_size",
+        "from": 0.25,
+        "to": 0.3093507542504373
+      },
+      {
+        "name": "regime_fusion.panic_prob_threshold",
+        "from": 0.7,
+        "to": 0.5825121780174181
+      },
+      {
+        "name": "regime_fusion.throttle_to_exposure_scale",
+        "from": 0.5,
+        "to": 0.3837496100134487
+      },
+      {
+        "name": "regime_fusion.unstable_calm_panic_threshold",
+        "from": 0.3,
+        "to": 0.2011867655499211
+      },
+      {
+        "name": "regime_fusion.unstable_position_size",
+        "from": 0.5,
+        "to": 0.5396181718646179
+      },
+      {
+        "name": "regime_fusion.unstable_risk_throttle",
+        "from": 0.7,
+        "to": 0.5690149038814771
+      },
+      {
+        "name": "transaction_costs.asset_class_default_bps.commodity",
+        "from": 4.0,
+        "to": 8.480880173463216
+      },
+      {
+        "name": "transaction_costs.spread_bps.broad_commodities",
+        "from": 4.0,
+        "to": 0.0
+      },
+      {
+        "name": "transaction_costs.spread_bps.country_china",
+        "from": 6.0,
+        "to": 4.465050112736597
+      },
+      {
+        "name": "transaction_costs.spread_bps.credit_high_yield",
+        "from": 3.0,
+        "to": 2.844171233021428
+      },
+      {
+        "name": "transaction_costs.spread_bps.credit_investment_grade",
+        "from": 2.5,
+        "to": 0.0
+      },
+      {
+        "name": "transaction_costs.spread_bps.factor_dividend_growth",
+        "from": 3.0,
+        "to": 4.641730898439999
+      },
+      {
+        "name": "transaction_costs.spread_bps.factor_momentum",
+        "from": 3.0,
+        "to": 0.4372734364161297
+      },
+      {
+        "name": "transaction_costs.spread_bps.factor_quality",
+        "from": 3.0,
+        "to": 2.0084984949671814
+      },
+      {
+        "name": "transaction_costs.spread_bps.industry_biotech",
+        "from": 4.0,
+        "to": 7.492138045926037
+      },
+      {
+        "name": "transaction_costs.spread_bps.industry_regional_banks",
+        "from": 5.0,
+        "to": 7.019346174554065
+      },
+      {
+        "name": "transaction_costs.spread_bps.industry_retail",
+        "from": 5.0,
+        "to": 3.9771367735719054
+      },
+      {
+        "name": "transaction_costs.spread_bps.industry_semis",
+        "from": 2.5,
+        "to": 0.0
+      },
+      {
+        "name": "transaction_costs.spread_bps.industry_transport",
+        "from": 4.0,
+        "to": 3.7433956494566365
+      },
+      {
+        "name": "transaction_costs.spread_bps.international_dev",
+        "from": 3.0,
+        "to": 0.0
+      },
+      {
+        "name": "transaction_costs.spread_bps.oil",
+        "from": 4.0,
+        "to": 1.3469713303645983
+      },
+      {
+        "name": "transaction_costs.spread_bps.region_europe",
+        "from": 4.0,
+        "to": 8.225483993888133
+      },
+      {
+        "name": "transaction_costs.spread_bps.sector_comm",
+        "from": 3.0,
+        "to": 4.106443721080729
+      },
+      {
+        "name": "transaction_costs.spread_bps.sector_industrials",
+        "from": 3.0,
+        "to": 9.08971588484939
+      },
+      {
+        "name": "transaction_costs.spread_bps.sector_reit",
+        "from": 3.0,
+        "to": 2.255343518685713
+      },
+      {
+        "name": "transaction_costs.spread_bps.sector_tech",
+        "from": 2.0,
+        "to": 6.339118724177656
+      },
+      {
+        "name": "transaction_costs.spread_bps.style_growth",
+        "from": 2.5,
+        "to": 3.8254636040800456
+      },
+      {
+        "name": "transaction_costs.spread_bps.style_value",
+        "from": 2.5,
+        "to": 0.0
+      },
+      {
+        "name": "transaction_costs.spread_bps.treas_short",
+        "from": 1.0,
+        "to": 2.7099896656021096
+      },
+      {
+        "name": "transaction_costs.spread_bps.treas_tips",
+        "from": 2.5,
+        "to": 0.8257406024922331
+      },
+      {
+        "name": "transaction_costs.spread_bps.usd",
+        "from": 3.0,
+        "to": 5.933367246664654
+      },
+      {
+        "name": "vol_uncertainty.regime_thresholds.panic.vix_pctile",
+        "from": 0.8,
+        "to": 2.7647263547046594
+      },
+      {
+        "name": "vol_uncertainty.skew_thresholds.p95",
+        "from": 150.0,
+        "to": 184.01129114582886
+      },
+      {
+        "name": "vol_uncertainty.vix_thresholds.p50",
+        "from": 17.0,
+        "to": 0.0
+      },
+      {
+        "name": "vol_uncertainty.vix_thresholds.p80",
+        "from": 25.0,
+        "to": 34.47062220256268
+      },
+      {
+        "name": "vol_uncertainty.vvix_thresholds.p50",
+        "from": 85.0,
+        "to": 115.09707849334512
+      },
+      {
+        "name": "vol_uncertainty.vvix_thresholds.p95",
+        "from": 120.0,
+        "to": 145.95181398296336
+      }
+    ]
+  },
+  "generation_log": [
+    {
+      "generation": 1,
+      "best_objective": 0.2756902611371368,
+      "median_objective": 0.17029172224524197,
+      "worst_objective": 0.17029172224524197,
+      "diversity": 1.0,
+      "best_candidate_id": "b82b4baa5f69b723"
+    },
+    {
+      "generation": 2,
+      "best_objective": 0.2756902611371368,
+      "median_objective": 0.23028194561124965,
+      "worst_objective": 0.11715209937434831,
+      "diversity": 1.0,
+      "best_candidate_id": "b82b4baa5f69b723"
+    },
+    {
+      "generation": 3,
+      "best_objective": 0.2773428699342651,
+      "median_objective": 0.2696794485867473,
+      "worst_objective": 0.17029172224524197,
+      "diversity": 1.0,
+      "best_candidate_id": "f082226835054375"
+    }
+  ],
+  "run_log_path": "/Users/drbretto/Desktop/Projects/trader-bot/runs/optimizer/run-20260222T083004Z-seed20260217-g3-p8/run.log"
+}

@@ -1,0 +1,41 @@
+{
+  "folds": [
+    {
+      "fold_id": 1,
+      "train_dates": [
+        "2026-02-07",
+        "2026-02-10"
+      ],
+      "test_dates": [
+        "2026-02-11"
+      ],
+      "train_start": "2026-02-07",
+      "train_end": "2026-02-10",
+      "test_start": "2026-02-11",
+      "test_end": "2026-02-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 2,
+      "train_dates": [
+        "2026-02-10",
+        "2026-02-11"
+      ],
+      "test_dates": [
+        "2026-02-12"
+      ],
+      "train_start": "2026-02-10",
+      "train_end": "2026-02-11",
+      "test_start": "2026-02-12",
+      "test_end": "2026-02-12",
+      "test_days": 1,
+      "complete_dates": 1
+    }
+  ],
+  "gate_segment": {
+    "start": "2026-02-13",
+    "end": "2026-02-13",
+    "days": 1
+  }
+}
