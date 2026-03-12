@@ -6,7 +6,7 @@ Build a fully autonomous daily investment decision system that:
 
 - Ingests market data from free APIs (Stooq, FRED, GDELT)
 - Generates buy/sell signals using AI models + qualitative risk assessment
-- Executes paper trades with full transparency
+- Executes trades with full transparency (simulated by default; broker mode optional)
 - Displays performance in an impressive React dashboard
 - Runs completely hands-off with monthly model retraining
 - Expands into a multi-expert market intelligence engine (see `docs/PHASE3_PROPOSAL.md`)
@@ -14,7 +14,7 @@ Build a fully autonomous daily investment decision system that:
 ## Constraints
 
 - Daily resolution only (no intraday)
-- Paper trading only (no real money)
+- Simulated trading by default; broker-connected execution is opt-in
 - AWS cost < $20/month
 - Local training (MacBook, monthly, automated)
 - Prefer free/cheap data sources; paid sources require explicit approval

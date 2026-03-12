@@ -7,6 +7,7 @@ Supports three execution modes:
 """
 
 import logging
+import hashlib
 import pandas as pd
 from datetime import datetime
 from typing import Dict, Any, List, Tuple, Optional
@@ -181,19 +182,22 @@ def _execute_via_broker(
 
     Returns a trade record dict compatible with paper_trader records.
     """
-    from src.brokers.alpaca import AlpacaBroker
-
     symbol = intent['symbol']
     action_type = intent['action']
     side = 'buy' if action_type == 'BUY' else 'sell'
 
-    client_order_id = AlpacaBroker.make_client_order_id(symbol, side, run_date)
+    # Include action_type so SELL and REDUCE on the same symbol/day never collide.
+    raw_id = f"{run_date}|{symbol}|{action_type}|{side}"
+    client_order_id = f"tb-{hashlib.sha256(raw_id.encode()).hexdigest()[:16]}"
 
     order_result: Dict[str, Any]
+    submitted_qty: float = 0.0
+    submitted_notional: float = 0.0
     if action_type == 'BUY':
         target_dollars = intent.get(
             'dollars', intent.get('shares', 0) * intent.get('price', 0)
         )
+        submitted_notional = float(target_dollars or 0)
         order_result = broker.submit_order(
             symbol=symbol,
             side='buy',
@@ -202,27 +206,45 @@ def _execute_via_broker(
         )
     else:
         # SELL / REDUCE: use qty from holding
-        qty = intent.get('shares', 0)
+        qty = float(intent.get('shares', 0) or 0)
         if action_type == 'REDUCE':
-            qty = max(1, qty // 2)  # reduce by half, at least 1 share
-        if isinstance(qty, float) and qty == int(qty):
-            qty = int(qty)
+            qty *= 0.5
+        qty = round(qty, 6)
+        if qty <= 0:
+            raise ValueError(
+                f"Computed non-positive sell qty for {action_type} {symbol}: {qty}"
+            )
+        submitted_qty = qty
         order_result = broker.submit_order(
             symbol=symbol,
             side='sell',
-            qty=float(qty) if qty else None,
+            qty=qty,
             client_order_id=client_order_id,
         )
+
+    try:
+        executed_shares = float(order_result.get('qty')) if order_result.get('qty') is not None else 0.0
+    except (TypeError, ValueError):
+        executed_shares = 0.0
+    if executed_shares <= 0:
+        executed_shares = submitted_qty if submitted_qty > 0 else float(intent.get('shares', 0) or 0)
+
+    try:
+        executed_notional = float(order_result.get('notional')) if order_result.get('notional') is not None else 0.0
+    except (TypeError, ValueError):
+        executed_notional = 0.0
+    if executed_notional <= 0:
+        executed_notional = submitted_notional if submitted_notional > 0 else float(intent.get('dollars', 0) or 0)
 
     # Build trade record compatible with paper_trader format
     return {
         'timestamp': datetime.now().isoformat(),
         'symbol': symbol,
         'action': action_type,
-        'shares': intent.get('shares', 0),
+        'shares': executed_shares,
         'price': morning_price,
         'market_price': morning_price,
-        'dollars': intent.get('dollars', 0),
+        'dollars': round(executed_notional, 2),
         'reason': intent.get('reason', ''),
         'regime': intent.get('regime', ''),
         'broker_order_id': order_result.get('order_id'),
@@ -550,9 +572,13 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
                     f"@ ${morning_price:.2f}: {msg}"
                 )
 
-    # Post-execution: reconcile or update valuations
-    if use_broker and trades:
-        portfolio = _reconcile_portfolio_from_broker(broker, portfolio)
+    # Post-execution: reconcile broker truth when broker mode is active.
+    if use_broker:
+        reconciled = _reconcile_portfolio_from_broker(broker, portfolio)
+        if reconciled.get('broker_reconciled'):
+            portfolio = reconciled
+        else:
+            portfolio = _update_valuations_from_quotes(portfolio, morning_quotes)
     else:
         portfolio = _update_valuations_from_quotes(portfolio, morning_quotes)
 

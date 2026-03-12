@@ -1,6 +1,6 @@
 # Investment System
 
-Autonomous daily paper trading system with ML-powered market regime detection and asset health scoring.
+Autonomous daily trading system with ML-powered market regime detection and asset health scoring.
 
 ## Features
 
@@ -9,7 +9,7 @@ Autonomous daily paper trading system with ML-powered market regime detection an
 - **LLM Integration** - GPT-4 risk assessment and market weather reports
 - **React Dashboard** - Portfolio metrics, charts, and market analysis
 - **Evolutionary Optimization** - Genetic algorithm for policy parameter tuning
-- **Paper Trading** - Full portfolio simulation with realistic constraints
+- **Execution Modes** - Simulated trading (default) plus optional Alpaca paper/live broker routing
 
 ## Architecture
 
@@ -30,7 +30,7 @@ Dashboard:
 
 - Python 3.11+
 - AWS CLI configured
-- API keys: OpenAI, FRED (free tiers available)
+- API keys: OpenAI, FRED (free tiers available), optional Alpaca keys for broker mode
 
 ### Local Development
 
@@ -118,7 +118,7 @@ pytest tests/test_evolution.py -v       # Evolution tests (28)
 pytest tests/test_baseline_models.py -v # Baseline tests
 ```
 
-Current: **122 tests** (109 passing, 3 pre-existing threshold mismatches in test_baseline_models.py)
+Current test count changes over time; run `pytest tests/ -v` for the latest totals.
 
 ## Configuration
 
@@ -137,6 +137,10 @@ Stored in Secrets Manager:
 - `investment-system/openai-key`
 - `investment-system/fred-key`
 - `investment-system/alphavantage-key`
+- `investment-system/alpaca-paper-key-id` (optional)
+- `investment-system/alpaca-paper-secret-key` (optional)
+- `investment-system/alpaca-live-key-id` (optional)
+- `investment-system/alpaca-live-secret-key` (optional)
 
 ## Cost Estimate
 

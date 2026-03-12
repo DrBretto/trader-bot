@@ -19,7 +19,7 @@ The system runs automatically at 10 PM ET on weeknights via AWS EventBridge.
 3. **Inference** - Runs regime classification and health scoring models
 4. **LLM Risk** - GPT-4 reviews top candidates for qualitative risks
 5. **Decisions** - Generates buy/sell signals based on scores and regime
-6. **Trading** - Executes paper trades, updates portfolio state
+6. **Trading** - Executes simulated or broker-routed trades, updates portfolio state
 7. **Weather** - Generates market weather report
 8. **Publish** - Uploads all artifacts to S3
 
@@ -242,23 +242,27 @@ Common issues:
 
 ### Portfolio State
 
-Portfolio state is stored in:
-- `s3://bucket/portfolio/current_state.json`
-- `s3://bucket/portfolio/trades_history.jsonl`
+Portfolio state is stored per run date under `daily/<date>/`:
+- `s3://bucket/daily/latest.json` (pointer to the most recent run)
+- `s3://bucket/daily/<date>/portfolio_state.json`
+- `s3://bucket/daily/<date>/trades.jsonl`
+- `s3://bucket/daily/<date>/morning_execution.json` (morning phase report, when applicable)
 
 To restore from backup:
 ```bash
-aws s3 cp s3://investment-system-data/portfolio/current_state.json /tmp/
-# Edit if needed
-aws s3 cp /tmp/current_state.json s3://investment-system-data/portfolio/current_state.json
+LATEST_DATE=$(aws s3 cp s3://investment-system-data/daily/latest.json - | jq -r .date)
+aws s3 cp "s3://investment-system-data/daily/${LATEST_DATE}/portfolio_state.json" /tmp/portfolio_state.json
+# Edit if needed, then upload to a date-specific key:
+aws s3 cp /tmp/portfolio_state.json "s3://investment-system-data/daily/${LATEST_DATE}/portfolio_state.json"
 ```
 
 ### Config Files
 
 Config stored in:
 - `s3://bucket/config/universe.csv`
-- `s3://bucket/config/decision_params.json`
-- `s3://bucket/config/regime_compatibility.json`
+- `s3://bucket/config/decision_params.active.json` (canonical live bundle)
+- `s3://bucket/config/decision_params.json` (legacy/reference)
+- `s3://bucket/config/regime_compatibility.json` (legacy/reference)
 
 ---
 
@@ -278,8 +282,9 @@ aws s3 cp s3://investment-system-data/daily/latest.json - | jq .regime
 aws s3 cp s3://investment-system-data/daily/$(date +%Y-%m-%d)/weather_blurb.json - | jq
 
 # Check current holdings
-aws s3 cp s3://investment-system-data/portfolio/current_state.json - | jq .holdings
+LATEST_DATE=$(aws s3 cp s3://investment-system-data/daily/latest.json - | jq -r .date)
+aws s3 cp "s3://investment-system-data/daily/${LATEST_DATE}/portfolio_state.json" - | jq .holdings
 
 # View recent trades
-aws s3 cp s3://investment-system-data/portfolio/trades_history.jsonl - | tail -5
+aws s3 cp "s3://investment-system-data/daily/${LATEST_DATE}/trades.jsonl" - | tail -5
 ```
