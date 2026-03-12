@@ -33,6 +33,7 @@ from src.steps import (
 from src.signals.compute_signals import run as compute_signals
 from src.utils.s3_client import S3Client
 from src.utils.logging_utils import setup_logger, log_step, StepTimer
+from src.brokers.router import get_broker, resolve_broker_mode, BrokerMode
 from src.utils.sns_alerts import (
     send_alert, format_night_summary, format_morning_summary, format_error_alert
 )
@@ -384,9 +385,25 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
         with StepTimer("Load configuration", logger):
             config = load_config_from_s3(s3_client)
 
+        # Set up broker adapter
+        with StepTimer("Broker setup", logger):
+            broker_mode = resolve_broker_mode(config)
+            alpaca_key_id = ''
+            alpaca_secret_key = ''
+            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
+                prefix = 'paper' if broker_mode == BrokerMode.ALPACA_PAPER else 'live'
+                alpaca_key_id = get_secret(
+                    f'investment-system/alpaca-{prefix}-key-id', region
+                )
+                alpaca_secret_key = get_secret(
+                    f'investment-system/alpaca-{prefix}-secret-key', region
+                )
+            broker = get_broker(config, alpaca_key_id, alpaca_secret_key)
+            logger.info("Broker mode: %s", broker.mode_label)
+
         # Execute morning phase
         with StepTimer("Morning execution", logger):
-            result = morning_executor.run(bucket, config)
+            result = morning_executor.run(bucket, config, broker=broker)
 
         portfolio_state = result['portfolio_state']
         trades = result['trades']

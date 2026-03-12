@@ -1,11 +1,22 @@
-"""Morning execution phase: validate overnight trade intents and execute at market prices."""
+"""Morning execution phase: validate overnight trade intents and execute at market prices.
 
+Supports three execution modes:
+- simulated (default): existing paper_trader logic
+- alpaca_paper: Alpaca paper trading via broker adapter
+- alpaca_live: Alpaca live trading via broker adapter
+"""
+
+import logging
 import pandas as pd
 from datetime import datetime
 from typing import Dict, Any, List, Tuple, Optional
 
+from src.brokers.base import BaseBroker
+from src.brokers.router import SimulatedBroker
 from src.steps import ingest_prices, paper_trader
 from src.utils.s3_client import S3Client
+
+logger = logging.getLogger(__name__)
 
 
 # Maximum age for trade intents (calendar days).
@@ -160,13 +171,135 @@ def _update_valuations_from_quotes(
     return portfolio
 
 
-def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
+def _execute_via_broker(
+    broker: BaseBroker,
+    intent: Dict[str, Any],
+    morning_price: float,
+    run_date: str,
+) -> Dict[str, Any]:
+    """Execute a single trade via the broker adapter.
+
+    Returns a trade record dict compatible with paper_trader records.
+    """
+    from src.brokers.alpaca import AlpacaBroker
+
+    symbol = intent['symbol']
+    action_type = intent['action']
+    side = 'buy' if action_type == 'BUY' else 'sell'
+
+    client_order_id = AlpacaBroker.make_client_order_id(symbol, side, run_date)
+
+    order_result: Dict[str, Any]
+    if action_type == 'BUY':
+        target_dollars = intent.get(
+            'dollars', intent.get('shares', 0) * intent.get('price', 0)
+        )
+        order_result = broker.submit_order(
+            symbol=symbol,
+            side='buy',
+            dollars=target_dollars,
+            client_order_id=client_order_id,
+        )
+    else:
+        # SELL / REDUCE: use qty from holding
+        qty = intent.get('shares', 0)
+        if action_type == 'REDUCE':
+            qty = max(1, qty // 2)  # reduce by half, at least 1 share
+        if isinstance(qty, float) and qty == int(qty):
+            qty = int(qty)
+        order_result = broker.submit_order(
+            symbol=symbol,
+            side='sell',
+            qty=float(qty) if qty else None,
+            client_order_id=client_order_id,
+        )
+
+    # Build trade record compatible with paper_trader format
+    return {
+        'timestamp': datetime.now().isoformat(),
+        'symbol': symbol,
+        'action': action_type,
+        'shares': intent.get('shares', 0),
+        'price': morning_price,
+        'market_price': morning_price,
+        'dollars': intent.get('dollars', 0),
+        'reason': intent.get('reason', ''),
+        'regime': intent.get('regime', ''),
+        'broker_order_id': order_result.get('order_id'),
+        'broker_client_order_id': order_result.get('client_order_id'),
+        'broker_status': order_result.get('status'),
+        'execution_mode': broker.mode_label,
+    }
+
+
+def _reconcile_portfolio_from_broker(
+    broker: BaseBroker,
+    portfolio: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Sync local portfolio state with broker positions and account."""
+    try:
+        acct = broker.check_account()
+        positions = broker.list_positions()
+    except Exception as exc:
+        logger.warning("Broker reconciliation failed: %s", exc)
+        return portfolio
+
+    # Update cash from broker
+    portfolio['cash'] = acct['cash']
+
+    # Rebuild holdings from broker positions
+    broker_holdings = []
+    holdings_value = 0.0
+    existing_map = {h['symbol']: h for h in portfolio.get('holdings', [])}
+
+    for pos in positions:
+        symbol = pos['symbol']
+        existing = existing_map.get(symbol, {})
+        holding = {
+            'symbol': symbol,
+            'shares': pos['qty'],
+            'entry_price': existing.get('entry_price', pos['avg_entry_price']),
+            'entry_date': existing.get('entry_date', datetime.now().isoformat()),
+            'peak_price': max(
+                existing.get('peak_price', 0), pos['current_price']
+            ),
+            'current_price': pos['current_price'],
+            'market_value': pos['market_value'],
+            'unrealized_pnl': pos['unrealized_pl'],
+            'entry_regime': existing.get('entry_regime', 'unknown'),
+            'entry_health': existing.get('entry_health', 0.5),
+            'peak_health': existing.get('peak_health', 0.5),
+            'asset_class': existing.get('asset_class', 'equity'),
+            'sector': existing.get('sector', 'broad'),
+            'leverage_flag': existing.get('leverage_flag', 0),
+        }
+        if holding['entry_price'] > 0:
+            holding['unrealized_pnl_pct'] = (
+                pos['current_price'] / holding['entry_price'] - 1
+            )
+        else:
+            holding['unrealized_pnl_pct'] = 0
+        broker_holdings.append(holding)
+        holdings_value += pos['market_value']
+
+    portfolio['holdings'] = broker_holdings
+    portfolio['holdings_value'] = holdings_value
+    portfolio['invested'] = holdings_value
+    portfolio['portfolio_value'] = acct['equity']
+    portfolio['last_updated'] = datetime.now().isoformat()
+    portfolio['broker_reconciled'] = True
+
+    return portfolio
+
+
+def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None) -> Dict[str, Any]:
     """
     Execute morning phase: validate intents, fetch prices, execute trades.
 
     Args:
         bucket: S3 bucket name
         config: Pipeline config (decision_params, portfolio_state, universe)
+        broker: Optional broker adapter. If None or SimulatedBroker, use paper_trader.
 
     Returns:
         Dict with portfolio_state, trades, validation_log, morning_prices,
@@ -261,6 +394,28 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
 
     regime_label = intents.get('regime', 'risk_on_trend')
     holding_map = {h['symbol']: h for h in portfolio.get('holdings', [])}
+    run_date = datetime.now().strftime('%Y-%m-%d')
+
+    # Determine execution mode
+    use_broker = broker is not None and not isinstance(broker, SimulatedBroker)
+
+    if use_broker:
+        # Pre-trade account health check
+        try:
+            acct = broker.check_account()
+            if not acct['tradable']:
+                validation_log.append(
+                    f"ABORT: broker account not tradable (status={acct['status']})"
+                )
+                use_broker = False
+            else:
+                validation_log.append(
+                    f"Broker account OK: ${acct['buying_power']:,.2f} buying power, "
+                    f"mode={broker.mode_label}"
+                )
+        except Exception as exc:
+            validation_log.append(f"ABORT broker: account check failed: {exc}")
+            use_broker = False
 
     # Process each intent
     trades: List[Dict[str, Any]] = []
@@ -278,43 +433,76 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
                 validation_log.append(f"SKIP BUY {symbol}: {msg}")
                 continue
 
-            # Recompute shares at morning price (same dollar amount)
+            # Recompute target dollars at morning price (same dollar amount as intent)
             target_dollars = intent.get('dollars', intent.get('shares', 0) * intent.get('price', 0))
-            shares = int(target_dollars / morning_price)
             min_order = params.get('min_order_dollars', 250)
-            if shares <= 0 or shares * morning_price < min_order:
-                validation_log.append(
-                    f"SKIP BUY {symbol}: {shares} shares @ ${morning_price:.2f} "
-                    f"below min order ${min_order}"
-                )
-                continue
 
-            # Check cash
-            if shares * morning_price > portfolio['cash']:
-                shares = int(portfolio['cash'] / morning_price)
-                if shares <= 0:
-                    validation_log.append(f"SKIP BUY {symbol}: insufficient cash")
+            if use_broker:
+                # Broker mode: use notional dollars directly (fractional support)
+                if target_dollars < min_order:
+                    validation_log.append(
+                        f"SKIP BUY {symbol}: ${target_dollars:.2f} "
+                        f"below min order ${min_order}"
+                    )
                     continue
 
-            adjusted_intent = {
-                **intent,
-                'price': morning_price,
-                'shares': shares,
-                'dollars': shares * morning_price
-            }
-            trade = paper_trader.execute_trade(
-                portfolio,
-                adjusted_intent,
-                regime_label,
-                universe_df,
-                transaction_cost_config=transaction_cost_config,
-            )
-            trades.append(trade)
-            gap_pct = (morning_price / intent['price'] - 1) * 100
-            validation_log.append(
-                f"BUY {shares} {symbol} @ ${morning_price:.2f} "
-                f"(intent: ${intent['price']:.2f}, gap: {gap_pct:+.1f}%)"
-            )
+                try:
+                    broker_intent = {
+                        **intent,
+                        'price': morning_price,
+                        'dollars': target_dollars,
+                    }
+                    trade = _execute_via_broker(
+                        broker, broker_intent, morning_price, run_date
+                    )
+                    trade['regime'] = regime_label
+                    trades.append(trade)
+                    gap_pct = (morning_price / intent['price'] - 1) * 100
+                    validation_log.append(
+                        f"BUY ${target_dollars:.2f} {symbol} @ ${morning_price:.2f} "
+                        f"(intent: ${intent['price']:.2f}, gap: {gap_pct:+.1f}%) "
+                        f"[{broker.mode_label}]"
+                    )
+                except Exception as exc:
+                    validation_log.append(
+                        f"FAIL BUY {symbol}: broker error: {exc}"
+                    )
+            else:
+                # Simulated mode: whole-share floor
+                shares = int(target_dollars / morning_price)
+                if shares <= 0 or shares * morning_price < min_order:
+                    validation_log.append(
+                        f"SKIP BUY {symbol}: {shares} shares @ ${morning_price:.2f} "
+                        f"below min order ${min_order}"
+                    )
+                    continue
+
+                # Check cash
+                if shares * morning_price > portfolio['cash']:
+                    shares = int(portfolio['cash'] / morning_price)
+                    if shares <= 0:
+                        validation_log.append(f"SKIP BUY {symbol}: insufficient cash")
+                        continue
+
+                adjusted_intent = {
+                    **intent,
+                    'price': morning_price,
+                    'shares': shares,
+                    'dollars': shares * morning_price
+                }
+                trade = paper_trader.execute_trade(
+                    portfolio,
+                    adjusted_intent,
+                    regime_label,
+                    universe_df,
+                    transaction_cost_config=transaction_cost_config,
+                )
+                trades.append(trade)
+                gap_pct = (morning_price / intent['price'] - 1) * 100
+                validation_log.append(
+                    f"BUY {shares} {symbol} @ ${morning_price:.2f} "
+                    f"(intent: ${intent['price']:.2f}, gap: {gap_pct:+.1f}%)"
+                )
 
         elif intent['action'] in ('SELL', 'REDUCE'):
             holding = holding_map.get(symbol)
@@ -327,22 +515,46 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
                 validation_log.append(f"CANCEL {intent['action']} {symbol}: {msg}")
                 continue
 
-            adjusted_intent = {**intent, 'price': morning_price}
-            trade = paper_trader.execute_trade(
-                portfolio,
-                adjusted_intent,
-                regime_label,
-                universe_df,
-                transaction_cost_config=transaction_cost_config,
-            )
-            trades.append(trade)
-            validation_log.append(
-                f"{intent['action']} {intent.get('shares', '?')} {symbol} "
-                f"@ ${morning_price:.2f}: {msg}"
-            )
+            if use_broker:
+                try:
+                    broker_intent = {
+                        **intent,
+                        'price': morning_price,
+                        'shares': holding.get('shares', intent.get('shares', 0)),
+                    }
+                    trade = _execute_via_broker(
+                        broker, broker_intent, morning_price, run_date
+                    )
+                    trade['regime'] = regime_label
+                    trades.append(trade)
+                    validation_log.append(
+                        f"{intent['action']} {symbol} @ ${morning_price:.2f}: "
+                        f"{msg} [{broker.mode_label}]"
+                    )
+                except Exception as exc:
+                    validation_log.append(
+                        f"FAIL {intent['action']} {symbol}: broker error: {exc}"
+                    )
+            else:
+                adjusted_intent = {**intent, 'price': morning_price}
+                trade = paper_trader.execute_trade(
+                    portfolio,
+                    adjusted_intent,
+                    regime_label,
+                    universe_df,
+                    transaction_cost_config=transaction_cost_config,
+                )
+                trades.append(trade)
+                validation_log.append(
+                    f"{intent['action']} {intent.get('shares', '?')} {symbol} "
+                    f"@ ${morning_price:.2f}: {msg}"
+                )
 
-    # Update portfolio valuations with morning prices
-    portfolio = _update_valuations_from_quotes(portfolio, morning_quotes)
+    # Post-execution: reconcile or update valuations
+    if use_broker and trades:
+        portfolio = _reconcile_portfolio_from_broker(broker, portfolio)
+    else:
+        portfolio = _update_valuations_from_quotes(portfolio, morning_quotes)
 
     # Compute stats
     try:
@@ -352,7 +564,8 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
 
     portfolio['trades_today'] = trades
 
-    print(f"Morning execution: {len(trades)} trades, "
+    execution_mode = broker.mode_label if use_broker else 'simulated'
+    print(f"Morning execution ({execution_mode}): {len(trades)} trades, "
           f"portfolio ${portfolio['portfolio_value']:,.2f}")
 
     return {
@@ -361,5 +574,6 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
         'morning_prices': morning_quotes,
         'validation_log': validation_log,
         'intents_found': True,
-        'intents_executed': len(trades)
+        'intents_executed': len(trades),
+        'execution_mode': execution_mode,
     }

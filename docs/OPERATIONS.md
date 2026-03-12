@@ -122,6 +122,62 @@ export INVESTMENT_ALERT_EMAIL="your@email.com"
 
 ---
 
+## Broker Execution Modes
+
+The system supports three execution modes, controlled by `BROKER_MODE` env var or `broker_mode` in config:
+
+| Mode | Description | Default |
+|------|-------------|---------|
+| `simulated` | Paper trading via `paper_trader` (no broker) | Yes |
+| `alpaca_paper` | Alpaca paper trading (fractional/notional) | No |
+| `alpaca_live` | Alpaca live trading (fractional/notional) | No |
+
+### Safety Controls
+
+- **Kill switch**: `BROKER_TRADING_ENABLED` must be explicitly set to `true` for non-simulated modes. Default is `false`.
+- **Max order cap**: Per-order notional cap (default $5,000). Set via `broker.max_order_notional` in config.
+- **Symbol allowlist**: Optional. Set via `broker.symbol_allowlist` in config.
+- **Idempotent orders**: Deterministic `client_order_id` prevents duplicate submissions.
+
+### Enabling Paper Mode
+
+```bash
+# Set env vars (for Lambda, use environment configuration)
+export BROKER_MODE=alpaca_paper
+export BROKER_TRADING_ENABLED=true
+
+# Ensure Alpaca paper secrets are in Secrets Manager:
+#   investment-system/alpaca-paper-key-id
+#   investment-system/alpaca-paper-secret-key
+
+# Smoke test first
+python scripts/alpaca_paper_smoke_test.py --account-check
+python scripts/alpaca_paper_smoke_test.py --place-order --close-after
+```
+
+### Rollback to Simulated Mode
+
+```bash
+# Option 1: Remove env var (defaults to simulated)
+unset BROKER_MODE
+
+# Option 2: Explicitly set
+export BROKER_MODE=simulated
+```
+
+### Live Mode (After Paper Validation)
+
+1. Complete paper trading validation for multiple sessions
+2. Set up live API keys in Secrets Manager
+3. Switch mode and enable:
+   ```bash
+   export BROKER_MODE=alpaca_live
+   export BROKER_TRADING_ENABLED=true
+   ```
+4. Start with very small `max_order_notional` and narrow `symbol_allowlist`
+
+---
+
 ## Troubleshooting
 
 ### Pipeline Didn't Run

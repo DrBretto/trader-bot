@@ -392,7 +392,8 @@ def compute_position_size(
             - Higher = more throttling applied to position
 
     Returns:
-        {'shares': int, 'dollars': float, 'final_weight': float}
+        {'shares': int|float, 'dollars': float, 'final_weight': float}
+        shares is int in simulated mode (backward compat), float otherwise.
     """
     target_weight = params.get('max_position_weight', 0.20)
     base_dollars = portfolio_value * target_weight
@@ -435,20 +436,29 @@ def compute_position_size(
                         * ensemble_adj
                         * expert_adj * throttle_adj)
 
-    # Shares
-    shares = int(adjusted_dollars / current_price) if current_price > 0 else 0
-
-    # Check minimum
+    # Check minimum (use adjusted_dollars before share conversion)
     min_order = params.get('min_order_dollars', 250)
-    if shares * current_price < min_order:
+    if adjusted_dollars < min_order:
         return {'shares': 0, 'dollars': 0, 'final_weight': 0.0}
 
-    actual_dollars = shares * current_price
+    # Shares — keep dollars as canonical; shares is derived
+    if current_price > 0:
+        shares = int(adjusted_dollars / current_price)
+    else:
+        shares = 0
+
+    # Re-check after int floor (a high-priced stock could round to 0)
+    actual_dollars = shares * current_price if shares > 0 else adjusted_dollars
+    if shares == 0 and current_price > 0:
+        # Whole-share floor dropped below min — record the dollar intent
+        # so broker-mode callers can still use notional ordering
+        actual_dollars = adjusted_dollars
+
     final_weight = actual_dollars / portfolio_value if portfolio_value > 0 else 0
 
     return {
         'shares': shares,
-        'dollars': actual_dollars,
+        'dollars': round(actual_dollars, 2),
         'final_weight': final_weight,
         'ensemble_multiplier': ensemble_multiplier
     }

@@ -289,9 +289,22 @@ Goal: decouple night analysis from morning trade execution for realistic P&L, an
 
 ---
 
+### Phase 8: Alpaca Broker Integration ✅ COMPLETE
+
+Goal: Add broker-connected execution (paper first, live later) with fractional/notional trading support.
+
+- [x] Broker abstraction layer (`src/brokers/`) with simulated, alpaca_paper, and alpaca_live modes
+- [x] Alpaca client adapter with notional buys, qty sells, account/position queries
+- [x] Safety rails: kill switch, per-order notional cap, symbol allowlist, idempotent order IDs
+- [x] Morning executor routes through broker adapter when enabled
+- [x] Post-execution portfolio reconciliation from broker positions
+- [x] Fractional-aware sizing (dollars as canonical, no whole-share floor for broker mode)
+- [x] Smoke test script (`scripts/alpaca_paper_smoke_test.py`)
+- [x] 40 new tests (broker router, Alpaca adapter, morning execution integration)
+- [x] Updated secrets setup, deployment docs, operations guide
+
 ## Non-Goals
 
-- Real money trading (paper only)
 - Intraday trading (daily resolution only)
 - Complex derivative strategies
 - Multi-account management
