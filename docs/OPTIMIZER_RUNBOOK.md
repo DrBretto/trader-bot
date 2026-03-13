@@ -31,7 +31,7 @@ Default schedule: **Sunday 03:30 local time**.
 Install:
 
 ```bash
-./scripts/install_optimizer_launchd.sh
+AWS_PROFILE=your-aws-profile ./scripts/install_optimizer_launchd.sh
 ```
 
 Uninstall:

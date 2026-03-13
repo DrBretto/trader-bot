@@ -10,6 +10,30 @@ from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
 from src.utils.transaction_costs import apply_transaction_costs
 
 
+TRANSIENT_ROLLOVER_KEYS = (
+    'external_cashflow',
+    'external_cashflow_t',
+    'net_external_cashflow',
+    'net_cashflow',
+    'cashflow',
+    'cash_flow',
+    'continuity_bridge_marker',
+)
+
+
+def _normalize_loaded_portfolio_state(
+    state: Dict[str, Any],
+    state_date: Optional[str],
+    as_of_date: str,
+) -> Dict[str, Any]:
+    """Drop one-day accounting fields when rolling state into a new date."""
+    normalized = dict(state)
+    if state_date and state_date != as_of_date:
+        for key in TRANSIENT_ROLLOVER_KEYS:
+            normalized.pop(key, None)
+    return normalized
+
+
 def load_portfolio_state(s3: S3Client) -> Dict[str, Any]:
     """
     Load current portfolio state from S3.
@@ -37,7 +61,8 @@ def load_portfolio_state(s3: S3Client) -> Dict[str, Any]:
     if latest_date:
         state = s3.read_json(f'daily/{latest_date}/portfolio_state.json')
         if state:
-            return state
+            as_of_date = datetime.now().strftime('%Y-%m-%d')
+            return _normalize_loaded_portfolio_state(state, latest_date, as_of_date)
 
     return {
         'cash': 100000,

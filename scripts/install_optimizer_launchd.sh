@@ -10,7 +10,22 @@ PLIST_NAME="com.traderbot.optimizer.plist"
 PLIST_SRC="$SCRIPT_DIR/launchd/$PLIST_NAME"
 PLIST_DST="$HOME/Library/LaunchAgents/$PLIST_NAME"
 LOG_DIR="$HOME/Library/Logs/traderbot"
-AWS_PROFILE_VALUE="${AWS_PROFILE:-default}"
+AWS_PROFILE_VALUE="${AWS_PROFILE:-}"
+
+if [ -z "$AWS_PROFILE_VALUE" ]; then
+  echo "ERROR: AWS_PROFILE is not set."
+  echo "Set AWS_PROFILE to a valid configured profile before installing launchd."
+  echo "Example: AWS_PROFILE=personal ./scripts/install_optimizer_launchd.sh"
+  exit 1
+fi
+
+if command -v aws >/dev/null 2>&1; then
+  if ! aws configure list-profiles 2>/dev/null | grep -qx "$AWS_PROFILE_VALUE"; then
+    echo "ERROR: AWS profile '$AWS_PROFILE_VALUE' not found in local AWS config."
+    echo "Run 'aws configure list-profiles' and retry with a valid profile."
+    exit 1
+  fi
+fi
 
 if [ ! -f "$VENV_PYTHON" ]; then
   echo "ERROR: Python virtual environment not found at $VENV_PYTHON"

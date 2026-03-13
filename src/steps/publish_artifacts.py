@@ -58,6 +58,13 @@ def build_dashboard_data(
         min_sharpe_observations=60,
     )
     canonical_metrics = canonical['metrics']
+    continuity_curve = canonical.get('equity_curve', [])
+    continuity_total_value = (
+        continuity_curve[-1]['value']
+        if continuity_curve
+        else portfolio_state.get('portfolio_value', 100000)
+    )
+    broker_total_value = portfolio_state.get('portfolio_value', continuity_total_value)
 
     # Keep invested aligned with current holdings if upstream field is missing.
     invested = portfolio_state.get('invested')
@@ -66,7 +73,10 @@ def build_dashboard_data(
 
     # Build metrics
     metrics = {
-        'total_value': portfolio_state.get('portfolio_value', 100000),
+        # Continuity-adjusted value for dashboard presentation.
+        'total_value': continuity_total_value,
+        # Raw broker/account-reconciled value for auditability.
+        'broker_total_value': broker_total_value,
         'cash': portfolio_state.get('cash', 100000),
         'invested': invested,
         'ytd_return': canonical_metrics['ytd_return'],
@@ -459,6 +469,8 @@ def run(
     s3 = S3Client(bucket)
     base_path = f"daily/{run_date}"
     snapshot_meta = _build_snapshot_meta(run_date, 'night', portfolio_state)
+    portfolio_state = dict(portfolio_state)
+    portfolio_state['date'] = run_date
 
     published = []
     failed = []
@@ -686,6 +698,8 @@ def publish_morning_artifacts(
     s3 = S3Client(bucket)
     base_path = f"daily/{run_date}"
     snapshot_meta = _build_snapshot_meta(run_date, 'morning', portfolio_state)
+    portfolio_state = dict(portfolio_state)
+    portfolio_state['date'] = run_date
     published = []
     failed = []
 

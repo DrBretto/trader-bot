@@ -238,6 +238,74 @@ Common issues:
 
 ---
 
+## Cutover Continuity Bridge
+
+When switching from simulated to broker execution, the portfolio value may jump (e.g. fresh Alpaca paper account at $100k vs $103k simulated). This causes a false loss in dashboard metrics.
+
+The bridge script patches `external_cashflow` on the cutover-day `portfolio_state.json` to neutralize the discontinuity in return calculations.
+
+### When to Use
+
+- After switching `BROKER_MODE` from `simulated` to `alpaca_paper` (or `alpaca_live`)
+- When the dashboard shows a sudden drop/jump on the cutover day
+
+### Commands
+
+```bash
+# Dry-run (prints plan, writes artifact, no S3 mutation)
+python scripts/bridge_cutover_continuity.py --cutover-date 2026-03-12
+
+# Apply (patches portfolio_state.json in S3)
+python scripts/bridge_cutover_continuity.py --cutover-date 2026-03-12 --apply
+
+# With specific AWS profile
+python scripts/bridge_cutover_continuity.py --cutover-date 2026-03-12 --apply --profile your-aws-profile
+```
+
+`--profile` is optional. Omit it when using IAM role credentials (Lambda/EC2) or pre-set AWS env credentials.
+
+### Cautions
+
+- Only run once per cutover. The script is idempotent (safe to re-run), but review the output.
+- This does NOT change broker cash or positions — it only adjusts the accounting math.
+- Dashboard equity/value are continuity-adjusted after bridge so historical performance remains comparable; raw broker value is still emitted as `metrics.broker_total_value`.
+- After applying, re-run the morning execution or dashboard rebuild to see updated metrics.
+
+---
+
+## Bootstrapping Alpaca to Simulated Portfolio
+
+After cutover, the broker account has no positions. This script places notional buy orders on Alpaca to recreate the simulated portfolio's allocation.
+
+### Commands
+
+```bash
+# Dry-run (default)
+python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11
+
+# Apply (submits orders)
+python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11 --apply
+
+# With custom caps
+python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11 --apply \
+  --max-per-order 3000 --max-total 80000
+
+# With symbol filter
+python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11 --apply \
+  --symbol-allowlist SPY GLD XLE
+```
+
+`--profile` is optional for this script as well; use it only when you intentionally need a specific local profile.
+
+### Warnings
+
+- **Market drift/slippage**: Prices may have moved since the source date. Weights are approximate.
+- **Partial fills**: Some orders may partially fill or be rejected. Check the result artifact.
+- **Idempotent**: Re-running skips symbols where existing position already meets target weight.
+- After bootstrap, run the morning execution to reconcile and rebuild dashboard artifacts.
+
+---
+
 ## Backup & Recovery
 
 ### Portfolio State

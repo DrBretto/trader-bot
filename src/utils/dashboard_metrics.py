@@ -8,6 +8,8 @@ from math import sqrt
 from statistics import mean, stdev
 from typing import Any, Deque, Dict, List, Optional, Tuple
 
+from src.utils.cutover_bridge import extract_cutover_date_from_marker
+
 
 def _parse_date(value: str) -> datetime:
     """Parse YYYY-MM-DD strings safely for sorting/grouping."""
@@ -73,6 +75,25 @@ def extract_external_cashflow(state: Dict[str, Any]) -> float:
     return deposits - withdrawals
 
 
+def _effective_external_cashflow(state: Dict[str, Any], row_date: str) -> float:
+    """Apply continuity bridge cashflow only on its cutover date.
+
+    The cutover patch is a one-day accounting adjustment. If that field leaks into
+    later portfolio_state snapshots, ignore it for those later dates.
+    """
+    cashflow = extract_external_cashflow(state)
+    if cashflow == 0.0:
+        return 0.0
+
+    bridge_date = extract_cutover_date_from_marker(
+        state.get("continuity_bridge_marker")
+    )
+    if bridge_date and bridge_date != row_date:
+        return 0.0
+
+    return cashflow
+
+
 def _extract_state_reset_marker(state: Dict[str, Any]) -> Optional[str]:
     """Read explicit reset marker if available."""
     for key in ("metrics_reset_id", "reset_id", "portfolio_reset_id"):
@@ -108,7 +129,7 @@ def _load_daily_states(
                 "benchmark": float(state.get("benchmark_value", value) or value),
                 "cash": float(state.get("cash", 0.0) or 0.0),
                 "holdings_count": len(state.get("holdings", [])),
-                "external_cashflow": extract_external_cashflow(state),
+                "external_cashflow": _effective_external_cashflow(state, date_str),
                 "state_timestamp": state.get("last_updated"),
                 "reset_marker": _extract_state_reset_marker(state),
             }
@@ -127,7 +148,9 @@ def _load_daily_states(
             ),
             "cash": float(current_state.get("cash", 0.0) or 0.0),
             "holdings_count": len(current_state.get("holdings", [])),
-            "external_cashflow": extract_external_cashflow(current_state),
+            "external_cashflow": _effective_external_cashflow(
+                current_state, as_of_date
+            ),
             "state_timestamp": current_state.get("last_updated"),
             "reset_marker": _extract_state_reset_marker(current_state),
         }
@@ -222,6 +245,32 @@ def _build_return_rows(active_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]
         )
         prev_value = row["value"]
     return results
+
+
+def _build_continuity_rows(
+    return_rows: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """Build continuity-adjusted rows by removing cumulative external cashflow.
+
+    This preserves performance continuity in equity/drawdown visualizations even
+    when account value jumps due to a broker cutover or true deposits/withdrawals.
+    """
+    cumulative_cashflow = 0.0
+    rows: List[Dict[str, Any]] = []
+
+    for row in return_rows:
+        cashflow = float(row.get("external_cashflow", 0.0) or 0.0)
+        cumulative_cashflow += cashflow
+        continuity_value = float(row.get("value", 0.0) or 0.0) - cumulative_cashflow
+        rows.append(
+            {
+                **row,
+                "continuity_value": continuity_value,
+                "cumulative_external_cashflow": cumulative_cashflow,
+            }
+        )
+
+    return rows
 
 
 def _compound(returns: List[float]) -> float:
@@ -516,7 +565,12 @@ def compute_canonical_dashboard_metrics(
     )
     active_rows, reset_boundary = _select_active_segment(rows, initial_value=initial_value)
     return_rows = _build_return_rows(active_rows)
-    drawdowns = _drawdown_series(active_rows)
+    continuity_rows = _build_continuity_rows(return_rows)
+    continuity_for_drawdown = [
+        {"date": row["date"], "value": row["continuity_value"]}
+        for row in continuity_rows
+    ]
+    drawdowns = _drawdown_series(continuity_for_drawdown)
     monthly_returns = _monthly_returns(return_rows)
 
     start_of_year = f"{as_of_date[:4]}-01-01"
@@ -575,6 +629,16 @@ def compute_canonical_dashboard_metrics(
         "reset_boundary": reset_boundary,
         "active_start_date": active_rows[0]["date"] if active_rows else None,
         "equity_curve": [
+            {
+                "date": row["date"],
+                "value": row["continuity_value"],
+                "raw_value": row["value"],
+                "benchmark": row["benchmark"],
+                "cumulative_external_cashflow": row["cumulative_external_cashflow"],
+            }
+            for row in continuity_rows
+        ],
+        "raw_equity_curve": [
             {"date": row["date"], "value": row["value"], "benchmark": row["benchmark"]}
             for row in active_rows
         ],

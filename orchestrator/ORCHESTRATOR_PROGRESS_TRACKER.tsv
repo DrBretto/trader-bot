@@ -1,0 +1,8 @@
+task_id	title	depends_on	status	evidence_path	blocked_by	next_action	updated_at
+T000	Bootstrap orchestrator control plane	-	done	orchestrator/ORCHESTRATOR_BOOTSTRAP.md;orchestrator/ORCHESTRATOR_EXECUTION_TIMELINE.md;orchestrator/ORCHESTRATOR_PROGRESS_TRACKER.tsv	-	Proceed to repo reconciliation baseline	2026-03-12
+T010	Reconcile repo state and establish baseline evidence	T000	done	orchestrator/daily/2026-03-12.md#baseline	-	Open deploy verification packet	2026-03-12
+T020	Execute continuity hotfix deploy packet and collect artifacts	T010	done	orchestrator/daily/2026-03-13.md#continuity-fix	-	Proceed to closure/docs normalization	2026-03-13
+T030	Reconcile continuity acceptance checks from S3/dashboard	T020	done	orchestrator/daily/2026-03-13.md#continuity-fix	-	Proceed to closure/docs normalization	2026-03-13
+T040	Close cutover continuity epic and normalize plan docs	T030	pending	-	-	Update docs/plans status and operations closure note	2026-03-13
+T050	Create git checkpoint packet for verified changes	T040	pending	-	-	Stage bounded commit packet with evidence references	2026-03-12
+T060	Define live-money switch gate after paper soak	T030	pending	-	-	Publish go/no-go gate checklist and minimum soak criteria	2026-03-12
