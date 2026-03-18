@@ -44,6 +44,7 @@ export function App() {
   const { data, loading, error } = useDashboardData();
   const { data: timeseries } = useTimeseriesData();
   const [selectedOptimizerRun, setSelectedOptimizerRun] = useState<string | undefined>(undefined);
+  const [brokerOnly, setBrokerOnly] = useState(true);
   const {
     index: optimizerIndex,
     lineage: optimizerLineage,
@@ -134,8 +135,24 @@ All dashboard panels are computed from this single snapshot to prevent cross-pan
 
       <HeroMetrics metrics={data.metrics} holdings={data.holdings} equityCurve={data.equity_curve} />
 
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px 8px', gap: 8, alignItems: 'center' }}>
+        <label style={{ fontSize: 12, color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <input
+            type="checkbox"
+            checked={brokerOnly}
+            onChange={(e) => setBrokerOnly(e.target.checked)}
+            style={{ accentColor: '#3b82f6' }}
+          />
+          Broker-only view
+        </label>
+        <InfoTooltip
+          content="When enabled, charts and metrics show only data from the Alpaca paper trading period (2026-03-12 onward). Disable to see the full history including the simulated pre-cutover period, which includes a continuity bridge adjustment."
+          label="Broker-only toggle"
+          align="right"
+        />
+      </div>
       <div className="charts-row">
-        <EquityCurve data={data.equity_curve} />
+        <EquityCurve data={data.equity_curve} brokerOnly={brokerOnly} />
         <DrawdownChart data={data.drawdowns} />
       </div>
 

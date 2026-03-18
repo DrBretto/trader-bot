@@ -1,0 +1,297 @@
+{
+  "folds": [
+    {
+      "fold_id": 1,
+      "train_dates": [
+        "2026-02-07",
+        "2026-02-10"
+      ],
+      "test_dates": [
+        "2026-02-11"
+      ],
+      "train_start": "2026-02-07",
+      "train_end": "2026-02-10",
+      "test_start": "2026-02-11",
+      "test_end": "2026-02-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 2,
+      "train_dates": [
+        "2026-02-10",
+        "2026-02-11"
+      ],
+      "test_dates": [
+        "2026-02-12"
+      ],
+      "train_start": "2026-02-10",
+      "train_end": "2026-02-11",
+      "test_start": "2026-02-12",
+      "test_end": "2026-02-12",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 3,
+      "train_dates": [
+        "2026-02-11",
+        "2026-02-12"
+      ],
+      "test_dates": [
+        "2026-02-13"
+      ],
+      "train_start": "2026-02-11",
+      "train_end": "2026-02-12",
+      "test_start": "2026-02-13",
+      "test_end": "2026-02-13",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 4,
+      "train_dates": [
+        "2026-02-12",
+        "2026-02-13"
+      ],
+      "test_dates": [
+        "2026-02-17"
+      ],
+      "train_start": "2026-02-12",
+      "train_end": "2026-02-13",
+      "test_start": "2026-02-17",
+      "test_end": "2026-02-17",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 5,
+      "train_dates": [
+        "2026-02-13",
+        "2026-02-17"
+      ],
+      "test_dates": [
+        "2026-02-18"
+      ],
+      "train_start": "2026-02-13",
+      "train_end": "2026-02-17",
+      "test_start": "2026-02-18",
+      "test_end": "2026-02-18",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 6,
+      "train_dates": [
+        "2026-02-17",
+        "2026-02-18"
+      ],
+      "test_dates": [
+        "2026-02-19"
+      ],
+      "train_start": "2026-02-17",
+      "train_end": "2026-02-18",
+      "test_start": "2026-02-19",
+      "test_end": "2026-02-19",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 7,
+      "train_dates": [
+        "2026-02-18",
+        "2026-02-19"
+      ],
+      "test_dates": [
+        "2026-02-20"
+      ],
+      "train_start": "2026-02-18",
+      "train_end": "2026-02-19",
+      "test_start": "2026-02-20",
+      "test_end": "2026-02-20",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 8,
+      "train_dates": [
+        "2026-02-19",
+        "2026-02-20"
+      ],
+      "test_dates": [
+        "2026-02-24"
+      ],
+      "train_start": "2026-02-19",
+      "train_end": "2026-02-20",
+      "test_start": "2026-02-24",
+      "test_end": "2026-02-24",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 9,
+      "train_dates": [
+        "2026-02-20",
+        "2026-02-24"
+      ],
+      "test_dates": [
+        "2026-02-25"
+      ],
+      "train_start": "2026-02-20",
+      "train_end": "2026-02-24",
+      "test_start": "2026-02-25",
+      "test_end": "2026-02-25",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 10,
+      "train_dates": [
+        "2026-02-24",
+        "2026-02-25"
+      ],
+      "test_dates": [
+        "2026-02-26"
+      ],
+      "train_start": "2026-02-24",
+      "train_end": "2026-02-25",
+      "test_start": "2026-02-26",
+      "test_end": "2026-02-26",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 11,
+      "train_dates": [
+        "2026-02-25",
+        "2026-02-26"
+      ],
+      "test_dates": [
+        "2026-02-27"
+      ],
+      "train_start": "2026-02-25",
+      "train_end": "2026-02-26",
+      "test_start": "2026-02-27",
+      "test_end": "2026-02-27",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 12,
+      "train_dates": [
+        "2026-02-26",
+        "2026-02-27"
+      ],
+      "test_dates": [
+        "2026-03-03"
+      ],
+      "train_start": "2026-02-26",
+      "train_end": "2026-02-27",
+      "test_start": "2026-03-03",
+      "test_end": "2026-03-03",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 13,
+      "train_dates": [
+        "2026-02-27",
+        "2026-03-03"
+      ],
+      "test_dates": [
+        "2026-03-04"
+      ],
+      "train_start": "2026-02-27",
+      "train_end": "2026-03-03",
+      "test_start": "2026-03-04",
+      "test_end": "2026-03-04",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 14,
+      "train_dates": [
+        "2026-03-03",
+        "2026-03-04"
+      ],
+      "test_dates": [
+        "2026-03-05"
+      ],
+      "train_start": "2026-03-03",
+      "train_end": "2026-03-04",
+      "test_start": "2026-03-05",
+      "test_end": "2026-03-05",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 15,
+      "train_dates": [
+        "2026-03-04",
+        "2026-03-05"
+      ],
+      "test_dates": [
+        "2026-03-06"
+      ],
+      "train_start": "2026-03-04",
+      "train_end": "2026-03-05",
+      "test_start": "2026-03-06",
+      "test_end": "2026-03-06",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 16,
+      "train_dates": [
+        "2026-03-05",
+        "2026-03-06"
+      ],
+      "test_dates": [
+        "2026-03-10"
+      ],
+      "train_start": "2026-03-05",
+      "train_end": "2026-03-06",
+      "test_start": "2026-03-10",
+      "test_end": "2026-03-10",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 17,
+      "train_dates": [
+        "2026-03-06",
+        "2026-03-10"
+      ],
+      "test_dates": [
+        "2026-03-11"
+      ],
+      "train_start": "2026-03-06",
+      "train_end": "2026-03-10",
+      "test_start": "2026-03-11",
+      "test_end": "2026-03-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 18,
+      "train_dates": [
+        "2026-03-10",
+        "2026-03-11"
+      ],
+      "test_dates": [
+        "2026-03-12"
+      ],
+      "train_start": "2026-03-10",
+      "train_end": "2026-03-11",
+      "test_start": "2026-03-12",
+      "test_end": "2026-03-12",
+      "test_days": 1,
+      "complete_dates": 1
+    }
+  ],
+  "gate_segment": {
+    "start": "2026-03-13",
+    "end": "2026-03-13",
+    "days": 1
+  }
+}
