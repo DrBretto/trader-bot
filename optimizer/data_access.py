@@ -75,6 +75,22 @@ def load_optimizer_dataset(config: OptimizerConfig) -> OptimizerDataset:
         if 'date' not in inference:
             inference['date'] = date_str
 
+        # Normalize legacy inference keys
+        if 'asset_health' not in inference or not isinstance(inference.get('asset_health'), list):
+            inference['asset_health'] = []
+
+        regime = inference.get('regime', {})
+        if 'label' not in regime and 'regime_label' in regime:
+            regime['label'] = regime['regime_label']
+        if 'probs' not in regime and 'regime_probs' in regime:
+            regime['probs'] = regime['regime_probs']
+        if 'confidence' not in regime:
+            regime['confidence'] = 1.0
+        if 'disagreement' not in regime:
+            regime['disagreement'] = 0.0
+        if 'position_size_multiplier' not in regime:
+            regime['position_size_multiplier'] = 1.0
+
         snapshots.append(
             DailySnapshot(
                 date=date_str,

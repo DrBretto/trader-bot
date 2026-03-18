@@ -202,6 +202,9 @@ def main():
         row = backfill_date(date_str, s3, prev_entropy_state)
         if row is not None:
             rows.append(row)
+            # Write per-date signals.parquet for replay loader
+            sig_df = pd.DataFrame([row])
+            s3.write_parquet(sig_df, f'daily/{date_str}/signals.parquet')
             # Update entropy state for next day
             prev_entropy_state = {
                 'prev_consecutive_days': row.get('entropy_consecutive_days', 0),
