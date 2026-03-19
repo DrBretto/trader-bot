@@ -107,6 +107,27 @@ body {
   margin-bottom: 24px;
 }
 
+.charts-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+.charts-stacked .card {
+  border-radius: 0;
+  border-bottom: none;
+}
+
+.charts-stacked .card:first-child {
+  border-radius: 12px 12px 0 0;
+}
+
+.charts-stacked .card:last-child {
+  border-radius: 0 0 12px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .weather-regime-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

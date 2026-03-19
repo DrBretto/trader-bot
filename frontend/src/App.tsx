@@ -23,6 +23,7 @@ import {
   OptimizerStatus,
   OptimizerRunDetail,
 } from './components';
+import { EvidenceSummary } from './components/EvidenceSummary';
 
 function formatRegimeLabel(regime: string): string {
   return regime.replace(/_/g, ' ');
@@ -135,6 +136,15 @@ All dashboard panels are computed from this single snapshot to prevent cross-pan
 
       <HeroMetrics metrics={data.metrics} holdings={data.holdings} equityCurve={data.equity_curve} />
 
+      <EvidenceSummary
+        optimizerActiveVersion={optimizerIndex?.active_version}
+        optimizerCandidateVersion={
+          optimizerIndex?.runs?.find((r) => r.status === 'promoted')
+            ? undefined
+            : 'macro-downgrade-075-v1'
+        }
+      />
+
       <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px 8px', gap: 8, alignItems: 'center' }}>
         <label style={{ fontSize: 12, color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <input
@@ -151,7 +161,7 @@ All dashboard panels are computed from this single snapshot to prevent cross-pan
           align="right"
         />
       </div>
-      <div className="charts-row">
+      <div className="charts-stacked">
         <EquityCurve data={data.equity_curve} brokerOnly={brokerOnly} />
         <DrawdownChart data={data.drawdowns} />
       </div>
