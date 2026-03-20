@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { OptimizerLineage, OptimizerRunDetail, OptimizerRunsIndex } from '../types';
+import { CandidateBundleSummary, OptimizerLineage, OptimizerRunDetail, OptimizerRunsIndex } from '../types';
 
 const INDEX_URL = './data/optimizer_runs_index.json';
 const LINEAGE_URL = './data/active_params_lineage.json';
+const CANDIDATE_URL = './data/candidate_bundle_summary.json';
 
 async function fetchJson<T>(url: string): Promise<T | null> {
   try {
@@ -18,6 +19,7 @@ async function fetchJson<T>(url: string): Promise<T | null> {
 export function useOptimizerData(selectedRunId?: string) {
   const [index, setIndex] = useState<OptimizerRunsIndex | null>(null);
   const [lineage, setLineage] = useState<OptimizerLineage | null>(null);
+  const [candidateBundle, setCandidateBundle] = useState<CandidateBundleSummary | null>(null);
   const [detail, setDetail] = useState<OptimizerRunDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -25,12 +27,14 @@ export function useOptimizerData(selectedRunId?: string) {
   useEffect(() => {
     async function loadBase() {
       setLoading(true);
-      const [indexData, lineageData] = await Promise.all([
+      const [indexData, lineageData, candidateData] = await Promise.all([
         fetchJson<OptimizerRunsIndex>(INDEX_URL),
         fetchJson<OptimizerLineage>(LINEAGE_URL),
+        fetchJson<CandidateBundleSummary>(CANDIDATE_URL),
       ]);
       setIndex(indexData);
       setLineage(lineageData);
+      setCandidateBundle(candidateData);
       setLoading(false);
     }
 
@@ -62,6 +66,7 @@ export function useOptimizerData(selectedRunId?: string) {
   return {
     index,
     lineage,
+    candidateBundle,
     detail,
     loading,
     detailLoading,

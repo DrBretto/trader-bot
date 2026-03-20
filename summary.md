@@ -32,9 +32,10 @@ A second EventBridge trigger runs the execution phase:
 1. Loads the overnight trade intents.
 2. Fetches live morning quotes via yfinance.
 3. Validates each intent — checks freshness (max 3 days old), price gaps (skip buys if price moved >5% overnight), and re-evaluates trailing stops at morning prices.
-4. Executes validated trades at current market prices.
-5. Updates portfolio state, recomputes performance metrics, and republishes the dashboard.
-6. Sends a morning summary email with executed trades and portfolio value.
+4. Executes validated trades via the Alpaca paper broker (fractional shares, market orders). Dust positions (< 0.001 shares from prior partial fills) are skipped gracefully.
+5. Reconciles local portfolio state against broker positions and account balance.
+6. Updates portfolio state, recomputes performance metrics, and republishes the dashboard.
+7. Sends a morning summary email with executed trades and portfolio value.
 
 This two-phase design ensures that analysis happens on closing prices (stable, complete data) while execution happens at actual market prices (realistic P&L).
 

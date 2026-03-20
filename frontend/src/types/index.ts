@@ -275,3 +275,15 @@ export interface OptimizerRunDetail {
   generation_log: Record<string, unknown>[];
   run_log_path?: string;
 }
+
+export interface CandidateBundleSummary {
+  version_id: string;
+  parent_version: string;
+  description: string;
+  change_summary: string;
+  evidence_source: string;
+  promotion_status: string;
+  promotion_requires: string;
+  updated_at: string;
+  gate_evidence?: Record<string, string>;
+}

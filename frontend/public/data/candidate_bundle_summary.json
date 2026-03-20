@@ -1,0 +1,18 @@
+{
+  "version_id": "macro-downgrade-075-v1",
+  "parent_version": "opt-bootstrap",
+  "description": "Candidate bundle: soften macro_downgrade_threshold from default -0.50 to -0.75",
+  "change_summary": "regime_fusion.macro_downgrade_threshold: default(-0.50) -> -0.75",
+  "evidence_source": "gate-only fusion sensitivity sweep (ULP-TRB-025)",
+  "promotion_status": "staged_not_promoted",
+  "promotion_requires": "additional live gate segment evaluation or operator manual approval",
+  "updated_at": "2026-03-19T02:41:33Z",
+  "gate_evidence": {
+    "baseline_ann_return": "+0.1%",
+    "candidate_ann_return": "+3.5%",
+    "baseline_win_rate": "50%",
+    "candidate_win_rate": "58%",
+    "baseline_macro_fires": "25/37",
+    "candidate_macro_fires": "6/37"
+  }
+}

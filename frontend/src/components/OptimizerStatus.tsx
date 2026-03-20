@@ -74,7 +74,7 @@ Promotion only occurs if hard guardrails pass and challenger beats champion on b
         </div>
       )}
 
-      <div style={{ marginTop: 18, overflowX: 'auto' }}>
+      <div className="optimizer-table-wrap">
         <table>
           <thead>
             <tr>

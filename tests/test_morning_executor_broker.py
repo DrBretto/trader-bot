@@ -100,6 +100,52 @@ class TestExecuteViaBroker:
         assert broker.submitted_orders[0]['side'] == 'sell'
         assert broker.submitted_orders[0]['qty'] == '10.0'
 
+    def test_sell_floor_truncates_fractional_qty(self):
+        """Sell qty must floor-truncate (never round up past available)."""
+        broker = MockBroker()
+        # Alpaca available: 31.465540746 — round() gives 31.465541 which is OVER
+        intent = {
+            'symbol': 'SLV',
+            'action': 'SELL',
+            'shares': 31.465540746,
+            'price': 30.0,
+        }
+        trade = _execute_via_broker(broker, intent, 30.5, '2026-03-19')
+
+        assert len(broker.submitted_orders) == 1
+        submitted_qty = float(broker.submitted_orders[0]['qty'])
+        # Must be <= available, not rounded up
+        assert submitted_qty <= 31.465540746
+        assert submitted_qty == 31.46554  # floor to 6 decimals
+
+    def test_sell_dust_position_raises(self):
+        """Dust shares (< 0.001 after truncation) should raise ValueError."""
+        broker = MockBroker()
+        intent = {
+            'symbol': 'GLD',
+            'action': 'SELL',
+            'shares': 4.76e-07,
+            'price': 200.0,
+        }
+        with pytest.raises(ValueError, match="non-positive sell qty"):
+            _execute_via_broker(broker, intent, 200.0, '2026-03-19')
+
+    def test_reduce_floor_truncates(self):
+        """REDUCE halves qty then floor-truncates."""
+        broker = MockBroker()
+        intent = {
+            'symbol': 'XLU',
+            'action': 'REDUCE',
+            'shares': 101.491025641,
+            'price': 45.0,
+        }
+        trade = _execute_via_broker(broker, intent, 46.0, '2026-03-19')
+
+        submitted_qty = float(broker.submitted_orders[0]['qty'])
+        # 101.491025641 * 0.5 = 50.7455128205; floor to 6 = 50.745512
+        assert submitted_qty <= 50.7455128205
+        assert submitted_qty == 50.745512
+
 
 class TestReconcilePortfolio:
     """Tests for broker reconciliation."""

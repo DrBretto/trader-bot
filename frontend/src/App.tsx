@@ -49,6 +49,7 @@ export function App() {
   const {
     index: optimizerIndex,
     lineage: optimizerLineage,
+    candidateBundle: optimizerCandidateBundle,
     detail: optimizerDetail,
     loading: optimizerLoading,
     detailLoading: optimizerDetailLoading,
@@ -137,12 +138,8 @@ All dashboard panels are computed from this single snapshot to prevent cross-pan
       <HeroMetrics metrics={data.metrics} holdings={data.holdings} equityCurve={data.equity_curve} />
 
       <EvidenceSummary
-        optimizerActiveVersion={optimizerIndex?.active_version}
-        optimizerCandidateVersion={
-          optimizerIndex?.runs?.find((r) => r.status === 'promoted')
-            ? undefined
-            : 'macro-downgrade-075-v1'
-        }
+        optimizerIndex={optimizerIndex}
+        candidateBundle={optimizerCandidateBundle}
       />
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px 8px', gap: 8, alignItems: 'center' }}>

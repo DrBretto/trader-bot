@@ -8,6 +8,7 @@ Supports three execution modes:
 
 import logging
 import hashlib
+import math
 import pandas as pd
 from datetime import datetime
 from typing import Dict, Any, List, Tuple, Optional
@@ -209,7 +210,8 @@ def _execute_via_broker(
         qty = float(intent.get('shares', 0) or 0)
         if action_type == 'REDUCE':
             qty *= 0.5
-        qty = round(qty, 6)
+        # Floor-truncate to 6 decimals: never request more than available
+        qty = math.floor(qty * 1e6) / 1e6
         if qty <= 0:
             raise ValueError(
                 f"Computed non-positive sell qty for {action_type} {symbol}: {qty}"
@@ -538,11 +540,20 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
                 continue
 
             if use_broker:
+                holding_shares = float(holding.get('shares', intent.get('shares', 0)) or 0)
+                # Skip dust positions (sub-penny value, untradeable on any broker)
+                if holding_shares < 0.001:
+                    validation_log.append(
+                        f"SKIP {intent['action']} {symbol}: dust position "
+                        f"({holding_shares:.9g} shares)"
+                    )
+                    continue
+
                 try:
                     broker_intent = {
                         **intent,
                         'price': morning_price,
-                        'shares': holding.get('shares', intent.get('shares', 0)),
+                        'shares': holding_shares,
                     }
                     trade = _execute_via_broker(
                         broker, broker_intent, morning_price, run_date
