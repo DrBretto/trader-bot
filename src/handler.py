@@ -266,6 +266,108 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
         s3_client.write_json(trade_intents, f'daily/{run_date}/trade_intents.json')
         logger.info(f"Saved {len(trade_intents['actions'])} trade intents for morning execution")
 
+        # Shadow challenger computation (non-executing)
+        try:
+            candidate_bundle = s3_client.read_json('config/decision_params.candidate.json')
+            if candidate_bundle and candidate_bundle.get('version_id') != config.get('active_version'):
+                ranking_blend = candidate_bundle.get('decision_engine', {}).get('ranking_blend', 0)
+                ranking_model_dir = candidate_bundle.get('decision_engine', {}).get('ranking_model_dir', '')
+
+                if ranking_blend > 0 and ranking_model_dir:
+                    from training.models.ranking_mlp import RankingMLP, RANKING_FEATURES
+                    import torch, json as _json
+                    from pathlib import Path
+                    import tempfile
+
+                    model_path = Path(ranking_model_dir) / 'ranking_mlp.pt'
+                    norm_path = Path(ranking_model_dir) / 'ranking_normalization.json'
+
+                    # Try local filesystem first; fall back to S3 download
+                    if not model_path.exists():
+                        logger.info("Shadow: ranking model not local, downloading from S3...")
+                        _tmp = Path(tempfile.mkdtemp()) / 'ranking'
+                        _tmp.mkdir(parents=True, exist_ok=True)
+                        s3_model = s3_client.download_file(f'{ranking_model_dir}/ranking_mlp.pt', str(_tmp / 'ranking_mlp.pt'))
+                        s3_norm = s3_client.download_file(f'{ranking_model_dir}/ranking_normalization.json', str(_tmp / 'ranking_normalization.json'))
+                        if s3_model and s3_norm:
+                            model_path = _tmp / 'ranking_mlp.pt'
+                            norm_path = _tmp / 'ranking_normalization.json'
+                        else:
+                            logger.info("Shadow: ranking model not available on S3 either, skipping")
+                            model_path = None
+
+                    if model_path and model_path.exists() and norm_path.exists():
+                        with open(norm_path) as _f:
+                            ranking_norm = _json.load(_f)
+                        ranking_model = RankingMLP(input_dim=len(RANKING_FEATURES))
+                        ranking_model.load_state_dict(torch.load(model_path, weights_only=True))
+                        ranking_model.eval()
+
+                        # Compute ranking scores
+                        ranking_scores = {}
+                        for _, row in features_df.iterrows():
+                            sym = row.get('symbol')
+                            if sym:
+                                feat_dict = {f: float(row.get(f, 0) or 0) for f in RANKING_FEATURES}
+                                ranking_scores[sym] = ranking_model.predict_scores(feat_dict, ranking_norm)
+
+                        # Build shadow config from candidate bundle
+                        shadow_config = dict(config)
+                        shadow_config['decision_params'] = candidate_bundle.get('decision_params', config.get('decision_params', {}))
+                        shadow_config['regime_compatibility'] = candidate_bundle.get('regime_compatibility', config.get('regime_compatibility', {}))
+                        shadow_config['regime_fusion_overrides'] = candidate_bundle.get('regime_fusion', {})
+                        shadow_config['decision_engine_overrides'] = candidate_bundle.get('decision_engine', {})
+                        shadow_config['ensemble_overrides'] = candidate_bundle.get('ensemble', {})
+
+                        shadow_decisions = decision_engine.run(
+                            inference_output, llm_risks, features_df, shadow_config, validation,
+                            expert_signals=expert_signals,
+                            ranking_scores=ranking_scores,
+                            ranking_blend=ranking_blend,
+                        )
+
+                        shadow_intents = {
+                            'generated_date': run_date,
+                            'generated_timestamp': datetime.now().isoformat(),
+                            'shadow': True,
+                            'candidate_version': candidate_bundle.get('version_id', 'unknown'),
+                            'ranking_blend': ranking_blend,
+                            'regime': shadow_decisions.get('regime', 'unknown'),
+                            'actions': shadow_decisions.get('actions', []),
+                            'buy_candidates': shadow_decisions.get('buy_candidates', []),
+                        }
+                        s3_client.write_json(shadow_intents, f'daily/{run_date}/shadow_intents.json')
+
+                        # Write daily comparison
+                        inc_syms = set(a.get('symbol', '') for a in trade_intents['actions'])
+                        shd_syms = set(a.get('symbol', '') for a in shadow_intents['actions'])
+                        comparison = {
+                            'date': run_date,
+                            'incumbent_version': 'opt-bootstrap',
+                            'candidate_version': candidate_bundle.get('version_id', 'unknown'),
+                            'ranking_blend': ranking_blend,
+                            'regime': decisions.get('regime', 'unknown'),
+                            'incumbent_actions': len(trade_intents['actions']),
+                            'shadow_actions': len(shadow_intents['actions']),
+                            'symbol_overlap': sorted(inc_syms & shd_syms),
+                            'incumbent_only': sorted(inc_syms - shd_syms),
+                            'shadow_only': sorted(shd_syms - inc_syms),
+                        }
+                        s3_client.write_json(comparison, f'daily/{run_date}/shadow_comparison.json')
+                        logger.info(
+                            f"Shadow challenger ({candidate_bundle.get('version_id')}): "
+                            f"{len(shadow_intents['actions'])} actions "
+                            f"(incumbent: {len(trade_intents['actions'])})"
+                        )
+                    else:
+                        logger.info("Shadow: ranking model not available at %s, skipping", model_path)
+                else:
+                    logger.info("Shadow: candidate has no ranking_blend, skipping")
+            else:
+                logger.info("Shadow: no candidate bundle or same as active, skipping")
+        except Exception as shadow_err:
+            logger.warning(f"Shadow challenger computation failed (non-fatal): {shadow_err}")
+
         # Step 11: Portfolio valuation update (NO trade execution)
         log_step(11, 12, "Updating portfolio valuations...", logger)
         with StepTimer("Portfolio valuation", logger):

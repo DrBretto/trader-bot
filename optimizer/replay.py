@@ -304,6 +304,9 @@ def run_replay_for_dates(
     candidate_bundle: Dict[str, Any],
     random_seed: int,
     initial_capital: float,
+    ranking_model: Any = None,
+    ranking_normalization: Any = None,
+    ranking_blend: float = 0.0,
 ) -> ReplayResult:
     """Replay decisions across dates and return portfolio path + fills."""
     snapshot_map = dataset.by_date()
@@ -351,6 +354,17 @@ def run_replay_for_dates(
             'ensemble_overrides': candidate_bundle.get('ensemble', {}),
         }
 
+        # Compute ranking scores if model is provided
+        date_ranking_scores = None
+        if ranking_model is not None and ranking_normalization is not None and ranking_blend > 0:
+            from training.models.ranking_mlp import RANKING_FEATURES
+            date_ranking_scores = {}
+            for _, row in snapshot.features_df.iterrows():
+                sym = row.get('symbol')
+                if sym:
+                    feat_dict = {f: float(row.get(f, 0) or 0) for f in RANKING_FEATURES}
+                    date_ranking_scores[sym] = ranking_model.predict_scores(feat_dict, ranking_normalization)
+
         decisions = decision_engine.run(
             inference_output=snapshot.inference,
             llm_risks={},
@@ -358,6 +372,8 @@ def run_replay_for_dates(
             config=decision_config,
             validation={'price_coverage': 1.0, 'degraded_mode': False},
             expert_signals=expert_signals,
+            ranking_scores=date_ranking_scores,
+            ranking_blend=ranking_blend,
         )
 
         execution_ts = datetime.fromisoformat(f"{snapshot.next_date}T09:45:00")

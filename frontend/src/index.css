@@ -107,25 +107,54 @@ body {
   margin-bottom: 24px;
 }
 
-.charts-stacked {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+/* Integrated performance chart */
+.performance-chart-card {
   margin-bottom: 24px;
 }
 
-.charts-stacked .card {
-  border-radius: 0;
-  border-bottom: none;
+.performance-chart-card .recharts-cartesian-grid-bg {
+  fill: transparent;
 }
 
-.charts-stacked .card:first-child {
-  border-radius: 12px 12px 0 0;
+.drawdown-strip {
+  margin-top: -8px;
+  padding: 0 0 4px 0;
+  border-top: 1px solid #1e293b;
 }
 
-.charts-stacked .card:last-child {
-  border-radius: 0 0 12px 12px;
-  border-bottom: 1px solid var(--border-color);
+.performance-legend {
+  display: flex;
+  gap: 18px;
+  padding: 8px 16px 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: 1px;
+}
+
+.legend-swatch-dashed {
+  background: repeating-linear-gradient(
+    90deg,
+    currentColor 0px,
+    currentColor 4px,
+    transparent 4px,
+    transparent 7px
+  ) !important;
+  background-color: transparent !important;
+  color: #64748b;
 }
 
 .weather-regime-row {

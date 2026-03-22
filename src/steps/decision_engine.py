@@ -124,7 +124,9 @@ def score_candidates(
     features_df: pd.DataFrame,
     universe_df: pd.DataFrame,
     regime_label: str,
-    regime_compat: Dict[str, Dict[str, float]]
+    regime_compat: Dict[str, Dict[str, float]],
+    ranking_scores: Optional[Dict[str, float]] = None,
+    ranking_blend: float = 0.0,
 ) -> pd.DataFrame:
     """
     Score all eligible candidates for buying.
@@ -174,8 +176,17 @@ def score_candidates(
 
     merged['regime_multiplier'] = merged.apply(get_multiplier, axis=1)
 
-    # Base score is health score
+    # Base score: blend health score with ranking score if available
     merged['base_score'] = merged['health_score']
+    if ranking_scores and ranking_blend > 0:
+        merged['ranking_score'] = merged['symbol'].map(
+            lambda s: ranking_scores.get(s, 0.5)
+        )
+        blend = min(max(ranking_blend, 0.0), 1.0)
+        merged['base_score'] = (
+            (1.0 - blend) * merged['health_score'] +
+            blend * merged['ranking_score']
+        )
 
     # Apply regime multiplier
     merged['final_score'] = (merged['base_score'] * merged['regime_multiplier']).clip(0, 1)
@@ -556,7 +567,9 @@ def run(
     features_df: pd.DataFrame,
     config: Dict[str, Any],
     validation: Dict[str, Any],
-    expert_signals: Optional[Dict[str, Any]] = None
+    expert_signals: Optional[Dict[str, Any]] = None,
+    ranking_scores: Optional[Dict[str, float]] = None,
+    ranking_blend: float = 0.0,
 ) -> Dict[str, Any]:
     """
     Run decision engine to generate buy/sell actions.
@@ -696,7 +709,9 @@ def run(
         features_df,
         universe_df,
         regime_label,
-        regime_compat
+        regime_compat,
+        ranking_scores=ranking_scores,
+        ranking_blend=ranking_blend,
     )
 
     buy_candidates = filter_buy_candidates(

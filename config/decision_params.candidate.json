@@ -1,8 +1,8 @@
 {
-  "schema_version": "1",
-  "version_id": "macro-downgrade-075-v1",
-  "source_run_id": "20260318_214007_trader-bot-fusion-sensitivity-sweep-v1",
-  "updated_at": "2026-03-19T02:41:33Z",
+  "schema_version": 1,
+  "version_id": "hybrid-ranking-035-v1",
+  "source_run_id": null,
+  "updated_at": "2026-03-21T23:52:33Z",
   "decision_params": {
     "max_positions": 8,
     "max_position_weight": 0.2,
@@ -132,27 +132,45 @@
     }
   },
   "signals": {},
-  "regime_fusion": {
-    "macro_downgrade_threshold": -0.75
+  "regime_fusion": {},
+  "decision_engine": {
+    "ranking_blend": 0.35,
+    "ranking_model_dir": "models/ranking_expanded_unconditioned"
   },
-  "decision_engine": {},
   "ensemble": {},
   "transaction_costs": {},
   "metadata": {
-    "description": "Candidate bundle: soften macro_downgrade_threshold from default -0.50 to -0.75",
+    "description": "Hybrid challenger: cross-sectional ranking (expanded-history unconditioned MLP) blended with health score at 0.35 weight",
     "parent_version": "opt-bootstrap",
-    "parent_hash": "f181e97f3af99de1",
-    "change_summary": "regime_fusion.macro_downgrade_threshold: default(-0.50) -> -0.75",
-    "evidence_source": "gate-only fusion sensitivity sweep (ULP-TRB-025)",
-    "gate_evidence": {
-      "baseline_ann_return": "+0.1%",
-      "candidate_ann_return": "+3.5%",
-      "baseline_win_rate": "50%",
-      "candidate_win_rate": "58%",
-      "baseline_macro_fires": "25/37",
-      "candidate_macro_fires": "6/37"
+    "parent_hash": "3a7500b60184db38",
+    "change_summary": "decision_engine.ranking_blend: 0 -> 0.35, decision_engine.ranking_model_dir: models/ranking_expanded_unconditioned",
+    "evidence_source": "walk-forward confirmed hybrid: gate +29% ann. (vs -1% incumbent), mean all-segment +11.7% (vs +5.2% incumbent)",
+    "evidence_runs": [
+      "ULP-TRB-094 history expansion",
+      "ULP-TRB-098 decision engine integration",
+      "ULP-TRB-102 walk-forward confirmation"
+    ],
+    "ranking_model_training": {
+      "data_source": "yfinance OHLCV 2023-06-01 to 2026-03-21",
+      "training_samples": 29388,
+      "symbols": 64,
+      "dates": 574,
+      "forward_days": 21,
+      "conditioning": "unconditioned (no regime labels)",
+      "targets": "cross-sectional relative forward return rank"
     },
+    "walk_forward_results": {
+      "fold1_incumbent": "+15.70%",
+      "fold1_hybrid": "+3.20%",
+      "fold2_incumbent": "+1.04%",
+      "fold2_hybrid": "+2.94%",
+      "gate_incumbent": "-1.05%",
+      "gate_hybrid": "+28.96%",
+      "gate_sharpe": "+1.318",
+      "gate_max_dd": "-2.78%"
+    },
+    "supersedes": "macro-downgrade-075-v1 (stale fusion-only candidate)",
     "promotion_status": "staged_not_promoted",
-    "promotion_requires": "additional live gate segment evaluation or operator manual approval"
+    "promotion_requires": "paper-live shadow evaluation period (minimum 30 trading days)"
   }
 }

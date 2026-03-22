@@ -6,8 +6,6 @@ import { useOptimizerData } from './hooks/useOptimizerData';
 import { isStrictlyIncreasingByDate } from './utils/timeseries';
 import {
   HeroMetrics,
-  EquityCurve,
-  DrawdownChart,
   MonthlyReturnsHeatmap,
   WeatherReport,
   PortfolioTable,
@@ -24,6 +22,7 @@ import {
   OptimizerRunDetail,
 } from './components';
 import { EvidenceSummary } from './components/EvidenceSummary';
+import { PerformanceChart } from './components/PerformanceChart';
 
 function formatRegimeLabel(regime: string): string {
   return regime.replace(/_/g, ' ');
@@ -158,10 +157,11 @@ All dashboard panels are computed from this single snapshot to prevent cross-pan
           align="right"
         />
       </div>
-      <div className="charts-stacked">
-        <EquityCurve data={data.equity_curve} brokerOnly={brokerOnly} />
-        <DrawdownChart data={data.drawdowns} />
-      </div>
+      <PerformanceChart
+        equityData={data.equity_curve}
+        drawdownData={data.drawdowns}
+        brokerOnly={brokerOnly}
+      />
 
       {/* Market Intelligence Section */}
       <RegimeStrip signals={data.expert_signals} timeseries={timeseries} />

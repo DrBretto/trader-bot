@@ -1,18 +1,27 @@
 {
-  "version_id": "macro-downgrade-075-v1",
+  "version_id": "hybrid-ranking-035-v1",
   "parent_version": "opt-bootstrap",
-  "description": "Candidate bundle: soften macro_downgrade_threshold from default -0.50 to -0.75",
-  "change_summary": "regime_fusion.macro_downgrade_threshold: default(-0.50) -> -0.75",
-  "evidence_source": "gate-only fusion sensitivity sweep (ULP-TRB-025)",
+  "description": "Hybrid challenger: cross-sectional ranking MLP (expanded-history, unconditioned) blended with health score at 35% weight",
+  "change_summary": "decision_engine.ranking_blend: 0 -> 0.35, ranking model: 10-feature MLP trained on 574 dates × 64 symbols",
+  "evidence_source": "walk-forward confirmed: ULP-TRB-094 (history expansion), ULP-TRB-098 (integration), ULP-TRB-102 (walk-forward)",
   "promotion_status": "staged_not_promoted",
-  "promotion_requires": "additional live gate segment evaluation or operator manual approval",
-  "updated_at": "2026-03-19T02:41:33Z",
+  "promotion_requires": "paper-live shadow evaluation period (minimum 30 trading days)",
+  "updated_at": "2026-03-21T18:06:35Z",
+  "supersedes": "macro-downgrade-075-v1",
   "gate_evidence": {
-    "baseline_ann_return": "+0.1%",
-    "candidate_ann_return": "+3.5%",
-    "baseline_win_rate": "50%",
-    "candidate_win_rate": "58%",
-    "baseline_macro_fires": "25/37",
-    "candidate_macro_fires": "6/37"
+    "incumbent_ann_return": "-1.05%",
+    "hybrid_ann_return": "+28.96%",
+    "hybrid_sharpe": "+1.318",
+    "hybrid_max_dd": "-2.78%",
+    "incumbent_max_dd": "-2.63%",
+    "spy_return_same_period": "-18.5%"
+  },
+  "walk_forward_evidence": {
+    "fold1_incumbent": "+15.70%",
+    "fold1_hybrid": "+3.20%",
+    "fold2_incumbent": "+1.04%",
+    "fold2_hybrid": "+2.94%",
+    "mean_all_segments_incumbent": "+5.23%",
+    "mean_all_segments_hybrid": "+11.70%"
   }
 }
