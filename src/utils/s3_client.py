@@ -56,7 +56,7 @@ class S3Client:
             self.s3.put_object(
                 Bucket=self.bucket,
                 Key=key,
-                Body=json.dumps(data, indent=2, default=str),
+                Body=json.dumps(data, indent=2, default=str, allow_nan=False),
                 ContentType='application/json'
             )
             return True

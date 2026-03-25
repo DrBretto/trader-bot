@@ -641,7 +641,12 @@ def run(
             published.append("timeseries.parquet")
 
             # Also write JSON version for frontend
-            ts_json = ts_df.to_dict(orient='records')
+            # Sanitize pandas NaN → null before JSON serialization.
+            # DataFrame.to_dict() converts NaN to float('nan'), which
+            # Python's json module serializes as the non-standard token
+            # NaN, breaking browser JSON.parse().  DataFrame.to_json()
+            # correctly emits null for NaN, so round-trip through it.
+            ts_json = json.loads(ts_df.to_json(orient='records'))
             s3.write_json(ts_json, 'dashboard/data/timeseries.json')
             s3.write_json(ts_json, 'dashboard/timeseries.json')
             published.append("timeseries.json")
