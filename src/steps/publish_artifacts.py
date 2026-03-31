@@ -661,10 +661,19 @@ def run(
             expert_signals=expert_signals,
             snapshot_meta=snapshot_meta,
         )
-        # Write to both locations for compatibility
-        s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
-        s3.write_json(dashboard_data, "dashboard/dashboard.json")
-        published.append("dashboard.json")
+        # Publish guard: do not overwrite a valid dashboard with broken data.
+        # When expert_signals is None the frontend shows "unknown" posture and
+        # hides Today's Story.  Preserving the last known good dashboard.json
+        # is strictly better than publishing a degraded snapshot.
+        if expert_signals is None:
+            print("  WARNING: Skipping dashboard.json publish — expert_signals is null. "
+                  "Preserving last known good dashboard state.")
+            failed.append("dashboard.json (skipped: null signals)")
+        else:
+            # Write to both locations for compatibility
+            s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
+            s3.write_json(dashboard_data, "dashboard/dashboard.json")
+            published.append("dashboard.json")
     except Exception as e:
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")
@@ -760,9 +769,15 @@ def publish_morning_artifacts(
             expert_signals=expert_signals,
             snapshot_meta=snapshot_meta,
         )
-        s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
-        s3.write_json(dashboard_data, "dashboard/dashboard.json")
-        published.append("dashboard.json")
+        # Publish guard: do not overwrite a valid dashboard with broken data.
+        if expert_signals is None:
+            print("  WARNING: Skipping morning dashboard.json publish — expert_signals is null. "
+                  "Preserving last known good dashboard state.")
+            failed.append("dashboard.json (skipped: null signals)")
+        else:
+            s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
+            s3.write_json(dashboard_data, "dashboard/dashboard.json")
+            published.append("dashboard.json")
     except Exception as e:
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")
