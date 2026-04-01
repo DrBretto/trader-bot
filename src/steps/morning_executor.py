@@ -20,6 +20,9 @@ from src.utils.s3_client import S3Client
 
 logger = logging.getLogger(__name__)
 
+DUST_SHARE_EPSILON = 0.001
+DUST_VALUE_EPSILON = 0.01
+
 
 # Maximum age for trade intents (calendar days).
 # Friday night → Monday morning = 3 days, so 3 is the minimum safe value.
@@ -277,18 +280,23 @@ def _reconcile_portfolio_from_broker(
     existing_map = {h['symbol']: h for h in portfolio.get('holdings', [])}
 
     for pos in positions:
+        qty = float(pos['qty'] or 0)
+        market_value = float(pos['market_value'] or 0)
+        if abs(qty) < DUST_SHARE_EPSILON or abs(market_value) < DUST_VALUE_EPSILON:
+            continue
+
         symbol = pos['symbol']
         existing = existing_map.get(symbol, {})
         holding = {
             'symbol': symbol,
-            'shares': pos['qty'],
+            'shares': qty,
             'entry_price': existing.get('entry_price', pos['avg_entry_price']),
             'entry_date': existing.get('entry_date', datetime.now().isoformat()),
             'peak_price': max(
                 existing.get('peak_price', 0), pos['current_price']
             ),
             'current_price': pos['current_price'],
-            'market_value': pos['market_value'],
+            'market_value': market_value,
             'unrealized_pnl': pos['unrealized_pl'],
             'entry_regime': existing.get('entry_regime', 'unknown'),
             'entry_health': existing.get('entry_health', 0.5),
@@ -304,7 +312,7 @@ def _reconcile_portfolio_from_broker(
         else:
             holding['unrealized_pnl_pct'] = 0
         broker_holdings.append(holding)
-        holdings_value += pos['market_value']
+        holdings_value += market_value
 
     portfolio['holdings'] = broker_holdings
     portfolio['holdings_value'] = holdings_value
@@ -443,6 +451,7 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
 
     # Process each intent
     trades: List[Dict[str, Any]] = []
+    skipped_buys: List[Dict[str, Any]] = []
     for intent in intent_actions:
         symbol = intent['symbol']
         morning_price = morning_price_map.get(symbol)
@@ -455,6 +464,15 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
             valid, msg = validate_buy_intent(intent, morning_price)
             if not valid:
                 validation_log.append(f"SKIP BUY {symbol}: {msg}")
+                skipped_buys.append({
+                    'symbol': symbol,
+                    'intent_price': intent.get('price', 0),
+                    'morning_price': morning_price,
+                    'dollars': intent.get('dollars', intent.get('shares', 0) * intent.get('price', 0)),
+                    'shares': intent.get('shares', 0),
+                    'reason': msg,
+                    'skip_type': 'price_gap',
+                })
                 continue
 
             # Recompute target dollars at morning price (same dollar amount as intent)
@@ -613,4 +631,5 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
         'intents_found': True,
         'intents_executed': len(trades),
         'execution_mode': execution_mode,
+        'skipped_buys': skipped_buys,
     }
