@@ -99,6 +99,42 @@ def format_morning_summary(
     return "\n".join(lines)
 
 
+def format_midday_summary(
+    run_date: str,
+    portfolio_value: float,
+    actions: List[Dict[str, Any]],
+    check_log: List[str],
+    circuit_breaker_active: bool,
+    duration_seconds: float
+) -> str:
+    """Format the midday check summary email."""
+    lines = [
+        f"Midday Check Complete - {run_date}",
+        f"Duration: {duration_seconds:.0f}s",
+        "",
+        f"Portfolio Value: ${portfolio_value:,.2f}",
+    ]
+
+    if circuit_breaker_active:
+        lines.append("** VIX CIRCUIT BREAKER ACTIVE **")
+
+    lines.append(f"Actions Taken: {len(actions)}")
+    for a in actions:
+        lines.append(
+            f"  {a.get('action', '?')} {a.get('symbol', '?')} "
+            f"@ ${a.get('price', 0):.2f} ({a.get('reason', '')})"
+        )
+
+    if not actions:
+        lines.append("  (no actions)")
+
+    lines.extend(["", "Check Log:"])
+    for entry in check_log:
+        lines.append(f"  {entry}")
+
+    return "\n".join(lines)
+
+
 def format_error_alert(run_phase: str, run_date: str, error: str) -> str:
     """Format an error alert email."""
     return (

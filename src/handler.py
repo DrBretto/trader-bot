@@ -1,12 +1,14 @@
 """
 Main Lambda handler for the daily investment pipeline.
 
-Supports two execution phases:
+Supports three execution phases:
 - Night analysis (default): Full pipeline + generate trade intents
 - Morning execution: Validate intents + execute trades at market prices
+- Midday check: Trailing stop re-eval, VIX circuit breaker, skipped-buy re-check
 
 Routed via event['source']:
 - "morning-execution" -> morning phase
+- "midday-check" -> midday check phase
 - Anything else -> night phase (backward compatible)
 """
 
@@ -27,6 +29,7 @@ from src.steps import (
     decision_engine,
     paper_trader,
     morning_executor,
+    midday_checker,
     llm_weather,
     publish_artifacts
 )
@@ -35,7 +38,8 @@ from src.utils.s3_client import S3Client
 from src.utils.logging_utils import setup_logger, log_step, StepTimer
 from src.brokers.router import get_broker, resolve_broker_mode, BrokerMode
 from src.utils.sns_alerts import (
-    send_alert, format_night_summary, format_morning_summary, format_error_alert
+    send_alert, format_night_summary, format_morning_summary,
+    format_midday_summary, format_error_alert
 )
 
 
@@ -137,6 +141,8 @@ def lambda_handler(event: dict, context) -> dict:
 
     if source == 'morning-execution':
         return _run_morning_phase(event, bucket, region)
+    elif source == 'midday-check':
+        return _run_midday_check(event, bucket, region)
     else:
         return _run_night_phase(event, bucket, region)
 
@@ -165,6 +171,17 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
             openai_key = get_secret('investment-system/openai-key', region)
             fred_key = get_secret('investment-system/fred-key', region)
             alphavantage_key = get_secret('investment-system/alphavantage-key', region)
+            alpaca_key_id = ''
+            alpaca_secret_key = ''
+            broker_mode = resolve_broker_mode(config)
+            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
+                prefix = 'paper' if broker_mode == BrokerMode.ALPACA_PAPER else 'live'
+                alpaca_key_id = get_secret(
+                    f'investment-system/alpaca-{prefix}-key-id', region
+                )
+                alpaca_secret_key = get_secret(
+                    f'investment-system/alpaca-{prefix}-secret-key', region
+                )
             logger.info("Using Claude Haiku via Bedrock for LLM calls")
 
         # Extract universe symbols
@@ -178,7 +195,12 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
         # Step 1: Ingest prices
         log_step(1, 12, "Ingesting prices...", logger)
         with StepTimer("Ingest prices", logger):
-            prices_df = ingest_prices.run(symbols, alphavantage_key)
+            prices_df = ingest_prices.run(
+                symbols,
+                alphavantage_key=alphavantage_key,
+                alpaca_key_id=alpaca_key_id,
+                alpaca_secret_key=alpaca_secret_key,
+            )
 
         # Step 2: Ingest FRED
         log_step(2, 12, "Ingesting FRED data...", logger)
@@ -245,12 +267,60 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
                 inference_output, features_df, context_df, openai_key, config
             )
 
-        # Step 10: Decision engine (with expert signal fusion)
+        # Step 10: Decision engine (with expert signal fusion + ranking model if active)
         log_step(10, 12, "Running decision engine...", logger)
         with StepTimer("Decision engine", logger):
+            active_ranking_blend = config.get('decision_engine_overrides', {}).get('ranking_blend', 0)
+            active_ranking_model_dir = config.get('decision_engine_overrides', {}).get('ranking_model_dir', '')
+            active_ranking_scores = None
+
+            if active_ranking_blend > 0 and active_ranking_model_dir:
+                try:
+                    from training.models.ranking_mlp import RankingMLP, RANKING_FEATURES
+                    import torch, json as _json
+                    from pathlib import Path
+                    import tempfile
+
+                    model_path = Path(active_ranking_model_dir) / 'ranking_mlp.pt'
+                    norm_path = Path(active_ranking_model_dir) / 'ranking_normalization.json'
+
+                    if not model_path.exists():
+                        logger.info("Active ranking: model not local, downloading from S3...")
+                        _tmp = Path(tempfile.mkdtemp()) / 'ranking'
+                        _tmp.mkdir(parents=True, exist_ok=True)
+                        s3_model = s3_client.download_file(f'{active_ranking_model_dir}/ranking_mlp.pt', str(_tmp / 'ranking_mlp.pt'))
+                        s3_norm = s3_client.download_file(f'{active_ranking_model_dir}/ranking_normalization.json', str(_tmp / 'ranking_normalization.json'))
+                        if s3_model and s3_norm:
+                            model_path = _tmp / 'ranking_mlp.pt'
+                            norm_path = _tmp / 'ranking_normalization.json'
+                        else:
+                            logger.warning("Active ranking: model not available on S3, falling back to health-only")
+                            model_path = None
+
+                    if model_path and model_path.exists() and norm_path.exists():
+                        with open(norm_path) as _f:
+                            ranking_norm = _json.load(_f)
+                        ranking_model = RankingMLP(input_dim=len(RANKING_FEATURES))
+                        ranking_model.load_state_dict(torch.load(model_path, weights_only=True))
+                        ranking_model.eval()
+
+                        active_ranking_scores = {}
+                        for _, row in features_df.iterrows():
+                            sym = row.get('symbol')
+                            if sym:
+                                feat_dict = {f: float(row.get(f, 0) or 0) for f in RANKING_FEATURES}
+                                active_ranking_scores[sym] = ranking_model.predict_scores(feat_dict, ranking_norm)
+                        logger.info(f"Active ranking: loaded model, scored {len(active_ranking_scores)} symbols at blend {active_ranking_blend}")
+                    else:
+                        logger.warning("Active ranking: model files not available, falling back to health-only")
+                except Exception as rank_err:
+                    logger.warning(f"Active ranking: model load failed, falling back to health-only: {rank_err}")
+
             decisions = decision_engine.run(
                 inference_output, llm_risks, features_df, config, validation,
-                expert_signals=expert_signals
+                expert_signals=expert_signals,
+                ranking_scores=active_ranking_scores,
+                ranking_blend=active_ranking_blend,
             )
 
         # Save trade intents to S3 (queued for morning execution)
@@ -343,7 +413,7 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
                         shd_syms = set(a.get('symbol', '') for a in shadow_intents['actions'])
                         comparison = {
                             'date': run_date,
-                            'incumbent_version': 'opt-bootstrap',
+                            'incumbent_version': config.get('active_params_metadata', {}).get('version_id', 'unknown'),
                             'candidate_version': candidate_bundle.get('version_id', 'unknown'),
                             'ranking_blend': ranking_blend,
                             'regime': decisions.get('regime', 'unknown'),
@@ -558,6 +628,7 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
             'intents_stale': result.get('intents_stale', False),
             'trades_executed': len(trades),
             'validation_log': validation_log,
+            'skipped_buys': result.get('skipped_buys', []),
             'timestamp': datetime.now().isoformat()
         }
 
@@ -621,6 +692,102 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
         }
 
 
+def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
+    """
+    Midday check phase: trailing stop re-eval, VIX circuit breaker, skipped-buy re-check.
+
+    A lightweight check that reuses existing calibrated parameters. Does not
+    run features, signals, inference, or the decision engine.
+    """
+    start_time = datetime.now()
+    run_date = datetime.now().strftime('%Y-%m-%d')
+    logger.info(f"Midday check started at {start_time}")
+
+    s3_client = S3Client(bucket, region)
+
+    try:
+        # Load configuration
+        with StepTimer("Load configuration", logger):
+            config = load_config_from_s3(s3_client)
+
+        # Set up broker adapter
+        with StepTimer("Broker setup", logger):
+            broker_mode = resolve_broker_mode(config)
+            alpaca_key_id = ''
+            alpaca_secret_key = ''
+            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
+                prefix = 'paper' if broker_mode == BrokerMode.ALPACA_PAPER else 'live'
+                alpaca_key_id = get_secret(
+                    f'investment-system/alpaca-{prefix}-key-id', region
+                )
+                alpaca_secret_key = get_secret(
+                    f'investment-system/alpaca-{prefix}-secret-key', region
+                )
+            broker = get_broker(config, alpaca_key_id, alpaca_secret_key)
+            logger.info("Midday check broker mode: %s", broker.mode_label)
+
+        # Run midday check
+        with StepTimer("Midday check", logger):
+            result = midday_checker.run(bucket, config, broker=broker)
+
+        actions = result['actions_taken']
+        check_log = result['check_log']
+        circuit_breaker = result['circuit_breaker_active']
+        portfolio_state = result['portfolio_state']
+
+        end_time = datetime.now()
+        duration = (end_time - start_time).total_seconds()
+
+        logger.info(f"Midday check completed in {duration:.1f}s")
+
+        # Send email alert
+        send_alert(
+            subject=(
+                f"[TraderBot] Midday: {len(actions)} actions"
+                + (" [CIRCUIT BREAKER]" if circuit_breaker else "")
+            ),
+            body=format_midday_summary(
+                run_date,
+                portfolio_state.get('portfolio_value', 0),
+                actions, check_log, circuit_breaker, duration
+            ),
+            region=region
+        )
+
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'status': 'success',
+                'phase': 'midday-check',
+                'date': run_date,
+                'duration_seconds': duration,
+                'actions_taken': len(actions),
+                'circuit_breaker_active': circuit_breaker,
+                'portfolio_value': portfolio_state.get('portfolio_value', 0)
+            })
+        }
+
+    except Exception as e:
+        logger.error(f"Midday check failed: {e}", exc_info=True)
+
+        send_alert(
+            subject="[TraderBot] ALERT: Midday check failed",
+            body=format_error_alert('midday-check', run_date, str(e)),
+            region=region
+        )
+
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                'status': 'failed',
+                'phase': 'midday-check',
+                'date': run_date,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            })
+        }
+
+
 # For local testing
 if __name__ == '__main__':
     import argparse
@@ -628,11 +795,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run investment pipeline locally')
     parser.add_argument('--bucket', default='investment-system-data', help='S3 bucket name')
     parser.add_argument('--region', default='us-east-1', help='AWS region')
-    parser.add_argument('--phase', default='night', choices=['night', 'morning'],
+    parser.add_argument('--phase', default='night', choices=['night', 'morning', 'midday'],
                         help='Which phase to run')
     args = parser.parse_args()
 
-    source = 'morning-execution' if args.phase == 'morning' else 'manual'
+    source_map = {'morning': 'morning-execution', 'midday': 'midday-check'}
+    source = source_map.get(args.phase, 'manual')
     result = lambda_handler(
         {'bucket': args.bucket, 'region': args.region, 'source': source}, None
     )
