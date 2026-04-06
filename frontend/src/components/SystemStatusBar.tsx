@@ -27,11 +27,11 @@ function formatPct(v: number): string {
   return `${(v * 100).toFixed(1)}%`;
 }
 
-function PipelineNode({ label, active, color }: {
-  label: string; active: boolean; color: string;
+function PipelineNode({ label, active, color, learnTooltip }: {
+  label: string; active: boolean; color: string; learnTooltip?: string;
 }) {
   return (
-    <span className="pipeline-node">
+    <span className="pipeline-node" data-learn-tooltip={learnTooltip}>
       <span className="pipeline-dot" style={{ backgroundColor: active ? color : '#334155' }} />
       <span className="pipeline-node-label">{label}</span>
     </span>
@@ -85,7 +85,7 @@ Actions → ${metrics.total_trades} trades · ${(metrics.win_rate * 100).toFixed
         <div className="status-item">
           <span className="status-label">Regime</span>
           <span className="status-value" style={{ textTransform: 'capitalize' }}>
-            <span style={{
+            <span data-learn-target="regime-dot" style={{
               display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
               backgroundColor: regimeColor, marginRight: 6, verticalAlign: 'middle',
             }} />
@@ -121,16 +121,16 @@ Actions → ${metrics.total_trades} trades · ${(metrics.win_rate * 100).toFixed
       </div>
 
       {/* Pipeline mini-diagram */}
-      <div className="pipeline-row">
-        <PipelineNode label="Signals" active={true} color="#3b82f6" />
+      <div className="pipeline-row" data-learn-target="pipeline-row">
+        <PipelineNode label="Signals" active={true} color="#3b82f6" learnTooltip="Raw market inputs: macro credit, volatility, fragility, entropy" />
         <span className="pipeline-arrow">→</span>
-        <PipelineNode label="Regime" active={true} color={regimeColor} />
+        <PipelineNode label="Regime" active={true} color={regimeColor} learnTooltip="Neural network prediction of current market conditions" />
         <span className="pipeline-arrow">→</span>
-        <PipelineNode label="Fusion" active={true} color={hasOverride || hasThrottle ? '#eab308' : '#22c55e'} />
+        <PipelineNode label="Fusion" active={true} color={hasOverride || hasThrottle ? '#eab308' : '#22c55e'} learnTooltip="Safety rules that can override position sizing" />
         <span className="pipeline-arrow">→</span>
-        <PipelineNode label="Score" active={true} color={isLive ? '#22c55e' : '#94a3b8'} />
+        <PipelineNode label="Score" active={true} color={isLive ? '#22c55e' : '#94a3b8'} learnTooltip="Ranks assets by health (65%) and model fit (35%)" />
         <span className="pipeline-arrow">→</span>
-        <PipelineNode label="Actions" active={true} color="#3b82f6" />
+        <PipelineNode label="Actions" active={true} color="#3b82f6" learnTooltip="Final trade decisions: buys, sells, adjustments" />
         <InfoTooltip
           content={pipelineSummary}
           label="Decision pipeline"

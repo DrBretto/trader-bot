@@ -123,7 +123,7 @@ export function SystemBrainPanel({ ensemble, fusionRules, timeseries, isHybridLi
         </div>
         <div className="brain-header-meta">
           <span className="brain-meta-chip">{isHybridLive ? '65/35 hybrid' : 'health-only'}</span>
-          <span className="brain-meta-chip" style={{ color: agreeColor }}>
+          <span className="brain-meta-chip" data-learn-target="agreement-pct" style={{ color: agreeColor }}>
             Agree {(agreement * 100).toFixed(0)}%
           </span>
         </div>
@@ -152,7 +152,7 @@ export function SystemBrainPanel({ ensemble, fusionRules, timeseries, isHybridLi
 
       {/* Fusion rule dots */}
       {fusionRules && fusionRules.length > 0 && (
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+        <div data-learn-target="fusion-dots" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
           {fusionRules.map(r => (
             <span
               key={r.code}

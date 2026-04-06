@@ -1624,7 +1624,7 @@ table thead th {
   }
 }
 
-/* ═══ Learning Guide ═══ */
+/* ═══ Learn Mode ═══ */
 .learn-toggle-btn {
   background: rgba(59, 130, 246, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.25);
@@ -1644,122 +1644,274 @@ table thead th {
   border-color: rgba(59, 130, 246, 0.4);
 }
 
-.learning-guide-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: rgba(2, 6, 23, 0.8);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 40px 24px;
-  overflow-y: auto;
-}
-
-.learning-guide-content {
-  max-width: 680px;
+/* Pane wrapper — always present, visually transparent when learn mode is off */
+.learn-pane-wrapper {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
   width: 100%;
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border: 1px solid #334155;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
 }
 
-.learning-guide-header {
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #334155;
+.learn-pane-flex-grow {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.learning-guide-title {
-  font-size: 20px;
+.learn-pane-flex-grow > * {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Active pane — spotlighted */
+.learn-mode-active {
+  opacity: 1;
+  filter: none;
+  box-shadow:
+    0 0 0 2px var(--accent-blue),
+    0 0 24px rgba(59, 130, 246, 0.12);
+  border-radius: 12px;
+  transition: all 250ms ease-out;
+  z-index: 50;
+}
+
+/* Dimmed panes */
+.learn-mode-dimmed {
+  opacity: 0.3;
+  filter: blur(1.5px) brightness(0.6);
+  transition: all 250ms ease-out;
+  cursor: pointer;
+}
+
+.learn-mode-dimmed:hover {
+  opacity: 0.55;
+  filter: blur(0.5px) brightness(0.75);
+}
+
+/* Explanation card */
+.learn-explain-card {
+  position: absolute;
+  max-width: 360px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  z-index: 60;
+  color: var(--text-primary);
+  animation: learnCardFadeIn 200ms ease-out;
+}
+
+.learn-explain-card h3 {
+  font-size: 15px;
   font-weight: 600;
+  margin-bottom: 10px;
   color: #f8fafc;
+  letter-spacing: 0.2px;
+}
+
+.learn-explain-card p {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.learn-explain-card strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Card placement variants */
+.learn-explain-card--below {
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-width: none;
+  margin-top: 8px;
+}
+
+.learn-explain-card--above {
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  max-width: none;
   margin-bottom: 8px;
 }
 
-.learning-guide-subtitle {
-  font-size: 13px;
-  color: #94a3b8;
-  line-height: 1.5;
-  margin-bottom: 16px;
+.learn-explain-card--right {
+  bottom: 12px;
+  left: calc(100% + 12px);
 }
 
-.learning-guide-close {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
-  color: #94a3b8;
+.learn-explain-card--left {
+  bottom: 12px;
+  right: calc(100% + 12px);
+}
+
+/* Floating navigation pill */
+.learn-nav-pill {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 999px;
+  padding: 8px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: learnCardFadeIn 250ms ease-out;
+}
+
+.learn-nav-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.learn-nav-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #475569;
+  cursor: pointer;
+  padding: 0;
+  transition: all 150ms ease;
+}
+
+.learn-nav-dot--visited {
+  background: rgba(59, 130, 246, 0.4);
+}
+
+.learn-nav-dot--active {
+  background: var(--accent-blue);
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+}
+
+.learn-nav-label {
   font-size: 12px;
   font-weight: 500;
-  padding: 6px 16px;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  color: #f8fafc;
+  white-space: nowrap;
+  min-width: 100px;
 }
 
-.learning-guide-close:hover {
+.learn-nav-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.learn-nav-btn {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.learn-nav-btn:hover {
   background: rgba(59, 130, 246, 0.2);
   color: #f8fafc;
 }
 
-.learning-guide-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.learn-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.learning-guide-card {
-  display: flex;
-  gap: 14px;
-  padding: 14px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid #1e293b;
-  border-radius: 10px;
-  transition: border-color 0.15s;
+.learn-nav-btn--exit {
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.08);
 }
 
-.learning-guide-card:hover {
-  border-color: #334155;
+.learn-nav-btn--exit:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
 }
 
-.learning-guide-number {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
+@keyframes learnCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pointer lines (Phase 2) */
+.learn-pointer-line {
+  stroke: var(--accent-blue);
+  stroke-opacity: 0.45;
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  fill: none;
+}
+
+.learn-pointer-dot {
+  fill: var(--accent-blue);
+  fill-opacity: 0.6;
+}
+
+.learn-pointer-group {
+  animation: learnPointerFadeIn 150ms ease-out 100ms both;
+}
+
+@keyframes learnPointerFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Learn-mode sub-element tooltips (Phase 2) */
+.learn-mode-active .pipeline-node[data-learn-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+.learn-mode-active .pipeline-node[data-learn-tooltip]:hover::after {
+  content: attr(data-learn-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  padding: 6px 10px;
   font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  line-height: 1.4;
+  color: #cbd5e1;
+  white-space: normal;
+  width: max-content;
+  max-width: 220px;
+  z-index: 70;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: learnCardFadeIn 150ms ease-out;
 }
 
-.learning-guide-card-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.learning-guide-card-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #f8fafc;
-  margin-bottom: 4px;
-}
-
-.learning-guide-card-text {
-  font-size: 12px;
-  color: #94a3b8;
-  line-height: 1.55;
-}
-
-.learning-guide-footer {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #334155;
-  display: flex;
-  justify-content: flex-end;
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .learn-mode-active,
+  .learn-mode-dimmed,
+  .learn-explain-card,
+  .learn-nav-pill,
+  .learn-pointer-group {
+    transition: none;
+    animation: none;
+  }
 }

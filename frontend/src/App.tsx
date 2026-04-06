@@ -16,7 +16,9 @@ import {
   SystemBrainPanel,
 } from './components';
 import { PerformanceChart } from './components/PerformanceChart';
-import { LearningGuide } from './components/LearningGuide';
+import { LearnModeProvider, useLearnMode } from './components/LearnModeProvider';
+import { LearnModeOverlay } from './components/LearnModeOverlay';
+import { LearnModeNav } from './components/LearnModeNav';
 
 function computeCompoundedYtd(data: { year: number; return_pct: number; observations?: number }[], year: number): number | null {
   const months = data.filter((row) => row.year === year && (row.observations ?? 1) > 0);
@@ -61,7 +63,6 @@ export function App() {
   const { data: timeseries } = useTimeseriesData();
   const [selectedOptimizerRun, setSelectedOptimizerRun] = useState<string | undefined>(undefined);
   const [optimizerOpen, setOptimizerOpen] = useState(false);
-  const [learningMode, setLearningMode] = useState(false);
   const {
     index: optimizerIndex,
     lineage: optimizerLineage,
@@ -101,107 +102,134 @@ export function App() {
   const isHybridLive = optimizerCandidateBundle?.promotion_status === 'live_active';
 
   return (
-    <div className="dashboard">
+    <LearnModeProvider>
+      <div className="dashboard">
 
-      {/* ═══════ ZONE 1: Identity + System + Money (~90px) ═══════ */}
-      <div className="zone-1">
-        <header className="zone-1-header">
-          <h1>Hybrid Ranking System</h1>
-          <span className="zone-1-timestamp">
-            {format(parseISO(m.timestamp), 'MMM d, yyyy h:mm a')}
-            <InfoTooltip content={`Data from snapshot ${data.snapshot?.id ?? m.snapshot_id ?? '?'}. All values on this page reflect this single pipeline run.`} label="Snapshot" align="right" />
-            <button className="learn-toggle-btn" onClick={() => setLearningMode(true)}>Learn</button>
-          </span>
-        </header>
+        {/* ═══════ ZONE 1: Identity + System + Money (~90px) ═══════ */}
+        <div className="zone-1">
+          <header className="zone-1-header">
+            <h1>Hybrid Ranking System</h1>
+            <span className="zone-1-timestamp">
+              {format(parseISO(m.timestamp), 'MMM d, yyyy h:mm a')}
+              <InfoTooltip content={`Data from snapshot ${data.snapshot?.id ?? m.snapshot_id ?? '?'}. All values on this page reflect this single pipeline run.`} label="Snapshot" align="right" />
+              <LearnButton />
+            </span>
+          </header>
 
-        <LearningGuide active={learningMode} onClose={() => setLearningMode(false)} />
+          <LearnModeOverlay paneId="status-bar">
+            <SystemStatusBar signals={data.expert_signals} metrics={m} candidateBundle={optimizerCandidateBundle} />
+          </LearnModeOverlay>
+        </div>
 
-        <SystemStatusBar signals={data.expert_signals} metrics={m} candidateBundle={optimizerCandidateBundle} />
-      </div>
+        {/* ═══════ ZONE 2: Chart + Story + Brain ═══════ */}
+        <div className="zone-2">
+          <div className="zone-2-chart">
+            <LearnModeOverlay paneId="perf-summary">
+              <div className="card perf-summary-card">
+                <div className="perf-metrics-strip">
+                  <div className="z1-metric">
+                    <span className="z1-metric-value z1-anchor">{formatCurrency(m.total_value)}</span>
+                    <span className="z1-metric-label">Total Value</span>
+                  </div>
+                  <div className="z1-metric">
+                    <span className={`z1-metric-value ${m.ytd_return >= 0 ? 'positive' : 'negative'}`}>{formatPct(m.ytd_return)}</span>
+                    <span className="z1-metric-label">YTD</span>
+                  </div>
+                  <div className="z1-metric">
+                    <span className="z1-metric-value">{m.sharpe_ratio != null ? m.sharpe_ratio.toFixed(2) : 'N/A'}</span>
+                    <span className="z1-metric-label">Sharpe</span>
+                  </div>
+                  <div className="z1-metric">
+                    <span className={`z1-metric-value ${m.max_drawdown >= 0 ? 'positive' : 'negative'}`}>{formatPct(m.max_drawdown)}</span>
+                    <span className="z1-metric-label">Max DD</span>
+                  </div>
+                  <div className="z1-metric">
+                    <span className={`z1-metric-value ${(vsSpySpread ?? 0) >= 0 ? 'positive' : 'negative'}`}>{vsSpySpread != null ? formatPct(vsSpySpread) : 'N/A'}</span>
+                    <span className="z1-metric-label">vs SPY</span>
+                  </div>
+                </div>
+              </div>
+            </LearnModeOverlay>
+            <LearnModeOverlay paneId="perf-chart" className="learn-pane-flex-grow">
+              <PerformanceChart
+                equityData={data.equity_curve}
+                drawdownData={data.drawdowns}
+                monthlyReturns={data.monthly_returns}
+                timeseries={timeseries}
+              />
+            </LearnModeOverlay>
+          </div>
+          <div className="zone-2-right">
+            <LearnModeOverlay paneId="todays-story">
+              <TodaysStoryCard
+                signals={data.expert_signals}
+                metrics={m}
+                candidates={data.candidates}
+                fusionRules={data.expert_signals?.fusion_rules}
+                weather={data.weather}
+              />
+            </LearnModeOverlay>
+            <LearnModeOverlay paneId="system-brain">
+              <SystemBrainPanel
+                ensemble={data.weather.regime.ensemble}
+                signals={data.expert_signals}
+                fusionRules={data.expert_signals?.fusion_rules}
+                timeseries={timeseries}
+                isHybridLive={isHybridLive}
+                mostFiredSignalKey={lastFiredSignal}
+              />
+            </LearnModeOverlay>
+          </div>
+        </div>
 
-      {/* ═══════ ZONE 2: Chart + Story + Brain ═══════ */}
-      <div className="zone-2">
-        <div className="zone-2-chart">
-          <div className="card perf-summary-card">
-            <div className="perf-metrics-strip">
-              <div className="z1-metric">
-                <span className="z1-metric-value z1-anchor">{formatCurrency(m.total_value)}</span>
-                <span className="z1-metric-label">Total Value</span>
-              </div>
-              <div className="z1-metric">
-                <span className={`z1-metric-value ${m.ytd_return >= 0 ? 'positive' : 'negative'}`}>{formatPct(m.ytd_return)}</span>
-                <span className="z1-metric-label">YTD</span>
-              </div>
-              <div className="z1-metric">
-                <span className="z1-metric-value">{m.sharpe_ratio != null ? m.sharpe_ratio.toFixed(2) : 'N/A'}</span>
-                <span className="z1-metric-label">Sharpe</span>
-              </div>
-              <div className="z1-metric">
-                <span className={`z1-metric-value ${m.max_drawdown >= 0 ? 'positive' : 'negative'}`}>{formatPct(m.max_drawdown)}</span>
-                <span className="z1-metric-label">Max DD</span>
-              </div>
-              <div className="z1-metric">
-                <span className={`z1-metric-value ${(vsSpySpread ?? 0) >= 0 ? 'positive' : 'negative'}`}>{vsSpySpread != null ? formatPct(vsSpySpread) : 'N/A'}</span>
-                <span className="z1-metric-label">vs SPY</span>
-              </div>
+        {/* ═══════ ZONE 3: Lower Deck ═══════ */}
+        <div className="zone-3">
+          <div className="lower-deck">
+            <div className="lower-deck-slot lower-deck-slot-table">
+              <LearnModeOverlay paneId="holdings">
+                <PortfolioTable holdings={data.holdings} snapshotTimestamp={m.timestamp} metrics={m} />
+              </LearnModeOverlay>
+            </div>
+            <div className="lower-deck-slot lower-deck-slot-log">
+              <LearnModeOverlay paneId="trade-log">
+                <TradeLog trades={data.trades ?? []} cumulativeCosts={m.cumulative_transaction_costs} tradeSummary={data.trade_summary} />
+              </LearnModeOverlay>
+            </div>
+            <div className="lower-deck-slot lower-deck-slot-table">
+              <LearnModeOverlay paneId="candidates">
+                <CandidatesTable candidates={data.candidates} snapshotTimestamp={m.timestamp} />
+              </LearnModeOverlay>
             </div>
           </div>
-          <PerformanceChart
-            equityData={data.equity_curve}
-            drawdownData={data.drawdowns}
-            monthlyReturns={data.monthly_returns}
-            timeseries={timeseries}
-          />
-        </div>
-        <div className="zone-2-right">
-          <TodaysStoryCard
-            signals={data.expert_signals}
-            metrics={m}
-            candidates={data.candidates}
-            fusionRules={data.expert_signals?.fusion_rules}
-            weather={data.weather}
-          />
-          <SystemBrainPanel
-            ensemble={data.weather.regime.ensemble}
-            signals={data.expert_signals}
-            fusionRules={data.expert_signals?.fusion_rules}
-            timeseries={timeseries}
-            isHybridLive={isHybridLive}
-            mostFiredSignalKey={lastFiredSignal}
-          />
-        </div>
-      </div>
 
-      {/* ═══════ ZONE 3: Lower Deck ═══════ */}
-      <div className="zone-3">
-        <div className="lower-deck">
-          <div className="lower-deck-slot lower-deck-slot-table">
-            <PortfolioTable holdings={data.holdings} snapshotTimestamp={m.timestamp} metrics={m} />
-          </div>
-          <div className="lower-deck-slot lower-deck-slot-log">
-            <TradeLog trades={data.trades ?? []} cumulativeCosts={m.cumulative_transaction_costs} tradeSummary={data.trade_summary} />
-          </div>
-          <div className="lower-deck-slot lower-deck-slot-table">
-            <CandidatesTable candidates={data.candidates} snapshotTimestamp={m.timestamp} />
+          <div className="card" style={{ marginBottom: 16 }}>
+            <div className="collapsible-header" onClick={() => setOptimizerOpen(!optimizerOpen)}>
+              <div className="card-title" style={{ marginBottom: 0 }}>
+                <span>Optimizer</span>
+                <InfoTooltip content="Champion-challenger evolution engine. Tests new parameter sets against the live champion via walk-forward backtesting. Promoted candidates become the active scoring model." label="Optimizer" />
+              </div>
+              <span className={`chevron ${optimizerOpen ? 'open' : ''}`}>▼</span>
+            </div>
+            {optimizerOpen && (
+              <div style={{ marginTop: 12 }}>
+                <OptimizerStatus index={optimizerIndex} lineage={optimizerLineage} selectedRunId={selectedOptimizerRun} onSelectRun={runId => setSelectedOptimizerRun(runId)} />
+                <OptimizerRunDetail detail={optimizerDetail} loading={optimizerLoading || optimizerDetailLoading} />
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="card" style={{ marginBottom: 16 }}>
-          <div className="collapsible-header" onClick={() => setOptimizerOpen(!optimizerOpen)}>
-            <div className="card-title" style={{ marginBottom: 0 }}>
-              <span>Optimizer</span>
-              <InfoTooltip content="Champion-challenger evolution engine. Tests new parameter sets against the live champion via walk-forward backtesting. Promoted candidates become the active scoring model." label="Optimizer" />
-            </div>
-            <span className={`chevron ${optimizerOpen ? 'open' : ''}`}>▼</span>
-          </div>
-          {optimizerOpen && (
-            <div style={{ marginTop: 12 }}>
-              <OptimizerStatus index={optimizerIndex} lineage={optimizerLineage} selectedRunId={selectedOptimizerRun} onSelectRun={runId => setSelectedOptimizerRun(runId)} />
-              <OptimizerRunDetail detail={optimizerDetail} loading={optimizerLoading || optimizerDetailLoading} />
-            </div>
-          )}
-        </div>
+        <LearnModeNav />
       </div>
-    </div>
+    </LearnModeProvider>
+  );
+}
+
+function LearnButton() {
+  const { active, enterLearnMode, exitLearnMode } = useLearnMode();
+  return (
+    <button className="learn-toggle-btn" onClick={active ? exitLearnMode : enterLearnMode}>
+      {active ? 'Exit Learn' : 'Learn'}
+    </button>
   );
 }
