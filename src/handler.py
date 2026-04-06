@@ -101,6 +101,7 @@ def load_config_from_s3(s3_client: S3Client) -> dict:
     config['decision_engine_overrides'] = active_bundle.get('decision_engine', {})
     config['ensemble_overrides'] = active_bundle.get('ensemble', {})
     config['transaction_cost_overrides'] = active_bundle.get('transaction_costs', {})
+    config['broker'] = active_bundle.get('broker', {})
     config['active_params_metadata'] = {
         'version_id': active_bundle.get('version_id'),
         'source_run_id': active_bundle.get('source_run_id'),
