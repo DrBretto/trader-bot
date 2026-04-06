@@ -1742,11 +1742,13 @@ table thead th {
 .learn-explain-card--right {
   bottom: 12px;
   left: calc(100% + 12px);
+  width: 340px;
 }
 
 .learn-explain-card--left {
   bottom: 12px;
   right: calc(100% + 12px);
+  width: 340px;
 }
 
 /* Floating navigation pill */
