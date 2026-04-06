@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 PAPER_BASE_URL = 'https://paper-api.alpaca.markets'
 LIVE_BASE_URL = 'https://api.alpaca.markets'
+DATA_BASE_URL = 'https://data.alpaca.markets'
 
 # Safety defaults
 DEFAULT_MAX_ORDER_NOTIONAL = 5000.0  # per-order cap in dollars
@@ -206,3 +207,113 @@ class AlpacaBroker(BaseBroker):
         if after:
             params += f'&after={after}'
         return self._request('GET', f'/v2/orders{params}')
+
+    def get_snapshots(self, symbols: List[str]) -> List[Dict[str, Any]]:
+        """Fetch latest stock snapshots from the Alpaca data API.
+
+        Returns a list of dicts with: symbol, price, open, high, low, volume, timestamp.
+        Symbols that fail are silently omitted.
+
+        Tries IEX feed first (free tier for paper accounts), then retries
+        without a feed parameter to let Alpaca use the account default.
+        Falls back to latest-bars endpoint if snapshots return nothing.
+        """
+        if not symbols:
+            return []
+
+        results = self._fetch_snapshots_with_feed(symbols, feed='iex')
+        if results:
+            return results
+
+        # Retry without explicit feed — lets Alpaca use the account default
+        logger.info("IEX snapshots empty, retrying without feed parameter")
+        results = self._fetch_snapshots_with_feed(symbols, feed=None)
+        if results:
+            return results
+
+        # Final fallback: latest bars endpoint
+        logger.info("Snapshots empty, falling back to latest bars")
+        return self._fetch_latest_bars(symbols)
+
+    def _fetch_snapshots_with_feed(
+        self, symbols: List[str], feed: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Fetch snapshots, optionally with a specific feed."""
+        sym_param = ','.join(symbols)
+        url = f'{DATA_BASE_URL}/v2/stocks/snapshots?symbols={sym_param}'
+        if feed:
+            url += f'&feed={feed}'
+        req = Request(url, headers=self._headers(), method='GET')
+
+        try:
+            with urlopen(req, timeout=30) as resp:
+                raw = json.loads(resp.read().decode())
+        except (HTTPError, URLError) as exc:
+            logger.error("Alpaca snapshot error (feed=%s): %s", feed, exc)
+            return []
+
+        logger.info(
+            "Alpaca snapshots (feed=%s): %d symbols returned for %d requested",
+            feed, len(raw), len(symbols),
+        )
+
+        results = []
+        for symbol, snap in raw.items():
+            try:
+                daily = snap.get('dailyBar') or {}
+                trade = snap.get('latestTrade') or {}
+                # Prefer latest trade price, fall back to daily close
+                price = float(trade.get('p', 0)) or float(daily.get('c', 0))
+                if price <= 0:
+                    continue
+                results.append({
+                    'symbol': symbol,
+                    'price': price,
+                    'open': float(daily.get('o', price)),
+                    'high': float(daily.get('h', price)),
+                    'low': float(daily.get('l', price)),
+                    'volume': int(daily.get('v', 0)),
+                    'timestamp': trade.get('t', daily.get('t', '')),
+                })
+            except (TypeError, ValueError, KeyError) as exc:
+                logger.warning("Snapshot parse error for %s: %s", symbol, exc)
+                continue
+
+        return results
+
+    def _fetch_latest_bars(self, symbols: List[str]) -> List[Dict[str, Any]]:
+        """Fallback: fetch latest daily bars for each symbol."""
+        sym_param = ','.join(symbols)
+        url = f'{DATA_BASE_URL}/v2/stocks/bars/latest?symbols={sym_param}'
+        req = Request(url, headers=self._headers(), method='GET')
+
+        try:
+            with urlopen(req, timeout=30) as resp:
+                raw = json.loads(resp.read().decode())
+        except (HTTPError, URLError) as exc:
+            logger.error("Alpaca latest-bars error: %s", exc)
+            return []
+
+        bars = raw.get('bars', {})
+        logger.info("Alpaca latest-bars: %d symbols returned", len(bars))
+
+        results = []
+        for symbol, bar in bars.items():
+            try:
+                price = float(bar.get('c', 0))
+                if price <= 0:
+                    continue
+                results.append({
+                    'symbol': symbol,
+                    'price': price,
+                    'open': float(bar.get('o', price)),
+                    'high': float(bar.get('h', price)),
+                    'low': float(bar.get('l', price)),
+                    'volume': int(bar.get('v', 0)),
+                    'timestamp': bar.get('t', ''),
+                })
+            except (TypeError, ValueError, KeyError) as exc:
+                logger.warning("Latest-bar parse error for %s: %s", symbol, exc)
+                continue
+
+        return results
