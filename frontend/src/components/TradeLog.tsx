@@ -45,86 +45,62 @@ export function TradeLog({ trades, cumulativeCosts, tradeSummary }: Props) {
   if (trades.length === 0) {
     return (
       <div className="card">
-        <div className="card-title">
+        <div className="card-title" style={{ marginBottom: 0 }}>
           <span>Trade Log</span>
           <InfoTooltip
-            content={`Execution-level fill history. A fill is one executed order event.
-Round-trips are realized entry+exit pairings (FIFO), used for win/loss accounting and realized performance stats.`}
+            content={`Execution-level fill history. A fill is one executed order event.\nRound-trips are realized entry+exit pairings (FIFO), used for win/loss accounting and realized performance stats.`}
             label="Trade log"
           />
         </div>
-        <p style={{ color: '#64748b', textAlign: 'center', padding: '40px 0' }}>
-          No trades recorded yet
-        </p>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: '#64748b', textAlign: 'center' }}>No trades recorded yet</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="card">
-      <div className="card-title">
-        <span>Trade Log</span>
-        <InfoTooltip
-          content={`Execution-level fill history. A fill is one executed order event.
-Round-trips are realized entry+exit pairings (FIFO), used for win/loss accounting and realized performance stats.`}
-          label="Trade log"
-        />
+      <div className="lower-deck-header-row">
+        <div className="card-title" style={{ marginBottom: 0 }}>
+          <span>Trade Log</span>
+          <InfoTooltip
+            content={`Execution-level fill history. A fill is one executed order event.\nRound-trips are realized entry+exit pairings (FIFO), used for win/loss accounting and realized performance stats.`}
+            label="Trade log"
+          />
+        </div>
+        {(roundTrips > 0 || fillsTotal > 0) && (
+          <div className="lower-deck-header-detail">
+            <span style={{ color: '#22c55e' }}>{wins}w</span>
+            <span style={{ color: '#ef4444' }}>{losses}l</span>
+            {breakeven > 0 && <span>{breakeven}be</span>}
+            {txnCosts != null && txnCosts > 0 && (
+              <span>costs: <span style={{ color: '#f59e0b' }}>{formatCurrency(txnCosts)}</span></span>
+            )}
+          </div>
+        )}
       </div>
       {(roundTrips > 0 || fillsTotal > 0) && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '24px',
-            padding: '8px 0 16px',
-            fontSize: '0.85rem',
-            color: '#94a3b8',
-            flexWrap: 'wrap',
-          }}
-        >
-          <span title="Total executed fills (buys + sells + reductions).">
-            {fillsTotal} fills
-          </span>
-          <span title="Realized entry/exit pairs used for win/loss analytics.">
-            {roundTrips} round-trips
-          </span>
-          <span style={{ color: '#22c55e' }} title="Count of round-trips with positive realized P&L.">
-            {wins} wins
-          </span>
-          <span style={{ color: '#ef4444' }} title="Count of round-trips with negative realized P&L.">
-            {losses} losses
-          </span>
-          {breakeven > 0 && (
-            <span style={{ color: '#f8fafc' }} title="Round-trips with near-zero realized P&L.">
-              {breakeven} breakeven
+        <div className="lower-deck-summary">
+          <div className="lower-deck-summary-row">
+            <span className="lower-deck-summary-stat">
+              <span className="lower-deck-summary-value">{fillsTotal}</span>
+              <span className="lower-deck-summary-label">fills</span>
             </span>
-          )}
-          <span title="Realized round-trip wins / (wins + losses), excluding breakeven outcomes.">
-            Realized win rate:{' '}
-            <span
-              style={{
-                color: winRate >= 0.5 ? '#22c55e' : '#ef4444',
-                fontWeight: 600,
-              }}
-            >
-              {(winRate * 100).toFixed(0)}%
+            <span className="lower-deck-summary-stat">
+              <span className="lower-deck-summary-value">{roundTrips}</span>
+              <span className="lower-deck-summary-label">round-trips</span>
             </span>
-          </span>
-          {txnCosts != null && txnCosts > 0 && (
-            <span title="Cumulative estimated transaction costs from fills (commissions + slippage model).">
-              Txn costs: <span style={{ color: '#f59e0b', fontWeight: 600 }}>{formatCurrency(txnCosts)}</span>
+            <span className="lower-deck-summary-stat">
+              <span className="lower-deck-summary-value" style={{ color: winRate >= 0.5 ? '#22c55e' : '#ef4444' }}>
+                {(winRate * 100).toFixed(0)}%
+              </span>
+              <span className="lower-deck-summary-label">win rate</span>
             </span>
-          )}
-          {(tradeSummary?.unmatched_closing_shares ?? 0) > 0 && (
-            <span
-              style={{ color: '#eab308' }}
-              title="Closing shares that could not be paired to open inventory lots; investigate data integrity if non-zero."
-            >
-              Unmatched close qty: {tradeSummary?.unmatched_closing_shares}
-            </span>
-          )}
+          </div>
         </div>
       )}
-      <div style={{ overflowX: 'auto' }}>
+      <div className="bounded-scroll" style={{ overflowX: 'auto' }}>
         <table>
           <thead>
             <tr>
@@ -136,8 +112,6 @@ Round-trips are realized entry+exit pairings (FIFO), used for win/loss accountin
               <th style={{ textAlign: 'right' }} title="Per-trade transaction-cost assumption in basis points (bps).">Cost</th>
               <th style={{ textAlign: 'right' }} title="Realized dollar P&L for closing fills; blank for opening fills.">P&L</th>
               <th style={{ textAlign: 'right' }} title="Realized percent P&L for closing fills; blank for opening fills.">P&L %</th>
-              <th style={{ textAlign: 'right' }} title="Holding period in days for realized exits.">Days</th>
-              <th title="Execution reason from the decision/risk pipeline.">Reason</th>
             </tr>
           </thead>
           <tbody>
@@ -188,22 +162,6 @@ Round-trips are realized entry+exit pairings (FIFO), used for win/loss accountin
                   }}
                 >
                   {trade.pnl_pct !== undefined ? formatPercent(trade.pnl_pct) : '\u2014'}
-                </td>
-                <td style={{ textAlign: 'right', color: '#94a3b8' }}>
-                  {trade.days_held !== undefined ? trade.days_held : '\u2014'}
-                </td>
-                <td
-                  style={{
-                    color: '#94a3b8',
-                    fontSize: '0.8rem',
-                    maxWidth: '150px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                  title={trade.reason}
-                >
-                  {trade.reason || '\u2014'}
                 </td>
               </tr>
             ))}

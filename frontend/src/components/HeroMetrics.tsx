@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { EquityCurvePoint, Holding, PortfolioMetrics } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -60,13 +61,14 @@ export function HeroMetrics({ metrics, holdings, equityCurve }: Props) {
     (totalValue > 0 ? maxHoldingValue / totalValue : 0);
   const vsSpySpread = computeVsSpySpread(equityCurve);
 
+  // Reordered: 5 primary first (Total Value, YTD, Sharpe, Max DD, vs SPY), then secondary
   const metricItems = [
     {
       label: 'Total Value',
       value: formatCurrency(metrics.total_value),
       colorBySign: false,
       tooltip:
-        'Current marked-to-market account equity: cash + market value of all open positions at this snapshot. Note: this value includes the continuity bridge adjustment from the pre-Alpaca simulated period. The broker-only account value may differ. Use the broker-only toggle above charts for the Alpaca-only view.',
+        'Current marked-to-market account equity: cash + market value of all open positions at this snapshot. The displayed dashboard history remains continuous across the pre-Alpaca simulated period and the live paper-trading period.',
     },
     {
       label: 'YTD Return',
@@ -74,15 +76,7 @@ export function HeroMetrics({ metrics, holdings, equityCurve }: Props) {
       colorBySign: true,
       rawValue: metrics.ytd_return,
       tooltip:
-        'Time-weighted return from the first trading day of the calendar year through this snapshot. External deposits/withdrawals are excluded from performance. Includes both the simulated pre-cutover period and the Alpaca paper period, bridged by a cashflow adjustment on 2026-03-12.',
-    },
-    {
-      label: 'MTD Return',
-      value: formatPercent(metrics.mtd_return),
-      colorBySign: true,
-      rawValue: metrics.mtd_return,
-      tooltip:
-        'Time-weighted return from the first trading day of the current month through this snapshot, using the same canonical return series as Sharpe and drawdown. Post-cutover months reflect Alpaca broker truth only.',
+        'Time-weighted return from the first trading day of the calendar year through this snapshot. External deposits/withdrawals are excluded from performance. The displayed series includes both the simulated pre-cutover period and the Alpaca paper-trading period, bridged by a continuity adjustment on 2026-03-12.',
     },
     {
       label: 'Sharpe Ratio',
@@ -98,6 +92,22 @@ export function HeroMetrics({ metrics, holdings, equityCurve }: Props) {
       rawValue: metrics.max_drawdown,
       tooltip:
         'Worst peak-to-trough decline on the canonical equity curve during the active history window (or post-reset segment when a reset boundary exists).',
+    },
+    {
+      label: 'Portfolio vs SPY',
+      value: vsSpySpread != null ? formatPercent(vsSpySpread) : 'N/A',
+      colorBySign: true,
+      rawValue: vsSpySpread ?? undefined,
+      tooltip:
+        'Relative return spread over the displayed equity window: (Portfolio total return - SPY total return). Positive means outperformance.',
+    },
+    {
+      label: 'MTD Return',
+      value: formatPercent(metrics.mtd_return),
+      colorBySign: true,
+      rawValue: metrics.mtd_return,
+      tooltip:
+        'Time-weighted return from the first trading day of the current month through this snapshot, using the same canonical return series as Sharpe and drawdown. Post-cutover months reflect Alpaca broker truth only.',
     },
     {
       label: 'Realized Win Rate',
@@ -142,40 +152,46 @@ export function HeroMetrics({ metrics, holdings, equityCurve }: Props) {
       tooltip:
         'Approximate sensitivity of portfolio returns to SPY returns over a recent rolling window. Higher beta means stronger market co-movement.',
     },
-    {
-      label: 'Portfolio vs SPY',
-      value: vsSpySpread != null ? formatPercent(vsSpySpread) : 'N/A',
-      colorBySign: true,
-      rawValue: vsSpySpread ?? undefined,
-      tooltip:
-        'Relative return spread over the displayed equity window: (Portfolio total return - SPY total return). Positive means outperformance.',
-    },
   ];
 
-  return (
-    <div className="metrics-grid">
-      {metricItems.map((item) => (
-        <div key={item.label} className="metric-card">
-          <div
-            className="metric-label"
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <span>{item.label}</span>
-            <InfoTooltip content={item.tooltip} label={item.label} align="right" />
-          </div>
-          <div
-            className={`metric-value ${
-              item.colorBySign && item.rawValue != null
-                ? item.rawValue >= 0
-                  ? 'positive'
-                  : 'negative'
-                : ''
-            }`}
-          >
-            {item.value}
-          </div>
-        </div>
-      ))}
+  const [expanded, setExpanded] = useState(false);
+  const PRIMARY_COUNT = 5;
+  const primaryItems = metricItems.slice(0, PRIMARY_COUNT);
+  const secondaryItems = metricItems.slice(PRIMARY_COUNT);
+
+  const renderMetric = (item: typeof metricItems[0], secondary = false) => (
+    <div key={item.label} className={`metric-card ${secondary ? 'metric-card-secondary' : ''}`}>
+      <div className="metric-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <span>{item.label}</span>
+        <InfoTooltip content={item.tooltip} label={item.label} align="right" />
+      </div>
+      <div
+        className={`metric-value ${item.label === 'Total Value' ? 'anchor' : ''} ${
+          item.colorBySign && item.rawValue != null
+            ? item.rawValue >= 0 ? 'positive' : 'negative'
+            : ''
+        }`}
+      >
+        {item.value}
+      </div>
     </div>
+  );
+
+  return (
+    <>
+      <div className="metrics-grid metrics-grid-primary">
+        {primaryItems.map((item) => renderMetric(item))}
+      </div>
+      {!expanded && secondaryItems.length > 0 && (
+        <button onClick={() => setExpanded(true)} className="mobile-expand-btn">
+          +{secondaryItems.length} more metrics
+        </button>
+      )}
+      {expanded && (
+        <div className="metrics-grid metrics-grid-secondary">
+          {secondaryItems.map((item) => renderMetric(item, true))}
+        </div>
+      )}
+    </>
   );
 }

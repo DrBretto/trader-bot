@@ -22,11 +22,27 @@ function hasAnyPromotion(index: OptimizerRunsIndex | null): boolean {
   return (index?.runs ?? []).some((r) => r.status === 'promoted');
 }
 
+function computeTradingDays(startDate: string): number {
+  const start = new Date(startDate);
+  const now = new Date();
+  let count = 0;
+  const d = new Date(start);
+  while (d < now) {
+    d.setDate(d.getDate() + 1);
+    const day = d.getDay();
+    if (day !== 0 && day !== 6) count++;
+  }
+  return count;
+}
+
 export function EvidenceSummary({ optimizerIndex, candidateBundle }: Props) {
   const activeVersion = optimizerIndex?.active_version;
   const candidateVersion = candidateBundle?.version_id;
-  const candidateIsStaged = candidateBundle?.promotion_status === 'staged_not_promoted';
-  const showCandidate = candidateVersion && candidateIsStaged && !hasAnyPromotion(optimizerIndex);
+  const promotionStatus = candidateBundle?.promotion_status;
+  const isLive = promotionStatus === 'live_active';
+  const isShadow = promotionStatus === 'shadow_accumulating';
+  const isStaged = promotionStatus === 'staged_not_promoted';
+  const showCandidate = candidateVersion && (isShadow || isStaged) && !isLive && !hasAnyPromotion(optimizerIndex);
   const latestDecision = deriveLatestDecisionSummary(optimizerIndex);
   const totalRuns = optimizerIndex?.runs?.length ?? 0;
 
@@ -53,7 +69,7 @@ export function EvidenceSummary({ optimizerIndex, candidateBundle }: Props) {
           </div>
           <div style={{ fontSize: 18, fontWeight: 600, color: '#22c55e' }}>Capital Preserved</div>
           <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
-            20 round trips · 50% win rate · SPY −18.5%
+            High cash allocation during SPY drawdown · 20 round trips · 50% win rate
           </div>
         </div>
 
@@ -88,8 +104,8 @@ export function EvidenceSummary({ optimizerIndex, candidateBundle }: Props) {
             <InfoTooltip
               content={
                 candidateBundle
-                  ? `Active: ${activeVersion ?? 'unknown'}\nChallenger: ${candidateVersion ?? 'none'}\n\n${candidateBundle.change_summary}\n\nStatus: ${candidateBundle.promotion_status.replace(/_/g, ' ')}\nRequires: ${candidateBundle.promotion_requires}`
-                  : `Active: ${activeVersion ?? 'unknown'}\nNo candidate bundle data available.`
+                  ? `Active: ${activeVersion ?? 'unknown'}\nVersion shown: ${candidateVersion ?? 'none'}\n\n${candidateBundle.change_summary}\n\nStatus: ${candidateBundle.promotion_status.replace(/_/g, ' ')}${candidateBundle.promotion_requires ? `\nRequires: ${candidateBundle.promotion_requires}` : ''}`
+                  : `Active: ${activeVersion ?? 'unknown'}\nNo bundle summary data available.`
               }
               label="Parameter state"
               align="right"
@@ -98,13 +114,41 @@ export function EvidenceSummary({ optimizerIndex, candidateBundle }: Props) {
           <div style={{ fontSize: 13, color: '#f8fafc' }}>
             Active: <span style={{ fontFamily: 'monospace', color: '#3b82f6' }}>{activeVersion ?? '—'}</span>
           </div>
-          {showCandidate && (
+          {isLive && candidateBundle && (
+            <div style={{ fontSize: 12, color: '#22c55e', marginTop: 2 }}>
+              Live now: <span style={{ fontFamily: 'monospace' }}>{candidateBundle.version_id}</span>
+              {candidateBundle.promotion_date && (
+                <span style={{ color: '#64748b', marginLeft: 4 }}>
+                  (promoted {candidateBundle.promotion_date})
+                </span>
+              )}
+            </div>
+          )}
+          {isLive && candidateBundle?.rollback_version && (
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+              Rollback ready: <span style={{ fontFamily: 'monospace' }}>{candidateBundle.rollback_version}</span>
+            </div>
+          )}
+          {showCandidate && isShadow && (
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+              Shadow evaluation:{' '}
+              <span style={{ fontFamily: 'monospace' }}>{candidateVersion}</span>
+              {candidateBundle?.accumulation_start_date && (
+                <span style={{ color: '#64748b', marginLeft: 4 }}>
+                  (day {computeTradingDays(candidateBundle.accumulation_start_date)} of 30)
+                </span>
+              )}
+            </div>
+          )}
+          {showCandidate && isStaged && (
             <div style={{ fontSize: 12, color: '#eab308', marginTop: 2 }}>
               Challenger staged: <span style={{ fontFamily: 'monospace' }}>{candidateVersion}</span>
             </div>
           )}
           {!showCandidate && (
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>No challenger staged</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+              {isLive ? 'Monitoring continues in parallel' : 'No challenger'}
+            </div>
           )}
         </div>
 
@@ -113,17 +157,24 @@ export function EvidenceSummary({ optimizerIndex, candidateBundle }: Props) {
           <div className="evidence-panel-label">
             Optimizer
             <InfoTooltip
-              content={`Champion–challenger optimizer runs locally.\n${totalRuns} run${totalRuns !== 1 ? 's' : ''} recorded. No promotions to date — all challengers have been rejected by guardrails or objective criteria.\n\nThis is expected in early operation. The optimizer is conservative by design.`}
+              content={isLive
+                ? `Champion–challenger optimizer runs locally.\n${totalRuns} run${totalRuns !== 1 ? 's' : ''} recorded. The hybrid is currently live via explicit operator-directed promotion after a clean week-one shadow review. Continued monitoring remains active.`
+                : `Champion–challenger optimizer runs locally.\n${totalRuns} run${totalRuns !== 1 ? 's' : ''} recorded. No promotions to date — all challengers have been rejected by guardrails or objective criteria.\n\nThis is expected in early operation. The optimizer is conservative by design.`}
               label="Optimizer status"
               align="right"
             />
           </div>
           <div style={{ fontSize: 13, color: '#f8fafc' }}>
-            {totalRuns} run{totalRuns !== 1 ? 's' : ''} · 0 promotions
+            {totalRuns} run{totalRuns !== 1 ? 's' : ''} · {isLive ? 'hybrid live' : '0 promotions'}
           </div>
           {latestDecision && (
             <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
               {latestDecision}
+            </div>
+          )}
+          {isLive && (
+            <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+              Active bundle was promoted outside the optimizer auto-promotion path.
             </div>
           )}
         </div>

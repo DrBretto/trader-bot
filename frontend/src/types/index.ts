@@ -54,6 +54,7 @@ export interface EquityCurvePoint {
   date: string;
   value: number;
   benchmark: number;
+  regimeLabel?: string | null;
 }
 
 export interface DrawdownPoint {
@@ -283,7 +284,16 @@ export interface CandidateBundleSummary {
   change_summary: string;
   evidence_source: string;
   promotion_status: string;
-  promotion_requires: string;
+  promotion_requires?: string;
   updated_at: string;
+  promotion_date?: string;
+  promotion_authority?: string;
+  shadow_verified?: boolean;
+  shadow_verified_date?: string;
+  accumulation_start_date?: string;
+  rollback_available?: boolean;
+  rollback_version?: string;
+  rollback_path?: string;
+  continued_monitoring?: boolean;
   gate_evidence?: Record<string, string>;
 }

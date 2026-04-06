@@ -41,7 +41,7 @@ export function RegimeStrip({ signals, timeseries }: Props) {
   const regimeColor = REGIME_COLORS[regime] || '#64748b';
 
   return (
-    <div className="card" style={{ marginBottom: 24 }}>
+    <div className="card" style={{ marginBottom: 0 }}>
       <div className="card-title">
         <span>Market Intelligence</span>
         <InfoTooltip
