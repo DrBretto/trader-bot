@@ -9,6 +9,7 @@ Supports three execution modes:
 import logging
 import hashlib
 import math
+import time
 import pandas as pd
 from datetime import datetime
 from typing import Dict, Any, List, Tuple, Optional
@@ -31,6 +32,16 @@ MAX_INTENT_AGE_DAYS = 3
 # Maximum price gap allowed for BUY intents.
 # If morning price differs from intent price by more than this, skip the buy.
 BUY_PRICE_GAP_THRESHOLD = 0.05
+
+BROKER_TERMINAL_ORDER_STATUSES = {
+    'filled',
+    'partially_filled',
+    'canceled',
+    'cancelled',
+    'expired',
+    'rejected',
+    'suspended',
+}
 
 
 def load_trade_intents(s3: S3Client) -> Optional[Dict[str, Any]]:
@@ -227,8 +238,15 @@ def _execute_via_broker(
             client_order_id=client_order_id,
         )
 
+    order_result = _await_broker_order_update(broker, order_result)
+
     try:
-        executed_shares = float(order_result.get('qty')) if order_result.get('qty') is not None else 0.0
+        share_value = (
+            order_result.get('filled_qty')
+            if order_result.get('filled_qty') is not None
+            else order_result.get('qty')
+        )
+        executed_shares = float(share_value) if share_value is not None else 0.0
     except (TypeError, ValueError):
         executed_shares = 0.0
     if executed_shares <= 0:
@@ -238,6 +256,14 @@ def _execute_via_broker(
         executed_notional = float(order_result.get('notional')) if order_result.get('notional') is not None else 0.0
     except (TypeError, ValueError):
         executed_notional = 0.0
+    if executed_notional <= 0:
+        try:
+            filled_qty = float(order_result.get('filled_qty') or 0.0)
+            filled_avg_price = float(order_result.get('filled_avg_price') or 0.0)
+            if filled_qty > 0 and filled_avg_price > 0:
+                executed_notional = filled_qty * filled_avg_price
+        except (TypeError, ValueError):
+            pass
     if executed_notional <= 0:
         executed_notional = submitted_notional if submitted_notional > 0 else float(intent.get('dollars', 0) or 0)
 
@@ -257,6 +283,69 @@ def _execute_via_broker(
         'broker_status': order_result.get('status'),
         'execution_mode': broker.mode_label,
     }
+
+
+def _await_broker_order_update(
+    broker: BaseBroker,
+    order_result: Dict[str, Any],
+    timeout_sec: float = 8.0,
+    poll_interval_sec: float = 0.5,
+) -> Dict[str, Any]:
+    """Poll broker order status briefly so reconciliation sees near-immediate fills."""
+    order_id = order_result.get('order_id')
+    status = str(order_result.get('status') or '').lower()
+
+    if not order_id or status in BROKER_TERMINAL_ORDER_STATUSES:
+        return order_result
+
+    latest_raw = order_result.get('raw') or {}
+    deadline = time.time() + timeout_sec
+
+    while time.time() < deadline:
+        time.sleep(poll_interval_sec)
+        try:
+            latest_raw = broker.get_order(order_id) or latest_raw
+        except Exception as exc:
+            logger.warning("Broker order refresh failed for %s: %s", order_id, exc)
+            break
+
+        status = str(latest_raw.get('status') or status).lower()
+        if status in BROKER_TERMINAL_ORDER_STATUSES:
+            break
+
+    merged = dict(order_result)
+    merged['status'] = latest_raw.get('status', order_result.get('status'))
+    merged['qty'] = latest_raw.get('qty', order_result.get('qty'))
+    merged['filled_qty'] = latest_raw.get('filled_qty')
+    merged['notional'] = latest_raw.get('notional', order_result.get('notional'))
+    merged['filled_avg_price'] = latest_raw.get('filled_avg_price')
+    merged['raw'] = latest_raw
+    return merged
+
+
+def _reconcile_portfolio_from_broker_with_retry(
+    broker: BaseBroker,
+    portfolio: Dict[str, Any],
+    expected_buy_symbols: Optional[List[str]] = None,
+    timeout_sec: float = 8.0,
+    poll_interval_sec: float = 0.5,
+) -> Dict[str, Any]:
+    """Retry reconciliation briefly so fresh fills show up in published holdings."""
+    expected = set(expected_buy_symbols or [])
+    deadline = time.time() + timeout_sec
+    latest = _reconcile_portfolio_from_broker(broker, portfolio)
+
+    if not expected:
+        return latest
+
+    while time.time() < deadline:
+        current_symbols = {h.get('symbol') for h in latest.get('holdings', [])}
+        if expected.issubset(current_symbols):
+            return latest
+        time.sleep(poll_interval_sec)
+        latest = _reconcile_portfolio_from_broker(broker, portfolio)
+
+    return latest
 
 
 def _reconcile_portfolio_from_broker(
@@ -351,7 +440,7 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
         held_symbols = [h['symbol'] for h in portfolio.get('holdings', [])]
         if held_symbols:
             morning_quotes = ingest_prices.fetch_morning_quotes(
-                list(set(held_symbols + ['SPY']))
+                list(set(held_symbols + ['SPY'])), broker=broker
             )
             portfolio = _update_valuations_from_quotes(portfolio, morning_quotes)
         return {
@@ -373,7 +462,7 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
         held_symbols = [h['symbol'] for h in portfolio.get('holdings', [])]
         if held_symbols:
             morning_quotes = ingest_prices.fetch_morning_quotes(
-                list(set(held_symbols + ['SPY']))
+                list(set(held_symbols + ['SPY'])), broker=broker
             )
             portfolio = _update_valuations_from_quotes(portfolio, morning_quotes)
         return {
@@ -399,9 +488,9 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
     held_symbols = [h['symbol'] for h in portfolio.get('holdings', [])]
     all_symbols = list(set(intent_symbols + held_symbols + ['SPY']))
 
-    # Fetch morning prices
+    # Fetch morning prices (broker snapshots preferred, yfinance/Stooq fallback)
     print(f"Fetching morning quotes for {len(all_symbols)} symbols...")
-    morning_quotes = ingest_prices.fetch_morning_quotes(all_symbols)
+    morning_quotes = ingest_prices.fetch_morning_quotes(all_symbols, broker=broker)
 
     if len(morning_quotes) == 0:
         validation_log.append("CRITICAL: No morning quotes fetched, skipping all trades")
@@ -602,8 +691,23 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
                 )
 
     # Post-execution: reconcile broker truth when broker mode is active.
+    # Include ALL submitted buys (not just confirmed fills) in the expected set
+    # so that the retry loop waits for fast fills to settle in the positions API.
+    # Only exclude buys that were definitively rejected or canceled.
     if use_broker:
-        reconciled = _reconcile_portfolio_from_broker(broker, portfolio)
+        _REJECTED_ORDER_STATUSES = {
+            'rejected', 'canceled', 'cancelled', 'expired', 'suspended',
+        }
+        expected_buy_symbols = [
+            trade['symbol']
+            for trade in trades
+            if trade.get('action') == 'BUY'
+            and str(trade.get('broker_status') or '').lower()
+                not in _REJECTED_ORDER_STATUSES
+        ]
+        reconciled = _reconcile_portfolio_from_broker_with_retry(
+            broker, portfolio, expected_buy_symbols=expected_buy_symbols
+        )
         if reconciled.get('broker_reconciled'):
             portfolio = reconciled
         else:
