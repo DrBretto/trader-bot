@@ -9,6 +9,14 @@ import pandas as pd
 from src.steps import publish_artifacts
 
 
+MINIMAL_EXPERT_SIGNALS = {
+    "macro_credit": {},
+    "vol_uncertainty": {},
+    "fragility": {},
+    "entropy_shift": {},
+}
+
+
 class FakeS3:
     """Minimal capture stub for publish_artifacts module."""
 
@@ -26,7 +34,7 @@ class FakeS3:
 
     def read_json(self, key: str):
         if key == "daily/latest.json":
-            return {}
+            return self.json_writes.get(key, {})
         return self.json_writes.get(key)
 
     def append_jsonl(self, obj: Dict[str, Any], key: str) -> bool:
@@ -71,13 +79,51 @@ def test_night_publish_stamps_portfolio_state_date(monkeypatch):
         trades=[],
         weather={},
         validation={},
-        expert_signals=None,
+        expert_signals=MINIMAL_EXPERT_SIGNALS,
     )
 
     assert result["success"] is True
     s3 = FakeS3.instances[-1]
     written = s3.json_writes[f"daily/{run_date}/portfolio_state.json"]
     assert written["date"] == run_date
+
+
+def test_night_publish_does_not_advance_latest_when_signals_missing(monkeypatch):
+    FakeS3.instances.clear()
+    monkeypatch.setattr(
+        publish_artifacts,
+        "build_dashboard_data",
+        lambda *args, **kwargs: {"metrics": {}, "equity_curve": [], "drawdowns": []},
+    )
+
+    run_date = "2026-03-12"
+    portfolio_state = {"portfolio_value": 100000.0, "cash": 100000.0, "holdings": []}
+    s3 = FakeS3("test-bucket")
+    monkeypatch.setattr(publish_artifacts, "S3Client", lambda bucket: s3)
+    s3.json_writes["daily/latest.json"] = {
+        "date": "2026-03-11",
+        "snapshot_id": "prev",
+    }
+
+    result = publish_artifacts.run(
+        bucket="test-bucket",
+        run_date=run_date,
+        prices_df=pd.DataFrame(),
+        context_df=pd.DataFrame(),
+        features_df=pd.DataFrame(),
+        inference_output={"regime": {"label": "risk_off_trend"}},
+        llm_risks={},
+        decisions={},
+        portfolio_state=portfolio_state,
+        trades=[],
+        weather={},
+        validation={},
+        expert_signals=None,
+    )
+
+    assert result["success"] is False
+    latest = s3.json_writes["daily/latest.json"]
+    assert latest["date"] == "2026-03-11"
 
 
 def test_morning_publish_stamps_portfolio_state_date(monkeypatch):
@@ -101,10 +147,44 @@ def test_morning_publish_stamps_portfolio_state_date(monkeypatch):
         night_inference={"regime": {"label": "risk_off_trend"}},
         night_decisions={},
         night_weather={},
-        expert_signals=None,
+        expert_signals=MINIMAL_EXPERT_SIGNALS,
     )
 
     assert result["success"] is True
     s3 = FakeS3.instances[-1]
     written = s3.json_writes[f"daily/{run_date}/portfolio_state.json"]
     assert written["date"] == run_date
+
+
+def test_morning_publish_does_not_advance_latest_when_signals_missing(monkeypatch):
+    FakeS3.instances.clear()
+    monkeypatch.setattr(
+        publish_artifacts,
+        "build_dashboard_data",
+        lambda *args, **kwargs: {"metrics": {}, "equity_curve": [], "drawdowns": []},
+    )
+
+    run_date = "2026-03-12"
+    portfolio_state = {"portfolio_value": 100000.0, "cash": 100000.0, "holdings": []}
+    s3 = FakeS3("test-bucket")
+    monkeypatch.setattr(publish_artifacts, "S3Client", lambda bucket: s3)
+    s3.json_writes["daily/latest.json"] = {
+        "date": "2026-03-11",
+        "snapshot_id": "prev",
+    }
+
+    result = publish_artifacts.publish_morning_artifacts(
+        bucket="test-bucket",
+        run_date=run_date,
+        portfolio_state=portfolio_state,
+        trades=[],
+        morning_execution={},
+        night_inference={"regime": {"label": "risk_off_trend"}},
+        night_decisions={},
+        night_weather={},
+        expert_signals=None,
+    )
+
+    assert result["success"] is False
+    latest = s3.json_writes["daily/latest.json"]
+    assert latest["date"] == "2026-03-11"

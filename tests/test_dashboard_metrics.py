@@ -334,3 +334,46 @@ class TestCanonicalDashboardMetrics:
 
         daily_returns = {row["date"]: row for row in canonical["daily_returns"]}
         assert daily_returns["2026-03-13"]["external_cashflow"] == pytest.approx(0.0, abs=1e-12)
+
+    def test_build_dashboard_filters_dust_holdings(self):
+        states = {
+            "2026-04-01": {
+                "portfolio_value": 100000.0,
+                "benchmark_value": 100000.0,
+                "cash": 99999.99,
+                "holdings": [],
+            }
+        }
+        s3 = FakeS3(states, {})
+
+        dashboard = build_dashboard_data(
+            portfolio_state={
+                "portfolio_value": 100000.0,
+                "cash": 99999.99,
+                "holdings": [
+                    {
+                        "symbol": "DBC",
+                        "shares": 6.01e-7,
+                        "market_value": 0.000017,
+                    },
+                    {
+                        "symbol": "TLT",
+                        "shares": 2.5,
+                        "market_value": 250.0,
+                    },
+                ],
+            },
+            inference_output={"regime": {"label": "risk_on_trend", "probs": {}}},
+            decisions={},
+            weather={},
+            s3=s3,  # type: ignore[arg-type]
+            expert_signals={"macro_credit": {}, "vol_uncertainty": {}, "fragility": {}, "entropy_shift": {}},
+            snapshot_meta={
+                "id": "2026-04-01:night:test",
+                "date": "2026-04-01",
+                "phase": "night",
+                "timestamp": "2026-04-01T00:00:00",
+            },
+        )
+
+        assert [holding["symbol"] for holding in dashboard["holdings"]] == ["TLT"]
