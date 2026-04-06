@@ -582,9 +582,11 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
         trades = result['trades']
         validation_log = result.get('validation_log', [])
 
-        # Load night artifacts for dashboard rebuild
+        # Load night artifacts for dashboard rebuild.
+        # Use intents_date (when the night phase last ran), not date (which
+        # the morning phase overwrites to today).  Over weekends these diverge.
         latest = s3_client.read_json('daily/latest.json') or {}
-        night_date = latest.get('date', run_date)
+        night_date = latest.get('intents_date', latest.get('date', run_date))
         night_inference = s3_client.read_json(f'daily/{night_date}/inference.json') or {}
         night_decisions = s3_client.read_json(f'daily/{night_date}/decisions.json') or {}
         night_weather = s3_client.read_json(f'daily/{night_date}/weather_blurb.json') or {}
