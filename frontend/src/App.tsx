@@ -3,7 +3,9 @@ import { format, parseISO } from 'date-fns';
 import { useDashboardData } from './hooks/useDashboardData';
 import { useTimeseriesData } from './hooks/useTimeseriesData';
 import { useOptimizerData } from './hooks/useOptimizerData';
+import { useIsMobile } from './hooks/useIsMobile';
 import { isStrictlyIncreasingByDate } from './utils/timeseries';
+import { MobileDashboard } from './components/mobile';
 import {
   PortfolioTable,
   CandidatesTable,
@@ -59,6 +61,7 @@ function computeVsSpySpread(equityCurve: { value: number; benchmark: number }[])
 }
 
 export function App() {
+  const isMobile = useIsMobile();
   const { data, loading, error } = useDashboardData();
   const { data: timeseries } = useTimeseriesData();
   const [selectedOptimizerRun, setSelectedOptimizerRun] = useState<string | undefined>(undefined);
@@ -95,6 +98,10 @@ export function App() {
   if (loading) return <div className="loading">Loading dashboard...</div>;
   if (error) return <div className="error"><div style={{ fontSize: 48, marginBottom: 16 }}>:(</div><div>Failed to load dashboard data</div><div style={{ fontSize: 14, marginTop: 8 }}>{error}</div></div>;
   if (!data) return <div className="error">No data available</div>;
+
+  if (isMobile) {
+    return <MobileDashboard data={data} timeseries={timeseries ?? []} />;
+  }
 
   const m = data.metrics;
   const vsSpySpread = computeVsSpySpread(data.equity_curve);
