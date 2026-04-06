@@ -270,6 +270,8 @@ def evaluate_holdings(
 
     health_map = {h['symbol']: h for h in asset_health}
 
+    dust_value_threshold = params.get('dust_value_threshold', 1.00)
+
     for holding in portfolio_state.get('holdings', []):
         symbol = holding['symbol']
         entry_price = holding['entry_price']
@@ -282,6 +284,10 @@ def evaluate_holdings(
             continue
 
         current_price = symbol_prices.sort_values('date')['close'].iloc[-1]
+
+        # Skip dust positions — too small to trade on any broker
+        if abs(shares * current_price) < dust_value_threshold:
+            continue
 
         # Update peak price
         if current_price > peak_price:

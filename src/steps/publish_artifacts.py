@@ -8,6 +8,9 @@ import pandas as pd
 from src.utils.s3_client import S3Client
 from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
 
+DUST_SHARE_EPSILON = 0.001
+DUST_VALUE_EPSILON = 0.01
+
 
 def _build_snapshot_meta(
     run_date: str,
@@ -106,12 +109,16 @@ def build_dashboard_data(
     # Build holdings
     holdings = []
     for h in portfolio_state.get('holdings', []):
+        shares = float(h.get('shares', 0) or 0)
+        market_value = float(h.get('market_value', 0) or 0)
+        if abs(shares) < DUST_SHARE_EPSILON or abs(market_value) < DUST_VALUE_EPSILON:
+            continue
         holdings.append({
             'symbol': h.get('symbol', ''),
-            'shares': h.get('shares', 0),
+            'shares': shares,
             'entry_price': h.get('entry_price', 0),
             'current_price': h.get('current_price', 0),
-            'market_value': h.get('market_value', 0),
+            'market_value': market_value,
             'unrealized_pnl': h.get('unrealized_pnl', 0),
             'unrealized_pnl_pct': h.get('unrealized_pnl_pct', 0),
             'health_score': h.get('health_score', 0.5),
@@ -264,6 +271,11 @@ def build_dashboard_data(
         result['timeseries_url'] = 'timeseries.json'
 
     return result
+
+
+def _can_publish_dashboard(expert_signals: Optional[Dict[str, Any]]) -> bool:
+    """Return whether the current snapshot is safe to expose as live dashboard truth."""
+    return expert_signals is not None
 
 
 def load_recent_trades(s3: S3Client, max_days: int = 90) -> List[Dict]:
@@ -579,30 +591,7 @@ def run(
         print(f"Failed to publish run_report.json: {e}")
         failed.append("run_report.json")
 
-    # 11. Update latest.json pointer
-    try:
-        fused_regime = decisions.get('expert_metrics', {}).get(
-            'final_regime_label',
-            inference_output.get('regime', {}).get('label', 'unknown')
-        )
-        latest = {
-            'date': run_date,
-            'intents_date': run_date,
-            'timestamp': snapshot_meta['timestamp'],
-            'snapshot_id': snapshot_meta['id'],
-            'regime': fused_regime,
-            'portfolio_value': portfolio_state.get('portfolio_value', 0),
-            'positions_count': len(portfolio_state.get('holdings', [])),
-            'actions_count': len(decisions.get('actions', [])),
-            'phase': 'night'
-        }
-        s3.write_json(latest, "daily/latest.json")
-        published.append("latest.json")
-    except Exception as e:
-        print(f"Failed to update latest.json: {e}")
-        failed.append("latest.json")
-
-    # 12. Expert signals parquet (if available)
+    # 11. Expert signals parquet (if available)
     if expert_signals is not None:
         try:
             signals_row = _build_timeseries_row(
@@ -616,7 +605,7 @@ def run(
             print(f"Failed to publish signals.parquet: {e}")
             failed.append("signals.parquet")
 
-    # 13. Rolling timeseries (append today, trim to 400 days)
+    # 12. Rolling timeseries (append today, trim to 400 days)
     if expert_signals is not None:
         try:
             ts_row = _build_timeseries_row(
@@ -654,7 +643,8 @@ def run(
             print(f"Failed to publish timeseries: {e}")
             failed.append("timeseries.parquet")
 
-    # 14. Generate dashboard.json for frontend
+    # 13. Generate dashboard.json for frontend
+    dashboard_publishable = _can_publish_dashboard(expert_signals)
     try:
         dashboard_data = build_dashboard_data(
             portfolio_state, inference_output, decisions, weather, s3,
@@ -665,7 +655,7 @@ def run(
         # When expert_signals is None the frontend shows "unknown" posture and
         # hides Today's Story.  Preserving the last known good dashboard.json
         # is strictly better than publishing a degraded snapshot.
-        if expert_signals is None:
+        if not dashboard_publishable:
             print("  WARNING: Skipping dashboard.json publish — expert_signals is null. "
                   "Preserving last known good dashboard state.")
             failed.append("dashboard.json (skipped: null signals)")
@@ -677,6 +667,33 @@ def run(
     except Exception as e:
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")
+
+    # 14. Update latest.json pointer only when the dashboard snapshot is valid.
+    try:
+        if dashboard_publishable:
+            fused_regime = decisions.get('expert_metrics', {}).get(
+                'final_regime_label',
+                inference_output.get('regime', {}).get('label', 'unknown')
+            )
+            latest = {
+                'date': run_date,
+                'intents_date': run_date,
+                'timestamp': snapshot_meta['timestamp'],
+                'snapshot_id': snapshot_meta['id'],
+                'regime': fused_regime,
+                'portfolio_value': portfolio_state.get('portfolio_value', 0),
+                'positions_count': len(portfolio_state.get('holdings', [])),
+                'actions_count': len(decisions.get('actions', [])),
+                'phase': 'night'
+            }
+            s3.write_json(latest, "daily/latest.json")
+            published.append("latest.json")
+        else:
+            print("  WARNING: Skipping latest.json update — dashboard snapshot was not publishable.")
+            failed.append("latest.json (skipped: invalid dashboard snapshot)")
+    except Exception as e:
+        print(f"Failed to update latest.json: {e}")
+        failed.append("latest.json")
 
     print(f"  Published: {len(published)} artifacts")
     if failed:
@@ -743,34 +760,39 @@ def publish_morning_artifacts(
         print(f"Failed to publish morning_execution.json: {e}")
         failed.append("morning_execution.json")
 
-    # 4. Update latest.json
+    # 4. Update latest.json only if the dashboard snapshot is publishable.
     try:
-        latest = s3.read_json('daily/latest.json') or {}
-        latest.update({
-            'date': run_date,
-            'portfolio_value': portfolio_state.get('portfolio_value', 0),
-            'positions_count': len(portfolio_state.get('holdings', [])),
-            'morning_executed': True,
-            'trades_count': len(trades),
-            'phase': 'morning',
-            'timestamp': snapshot_meta['timestamp'],
-            'snapshot_id': snapshot_meta['id'],
-        })
-        s3.write_json(latest, 'daily/latest.json')
-        published.append("latest.json")
+        if _can_publish_dashboard(expert_signals):
+            latest = s3.read_json('daily/latest.json') or {}
+            latest.update({
+                'date': run_date,
+                'portfolio_value': portfolio_state.get('portfolio_value', 0),
+                'positions_count': len(portfolio_state.get('holdings', [])),
+                'morning_executed': True,
+                'trades_count': len(trades),
+                'phase': 'morning',
+                'timestamp': snapshot_meta['timestamp'],
+                'snapshot_id': snapshot_meta['id'],
+            })
+            s3.write_json(latest, 'daily/latest.json')
+            published.append("latest.json")
+        else:
+            print("  WARNING: Skipping morning latest.json update — dashboard snapshot was not publishable.")
+            failed.append("latest.json (skipped: invalid dashboard snapshot)")
     except Exception as e:
         print(f"Failed to update latest.json: {e}")
         failed.append("latest.json")
 
     # 5. Rebuild and publish dashboard.json with post-trade portfolio
     try:
+        dashboard_publishable = _can_publish_dashboard(expert_signals)
         dashboard_data = build_dashboard_data(
             portfolio_state, night_inference, night_decisions, night_weather, s3,
             expert_signals=expert_signals,
             snapshot_meta=snapshot_meta,
         )
         # Publish guard: do not overwrite a valid dashboard with broken data.
-        if expert_signals is None:
+        if not dashboard_publishable:
             print("  WARNING: Skipping morning dashboard.json publish — expert_signals is null. "
                   "Preserving last known good dashboard state.")
             failed.append("dashboard.json (skipped: null signals)")
