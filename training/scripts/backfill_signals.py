@@ -224,7 +224,8 @@ def main():
     s3.write_parquet(ts_df, 'dashboard/timeseries.parquet')
     print("Wrote dashboard/timeseries.parquet")
 
-    ts_json = ts_df.to_dict(orient='records')
+    # Use DataFrame.to_json() round-trip to sanitize NaN → null
+    ts_json = json.loads(ts_df.to_json(orient='records'))
     s3.write_json(ts_json, 'dashboard/data/timeseries.json')
     s3.write_json(ts_json, 'dashboard/timeseries.json')
     print("Wrote dashboard/timeseries.json")

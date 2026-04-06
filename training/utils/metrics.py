@@ -92,12 +92,23 @@ class RegimeMetrics:
 
     def get_classification_report(self) -> str:
         """Get detailed classification report."""
-        return classification_report(
-            self.targets,
-            self.predictions,
-            target_names=self.regime_labels,
-            zero_division=0
-        )
+        all_labels = list(range(len(self.regime_labels)))
+        try:
+            return classification_report(
+                self.targets,
+                self.predictions,
+                labels=all_labels,
+                target_names=self.regime_labels,
+                zero_division=0
+            )
+        except ValueError:
+            # Fallback: some sklearn versions filter labels to those present
+            # in the data, causing a mismatch with target_names
+            return classification_report(
+                self.targets,
+                self.predictions,
+                zero_division=0
+            )
 
 
 class HealthMetrics:

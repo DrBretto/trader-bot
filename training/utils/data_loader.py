@@ -122,13 +122,43 @@ class S3DataDownloader:
             except:
                 pass
 
-        prices_df = pd.concat(prices_list, ignore_index=True) if prices_list else pd.DataFrame()
-        features_df = pd.concat(features_list, ignore_index=True) if features_list else pd.DataFrame()
-        context_df = pd.concat(context_list, ignore_index=True) if context_list else pd.DataFrame()
+        prices_df = self._concat_frames(prices_list)
+        features_df = self._concat_frames(features_list)
+        context_df = self._concat_frames(context_list)
 
         print(f"Loaded: {len(prices_df)} price rows, {len(features_df)} feature rows, {len(context_df)} context rows")
 
         return prices_df, features_df, context_df
+
+    @staticmethod
+    def _concat_frames(frames: List[pd.DataFrame]) -> pd.DataFrame:
+        """Concat possibly mixed-schema parquet frames into a stable dataframe.
+
+        Some historical artifacts evolve over time and don't all share the same
+        column set. Older/newer pandas versions can be fragile when repeatedly
+        concatenating many tiny mixed-schema frames, so we normalize each frame
+        to the union schema first.
+        """
+        if not frames:
+            return pd.DataFrame()
+
+        normalized_frames: List[pd.DataFrame] = []
+        union_columns: List[str] = []
+
+        for frame in frames:
+            if isinstance(frame, pd.Series):
+                frame = frame.to_frame().T
+            frame = frame.copy().reset_index(drop=True)
+            normalized_frames.append(frame)
+            for column in frame.columns:
+                if column not in union_columns:
+                    union_columns.append(column)
+
+        aligned_frames = [frame.reindex(columns=union_columns) for frame in normalized_frames]
+        records: List[Dict[str, object]] = []
+        for frame in aligned_frames:
+            records.extend(frame.to_dict(orient='records'))
+        return pd.DataFrame.from_records(records, columns=union_columns)
 
 
 class RegimeDataset(Dataset):
