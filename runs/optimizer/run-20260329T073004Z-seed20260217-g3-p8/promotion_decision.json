@@ -1,0 +1,15 @@
+{
+  "run_id": "run-20260329T073004Z-seed20260217-g3-p8",
+  "decision": "not_promoted",
+  "reason_codes": [
+    "gate_score_improved",
+    "gate_drawdown_ok"
+  ],
+  "champion_version_before": "hybrid-ranking-035-v1",
+  "challenger_version": "opt-20260329T073825Z-cc4c1511-20260329T073004Z",
+  "champion_wf_objective": 0.3101200752832479,
+  "challenger_wf_objective": 0.31634025201944393,
+  "champion_gate_score": 0.1627089585929811,
+  "challenger_gate_score": 0.5874999999999999,
+  "promoted_at": null
+}

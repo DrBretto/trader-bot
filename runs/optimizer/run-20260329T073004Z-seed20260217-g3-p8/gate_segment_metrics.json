@@ -1,0 +1,47 @@
+{
+  "champion_gate_score": 0.1627089585929811,
+  "challenger_gate_score": 0.5874999999999999,
+  "champion_gate_max_drawdown": -4.446053376594428e-05,
+  "challenger_gate_max_drawdown": 0.0,
+  "gate_guardrails": {
+    "passed": false,
+    "checks": [
+      {
+        "name": "max_drawdown_cap",
+        "passed": true,
+        "value": -0.027467123455327425,
+        "threshold": -0.25
+      },
+      {
+        "name": "cost_ratio_cap",
+        "passed": true,
+        "value": 0.000602562164438216,
+        "threshold": 0.015
+      },
+      {
+        "name": "min_round_trips_total",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 20.0
+      },
+      {
+        "name": "min_gate_round_trips",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 5.0
+      },
+      {
+        "name": "min_gate_win_rate",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 0.45
+      },
+      {
+        "name": "min_fold_ann_return",
+        "passed": false,
+        "value": -0.9991048795404128,
+        "threshold": -0.2
+      }
+    ]
+  }
+}

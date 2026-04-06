@@ -1,0 +1,3 @@
+{"generation": 1, "best_objective": 0.3096383541731671, "median_objective": 0.2054239420400626, "worst_objective": 0.2054239420400626, "diversity": 1.0, "best_candidate_id": "b82b4baa5f69b723"}
+{"generation": 2, "best_objective": 0.31390766889537186, "median_objective": 0.29059055349325164, "worst_objective": 0.2554254949994312, "diversity": 1.0, "best_candidate_id": "cc4c1511b8cea3fd"}
+{"generation": 3, "best_objective": 0.31390766889537186, "median_objective": 0.3077623611527053, "worst_objective": 0.2054239420400626, "diversity": 1.0, "best_candidate_id": "cc4c1511b8cea3fd"}

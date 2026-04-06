@@ -1,0 +1,53 @@
+{
+  "baseline_ranking": {
+    "mean_spearman_rho": -0.0017942176870748203,
+    "mean_quintile_spread": -0.018607142235707218,
+    "hit_rate": 0.07142857142857142,
+    "n_dates": 14,
+    "information_ratio": -0.6457655615997516
+  },
+  "conditioned_ranking": {
+    "mean_spearman_rho": 0.1257201726844584,
+    "mean_quintile_spread": 0.006169032888721284,
+    "hit_rate": 0.6428571428571429,
+    "n_dates": 14,
+    "information_ratio": 0.315700502015417
+  },
+  "structural_ranking": {
+    "mean_spearman_rho": -0.048831763474620614,
+    "mean_quintile_spread": -0.019191896232297886,
+    "hit_rate": 0.07142857142857142,
+    "n_dates": 14,
+    "information_ratio": -0.7983860712303763
+  },
+  "incumbent_gate": {
+    "days": 36,
+    "annualized_return": -0.010528151549907938,
+    "sharpe": -0.6536243509978663,
+    "max_drawdown": -0.02625906898184438,
+    "win_rate": 0.4666666666666667,
+    "realized_round_trips": 30,
+    "wins": 14,
+    "losses": 16,
+    "breakeven": 0,
+    "cost_ratio": 0.0002706668238045378,
+    "traded_notional": 651232.75,
+    "cumulative_transaction_costs": 176.26709999999463,
+    "fold_score": 0.2115551951878461
+  },
+  "training_baseline": {
+    "train_samples": 1963,
+    "val_samples": 491,
+    "best_val_loss": 0.09741082787513733
+  },
+  "training_conditioned": {
+    "train_samples": 1963,
+    "val_samples": 491,
+    "best_val_loss": 0.09944168012589216
+  },
+  "training_structural": {
+    "train_samples": 1963,
+    "val_samples": 491,
+    "best_val_loss": 0.1045787213370204
+  }
+}
