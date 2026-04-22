@@ -1,7 +1,29 @@
 {
-  "updated_at": "2026-04-05T07:39:13Z",
+  "updated_at": "2026-04-19T07:40:26Z",
   "active_version": "hybrid-ranking-035-v1",
   "runs": [
+    {
+      "run_id": "run-20260419T073007Z-seed20260217-g3-p8",
+      "started_at": "2026-04-19T07:30:07Z",
+      "finished_at": "2026-04-19T07:40:26Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "hybrid-ranking-035-v1",
+      "challenger_version": "opt-20260419T074026Z-cc4c1511-20260419T073007Z",
+      "wf_delta": 0.004201853936548983,
+      "gate_delta": 0.03707485309202996
+    },
+    {
+      "run_id": "run-20260412T073006Z-seed20260217-g3-p8",
+      "started_at": "2026-04-12T07:30:06Z",
+      "finished_at": "2026-04-12T07:30:13Z",
+      "status": "failed",
+      "decision": "not_promoted",
+      "champion_version_before": "hybrid-ranking-035-v1",
+      "challenger_version": "unknown",
+      "wf_delta": 0.0,
+      "gate_delta": 0.0
+    },
     {
       "run_id": "run-20260405T073005Z-seed20260217-g3-p8",
       "started_at": "2026-04-05T07:30:05Z",
