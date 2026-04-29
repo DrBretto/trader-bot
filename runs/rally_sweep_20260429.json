@@ -1,0 +1,490 @@
+{
+  "windows": {
+    "rally": {
+      "start": "2026-04-07",
+      "end": "2026-04-28",
+      "n": 13
+    },
+    "hybrid": {
+      "start": "2026-03-24",
+      "end": "2026-04-28",
+      "n": 20
+    }
+  },
+  "variants": {
+    "rally": {
+      "current_production": {
+        "overrides": {},
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.5931154598721948,
+          "sharpe": -2.554844618215181,
+          "max_drawdown": -0.07133309227919171,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.0002555759920069065,
+          "traded_notional": 72011.85,
+          "cumulative_transaction_costs": 18.40450000000255,
+          "fold_score": 0.0
+        },
+        "fills": 10,
+        "buys": 9,
+        "sells": 1
+      },
+      "thr_085_only": {
+        "overrides": {
+          "fragility_threshold": 0.85
+        },
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.5931154598721948,
+          "sharpe": -2.554844618215181,
+          "max_drawdown": -0.07133309227919171,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.0002555759920069065,
+          "traded_notional": 72011.85,
+          "cumulative_transaction_costs": 18.40450000000255,
+          "fold_score": 0.0
+        },
+        "fills": 10,
+        "buys": 9,
+        "sells": 1
+      },
+      "thr_095_only": {
+        "overrides": {
+          "fragility_threshold": 0.95
+        },
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.5931154598721948,
+          "sharpe": -2.554844618215181,
+          "max_drawdown": -0.07133309227919171,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.0002555759920069065,
+          "traded_notional": 72011.85,
+          "cumulative_transaction_costs": 18.40450000000255,
+          "fold_score": 0.0
+        },
+        "fills": 10,
+        "buys": 9,
+        "sells": 1
+      },
+      "thr_099_only": {
+        "overrides": {
+          "fragility_threshold": 0.99
+        },
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.8300464552617782,
+          "sharpe": -2.636609966380052,
+          "max_drawdown": -0.11955546017311669,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.000270225452540717,
+          "traded_notional": 88225.22,
+          "cumulative_transaction_costs": 23.84070000000432,
+          "fold_score": 0.0
+        },
+        "fills": 7,
+        "buys": 6,
+        "sells": 1
+      },
+      "cap_080_only": {
+        "overrides": {
+          "fragility_position_cap": 0.8
+        },
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.3621489417799456,
+          "sharpe": -1.3950528751323445,
+          "max_drawdown": -0.0753750664043118,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.0002809490809070236,
+          "traded_notional": 81542.89,
+          "cumulative_transaction_costs": 22.909400000002528,
+          "fold_score": 0.0212078551107776
+        },
+        "fills": 9,
+        "buys": 8,
+        "sells": 1
+      },
+      "cap_100_only": {
+        "overrides": {
+          "fragility_position_cap": 1.0
+        },
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.7810582605923642,
+          "sharpe": -2.5606996718334876,
+          "max_drawdown": -0.10769213678705924,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.00030387844292789086,
+          "traded_notional": 91308.55,
+          "cumulative_transaction_costs": 27.74670000000347,
+          "fold_score": 0.0
+        },
+        "fills": 8,
+        "buys": 7,
+        "sells": 1
+      },
+      "relax_conf_080_thr_075": {
+        "overrides": {
+          "fragility_relax_in_risk_on": true,
+          "fragility_relax_confidence": 0.8
+        },
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.6193274108392095,
+          "sharpe": -2.6601520664139993,
+          "max_drawdown": -0.07353903043588206,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.00023968360553518753,
+          "traded_notional": 80954.64,
+          "cumulative_transaction_costs": 19.403500000003113,
+          "fold_score": 0.0
+        },
+        "fills": 10,
+        "buys": 9,
+        "sells": 1
+      },
+      "relax_conf_070_thr_075": {
+        "overrides": {
+          "fragility_relax_in_risk_on": true,
+          "fragility_relax_confidence": 0.7
+        },
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.6193274108392095,
+          "sharpe": -2.6601520664139993,
+          "max_drawdown": -0.07353903043588206,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.00023968360553518753,
+          "traded_notional": 80954.64,
+          "cumulative_transaction_costs": 19.403500000003113,
+          "fold_score": 0.0
+        },
+        "fills": 10,
+        "buys": 9,
+        "sells": 1
+      },
+      "relax_conf_080_cap_100": {
+        "overrides": {
+          "fragility_relax_in_risk_on": true,
+          "fragility_relax_confidence": 0.8,
+          "fragility_position_cap": 1.0
+        },
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.7810582605923642,
+          "sharpe": -2.5606996718334876,
+          "max_drawdown": -0.10769213678705924,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.00030387844292789086,
+          "traded_notional": 91308.55,
+          "cumulative_transaction_costs": 27.74670000000347,
+          "fold_score": 0.0
+        },
+        "fills": 8,
+        "buys": 7,
+        "sells": 1
+      },
+      "relax_aggressive": {
+        "overrides": {
+          "fragility_relax_in_risk_on": true,
+          "fragility_relax_confidence": 0.5,
+          "fragility_position_cap": 1.0,
+          "fragility_threshold": 0.99
+        },
+        "metrics": {
+          "days": 9,
+          "annualized_return": -0.8300464552617782,
+          "sharpe": -2.636609966380052,
+          "max_drawdown": -0.11955546017311669,
+          "win_rate": 0.0,
+          "realized_round_trips": 1,
+          "wins": 0,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.000270225452540717,
+          "traded_notional": 88225.22,
+          "cumulative_transaction_costs": 23.84070000000432,
+          "fold_score": 0.0
+        },
+        "fills": 7,
+        "buys": 6,
+        "sells": 1
+      }
+    },
+    "hybrid": {
+      "current_production": {
+        "overrides": {},
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.35510795558566244,
+          "sharpe": -1.8511314602147737,
+          "max_drawdown": -0.06848566269523992,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.000242140422565761,
+          "traded_notional": 75002.76,
+          "cumulative_transaction_costs": 18.161199999998356,
+          "fold_score": 0.12229108375605192
+        },
+        "fills": 18,
+        "buys": 13,
+        "sells": 5
+      },
+      "thr_085_only": {
+        "overrides": {
+          "fragility_threshold": 0.85
+        },
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.35510795558566244,
+          "sharpe": -1.8511314602147737,
+          "max_drawdown": -0.06848566269523992,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.000242140422565761,
+          "traded_notional": 75002.76,
+          "cumulative_transaction_costs": 18.161199999998356,
+          "fold_score": 0.12229108375605192
+        },
+        "fills": 18,
+        "buys": 13,
+        "sells": 5
+      },
+      "thr_095_only": {
+        "overrides": {
+          "fragility_threshold": 0.95
+        },
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.3011608016673353,
+          "sharpe": -1.6824899300077787,
+          "max_drawdown": -0.06760252304524927,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.00024550437630122506,
+          "traded_notional": 87368.3,
+          "cumulative_transaction_costs": 21.449299999998324,
+          "fold_score": 0.13059064589733302
+        },
+        "fills": 18,
+        "buys": 13,
+        "sells": 5
+      },
+      "thr_099_only": {
+        "overrides": {
+          "fragility_threshold": 0.99
+        },
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.6318978928834036,
+          "sharpe": -2.1434820028214396,
+          "max_drawdown": -0.1202942862990738,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.0002363441613730121,
+          "traded_notional": 90129.58,
+          "cumulative_transaction_costs": 21.301600000001805,
+          "fold_score": 0.09999999999999999
+        },
+        "fills": 15,
+        "buys": 10,
+        "sells": 5
+      },
+      "cap_080_only": {
+        "overrides": {
+          "fragility_position_cap": 0.8
+        },
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.46260471752129584,
+          "sharpe": -1.8634548921234553,
+          "max_drawdown": -0.0913251420065001,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.00024149953442788294,
+          "traded_notional": 99673.06999999999,
+          "cumulative_transaction_costs": 24.070999999997785,
+          "fold_score": 0.10575312038133909
+        },
+        "fills": 18,
+        "buys": 13,
+        "sells": 5
+      },
+      "cap_100_only": {
+        "overrides": {
+          "fragility_position_cap": 1.0
+        },
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.5524039430097962,
+          "sharpe": -1.9250670869050375,
+          "max_drawdown": -0.10977962927908569,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.0002439539318071643,
+          "traded_notional": 94211.64,
+          "cumulative_transaction_costs": 22.983300000001112,
+          "fold_score": 0.09999999999999999
+        },
+        "fills": 16,
+        "buys": 11,
+        "sells": 5
+      },
+      "relax_conf_080_thr_075": {
+        "overrides": {
+          "fragility_relax_in_risk_on": true,
+          "fragility_relax_confidence": 0.8
+        },
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.3939699436941605,
+          "sharpe": -1.9373712482388874,
+          "max_drawdown": -0.07169660109571752,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.00025212161316983235,
+          "traded_notional": 84022.15,
+          "cumulative_transaction_costs": 21.18379999999763,
+          "fold_score": 0.11631231635474454
+        },
+        "fills": 18,
+        "buys": 13,
+        "sells": 5
+      },
+      "relax_conf_070_thr_075": {
+        "overrides": {
+          "fragility_relax_in_risk_on": true,
+          "fragility_relax_confidence": 0.7
+        },
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.30787889415533254,
+          "sharpe": -1.5987828748562187,
+          "max_drawdown": -0.06951073325751045,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.00025755038414184073,
+          "traded_notional": 91541.7,
+          "cumulative_transaction_costs": 23.57659999999714,
+          "fold_score": 0.12955709320687192
+        },
+        "fills": 18,
+        "buys": 13,
+        "sells": 5
+      },
+      "relax_conf_080_cap_100": {
+        "overrides": {
+          "fragility_relax_in_risk_on": true,
+          "fragility_relax_confidence": 0.8,
+          "fragility_position_cap": 1.0
+        },
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.5524039430097962,
+          "sharpe": -1.9250670869050375,
+          "max_drawdown": -0.10977962927908569,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.0002439539318071643,
+          "traded_notional": 94211.64,
+          "cumulative_transaction_costs": 22.983300000001112,
+          "fold_score": 0.09999999999999999
+        },
+        "fills": 16,
+        "buys": 11,
+        "sells": 5
+      },
+      "relax_aggressive": {
+        "overrides": {
+          "fragility_relax_in_risk_on": true,
+          "fragility_relax_confidence": 0.5,
+          "fragility_position_cap": 1.0,
+          "fragility_threshold": 0.99
+        },
+        "metrics": {
+          "days": 14,
+          "annualized_return": -0.6318978928834036,
+          "sharpe": -2.1434820028214396,
+          "max_drawdown": -0.1202942862990738,
+          "win_rate": 0.6666666666666666,
+          "realized_round_trips": 3,
+          "wins": 2,
+          "losses": 1,
+          "breakeven": 0,
+          "cost_ratio": 0.0002363441613730121,
+          "traded_notional": 90129.58,
+          "cumulative_transaction_costs": 21.301600000001805,
+          "fold_score": 0.09999999999999999
+        },
+        "fills": 15,
+        "buys": 10,
+        "sells": 5
+      }
+    }
+  }
+}

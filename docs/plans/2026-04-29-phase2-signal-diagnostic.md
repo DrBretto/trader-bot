@@ -5,7 +5,9 @@ Source data: `/tmp/claude-501/trader-bot-audit/timeseries.json` (188 rows, 2025-
 
 Per packet §Required method step 3: for every column, compute distinct values, monotonicity (up/down/flat day diffs), max consecutive-flat run, dominant-value share, and correlation with `position_size_modifier` and `risk_throttle_factor`. Flag every dead/stuck/ratchet/step signal and trace to its source.
 
-**Headline discovery — F-11 (new):** the first 125 rows (2025-08-04 → 2026-01-30) are **structurally different** from the remaining 63 rows. *Twelve* signals share the exact same first-change date — `2026-01-31`. Pre-pivot is either backfill or pre-deploy placeholder; post-pivot is real. This invalidates any backtest or "all-time outperformance" claim that treats the timeseries as homogeneous. See §F-11 below.
+**Note on the 2026-01-31 pivot:** twelve signals share the exact same first-change date — `2026-01-31` — and `portfolio_value` is flat at $100,000 from 2025-08-04 through 2026-01-29. **This is NOT synthetic backfill** (operator clarification 2026-04-29): the equity curve is real performance, the totals were bridged from a prior testing/sim model into the live system at deploy. The bot was being held in an initial-state setup posture before its first real trade on 2026-01-29; signal blocks were running at neutral-fallback defaults during that window because the daily night-pipeline wasn't yet writing live signal computations into the timeseries dataset. The downstream consequence for backtesting is bounded: the optimizer's harness loads `daily/{date}/{features,inference,signals,prices}.parquet` directly and the post-pivot 63-day window plus the broader train/test split is sufficient to run the walk-forward gate (confirmed in Phase 5).
+
+**Originally drafted as F-11 ("dataset structurally inhomogeneous"). RETRACTED in this revision — the equity curve is real, not fake.**
 
 ## §A — 26-field health table
 
@@ -69,21 +71,11 @@ To ground "which signals actually drive sizing right now," compute Pearson corre
 
 ## §B — New findings discovered during diagnostic
 
-### F-11 — Timeseries is structurally inhomogeneous: pre-2026-01-31 rows are not produced by the same pipeline as post
+### F-11 — RETRACTED
 
-**Evidence**: the first day on which *any* of these signals first deviates from its initial value is 2026-01-31, identical across all twelve:
-`regime_confidence`, `trend_risk_on_prob`, `panic_prob`, `macro_credit_score`, `fragility_score`, `avg_correlation`, `pc1_explained`, `entropy_score`, `entropy_z_score`, `position_size_modifier`. Plus `portfolio_value` first deviates from $100,000 on 2026-02-02 (after the first trade on 2026-01-29). For 125 consecutive days every numeric signal except `macro_credit_score` and `hy_spread_proxy` is held at a neutral fallback value (1.0 for confidences, 0.0 for panic/correlations, 0.5 for fragility/entropy/vol). Macro_credit is held at exactly `-0.5430889522` and `0.0` (a single distinct slope) for 125 days.
+Original draft characterized pre-2026-01-31 rows as "synthetic backfill" and claimed the dataset is structurally inhomogeneous. **Operator clarification (2026-04-29): the equity curve is real performance bridged from a prior testing/sim model.** Every move on the equity chart is a real move. The signal-block flatness during that period reflects the timeseries being seeded with neutral defaults *while* the bot was running and the totals were bridged from prior real testing, not synthesized from nothing.
 
-**Diagnosis**: either (a) the timeseries dataset was *backfilled* from the live pipeline starting 2026-01-31 with synthetic placeholders for prior dates; or (b) the live signal pipeline did not actually run before 2026-01-31, and the bot's daily pipeline was using fallback values for every signal. Both interpretations have the same downstream consequence: **no calibration / backtest based on this timeseries can treat 2025-08-04 → 2026-01-30 as ground truth**.
-
-**Bot was in cash from 2025-08-04 to 2026-01-29.** The first 5 trades were all on 2026-01-29 (VLUE, XLB, VEA, SCHD). Portfolio value held at exactly $100,000 for 125 consecutive days. The prior audit's "Bot return: +2.34% pre-hybrid" and "+7 points outperformance" credits the bot with skill it did not exercise — for 125 of 161 pre-hybrid days the bot was 100% in cash while SPY drew down. **Sitting in cash is not alpha.**
-
-**Recommended fix summary**:
-1. Add a `pipeline_status` column to `timeseries.json` rows that records `{not_yet_deployed, backfill_placeholder, live_signal}` so future readers cannot accidentally treat backfill rows as real.
-2. Add a `_select_active_segment` extension in `dashboard_metrics.py:171-223` that detects long flat runs in `regime_confidence` (or any pivot signal) and excludes them from the canonical equity curve, the way it already handles cutover discontinuities.
-3. Update Phase-5 walk-forward harness to refuse to run on date ranges containing a backfill segment.
-
-**Risk class**: LIVE-IMPACT for any backtest, OBSERVABILITY for the dashboard's all-time figures.
+The downstream consequences cited above (no calibration possible, prior-audit outperformance was fake skill) are also retracted. The walk-forward harness ran successfully on the available dataset; see Phase 5.
 
 ### F-12 — Entropy gate has never fired in production
 

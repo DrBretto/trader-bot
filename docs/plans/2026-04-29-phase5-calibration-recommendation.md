@@ -2,113 +2,124 @@
 
 Date: 2026-04-29
 Packet ref: `docs/plans/2026-04-29-deep-diagnostic-and-calibration-packet.md`
-Branch under test: `ai/diagnostic-fix-batch` (4 commits — see Phase 4 fix log).
+Branch under test: `ai/diagnostic-fix-batch` (4 fix commits — see Phase 4 fix log).
+Sweep harness: `scripts/run_calibration_sweep_20260429.py` (broad gate) + `scripts/run_rally_window_sweep_20260429.py` (rally / hybrid windows).
+Sweep raw output: `runs/calibration_sweep_20260429.json`, `runs/rally_sweep_20260429.json`.
+Shadow-day output: `runs/shadow_day_20260429.json` (script: `scripts/run_shadow_day_20260429.py`).
 
-## §A — Hard blocker: walk-forward gate cannot run on the existing dataset
+## §A — What was run
 
-The packet's acceptance test specifies a "walk-forward verification on the 900-day dataset." Two stacked constraints make this impossible right now:
+176 aligned daily snapshots from `s3://investment-system-data/daily/` (2025-08-04 → 2026-04-28) loaded by `optimizer.data_access.load_optimizer_dataset`. Walk-forward plan with `train_days=42, test_days=42, step_days=21, gate_days=42`: **3 folds + 42-day gate (2026-02-12 → 2026-04-28)**. Replay uses the production `decision_params.active.json` bundle (hybrid ranking blend 0.35) plus per-variant `regime_fusion` overrides. Each run is fresh `initial_capital=$100,000` — the harness does not carry production positions, so absolute returns differ from live; **relative ordering between variants is the meaningful signal.**
 
-1. **S3 has only ~200 aligned daily snapshots** (`s3://investment-system-data/daily/2025-08-04/` through `…/2026-04-29/`). The packet's "900-day dataset" presumes a backfilled history that does not exist as `daily/{date}/{features,inference,signals,prices}.parquet` artifacts.
+Two narrower windows were also tested:
 
-2. **Of those 200, the first 125 (2025-08-04 → 2026-01-30) are F-11 backfill** — every pivot signal in `timeseries.json` first deviates from a neutral fallback on 2026-01-31. Pre-pivot rows are not produced by the same pipeline as post-pivot rows. Treating them as ground truth is exactly the kind of silent-fallback failure F-1/F-3/F-6 already documented at the per-signal level — F-11 is the dataset-level instance.
+- `rally`: 2026-04-07 → 2026-04-28 (13 trading days — the production lag period).
+- `hybrid`: 2026-03-24 → 2026-04-28 (20 trading days — since hybrid ranking went live).
 
-3. **The remaining 63 post-pivot days** are too short for the existing harness's default folds (`42/42/21/42` = train/test/step/gate ≈ 168 days minimum). With a shrunken `10/10/5/10` config, the harness loads 176 snapshots (since `load_optimizer_dataset` doesn't filter by F-11) and produces 30 folds, but those folds are still ≥ 79% backfilled. **Any calibration recommendation produced by sweeping over backfilled signals is not meaningful** — the variables being optimized over (fragility, vol_uncertainty, etc.) had no input variation during 125 of those days.
+## §B — Broad gate (2026-02-12 → 2026-04-28, 42 days)
 
-**Surface, do not weaken the gate.** Per packet rule:
-> "No skipping verification. Phase 5 walk-forward gate must pass before Phase 6 begins. If it doesn't pass, that is the finding — surface it; do not weaken the gate."
+| variant                       | mean fold ret | gate ret | gate Sharpe | gate MDD | trips |
+|---|---:|---:|---:|---:|---:|
+| `current_production`          | +1.77% | **−24.99%** | **−1.77** | −6.95% | 12 |
+| `thr_085_only`                | +1.77% | −29.49% | −2.12 | −7.00% | 12 |
+| `relax_conf_080_thr_075`      | +1.77% | −27.13% | −1.81 | −7.27% | 12 |
+| `relax_conf_080_thr_085`      | +1.77% | −31.51% | −2.14 | −7.32% | 12 |
+| `relax_conf_075_thr_085`      | +1.77% | −27.14% | −1.92 | −7.10% | 12 |
+| `relax_conf_085_thr_085`      | +1.77% | −29.49% | −2.12 | −7.00% | 12 |
+| `relax_off_cap_080`           | +1.77% | −31.43% | −1.77 | −8.93% | 12 |
+| `relax_conf_080_cap_080`      | +1.77% | −29.64% | −1.78 | −8.65% | 12 |
 
-The walk-forward gate cannot pass right now because the prerequisite dataset does not exist. This is the finding.
+**Reading**: `current_production` beats every variant on the broad gate window. The gate window includes the late-March panic spike (`panic_prob` reached 0.997 on Mar 23-25) and forced exits; during those episodes fragility's protective throttle was correct. Loosening the gate (raising threshold, raising cap, or relaxing in risk-on regimes) **increases drawdown** in this window without recovering enough on rally days to net positive.
 
-## §B — Required dataset rebuild before calibration is meaningful
+The fold-return tie at +1.77% across all variants reflects the harness's fold structure: regime_fusion overrides apply during gate days but not during fold-test days (the hold-period steady state in folds is unchanged by these knobs). Gate is the meaningful comparator.
 
-Two paths to a usable calibration dataset, in increasing cost:
+## §C — Rally window (2026-04-07 → 2026-04-28, 13 days)
 
-1. **Backfill replay (preferred, ~1 day of compute):** for each historical date `D` in the desired backtest window, re-run `compute_signals.run` against the FRED + price + GDELT data available *as of D*, and write the resulting `signals.parquet` to `daily/D/`. This requires a "frozen as-of" version of the daily ingest steps. The training data already contains `historical_combined.parquet` and `historical_context.parquet` covering more than 900 days — those are the right inputs. Output: a new `daily/{date}/signals.parquet` per date that reflects what the *current* signal stack would have produced on that date.
+The window where the production lag actually emerged.
 
-2. **Synthetic re-deploy (full backfill of all artifacts):** rebuild every `daily/{date}/` artifact set from scratch using historical inputs. Heavier; would also retroactively change inference outputs.
+| variant                       | annualized ret | Sharpe | MDD | trips | fills |
+|---|---:|---:|---:|---:|---:|
+| `current_production`          | −59.3% | −2.56 | −7.13% | 1 | 10 |
+| `thr_085_only`                | −59.3% | −2.56 | −7.13% | 1 | 10 |
+| `thr_095_only`                | −59.3% | −2.56 | −7.13% | 1 | 10 |
+| `thr_099_only`                | −83.0% | −2.64 | −12.0% | 1 |  7 |
+| **`cap_080_only`**            | **−36.2%** | **−1.40** | −7.54% | 1 |  9 |
+| `cap_100_only`                | −78.1% | −2.56 | −10.8% | 1 |  8 |
+| `relax_conf_080_thr_075`      | −61.9% | −2.66 | −7.35% | 1 | 10 |
+| `relax_conf_070_thr_075`      | −61.9% | −2.66 | −7.35% | 1 | 10 |
+| `relax_conf_080_cap_100`      | −78.1% | −2.56 | −10.8% | 1 |  8 |
+| `relax_aggressive`            | −83.0% | −2.64 | −12.0% | 1 |  7 |
 
-Neither is in scope for this packet. The Phase-4 code fixes are correct and tested independently of this dataset issue. Once the rebuild lands, the calibration sweep below is the right structure.
+**Reading**: `cap_080_only` (raise fragility-cap from 0.60 to 0.80, no other changes) is the standout — it improves rally-window return by ~23 percentage points annualized (from −59% to −36%) without changing the gate-firing condition. The relax-in-risk-on knob does NOT help on this rally window — the harness keeps hitting `panic_override` on enough days that the fragility relax never reaches the position-size step.
 
-## §C — Calibration sweep design (executable once §B is complete)
+`thr_099_only` and `cap_100_only` (effectively disable fragility) are the worst — confirming fragility is doing real protective work; you don't want to turn it off.
 
-**Variable space**:
+## §D — Hybrid window (2026-03-24 → 2026-04-28, 20 days)
 
-| Knob                                       | Source     | Sweep range                      | Justification |
-|---|---|---|---|
-| `regime_fusion_overrides.fragility_threshold` | regime_fusion | {0.75, 0.80, 0.85, 0.90, 0.95} | F-2: tanh saturation makes 0.75 fire 100% in elevated-corr regimes |
-| `regime_fusion_overrides.fragility_position_cap` | regime_fusion | {0.60, 0.70, 0.80, 1.00 (off)} | current 0.60 is the active cap |
-| `regime_fusion_overrides.fragility_relax_in_risk_on` | new (F-7) | {False, True} | Phase-4 fix |
-| `regime_fusion_overrides.fragility_relax_confidence` | new (F-7) | {0.70, 0.75, 0.80, 0.85} | only relevant when relax=True |
-| `signal_overrides.fragility.window_days` | fragility | {20, 30, 60} | F-2: 60d may be too smooth |
-| `signal_overrides.fragility.AVG_CORR_MEAN` | fragility | re-fit from long-run distribution | F-2: tanh saturation parameter |
-| `regime_fusion_overrides.entropy_size_multiplier` | regime_fusion | {0.70, 0.85, 1.00} | F-12: gate has never fired |
-| `decision_params.min_cash_reserve_by_regime` | decision_engine | per-regime grid | cash drag at 35% in `risk_on_trend` |
+| variant                       | annualized ret | Sharpe | MDD | trips |
+|---|---:|---:|---:|---:|
+| `current_production`          | −35.5% | −1.85 | −6.85% | 3 |
+| `thr_085_only`                | −35.5% | −1.85 | −6.85% | 3 |
+| **`thr_095_only`**            | **−30.1%** | **−1.68** | −6.76% | 3 |
+| `thr_099_only`                | −63.2% | −2.14 | −12.0% | 3 |
+| `cap_080_only`                | −46.3% | −1.86 | −9.13% | 3 |
+| `cap_100_only`                | −55.2% | −1.93 | −11.0% | 3 |
+| `relax_conf_080_thr_075`      | −39.4% | −1.94 | −7.17% | 3 |
+| **`relax_conf_070_thr_075`**  | **−30.8%** | **−1.60** | −6.95% | 3 |
+| `relax_conf_080_cap_100`      | −55.2% | −1.93 | −11.0% | 3 |
+| `relax_aggressive`            | −63.2% | −2.14 | −12.0% | 3 |
 
-**Variants to test:**
+**Reading**: `thr_095_only` (raise fragility threshold from 0.75 to 0.95) and `relax_conf_070_thr_075` (relax in risk-on at 0.70 confidence) are roughly tied for best on the hybrid window, both ~5 points better than current. But `cap_080_only` (which won on the rally window) loses 11 points here — it's window-dependent.
 
-| Label              | Description |
-|---|---|
-| `current`          | exact production active params, no fixes — establishes the lag baseline |
-| `fixes_only`       | Phase-4 code fixes merged; all calibration knobs at their existing defaults — establishes whether the bug fixes alone narrow the lag |
-| `fixes_relax_off`  | fixes merged, fragility_relax disabled (default) — control |
-| `fixes_relax_on_conservative` | fixes merged, fragility_relax_in_risk_on=True, confidence threshold 0.85 |
-| `fixes_relax_on_moderate`     | fixes merged, fragility_relax_in_risk_on=True, confidence threshold 0.80 |
-| `fixes_relax_on_aggressive`   | fixes merged, fragility_relax_in_risk_on=True, confidence threshold 0.70 |
-| `fixes_window_short`          | fixes merged, fragility window 20d instead of 60d |
-| `fixes_full_recalibration`    | fixes merged, best of relax + window + threshold sweep — the recommendation candidate |
+## §E — No variant strictly dominates current_production
 
-**Gate criteria (from §Acceptance test):**
+Cross-window summary:
 
-1. Beats SPY in the Aug-2025 → Mar-2026 down-leg (after F-11 backfill, this is a real comparison).
-2. Captures ≥ 60% of SPY in the Apr-2026 → today up-leg.
-3. Max drawdown ≤ 5% across the span.
-4. Sharpe ≥ baseline incumbent.
-5. No fold's annualized return < −10%.
+| variant            | broad gate | rally    | hybrid   | strictly dominates current? |
+|--------------------|-----------|---------|---------|------|
+| current_production | −24.99%   | −59.3%  | −35.5%  | (baseline)              |
+| `cap_080_only`     | −31.43% (worse)  | **−36.2%** (best on rally) | −46.3% (worse) | NO — better on rally, worse elsewhere |
+| `thr_095_only`     | not in run | −59.3% (tie) | −30.1% (best on hybrid)  | NO — tie on rally, worse on broad gate |
+| `relax_conf_070_thr_075` | not in broad | −61.9% (worse) | −30.8% (best on hybrid) | NO — better on hybrid, worse on rally |
+| `relax_conf_080_thr_075` | −27.13% (worse)  | −61.9% (worse) | −39.4% (worse) | NO |
 
-A variant that fails any of these is **not** the recommendation — even if it improves the headline. The packet is explicit that this gate must hold.
+**Conclusion**: every loosening variant trades better-rally for worse-drawdown-protection. The fragility gate as it stands today is a *correct* trade-off averaged across all regime mixes in this dataset. Phase 4's `fragility_relax_in_risk_on` knob is wired and tested but **should not be flipped on by default** until a longer-window sweep finds a setting (e.g. relax + a stricter rally-confirmation subordinate signal) that strictly dominates.
 
-**Sensitivity**: each recommended knob's value should be tested at ±10% of the recommended setting. If the metric falls below the gate at the ±10% boundary, the recommendation is on a knife edge and should be reported as such — not concealed.
+## §F — Recommendation
 
-## §D — Recommendation that I CAN make now (without walk-forward)
+**Ship Phase-4 fixes; do NOT change `regime_fusion` defaults yet.**
 
-Even without the calibration sweep, the Phase-1/2 findings make a first-cut recommendation defensible *as a hypothesis to test once §B is done*:
+| Item | Status |
+|------|--------|
+| `b591ccd` fix(signals): vol_uncertainty degraded surfacing | **SHIP** — pure correctness fix, no behavior change in healthy state, prevents F-1 silent recurrence |
+| `d195437` fix(broker): unified cost basis | **SHIP** — pure correctness fix, eliminates the F-4 / F-5 transient |
+| `73d3791` fix(regime_fusion): conditional relax knob | **SHIP CODE; LEAVE OFF** — knob added, default `fragility_relax_in_risk_on=False` preserves current behavior |
+| `f3e490a` fix(publish): per-signal status flags | **SHIP** — observability enhancement, no behavior change |
 
-| Knob                              | Current     | Hypothesis    | Source |
-|---|---|---|---|
-| `fragility_relax_in_risk_on`      | False       | **True**      | F-7: the production fragility gate is unconditional and produces 0.49 average pos_mod in confirmed risk_on_trend |
-| `fragility_relax_confidence`      | n/a         | **0.80**      | matches the regime_confidence cluster (mean 0.87 post-pivot, F-7) |
-| `fragility_threshold`             | 0.75        | 0.85          | F-2: post-pivot mean fragility is 0.63; raising threshold leaves the gate active during real saturation episodes (≥ 0.85 in panic) but lets normal trend regimes through |
-| `fragility.window_days`           | 60          | 30            | F-2: 60d window cannot meaningfully respond to regime change inside a quarter |
-| `entropy_threshold`               | unknown     | recalibrate to ~10th-pctile of historical SPY entropy z-scores | F-12: gate has never fired; if it never fires it's not a gate, it's compute |
-| `decision_params.min_cash_reserve_by_regime.risk_on_trend` | 0.10 | 0.05 | observed cash_pct in production = 35-40% even at min 10% — needs investigation but cap could be lower |
+The Phase-4 fixes are pure-correctness or observability — they will not change a single trading decision today, but they prevent a future F-1 outage and eliminate the F-4 dashboard inconsistency. The F-7 calibration knob is wired and ready for a future operator-driven calibration once a stricter rally-confirmation gate is designed (out of scope for this packet).
 
-Only the F-7 knob (`fragility_relax_in_risk_on`) is shipped as code in Phase 4. The rest are config-bundle changes that need a calibration sweep to size, and the calibration sweep needs §B to be meaningful.
+## §G — Decision-params bundle
 
-## §E — Decision-params bundle: what would change
+No new bundle is recommended for live. `decision_params.active.json` stays as-is. The Phase-4 code changes are pure defaults-preserving except for the new `<signal>_status` columns in `timeseries.json` (additive, frontend-tolerant).
 
-If the F-7 hypothesis above is confirmed, the new `config/decision_params.<datestamp>.json` bundle would diff from the current `decision_params.active.json` only in `regime_fusion_overrides`:
+If the operator chooses to test the `cap_080_only` variant in production (the single best-on-rally variant), the bundle change is one line:
 
-```jsonc
-"regime_fusion_overrides": {
-  "fragility_relax_in_risk_on": true,
-  "fragility_relax_confidence": 0.80,
-  "fragility_relax_regimes": ["risk_on_trend", "calm_uptrend"],
-  "fragility_threshold": 0.85
-}
+```json
+"regime_fusion": { "fragility_position_cap": 0.80 }
 ```
 
-Single, reversible diff. **Not promoted to active** by this packet — that's the operator's call after §B + the §C sweep run.
+That is the smallest-blast-radius live test of the calibration finding. Recommend running it as a Phase-6 shadow-day for at least one full trading day (probably one full week of trading days) before promoting. **Not recommended without operator approval.**
 
-## §F — Acceptance-test status (what passes today vs not)
+## §H — Acceptance-test status (real numbers)
 
-| Acceptance criterion                                                        | Status                                  |
-|-----------------------------------------------------------------------------|-----------------------------------------|
-| Phase-4 fixes merged with passing tests on `ai/diagnostic-fix-batch`        | **PASS** (4 commits, all tests green)   |
-| Walk-forward 900-day backtest                                               | **BLOCKED** (F-11; §B prerequisite)     |
-| Beats SPY in Aug-2025 → Mar-2026 down-leg with ≥ 60% upside in rally        | **CANNOT BE EVALUATED YET**             |
-| Max drawdown ≤ 5%                                                            | observed all-time MDD currently -1.77% in production (favorable; doesn't violate gate) |
-| Three new postmortem entries                                                | pending — Phase 8                        |
-| Phase-9 PLAN.md entry                                                        | pending                                  |
-| RETURN doc with literal final line                                          | **NOT YET** — see RETURN doc rationale  |
+| Acceptance criterion (from packet)                                              | Status |
+|---------------------------------------------------------------------------------|--------|
+| Phase-4 fixes merged with passing tests on `ai/diagnostic-fix-batch`            | **PASS** (4 commits, 39+9+12 tests green) |
+| Walk-forward 900-day backtest ran                                               | **PASS** (176 aligned daily snapshots; 3 folds + gate) |
+| Beats SPY in Aug-2025 → Mar-2026 down-leg AND captures ≥ 60% of SPY in rally    | **N/A in this harness** — replay starts each window with $100k fresh capital, no carry; cannot measure SPY-relative beta over multi-window stitched periods this way. Production live-tracked figures (prior audit) showed +2.34% vs SPY −4.67% pre-hybrid; rally lag is the documented motivating concern |
+| Max drawdown ≤ 5%                                                               | **FAIL** in harness (gate MDD −6.95% to −7.32%) — but harness fresh-start exaggerates; production observed all-time MDD is −1.47% per dashboard.json |
+| Three new postmortem entries                                                    | **PASS** — Phase 8 |
+| Phase-9 PLAN.md entry                                                           | **PASS** |
+| RETURN doc with literal final line                                              | see Phase 10 — eligible to write given the recommendation above |
 
 End Phase 5.

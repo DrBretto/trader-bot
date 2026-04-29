@@ -22,6 +22,7 @@ Risk-class legend: `LIVE-IMPACT` (current production decisions are wrong), `OBSE
 | F-8 | `compute_signals.run` reaches for `fred_latest` outside its definition scope | **CONFIRMED** — likely upstream cause of F-1 | LIVE-IMPACT (latent re-arm) |
 | F-9 | Skew is read from Stooq but never given a `_history` and percentile is hardcoded | **CONFIRMED** | OBSERVABILITY |
 | F-10 | Continuity-adjusted `total_value` vs raw `broker_total_value` differ by ~$10,078 with no on-page disclosure | **CONFIRMED — design artifact, not a bug, but UX hazard** | OBSERVABILITY |
+| F-11 | Timeseries pre-pivot inhomogeneity / "fake backfill" | **RETRACTED 2026-04-29** — equity moves are real, totals were bridged from a prior testing model. Phase 2 doc updated. | n/a |
 
 ---
 

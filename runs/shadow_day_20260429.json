@@ -1,0 +1,335 @@
+{
+  "shadow_date": "2026-04-28",
+  "blend": 0.35,
+  "variants": {
+    "current_production": {
+      "overrides": {},
+      "actions": [
+        {
+          "action": "BUY",
+          "symbol": "ARKK",
+          "shares": 136,
+          "price": 75.0467,
+          "dollars": 10206.35,
+          "reason": "SCORE_0.98_HEALTH_0.96"
+        },
+        {
+          "action": "BUY",
+          "symbol": "GLD",
+          "shares": 24,
+          "price": 420.6213,
+          "dollars": 10094.91,
+          "reason": "SCORE_0.78_HEALTH_0.85"
+        },
+        {
+          "action": "BUY",
+          "symbol": "QQQ",
+          "shares": 15,
+          "price": 657.5681,
+          "dollars": 9863.52,
+          "reason": "SCORE_0.78_HEALTH_0.78"
+        },
+        {
+          "action": "BUY",
+          "symbol": "SLV",
+          "shares": 156,
+          "price": 65.7824,
+          "dollars": 10262.06,
+          "reason": "SCORE_0.90_HEALTH_0.99"
+        },
+        {
+          "action": "BUY",
+          "symbol": "VUG",
+          "shares": 124,
+          "price": 82.6376,
+          "dollars": 10247.06,
+          "reason": "SCORE_0.83_HEALTH_0.78"
+        },
+        {
+          "action": "BUY",
+          "symbol": "VWO",
+          "shares": 176,
+          "price": 58.1565,
+          "dollars": 10235.55,
+          "reason": "SCORE_0.75_HEALTH_0.69"
+        },
+        {
+          "action": "BUY",
+          "symbol": "XLK",
+          "shares": 71,
+          "price": 157.4019,
+          "dollars": 11175.53,
+          "reason": "SCORE_0.88_HEALTH_0.88"
+        },
+        {
+          "action": "BUY",
+          "symbol": "XLY",
+          "shares": 87,
+          "price": 117.3358,
+          "dollars": 10208.22,
+          "reason": "SCORE_0.80_HEALTH_0.74"
+        }
+      ],
+      "regime_label": "risk_on_trend",
+      "actions_count": 8,
+      "start_value": 100000.0,
+      "end_value": 100200.71813829479,
+      "traded_notional": 82293.2
+    },
+    "fixes_only_no_calibration": {
+      "overrides": {},
+      "actions": [
+        {
+          "action": "BUY",
+          "symbol": "ARKK",
+          "shares": 136,
+          "price": 75.0467,
+          "dollars": 10206.35,
+          "reason": "SCORE_0.98_HEALTH_0.96"
+        },
+        {
+          "action": "BUY",
+          "symbol": "GLD",
+          "shares": 24,
+          "price": 420.6213,
+          "dollars": 10094.91,
+          "reason": "SCORE_0.78_HEALTH_0.85"
+        },
+        {
+          "action": "BUY",
+          "symbol": "QQQ",
+          "shares": 15,
+          "price": 657.5681,
+          "dollars": 9863.52,
+          "reason": "SCORE_0.78_HEALTH_0.78"
+        },
+        {
+          "action": "BUY",
+          "symbol": "SLV",
+          "shares": 156,
+          "price": 65.7824,
+          "dollars": 10262.06,
+          "reason": "SCORE_0.90_HEALTH_0.99"
+        },
+        {
+          "action": "BUY",
+          "symbol": "VUG",
+          "shares": 124,
+          "price": 82.6376,
+          "dollars": 10247.06,
+          "reason": "SCORE_0.83_HEALTH_0.78"
+        },
+        {
+          "action": "BUY",
+          "symbol": "VWO",
+          "shares": 176,
+          "price": 58.1565,
+          "dollars": 10235.55,
+          "reason": "SCORE_0.75_HEALTH_0.69"
+        },
+        {
+          "action": "BUY",
+          "symbol": "XLK",
+          "shares": 71,
+          "price": 157.4019,
+          "dollars": 11175.53,
+          "reason": "SCORE_0.88_HEALTH_0.88"
+        },
+        {
+          "action": "BUY",
+          "symbol": "XLY",
+          "shares": 87,
+          "price": 117.3358,
+          "dollars": 10208.22,
+          "reason": "SCORE_0.80_HEALTH_0.74"
+        }
+      ],
+      "regime_label": "risk_on_trend",
+      "actions_count": 8,
+      "start_value": 100000.0,
+      "end_value": 100200.71813829479,
+      "traded_notional": 82293.2
+    },
+    "cap_080_only": {
+      "overrides": {
+        "fragility_position_cap": 0.8
+      },
+      "actions": [
+        {
+          "action": "BUY",
+          "symbol": "ARKK",
+          "shares": 182,
+          "price": 75.0467,
+          "dollars": 13658.5,
+          "reason": "SCORE_0.98_HEALTH_0.96"
+        },
+        {
+          "action": "BUY",
+          "symbol": "GLD",
+          "shares": 32,
+          "price": 420.6213,
+          "dollars": 13459.88,
+          "reason": "SCORE_0.78_HEALTH_0.85"
+        },
+        {
+          "action": "BUY",
+          "symbol": "SLV",
+          "shares": 208,
+          "price": 65.7838,
+          "dollars": 13683.03,
+          "reason": "SCORE_0.90_HEALTH_0.99"
+        },
+        {
+          "action": "BUY",
+          "symbol": "VUG",
+          "shares": 165,
+          "price": 82.6206,
+          "dollars": 13632.4,
+          "reason": "SCORE_0.83_HEALTH_0.78"
+        },
+        {
+          "action": "BUY",
+          "symbol": "XLK",
+          "shares": 95,
+          "price": 157.3921,
+          "dollars": 14952.25,
+          "reason": "SCORE_0.88_HEALTH_0.88"
+        },
+        {
+          "action": "BUY",
+          "symbol": "XLY",
+          "shares": 116,
+          "price": 117.3635,
+          "dollars": 13614.16,
+          "reason": "SCORE_0.80_HEALTH_0.74"
+        }
+      ],
+      "regime_label": "risk_on_trend",
+      "actions_count": 6,
+      "start_value": 100000.0,
+      "end_value": 100229.45176350011,
+      "traded_notional": 83000.22
+    },
+    "thr_095_only": {
+      "overrides": {
+        "fragility_threshold": 0.95
+      },
+      "actions": [
+        {
+          "action": "BUY",
+          "symbol": "ARKK",
+          "shares": 136,
+          "price": 75.0467,
+          "dollars": 10206.35,
+          "reason": "SCORE_0.98_HEALTH_0.96"
+        },
+        {
+          "action": "BUY",
+          "symbol": "GLD",
+          "shares": 24,
+          "price": 420.6213,
+          "dollars": 10094.91,
+          "reason": "SCORE_0.78_HEALTH_0.85"
+        },
+        {
+          "action": "BUY",
+          "symbol": "QQQ",
+          "shares": 15,
+          "price": 657.5681,
+          "dollars": 9863.52,
+          "reason": "SCORE_0.78_HEALTH_0.78"
+        },
+        {
+          "action": "BUY",
+          "symbol": "SLV",
+          "shares": 156,
+          "price": 65.7824,
+          "dollars": 10262.06,
+          "reason": "SCORE_0.90_HEALTH_0.99"
+        },
+        {
+          "action": "BUY",
+          "symbol": "VUG",
+          "shares": 124,
+          "price": 82.6376,
+          "dollars": 10247.06,
+          "reason": "SCORE_0.83_HEALTH_0.78"
+        },
+        {
+          "action": "BUY",
+          "symbol": "VWO",
+          "shares": 176,
+          "price": 58.1565,
+          "dollars": 10235.55,
+          "reason": "SCORE_0.75_HEALTH_0.69"
+        },
+        {
+          "action": "BUY",
+          "symbol": "XLK",
+          "shares": 71,
+          "price": 157.4019,
+          "dollars": 11175.53,
+          "reason": "SCORE_0.88_HEALTH_0.88"
+        },
+        {
+          "action": "BUY",
+          "symbol": "XLY",
+          "shares": 87,
+          "price": 117.3358,
+          "dollars": 10208.22,
+          "reason": "SCORE_0.80_HEALTH_0.74"
+        }
+      ],
+      "regime_label": "risk_on_trend",
+      "actions_count": 8,
+      "start_value": 100000.0,
+      "end_value": 100200.71813829479,
+      "traded_notional": 82293.2
+    },
+    "relax_conf_080": {
+      "overrides": {
+        "fragility_relax_in_risk_on": true,
+        "fragility_relax_confidence": 0.8
+      },
+      "actions": [
+        {
+          "action": "BUY",
+          "symbol": "ARKK",
+          "shares": 254,
+          "price": 75.0467,
+          "dollars": 19061.86,
+          "reason": "SCORE_0.98_HEALTH_0.96"
+        },
+        {
+          "action": "BUY",
+          "symbol": "SLV",
+          "shares": 289,
+          "price": 65.7772,
+          "dollars": 19009.62,
+          "reason": "SCORE_0.90_HEALTH_0.99"
+        },
+        {
+          "action": "BUY",
+          "symbol": "VUG",
+          "shares": 231,
+          "price": 82.6223,
+          "dollars": 19085.76,
+          "reason": "SCORE_0.83_HEALTH_0.78"
+        },
+        {
+          "action": "BUY",
+          "symbol": "XLK",
+          "shares": 132,
+          "price": 157.3598,
+          "dollars": 20771.49,
+          "reason": "SCORE_0.88_HEALTH_0.88"
+        }
+      ],
+      "regime_label": "risk_on_trend",
+      "actions_count": 4,
+      "start_value": 100000.0,
+      "end_value": 100322.80148512118,
+      "traded_notional": 77928.73
+    }
+  }
+}
