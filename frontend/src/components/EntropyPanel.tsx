@@ -1,5 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { TimeseriesPoint } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   timeseries: TimeseriesPoint[];
@@ -17,7 +18,14 @@ export function EntropyPanel({ timeseries }: Props) {
 
   return (
     <div className="card">
-      <div className="card-title">Entropy / Distribution Shift</div>
+      <div className="card-title">
+        <span>Entropy / Distribution Shift</span>
+        <InfoTooltip
+          content={`Entropy captures how dispersed return behavior is.
+Red markers flag shift events where return-distribution structure changes enough to trigger caution gates.`}
+          label="Entropy panel"
+        />
+      </div>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />

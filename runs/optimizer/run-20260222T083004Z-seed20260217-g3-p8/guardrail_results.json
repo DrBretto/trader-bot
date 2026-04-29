@@ -1,0 +1,41 @@
+{
+  "passed": false,
+  "checks": [
+    {
+      "name": "max_drawdown_cap",
+      "passed": true,
+      "value": -0.03326818700481737,
+      "threshold": -0.25
+    },
+    {
+      "name": "cost_ratio_cap",
+      "passed": true,
+      "value": 0.0005281409202377,
+      "threshold": 0.015
+    },
+    {
+      "name": "min_round_trips_total",
+      "passed": false,
+      "value": 0.0,
+      "threshold": 20.0
+    },
+    {
+      "name": "min_gate_round_trips",
+      "passed": false,
+      "value": 0.0,
+      "threshold": 5.0
+    },
+    {
+      "name": "min_gate_win_rate",
+      "passed": false,
+      "value": 0.0,
+      "threshold": 0.45
+    },
+    {
+      "name": "min_fold_ann_return",
+      "passed": false,
+      "value": -0.9998017949824095,
+      "threshold": -0.2
+    }
+  ]
+}

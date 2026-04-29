@@ -96,19 +96,58 @@ aws events put-targets \
     }]" \
     --region "$REGION"
 
+# --- Midday check rule ---
+MIDDAY_RULE_NAME="investment-system-midday-trigger"
+
+echo ""
+echo "Setting up midday check rule: $MIDDAY_RULE_NAME"
+
+# Schedule: 18:00 UTC = 1:00 PM ET, Mon-Fri
+aws events put-rule \
+    --name "$MIDDAY_RULE_NAME" \
+    --schedule-expression "cron(0 18 ? * MON-FRI *)" \
+    --state ENABLED \
+    --description "Triggers midday check (trailing stops, VIX breaker, skipped buys) at 1:00 PM ET on weekdays" \
+    --region "$REGION"
+
+# Add Lambda permission for midday rule
+echo "Adding Lambda permission for midday rule..."
+aws lambda add-permission \
+    --function-name "$FUNCTION_NAME" \
+    --statement-id "EventBridgeMiddayInvoke" \
+    --action "lambda:InvokeFunction" \
+    --principal "events.amazonaws.com" \
+    --source-arn "arn:aws:events:$REGION:$ACCOUNT_ID:rule/$MIDDAY_RULE_NAME" \
+    --region "$REGION" 2>/dev/null || true
+
+# Add Lambda as target for midday rule
+echo "Adding Lambda target for midday rule..."
+aws events put-targets \
+    --rule "$MIDDAY_RULE_NAME" \
+    --targets "[{
+        \"Id\": \"investment-system-lambda-midday\",
+        \"Arn\": \"$LAMBDA_ARN\",
+        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"midday-check\\\"}\"
+    }]" \
+    --region "$REGION"
+
 echo ""
 echo "EventBridge rules created successfully!"
 echo ""
 echo "Night schedule:   Every weeknight at 10 PM ET (3 AM UTC next day, Tue-Sat)"
 echo "Morning schedule: Every weekday at 9:45 AM ET (14:45 UTC, Mon-Fri)"
+echo "Midday schedule:  Every weekday at 1:00 PM ET (18:00 UTC, Mon-Fri)"
 echo ""
 echo "Night rule ARN:   arn:aws:events:$REGION:$ACCOUNT_ID:rule/$RULE_NAME"
 echo "Morning rule ARN: arn:aws:events:$REGION:$ACCOUNT_ID:rule/$MORNING_RULE_NAME"
+echo "Midday rule ARN:  arn:aws:events:$REGION:$ACCOUNT_ID:rule/$MIDDAY_RULE_NAME"
 echo ""
 echo "To disable:"
 echo "  aws events disable-rule --name $RULE_NAME --region $REGION"
 echo "  aws events disable-rule --name $MORNING_RULE_NAME --region $REGION"
+echo "  aws events disable-rule --name $MIDDAY_RULE_NAME --region $REGION"
 echo ""
 echo "To test:"
 echo "  Night:   aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"$BUCKET_NAME\", \"source\": \"manual\"}' /tmp/response.json"
 echo "  Morning: aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"$BUCKET_NAME\", \"source\": \"morning-execution\"}' --invocation-type Event /tmp/response.json"
+echo "  Midday:  aws lambda invoke --function-name $FUNCTION_NAME --payload '{\"bucket\": \"$BUCKET_NAME\", \"source\": \"midday-check\"}' --invocation-type Event /tmp/response.json"

@@ -9,6 +9,7 @@ import sys
 sys.path.insert(0, str(__file__).rsplit('/tests', 1)[0])
 
 from src.steps.paper_trader import (
+    _normalize_loaded_portfolio_state,
     execute_trade,
     update_portfolio_values
 )
@@ -145,6 +146,45 @@ class TestExecuteTrade:
         # Cumulative costs tracked in portfolio
         assert 'cumulative_transaction_costs' in portfolio
         assert portfolio['cumulative_transaction_costs'] > 0
+
+
+class TestLoadPortfolioState:
+    """Tests for loading and normalizing stored portfolio state."""
+
+    def test_normalize_loaded_state_strips_one_day_continuity_fields_on_new_day(self):
+        state = {
+            'cash': 62317.48,
+            'holdings': [],
+            'portfolio_value': 99924.21,
+            'external_cashflow': -3025.53,
+            'continuity_bridge_marker': 'continuity-bridge-v1:2026-03-12',
+        }
+
+        normalized = _normalize_loaded_portfolio_state(
+            state,
+            state_date='2026-03-12',
+            as_of_date='2026-03-13',
+        )
+
+        assert 'external_cashflow' not in normalized
+        assert 'continuity_bridge_marker' not in normalized
+        assert normalized['portfolio_value'] == 99924.21
+
+    def test_normalize_loaded_state_preserves_continuity_fields_same_day(self):
+        state = {
+            'portfolio_value': 99924.21,
+            'external_cashflow': -3025.53,
+            'continuity_bridge_marker': 'continuity-bridge-v1:2026-03-12',
+        }
+
+        normalized = _normalize_loaded_portfolio_state(
+            state,
+            state_date='2026-03-12',
+            as_of_date='2026-03-12',
+        )
+
+        assert normalized['external_cashflow'] == pytest.approx(-3025.53, abs=1e-6)
+        assert normalized['continuity_bridge_marker'] == 'continuity-bridge-v1:2026-03-12'
 
 
 class TestUpdatePortfolioValues:

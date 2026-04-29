@@ -1,0 +1,93 @@
+{
+  "wf_objective": 0.5874999999999999,
+  "wf_mean": 0.5874999999999999,
+  "wf_stability_penalty": 0.0,
+  "fold_metrics": [
+    {
+      "days": 1,
+      "annualized_return": 3.313811255126776,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "win_rate": 0.0,
+      "realized_round_trips": 0,
+      "wins": 0,
+      "losses": 0,
+      "breakeven": 0,
+      "cost_ratio": 0.0,
+      "traded_notional": 0,
+      "cumulative_transaction_costs": 0.0,
+      "fold_score": 0.5874999999999999
+    },
+    {
+      "days": 1,
+      "annualized_return": 1.163429057526959,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "win_rate": 0.0,
+      "realized_round_trips": 0,
+      "wins": 0,
+      "losses": 0,
+      "breakeven": 0,
+      "cost_ratio": 0.00014753118925051734,
+      "traded_notional": 34429.33,
+      "cumulative_transaction_costs": 5.079399999998515,
+      "fold_score": 0.5874999999999999
+    }
+  ],
+  "guardrails": {
+    "passed": false,
+    "checks": [
+      {
+        "name": "max_drawdown_cap",
+        "passed": true,
+        "value": -0.01906528811617525,
+        "threshold": -0.25
+      },
+      {
+        "name": "cost_ratio_cap",
+        "passed": true,
+        "value": 0.00014753118925051734,
+        "threshold": 0.015
+      },
+      {
+        "name": "min_round_trips_total",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 20.0
+      },
+      {
+        "name": "min_gate_round_trips",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 5.0
+      },
+      {
+        "name": "min_gate_win_rate",
+        "passed": false,
+        "value": 0.0,
+        "threshold": 0.45
+      },
+      {
+        "name": "min_fold_ann_return",
+        "passed": true,
+        "value": 1.163429057526959,
+        "threshold": -0.2
+      }
+    ]
+  },
+  "gate_metrics": {
+    "days": 1,
+    "annualized_return": -0.9921782135978312,
+    "sharpe": 0.0,
+    "max_drawdown": -0.01906528811617525,
+    "win_rate": 0.0,
+    "realized_round_trips": 0,
+    "wins": 0,
+    "losses": 0,
+    "breakeven": 0,
+    "cost_ratio": 8.581227958619377e-05,
+    "traded_notional": 14044.61,
+    "cumulative_transaction_costs": 1.2051999999990528,
+    "fold_score": 0.0875
+  }
+}

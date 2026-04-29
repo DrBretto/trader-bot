@@ -26,7 +26,7 @@ Run these once when setting up a new environment:
 # 1. Create S3 bucket (no versioning!)
 ./infrastructure/s3_setup.sh investment-system-data us-east-1
 
-# 2. Store API keys in Secrets Manager
+# 2. Store API keys in Secrets Manager (includes optional Alpaca keys)
 ./infrastructure/secrets_setup.sh us-east-1
 # Then update secrets with actual keys via AWS Console or CLI
 ```
@@ -177,7 +177,7 @@ Access the dashboard at: `http://investment-system-data.s3-website-us-east-1.ama
 Use this sequence for a full first-time go-live:
 
 1. **S3 bucket** – From repo root: `./infrastructure/s3_setup.sh investment-system-data us-east-1`
-2. **Secrets** – `./infrastructure/secrets_setup.sh us-east-1` (enter OpenAI, FRED, Alpha Vantage keys)
+2. **Secrets** – `./infrastructure/secrets_setup.sh us-east-1` (enter OpenAI, FRED, Alpha Vantage; add Alpaca keys if using broker mode)
 3. **Lambda** – `./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1`
 4. **EventBridge** – `./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline investment-system-data us-east-1` (creates both night + morning rules)
 5. **SNS Alerts** – `./infrastructure/sns_setup.sh us-east-1 drbretto82@gmail.com` (confirm subscription via email)
@@ -185,6 +185,56 @@ Use this sequence for a full first-time go-live:
 7. **Verify daily pipeline** – Invoke Lambda once (see "Verify Deployment" above); check `daily/latest.json`, `daily/<date>/*`, and `dashboard/dashboard.json` in S3.
 8. **After enough daily data (e.g. 30+ days)** – Run training: `python training/train.py --bucket investment-system-data --region us-east-1`; then evolution: `python evolution/evolve.py --bucket investment-system-data --generations 25`.
 9. **Monthly automation** – Edit the launchd plist path to point to your repo's `automation/run_training.sh`, then run `./automation/install_launchd.sh`.
+
+---
+
+## Alpaca Broker Setup (Optional)
+
+To enable broker-connected execution (paper or live):
+
+### 1. Store Alpaca Secrets
+
+```bash
+# Run the secrets setup script (it now prompts for Alpaca keys)
+./infrastructure/secrets_setup.sh us-east-1
+```
+
+Or manually:
+```bash
+aws secretsmanager create-secret \
+    --name "investment-system/alpaca-paper-key-id" \
+    --secret-string '{"key": "YOUR_PAPER_KEY_ID"}' \
+    --region us-east-1
+
+aws secretsmanager create-secret \
+    --name "investment-system/alpaca-paper-secret-key" \
+    --secret-string '{"key": "YOUR_PAPER_SECRET_KEY"}' \
+    --region us-east-1
+```
+
+### 2. Smoke Test
+
+```bash
+# Set credentials locally for testing
+export ALPACA_PAPER_KEY_ID=your_key_id
+export ALPACA_PAPER_SECRET_KEY=your_secret_key
+
+# Account connectivity check
+python scripts/alpaca_paper_smoke_test.py --account-check
+
+# Optional: place and close a $1 test order
+python scripts/alpaca_paper_smoke_test.py --place-order --close-after
+```
+
+### 3. Enable Broker Mode on Lambda
+
+Add these environment variables to the Lambda function:
+- `BROKER_MODE=alpaca_paper`
+- `BROKER_TRADING_ENABLED=true`
+
+### 4. Rollback
+
+To revert to simulated mode, remove `BROKER_MODE` from the Lambda environment or set it to `simulated`.
 
 ---
 

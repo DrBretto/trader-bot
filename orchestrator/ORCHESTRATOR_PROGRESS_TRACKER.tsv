@@ -1,0 +1,13 @@
+task_id	title	depends_on	status	evidence_path	blocked_by	next_action	updated_at
+T000	Bootstrap orchestrator control plane	-	done	orchestrator/ORCHESTRATOR_BOOTSTRAP.md;orchestrator/ORCHESTRATOR_EXECUTION_TIMELINE.md;orchestrator/ORCHESTRATOR_PROGRESS_TRACKER.tsv	-	Proceed to repo reconciliation baseline	2026-03-12
+T010	Reconcile repo state and establish baseline evidence	T000	done	orchestrator/daily/2026-03-12.md#baseline	-	Open deploy verification packet	2026-03-12
+T020	Execute continuity hotfix deploy packet and collect artifacts	T010	done	orchestrator/daily/2026-03-13.md#continuity-fix	-	Proceed to closure/docs normalization	2026-03-13
+T030	Reconcile continuity acceptance checks from S3/dashboard	T020	done	orchestrator/daily/2026-03-13.md#continuity-fix	-	Proceed to closure/docs normalization	2026-03-13
+T040	Close cutover continuity epic and normalize plan docs	T030	done	orchestrator/daily/2026-03-18.md#t040-closure;docs/plans/2026-03-12-alpaca-paper-integration-plan.md;docs/plans/2026-03-12-cutover-continuity-bootstrap.md	-	Closed by Phase 1 truth stabilization pass	2026-03-18
+T050	Create git checkpoint packet for verified changes	T040	done	orchestrator/daily/2026-03-13.md#checkpoint-reconciliation	-	Proceed to live-soak gate definition	2026-03-13
+T060	Define live-money switch gate after paper soak	T030	pending	-	-	Publish go/no-go gate checklist and minimum soak criteria	2026-03-12
+T070	Record trusted-user sharing and auth direction	T030	done	docs/plans/2026-03-13-trusted-user-sharing.md;orchestrator/daily/2026-03-13.md#trusted-sharing-plan	-	Use this doc as the source of truth for future multi-user sharing work	2026-03-13
+T080	Design paper/live account-context switch and per-user broker registry	T060,T070	pending	-	-	Define user/account data model, route contract, and artifact partitioning rules	2026-03-13
+T090	Implement trusted-user sign-in and registry foundation	T080	pending	-	-	Add Cognito Google sign-in and user-scoped account registry	2026-03-13
+T100	Integrate Alpaca OAuth trusted-user account linking	T090	pending	-	-	Implement broker connect flow with secure token storage	2026-03-13
+T110	Protect live views while preserving optional public paper view	T090,T100	pending	-	-	Add authenticated live routing and access boundaries	2026-03-13

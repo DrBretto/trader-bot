@@ -1,5 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { TimeseriesPoint } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   timeseries: TimeseriesPoint[];
@@ -17,7 +18,14 @@ export function MacroCreditPanel({ timeseries }: Props) {
 
   return (
     <div className="card">
-      <div className="card-title">Macro / Credit</div>
+      <div className="card-title">
+        <span>Macro / Credit</span>
+        <InfoTooltip
+          content={`Composite macro-credit stress score. More negative values indicate weaker macro backdrop (e.g., curve inversion / widening credit stress proxy).
+Yield slope is plotted as a context line around the 0 threshold.`}
+          label="Macro and credit panel"
+        />
+      </div>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />

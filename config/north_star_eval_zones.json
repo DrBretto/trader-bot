@@ -1,0 +1,88 @@
+{
+  "_description": "North-star evaluation zones for incumbent vs baseline hybrid vs enriched architecture comparison",
+  "_created": "2026-03-20",
+  "_source": "ULP-TRB-065 eval substrate pass",
+
+  "data_range": {
+    "first_date": "2025-08-04",
+    "last_date": "2026-03-19",
+    "total_snapshots": 155,
+    "note": "All dates have features, inference, signals, and next_prices"
+  },
+
+  "walk_forward": {
+    "train_days": 42,
+    "test_days": 42,
+    "step_days": 21,
+    "gate_days": 42,
+    "fold_count": 2,
+    "folds": [
+      {
+        "fold_id": 1,
+        "train": "2025-08-04 to 2025-10-01",
+        "test": "2025-10-02 to 2025-12-01"
+      },
+      {
+        "fold_id": 2,
+        "train": "2025-09-03 to 2025-10-30",
+        "test": "2025-10-31 to 2025-12-31"
+      }
+    ],
+    "gate": "2026-01-14 to 2026-03-19"
+  },
+
+  "comparison_candidates": {
+    "incumbent": {
+      "bundle": "config/decision_params.json",
+      "version": "opt-bootstrap",
+      "description": "Current live champion. Regime-only defensive allocator."
+    },
+    "challenger_staged": {
+      "bundle": "config/decision_params.candidate.json",
+      "version": "macro-downgrade-075-v1",
+      "description": "Single parameter change: macro_downgrade_threshold -0.50 -> -0.75"
+    },
+    "baseline_hybrid": {
+      "bundle": null,
+      "version": null,
+      "description": "FUTURE: Dual-head transformer (regime + single-horizon ranking). Not yet implemented.",
+      "blocked_by": "Ranking head training"
+    },
+    "enriched_north_star": {
+      "bundle": null,
+      "version": null,
+      "description": "FUTURE: Multi-horizon + uncertainty + regime-conditioned ranking + enriched features. Not yet implemented.",
+      "blocked_by": "Ranking head + feature expansion + multi-horizon training"
+    }
+  },
+
+  "new_feature_backlog": {
+    "market_breadth": {
+      "status": "not_started",
+      "data_source": "Stooq constituent prices or Yahoo Finance breadth metrics",
+      "features": ["advance_decline_ratio", "pct_above_50ma", "pct_above_200ma", "new_high_low_ratio"],
+      "blocked_by": "Constituent price ingestion pipeline or external breadth data source",
+      "estimated_effort": "1 bounded implementation pass"
+    },
+    "vix_term_structure": {
+      "status": "partially_available",
+      "data_source": "VIX ETF ratios from Stooq/yfinance (VXX, SVXY in universe or derivable)",
+      "features": ["vix_contango_ratio", "vix_term_slope"],
+      "blocked_by": "Feature computation code (VXX/SVXY may not be in current 65-symbol universe)",
+      "estimated_effort": "Small — add 1-2 symbols and compute ratio"
+    },
+    "earnings_calendar": {
+      "status": "not_started",
+      "data_source": "Yahoo Finance earnings calendar API or SEC EDGAR",
+      "features": ["earnings_density_this_week", "post_earnings_surprise_aggregate", "upcoming_earnings_count"],
+      "blocked_by": "New data scraping pipeline",
+      "estimated_effort": "1 bounded implementation pass"
+    }
+  },
+
+  "evaluation_commands": {
+    "replay_gate_incumbent": "AWS_PROFILE=personal .venv/bin/python -m optimizer.cli evaluate --config config/optimizer_evaluation.yaml",
+    "ablation_gate": "AWS_PROFILE=personal .venv/bin/python scripts/run_gate_ablation.py --config config/optimizer_evaluation.yaml",
+    "fusion_sweep": "AWS_PROFILE=personal .venv/bin/python scripts/run_fusion_sweep.py --config config/optimizer_evaluation.yaml"
+  }
+}

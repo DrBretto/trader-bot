@@ -1,0 +1,79 @@
+{
+  "incumbent": {
+    "days": 36,
+    "annualized_return": -0.010528151549907938,
+    "sharpe": -0.6536243509978663,
+    "max_drawdown": -0.02625906898184438,
+    "win_rate": 0.4666666666666667,
+    "realized_round_trips": 30,
+    "wins": 14,
+    "losses": 16,
+    "breakeven": 0,
+    "cost_ratio": 0.0002706668238045378,
+    "traded_notional": 651232.75,
+    "cumulative_transaction_costs": 176.26709999999463,
+    "fold_score": 0.2115551951878461
+  },
+  "hybrid": {
+    "blend_0.15": {
+      "days": 36,
+      "annualized_return": 0.009965961635714171,
+      "sharpe": -0.4248452432068255,
+      "max_drawdown": -0.026239076714292153,
+      "win_rate": 0.4838709677419355,
+      "realized_round_trips": 31,
+      "wins": 15,
+      "losses": 16,
+      "breakeven": 0,
+      "cost_ratio": 0.0002690057191783028,
+      "traded_notional": 654844.07,
+      "cumulative_transaction_costs": 176.15679999999685,
+      "fold_score": 0.2841518120556445
+    },
+    "blend_0.25": {
+      "days": 36,
+      "annualized_return": 0.049573307937077704,
+      "sharpe": -0.08018697681445418,
+      "max_drawdown": -0.018919757725647468,
+      "win_rate": 0.5,
+      "realized_round_trips": 30,
+      "wins": 15,
+      "losses": 15,
+      "breakeven": 0,
+      "cost_ratio": 0.00027643019622375,
+      "traded_notional": 650319.33,
+      "cumulative_transaction_costs": 179.7678999999976,
+      "fold_score": 0.45724461412017925
+    },
+    "blend_0.35": {
+      "days": 36,
+      "annualized_return": 0.2896389417506047,
+      "sharpe": 1.3174615331820307,
+      "max_drawdown": -0.027822397499804086,
+      "win_rate": 0.5,
+      "realized_round_trips": 28,
+      "wins": 14,
+      "losses": 14,
+      "breakeven": 0,
+      "cost_ratio": 0.0002828630741115844,
+      "traded_notional": 604487.88,
+      "cumulative_transaction_costs": 170.98729999999455,
+      "fold_score": 0.6992607982689052
+    },
+    "blend_0.5": {
+      "days": 36,
+      "annualized_return": 0.12133382420120298,
+      "sharpe": 1.2471887172422553,
+      "max_drawdown": -0.017873284181770033,
+      "win_rate": 0.5714285714285714,
+      "realized_round_trips": 28,
+      "wins": 16,
+      "losses": 12,
+      "breakeven": 0,
+      "cost_ratio": 0.00029926591411684944,
+      "traded_notional": 517405.4,
+      "cumulative_transaction_costs": 154.84179999999412,
+      "fold_score": 0.6779331175808604
+    }
+  }
+}

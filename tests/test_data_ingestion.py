@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 import sys
 sys.path.insert(0, str(__file__).rsplit('/tests', 1)[0])
 
-from src.steps.ingest_prices import fetch_stooq_daily, fetch_morning_quotes
+from src.steps.ingest_prices import fetch_stooq_daily, fetch_morning_quotes, run as run_price_ingestion
 from src.steps.ingest_fred import fetch_fred_series, forward_fill_missing, get_latest_values
 from src.steps.ingest_gdelt import fetch_gdelt_daily_aggregate
 
@@ -88,6 +88,58 @@ class TestIngestPrices:
         assert len(quotes) == 1
         assert quotes.iloc[0]['symbol'] == 'SPY'
         assert quotes.iloc[0]['price'] == pytest.approx(602.5)
+
+    def test_run_falls_back_to_yfinance_when_primary_sources_fail(self):
+        """Night ingestion should use yfinance before giving up on a symbol."""
+        yf_df = pd.DataFrame({
+            'date': [pd.Timestamp('2026-03-31')],
+            'symbol': ['SPY'],
+            'open': [600.0],
+            'high': [605.0],
+            'low': [598.0],
+            'close': [602.5],
+            'volume': [123456789],
+        })
+
+        with patch('src.steps.ingest_prices.fetch_stooq_daily', return_value=pd.DataFrame()):
+            with patch('src.steps.ingest_prices.fetch_alphavantage_daily', return_value=pd.DataFrame()):
+                with patch('src.steps.ingest_prices.fetch_alpaca_daily', return_value=pd.DataFrame()):
+                    with patch('src.steps.ingest_prices.fetch_yfinance_daily', return_value=yf_df):
+                        result = run_price_ingestion(['SPY'], alphavantage_key='test-key', lookback_days=30)
+
+        assert len(result) == 1
+        assert result.iloc[0]['symbol'] == 'SPY'
+        assert result.iloc[0]['close'] == pytest.approx(602.5)
+
+    def test_run_prefers_alpaca_fallback_before_yfinance(self):
+        """Authenticated Alpaca history should be used before the weaker yfinance fallback."""
+        alpaca_df = pd.DataFrame({
+            'date': [pd.Timestamp('2026-03-31')],
+            'symbol': ['SPY'],
+            'open': [600.0],
+            'high': [605.0],
+            'low': [598.0],
+            'close': [602.5],
+            'volume': [123456789],
+        })
+        yf_df = pd.DataFrame()
+
+        with patch('src.steps.ingest_prices.fetch_stooq_daily', return_value=pd.DataFrame()):
+            with patch('src.steps.ingest_prices.fetch_alphavantage_daily', return_value=pd.DataFrame()):
+                with patch('src.steps.ingest_prices.fetch_alpaca_daily', return_value=alpaca_df) as mock_alpaca:
+                    with patch('src.steps.ingest_prices.fetch_yfinance_daily', return_value=yf_df):
+                        result = run_price_ingestion(
+                            ['SPY'],
+                            alphavantage_key='test-key',
+                            alpaca_key_id='alpaca-key',
+                            alpaca_secret_key='alpaca-secret',
+                            lookback_days=30,
+                        )
+
+        assert len(result) == 1
+        assert result.iloc[0]['symbol'] == 'SPY'
+        assert result.iloc[0]['close'] == pytest.approx(602.5)
+        mock_alpaca.assert_called_once()
 
 
 class TestIngestFred:

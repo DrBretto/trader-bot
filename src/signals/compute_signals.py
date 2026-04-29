@@ -66,6 +66,7 @@ def run(
     vvix_data: Optional[pd.DataFrame] = None,
     skew_data: Optional[pd.DataFrame] = None,
     s3_client: Optional[S3Client] = None,
+    signal_params: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Run all expert signal modules.
@@ -86,9 +87,18 @@ def run(
     result = {
         'computed_at': datetime.now().isoformat(),
     }
+    signal_params = signal_params or {}
+    macro_params = signal_params.get('macro_credit', {})
+    vol_params = signal_params.get('vol_uncertainty', {})
+    fragility_params = signal_params.get('fragility', {})
+    entropy_params = signal_params.get('entropy_shift', {})
 
     # Extract context values
     ctx = context_df.iloc[0] if len(context_df) > 0 else {}
+
+    # Hoisted: shared across blocks. Bind once so a Macro/Credit failure cannot
+    # silently leave Vol Uncertainty reading from an unbound name (F-8).
+    fred_latest: Dict[str, Any] = {}
 
     # --- 1. Macro/Credit ---
     try:
@@ -104,6 +114,7 @@ def run(
             hyg_prices=hyg_closes if len(hyg_closes) > 0 else None,
             ief_prices=ief_closes if len(ief_closes) > 0 else None,
             rate_2y=fred_latest.get('DGS2', 0),
+            params=macro_params,
         )
         result['macro_credit'] = macro
         print(f"  Macro/Credit score: {macro['macro_credit_score']:.3f}")
@@ -120,23 +131,30 @@ def run(
 
     # --- 2. Vol Uncertainty ---
     try:
-        vix_value = fred_latest.get('VIXCLS', 0) if 'fred_latest' in dir() else 0
-        # Also try context_df
-        if vix_value == 0:
-            vix_value = float(ctx.get('vixy_return_21d', 0)) if hasattr(ctx, 'get') else 0
-
-        # Get VIX from FRED history for percentile computation
+        # Use FRED VIX history when available; fall back to last value or context.
+        # If no live VIX is reachable, do NOT silently fall through to a 0-valued
+        # percentile (F-1: that historically produced an "always 0.10" signal
+        # for 168 production days). Surface a degraded_reason instead.
         vix_history = None
+        vix_value = float(fred_latest.get('VIXCLS', 0) or 0)
         if len(fred_df) > 0:
             vix_data = fred_df[fred_df['series_id'] == 'VIXCLS'].sort_values('date')
             if len(vix_data) >= 60:
                 vix_history = vix_data['value']
                 vix_value = float(vix_data['value'].iloc[-1])
 
+        if vix_value <= 0 and hasattr(ctx, 'get'):
+            ctx_vix = float(ctx.get('vix_close', 0) or 0)
+            if ctx_vix > 0:
+                vix_value = ctx_vix
+
+        if vix_value <= 0:
+            raise ValueError("vix_unavailable")
+
         vvix_value = _get_latest_close(vvix_data)
         skew_value = _get_latest_close(skew_data)
-
         vvix_history = _get_close_series(vvix_data)
+        skew_history = _get_close_series(skew_data)  # F-9
 
         vol = compute_vol_uncertainty(
             vix=vix_value,
@@ -144,7 +162,17 @@ def run(
             skew=skew_value,
             vix_history=vix_history,
             vvix_history=vvix_history,
+            skew_history=skew_history,
+            params=vol_params,
         )
+        # Per-input degraded markers so timeseries readers can see when the
+        # composite is silently running on a single VIX (F-3, F-6).
+        if vvix_value is None:
+            vol.setdefault('inputs_degraded', []).append('vvix_missing')
+        if skew_value is None:
+            vol.setdefault('inputs_degraded', []).append('skew_missing')
+        if vix_history is None:
+            vol.setdefault('inputs_degraded', []).append('vix_history_short')
         result['vol_uncertainty'] = vol
         print(f"  Vol Uncertainty score: {vol['vol_uncertainty_score']:.3f} ({vol['vol_regime_label']})")
     except Exception as e:
@@ -163,7 +191,7 @@ def run(
 
     # --- 3. Fragility ---
     try:
-        frag = compute_fragility(prices_df)
+        frag = compute_fragility(prices_df, params=fragility_params)
         result['fragility'] = frag
         print(f"  Fragility score: {frag['fragility_score']:.3f}")
     except Exception as e:
@@ -188,6 +216,7 @@ def run(
             spy_returns=spy_returns,
             prev_consecutive_days=prev_state['prev_consecutive_days'],
             prev_above_threshold=prev_state['prev_above_threshold'],
+            params=entropy_params,
         )
         result['entropy_shift'] = ent
         flag_str = 'SHIFT DETECTED' if ent['entropy_shift_flag'] else 'normal'

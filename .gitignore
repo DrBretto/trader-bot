@@ -79,9 +79,19 @@ lambda_deploy_*.zip
 # Training artifacts
 *.pkl
 *.pth
+*.pt
 models/*.pkl
 models/*.pth
+models/ranking*/
 training/data/*.parquet
+
+# Frontend test/evidence artifacts
+frontend/test-results/
+frontend/evidence-kit/captures/
+
+# Frontend data snapshots (pipeline writes these to S3, not git)
+frontend/public/data/dashboard.json
+frontend/public/data/timeseries.json
 
 # Local config overrides
 config/local_*.json

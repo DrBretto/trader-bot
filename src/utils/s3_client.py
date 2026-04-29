@@ -56,7 +56,7 @@ class S3Client:
             self.s3.put_object(
                 Bucket=self.bucket,
                 Key=key,
-                Body=json.dumps(data, indent=2, default=str),
+                Body=json.dumps(data, indent=2, default=str, allow_nan=False),
                 ContentType='application/json'
             )
             return True
@@ -170,3 +170,12 @@ class S3Client:
         except Exception as e:
             print(f"Error listing daily dates: {e}")
             return []
+
+    def download_file(self, key: str, local_path: str) -> bool:
+        """Download a file from S3 to a local path."""
+        try:
+            self.s3.download_file(self.bucket, key, local_path)
+            return True
+        except Exception as e:
+            print(f"Error downloading {key} to {local_path}: {e}")
+            return False

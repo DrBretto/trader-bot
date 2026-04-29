@@ -1,4 +1,5 @@
 import { EnsembleMetrics, ExpertSignals } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   ensemble?: EnsembleMetrics;
@@ -48,7 +49,9 @@ function FusionRule({ step, label, active, detail }: {
       display: 'flex', alignItems: 'center', gap: 8,
       padding: '6px 0',
       opacity: active ? 1 : 0.4,
-    }}>
+    }}
+      title={`${label}: ${detail}`}
+    >
       <span style={{
         fontSize: 11, fontWeight: 600, color: '#64748b',
         width: 16, textAlign: 'right', flexShrink: 0,
@@ -75,7 +78,14 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
     if (!ensemble || !ensemble.is_ensemble) {
       return (
         <div className="card ensemble-card">
-          <div className="card-title">Model Status</div>
+          <div className="card-title">
+            <span>Model Status</span>
+            <InfoTooltip
+              content={`Fallback mode when only one model is active.
+Ensemble-specific disagreement and fusion trail diagnostics are unavailable in this mode.`}
+              label="Model status"
+            />
+          </div>
           <div style={{ color: '#94a3b8', fontSize: '14px' }}>
             Single model (baseline)
           </div>
@@ -89,6 +99,8 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
   const regimeColor = REGIME_COLORS[regime] || '#64748b';
   const sizePct = (signals.position_size_modifier * 100).toFixed(0);
   const throttlePct = (signals.risk_throttle_factor * 100).toFixed(0);
+  const targetGrossPct = ((signals.target_gross_exposure ?? signals.effective_exposure_multiplier ?? signals.position_size_modifier) * 100).toFixed(0);
+  const fusionRules = [...(signals.fusion_rules ?? [])].sort((a, b) => a.order - b.order);
 
   // Fusion rule evaluation
   const panicProb = signals.panic_prob ?? 0;
@@ -108,7 +120,14 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
 
   return (
     <div className="card" style={{ minHeight: 200 }}>
-      <div className="card-title">Regime Decision</div>
+      <div className="card-title">
+        <span>Regime Decision</span>
+        <InfoTooltip
+          content={`Canonical fusion output used by the decision engine.
+Shows final regime, exposure throttle, model/expert inputs, and ordered rule effects so every decision is auditable.`}
+          label="Regime decision"
+        />
+      </div>
 
       {/* A) Final Decision Banner */}
       <div style={{
@@ -127,6 +146,9 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
           <span style={{ fontSize: 12, color: '#94a3b8' }}>
             Size: <span style={{ color: Number(sizePct) < 60 ? '#ef4444' : '#22c55e', fontWeight: 600 }}>{sizePct}%</span>
+          </span>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>
+            Target Gross: <span style={{ color: '#22c55e', fontWeight: 600 }}>{targetGrossPct}%</span>
           </span>
           {Number(throttlePct) > 0 && (
             <span style={{ fontSize: 12, color: '#eab308' }}>
@@ -151,12 +173,12 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
         {/* Left: Ensemble Models */}
         <div>
           <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
-            Ensemble Models
+            Ensemble Model Votes
           </div>
           {ensemble?.gru_prediction && ensemble?.transformer_prediction ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <ModelRow label="GRU" prediction={ensemble.gru_prediction.label} confidence={ensemble.gru_prediction.confidence} />
-              <ModelRow label="XFMR" prediction={ensemble.transformer_prediction.label} confidence={ensemble.transformer_prediction.confidence} />
+              <ModelRow label="GRU vote" prediction={ensemble.gru_prediction.label} confidence={ensemble.gru_prediction.confidence} />
+              <ModelRow label="XFMR vote" prediction={ensemble.transformer_prediction.label} confidence={ensemble.transformer_prediction.confidence} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                 <div style={{
                   width: 8, height: 8, borderRadius: '50%',
@@ -169,7 +191,7 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
             </div>
           ) : (
             <div style={{ fontSize: 12, color: '#64748b' }}>
-              Raw: {(signals.ensemble_regime_label || 'unknown').replace(/_/g, ' ')}
+              Ensemble vote: {(signals.ensemble_regime_label || 'unknown').replace(/_/g, ' ')}
             </div>
           )}
         </div>
@@ -211,18 +233,39 @@ export function EnsembleStatus({ ensemble, signals }: Props) {
         <div style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>
           Fusion Rules
         </div>
-        <FusionRule step={1} label="Panic Override" active={isPanicActive}
-          detail={isPanicActive ? `panic ${(panicProb * 100).toFixed(0)}%` : `panic ${(panicProb * 100).toFixed(1)}%`} />
-        <FusionRule step={2} label="Unstable Calm" active={isUnstableActive}
-          detail={`vol: ${volLabel}`} />
-        <FusionRule step={3} label="Macro Modulation" active={isMacroActive}
-          detail={`score: ${macroScore.toFixed(2)}`} />
-        <FusionRule step={4} label="Fragility Gate" active={isFragilityActive}
-          detail={isFragilityActive ? `${fragScore.toFixed(2)} > 0.75 → cap 60%` : `${fragScore.toFixed(2)}`} />
-        <FusionRule step={5} label="Entropy Shift" active={isEntropyActive}
-          detail={isEntropyActive ? 'shift detected → size ×0.7' : 'no shift'} />
-        <FusionRule step={6} label="Ensemble Disagreement" active={isDisagreementActive}
-          detail={isDisagreementActive ? `${(ensDisagreement * 100).toFixed(0)}% → size ×${((signals.ensemble_multiplier ?? 1) * 100).toFixed(0)}%` : `${(ensDisagreement * 100).toFixed(0)}%`} />
+        {fusionRules.length > 0 ? (
+          <>
+            {fusionRules.map((rule) => (
+              <FusionRule
+                key={rule.code}
+                step={rule.order}
+                label={rule.label}
+                active={rule.fired}
+                detail={rule.fired ? rule.effect : `${rule.inputs} | ${rule.threshold}`}
+              />
+            ))}
+            {signals.throttle_mapping && (
+              <div style={{ marginTop: 8, fontSize: 11, color: '#64748b' }}>
+                {signals.throttle_mapping}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <FusionRule step={1} label="Panic Override" active={isPanicActive}
+              detail={isPanicActive ? `panic ${(panicProb * 100).toFixed(0)}%` : `panic ${(panicProb * 100).toFixed(1)}%`} />
+            <FusionRule step={2} label="Unstable Calm" active={isUnstableActive}
+              detail={`vol: ${volLabel}`} />
+            <FusionRule step={3} label="Macro Modulation" active={isMacroActive}
+              detail={`score: ${macroScore.toFixed(2)}`} />
+            <FusionRule step={4} label="Fragility Gate" active={isFragilityActive}
+              detail={isFragilityActive ? `${fragScore.toFixed(2)} > 0.75 → cap 60%` : `${fragScore.toFixed(2)}`} />
+            <FusionRule step={5} label="Entropy Shift" active={isEntropyActive}
+              detail={isEntropyActive ? 'shift detected → size ×0.7' : 'no shift'} />
+            <FusionRule step={6} label="Ensemble Disagreement" active={isDisagreementActive}
+              detail={isDisagreementActive ? `${(ensDisagreement * 100).toFixed(0)}% → size ×${((signals.ensemble_multiplier ?? 1) * 100).toFixed(0)}%` : `${(ensDisagreement * 100).toFixed(0)}%`} />
+          </>
+        )}
       </div>
     </div>
   );
@@ -233,8 +276,11 @@ function ModelRow({ label, prediction, confidence }: {
 }) {
   const regimeColor = REGIME_COLORS[prediction] || '#64748b';
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span style={{ fontSize: 11, color: '#64748b', width: 36 }}>{label}</span>
+    <div
+      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+      title={`${label} suggests ${prediction.replace(/_/g, ' ')} at ${(confidence * 100).toFixed(1)}% confidence.`}
+    >
+      <span style={{ fontSize: 11, color: '#64748b', width: 56 }}>{label}</span>
       <span style={{ fontSize: 12, fontWeight: 500, color: regimeColor, textTransform: 'capitalize', flex: 1 }}>
         {prediction.replace(/_/g, ' ')}
       </span>
@@ -247,7 +293,7 @@ function SignalRow({ label, value, bar, alert }: {
   label: string; value: string; bar: React.ReactNode; alert?: boolean;
 }) {
   return (
-    <div>
+    <div title={`${label}: ${value}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
         <span style={{ fontSize: 11, color: alert ? '#eab308' : '#94a3b8' }}>
           {alert ? '! ' : ''}{label}
@@ -269,7 +315,14 @@ function LegacyEnsembleView({ ensemble }: { ensemble: EnsembleMetrics }) {
 
   return (
     <div className="card ensemble-card">
-      <div className="card-title">Ensemble Model Status</div>
+      <div className="card-title">
+        <span>Ensemble Model Status</span>
+        <InfoTooltip
+          content={`Legacy view for ensemble quality when detailed fusion diagnostics are unavailable.
+Agreement and confidence summarize model alignment and uncertainty.`}
+          label="Ensemble model status"
+        />
+      </div>
       <div className="ensemble-status-row" style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{

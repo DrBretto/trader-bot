@@ -24,6 +24,8 @@ RUN pip install --no-cache-dir -r requirements-lambda.txt
 # Copy application code
 COPY src/ ${LAMBDA_TASK_ROOT}/src/
 COPY training/models/ ${LAMBDA_TASK_ROOT}/training/models/
+# Configuration files read by publish_artifacts (chart_markers, etc.)
+COPY config/ ${LAMBDA_TASK_ROOT}/config/
 
 # Set the handler
 CMD ["src.handler.lambda_handler"]

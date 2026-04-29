@@ -4,12 +4,25 @@ export interface PortfolioMetrics {
   invested: number;
   ytd_return: number;
   mtd_return: number;
-  sharpe_ratio: number;
+  sharpe_ratio: number | null;
+  sharpe_observations?: number;
+  sharpe_min_observations?: number;
   max_drawdown: number;
   current_drawdown: number;
   win_rate: number;
   total_trades: number;
+  wins?: number;
+  losses?: number;
+  breakeven_trades?: number;
+  realized_round_trips?: number;
+  total_fills?: number;
   cumulative_transaction_costs?: number;
+  cash_pct?: number;
+  gross_exposure?: number;
+  net_exposure?: number;
+  top_position_pct?: number;
+  beta_proxy?: number | null;
+  snapshot_id?: string;
   timestamp: string;
 }
 
@@ -41,6 +54,9 @@ export interface EquityCurvePoint {
   date: string;
   value: number;
   benchmark: number;
+  raw_value?: number;
+  cumulative_external_cashflow?: number;
+  regimeLabel?: string | null;
 }
 
 export interface DrawdownPoint {
@@ -52,6 +68,7 @@ export interface MonthlyReturn {
   year: number;
   month: number;
   return_pct: number;
+  observations?: number;
 }
 
 export interface ModelPrediction {
@@ -106,10 +123,24 @@ export interface ExpertSignals {
   position_size_modifier: number;
   risk_throttle_factor: number;
   override_reason?: string | null;
+  target_gross_exposure?: number;
+  effective_exposure_multiplier?: number;
+  throttle_mapping?: string;
+  fusion_rules?: FusionRule[];
   ensemble_regime_label?: string;
   panic_prob?: number;
   ensemble_disagreement?: number;
   ensemble_multiplier?: number;
+}
+
+export interface FusionRule {
+  order: number;
+  code: string;
+  label: string;
+  fired: boolean;
+  inputs: string;
+  threshold: string;
+  effect: string;
 }
 
 export interface TimeseriesPoint {
@@ -155,15 +186,124 @@ export interface Trade {
   days_held?: number;
 }
 
+export interface TradeSummary {
+  fills_total: number;
+  realized_round_trips: number;
+  wins: number;
+  losses: number;
+  breakeven: number;
+  win_rate: number;
+  unmatched_closing_shares: number;
+  cumulative_transaction_costs: number;
+}
+
+export interface SnapshotMeta {
+  id: string;
+  date: string;
+  phase: string;
+  timestamp: string;
+}
+
+export interface PanelSnapshotIds {
+  metrics: string;
+  equity_curve: string;
+  drawdowns: string;
+  monthly_returns: string;
+  trade_log: string;
+  regime: string;
+}
+
+export interface ChartMarker {
+  date: string;
+  label: string;
+  category?: string;
+  description?: string;
+}
+
 export interface DashboardData {
+  snapshot?: SnapshotMeta;
+  panel_snapshot_ids?: PanelSnapshotIds;
   metrics: PortfolioMetrics;
   holdings: Holding[];
   candidates: BuyCandidate[];
   equity_curve: EquityCurvePoint[];
   drawdowns: DrawdownPoint[];
   monthly_returns: MonthlyReturn[];
+  chart_markers?: ChartMarker[];
   weather: WeatherReport;
   trades?: Trade[];
+  trade_summary?: TradeSummary;
+  round_trips?: Record<string, unknown>[];
+  reset_boundary?: Record<string, unknown> | null;
   expert_signals?: ExpertSignals;
   timeseries_url?: string;
+}
+
+export interface OptimizerRunSummary {
+  run_id: string;
+  started_at: string;
+  finished_at: string;
+  status: 'promoted' | 'completed' | 'failed' | 'rejected_guardrails' | 'rejected_objective' | string;
+  decision: 'promoted' | 'not_promoted' | string;
+  champion_version_before?: string;
+  challenger_version?: string;
+  wf_delta?: number;
+  gate_delta?: number;
+}
+
+export interface OptimizerRunsIndex {
+  updated_at: string;
+  active_version: string;
+  runs: OptimizerRunSummary[];
+}
+
+export interface OptimizerLineageEvent {
+  event_type: 'promotion' | 'rollback' | string;
+  timestamp: string;
+  from_version?: string | null;
+  to_version?: string | null;
+  run_id?: string | null;
+  reason?: string;
+  operator?: string;
+}
+
+export interface OptimizerLineage {
+  updated_at: string;
+  active_version: string;
+  history: OptimizerLineageEvent[];
+}
+
+export interface OptimizerRunDetail {
+  run_id: string;
+  run_manifest: Record<string, unknown>;
+  walk_forward_folds: Record<string, unknown>;
+  champion_metrics: Record<string, unknown>;
+  challenger_metrics: Record<string, unknown>;
+  gate_segment_metrics: Record<string, unknown>;
+  guardrail_results: Record<string, unknown>;
+  promotion_decision: Record<string, unknown>;
+  candidate_params_bundle: Record<string, unknown>;
+  generation_log: Record<string, unknown>[];
+  run_log_path?: string;
+}
+
+export interface CandidateBundleSummary {
+  version_id: string;
+  parent_version: string;
+  description: string;
+  change_summary: string;
+  evidence_source: string;
+  promotion_status: string;
+  promotion_requires?: string;
+  updated_at: string;
+  promotion_date?: string;
+  promotion_authority?: string;
+  shadow_verified?: boolean;
+  shadow_verified_date?: string;
+  accumulation_start_date?: string;
+  rollback_available?: boolean;
+  rollback_version?: string;
+  rollback_path?: string;
+  continued_monitoring?: boolean;
+  gate_evidence?: Record<string, string>;
 }

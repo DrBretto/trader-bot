@@ -1,15 +1,23 @@
 # Investment System
 
-Autonomous daily paper trading system with ML-powered market regime detection and asset health scoring.
+Autonomous daily trading system with ML-powered market regime detection and asset health scoring.
+
+## Current Status (March 2026)
+
+- **Paper-live active** — Alpaca paper trading is running daily via the morning execution Lambda. The system places real orders against the Alpaca paper account.
+- **Evaluation phase** — The system is accumulating live paper results for honest performance evaluation. Results are visible on the dashboard.
+- **Staged challenger** — The optimizer identified `macro_downgrade_threshold = -0.75` (from default -0.50) as a candidate improvement. This is staged only — not promoted to active parameters.
+- **Active params** — `opt-bootstrap` bundle. No parameter changes have been made since the initial deployment.
+- **Known limitation** — Historical replay data before the Alpaca cutover lacks full ensemble-derived signals, limiting honest multi-fold back-evaluation to the post-cutover window.
 
 ## Features
 
 - **Daily Pipeline** - Automated data ingestion, feature engineering, and trade execution
 - **ML Models** - GRU/Transformer for regime classification, Autoencoder/VAE for health scoring
-- **LLM Integration** - GPT-4 risk assessment and market weather reports
-- **React Dashboard** - Portfolio metrics, charts, and market analysis
+- **LLM Integration** - Claude Haiku (Bedrock) risk assessment and market weather reports
+- **React Dashboard** - Portfolio metrics, charts, evidence surfaces, and market analysis
 - **Evolutionary Optimization** - Genetic algorithm for policy parameter tuning
-- **Paper Trading** - Full portfolio simulation with realistic constraints
+- **Execution Modes** - Simulated trading (default) plus Alpaca paper/live broker routing (paper currently active)
 
 ## Architecture
 
@@ -30,7 +38,7 @@ Dashboard:
 
 - Python 3.11+
 - AWS CLI configured
-- API keys: OpenAI, FRED (free tiers available)
+- API keys: OpenAI, FRED (free tiers available), optional Alpaca keys for broker mode
 
 ### Local Development
 
@@ -118,7 +126,7 @@ pytest tests/test_evolution.py -v       # Evolution tests (28)
 pytest tests/test_baseline_models.py -v # Baseline tests
 ```
 
-Current: **122 tests** (109 passing, 3 pre-existing threshold mismatches in test_baseline_models.py)
+Current test count changes over time; run `pytest tests/ -v` for the latest totals.
 
 ## Configuration
 
@@ -137,6 +145,10 @@ Stored in Secrets Manager:
 - `investment-system/openai-key`
 - `investment-system/fred-key`
 - `investment-system/alphavantage-key`
+- `investment-system/alpaca-paper-key-id` (optional)
+- `investment-system/alpaca-paper-secret-key` (optional)
+- `investment-system/alpaca-live-key-id` (optional)
+- `investment-system/alpaca-live-secret-key` (optional)
 
 ## Cost Estimate
 

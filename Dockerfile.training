@@ -1,0 +1,33 @@
+# Training container image — CPU-only PyTorch for monthly model training.
+# Runs on AWS Batch (EC2 Spot). Not a Lambda image.
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system deps for pandas/numpy wheels
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Python deps (CPU PyTorch)
+COPY requirements-training.txt .
+RUN pip install --no-cache-dir torch==2.1.2 --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -r requirements-training.txt && \
+    pip install --no-cache-dir pyarrow==14.0.2
+
+# Copy training code and supporting modules
+COPY training/ training/
+COPY config/ config/
+COPY src/signals/ src/signals/
+COPY src/utils/ src/utils/
+COPY evolution/ evolution/
+COPY automation/check_costs.py automation/check_costs.py
+
+# Copy entry script
+COPY automation/run_training_batch.sh /app/run.sh
+RUN chmod +x /app/run.sh
+
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["/app/run.sh"]

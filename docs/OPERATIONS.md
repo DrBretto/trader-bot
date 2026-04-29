@@ -19,7 +19,7 @@ The system runs automatically at 10 PM ET on weeknights via AWS EventBridge.
 3. **Inference** - Runs regime classification and health scoring models
 4. **LLM Risk** - GPT-4 reviews top candidates for qualitative risks
 5. **Decisions** - Generates buy/sell signals based on scores and regime
-6. **Trading** - Executes paper trades, updates portfolio state
+6. **Trading** - Executes simulated or broker-routed trades, updates portfolio state
 7. **Weather** - Generates market weather report
 8. **Publish** - Uploads all artifacts to S3
 
@@ -122,6 +122,62 @@ export INVESTMENT_ALERT_EMAIL="your@email.com"
 
 ---
 
+## Broker Execution Modes
+
+The system supports three execution modes, controlled by `BROKER_MODE` env var or `broker_mode` in config:
+
+| Mode | Description | Default |
+|------|-------------|---------|
+| `simulated` | Paper trading via `paper_trader` (no broker) | Yes |
+| `alpaca_paper` | Alpaca paper trading (fractional/notional) | No |
+| `alpaca_live` | Alpaca live trading (fractional/notional) | No |
+
+### Safety Controls
+
+- **Kill switch**: `BROKER_TRADING_ENABLED` must be explicitly set to `true` for non-simulated modes. Default is `false`.
+- **Max order cap**: Per-order notional cap (default $5,000). Set via `broker.max_order_notional` in config.
+- **Symbol allowlist**: Optional. Set via `broker.symbol_allowlist` in config.
+- **Idempotent orders**: Deterministic `client_order_id` prevents duplicate submissions.
+
+### Enabling Paper Mode
+
+```bash
+# Set env vars (for Lambda, use environment configuration)
+export BROKER_MODE=alpaca_paper
+export BROKER_TRADING_ENABLED=true
+
+# Ensure Alpaca paper secrets are in Secrets Manager:
+#   investment-system/alpaca-paper-key-id
+#   investment-system/alpaca-paper-secret-key
+
+# Smoke test first
+python scripts/alpaca_paper_smoke_test.py --account-check
+python scripts/alpaca_paper_smoke_test.py --place-order --close-after
+```
+
+### Rollback to Simulated Mode
+
+```bash
+# Option 1: Remove env var (defaults to simulated)
+unset BROKER_MODE
+
+# Option 2: Explicitly set
+export BROKER_MODE=simulated
+```
+
+### Live Mode (After Paper Validation)
+
+1. Complete paper trading validation for multiple sessions
+2. Set up live API keys in Secrets Manager
+3. Switch mode and enable:
+   ```bash
+   export BROKER_MODE=alpaca_live
+   export BROKER_TRADING_ENABLED=true
+   ```
+4. Start with very small `max_order_notional` and narrow `symbol_allowlist`
+
+---
+
 ## Troubleshooting
 
 ### Pipeline Didn't Run
@@ -182,27 +238,99 @@ Common issues:
 
 ---
 
+## Cutover Continuity Bridge
+
+When switching from simulated to broker execution, the portfolio value may jump (e.g. fresh Alpaca paper account at $100k vs $103k simulated). This causes a false loss in dashboard metrics.
+
+The bridge script patches `external_cashflow` on the cutover-day `portfolio_state.json` to neutralize the discontinuity in return calculations.
+
+### When to Use
+
+- After switching `BROKER_MODE` from `simulated` to `alpaca_paper` (or `alpaca_live`)
+- When the dashboard shows a sudden drop/jump on the cutover day
+
+### Commands
+
+```bash
+# Dry-run (prints plan, writes artifact, no S3 mutation)
+python scripts/bridge_cutover_continuity.py --cutover-date 2026-03-12
+
+# Apply (patches portfolio_state.json in S3)
+python scripts/bridge_cutover_continuity.py --cutover-date 2026-03-12 --apply
+
+# With specific AWS profile
+python scripts/bridge_cutover_continuity.py --cutover-date 2026-03-12 --apply --profile your-aws-profile
+```
+
+`--profile` is optional. Omit it when using IAM role credentials (Lambda/EC2) or pre-set AWS env credentials.
+
+### Cautions
+
+- Only run once per cutover. The script is idempotent (safe to re-run), but review the output.
+- This does NOT change broker cash or positions — it only adjusts the accounting math.
+- Dashboard equity/value are continuity-adjusted after bridge so historical performance remains comparable; raw broker value is still emitted as `metrics.broker_total_value`.
+- After applying, re-run the morning execution or dashboard rebuild to see updated metrics.
+
+---
+
+## Bootstrapping Alpaca to Simulated Portfolio
+
+After cutover, the broker account has no positions. This script places notional buy orders on Alpaca to recreate the simulated portfolio's allocation.
+
+### Commands
+
+```bash
+# Dry-run (default)
+python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11
+
+# Apply (submits orders)
+python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11 --apply
+
+# With custom caps
+python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11 --apply \
+  --max-per-order 3000 --max-total 80000
+
+# With symbol filter
+python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11 --apply \
+  --symbol-allowlist SPY GLD XLE
+```
+
+`--profile` is optional for this script as well; use it only when you intentionally need a specific local profile.
+
+### Warnings
+
+- **Market drift/slippage**: Prices may have moved since the source date. Weights are approximate.
+- **Partial fills**: Some orders may partially fill or be rejected. Check the result artifact.
+- **Idempotent**: Re-running skips symbols where existing position already meets target weight.
+- After bootstrap, run the morning execution to reconcile and rebuild dashboard artifacts.
+
+---
+
 ## Backup & Recovery
 
 ### Portfolio State
 
-Portfolio state is stored in:
-- `s3://bucket/portfolio/current_state.json`
-- `s3://bucket/portfolio/trades_history.jsonl`
+Portfolio state is stored per run date under `daily/<date>/`:
+- `s3://bucket/daily/latest.json` (pointer to the most recent run)
+- `s3://bucket/daily/<date>/portfolio_state.json`
+- `s3://bucket/daily/<date>/trades.jsonl`
+- `s3://bucket/daily/<date>/morning_execution.json` (morning phase report, when applicable)
 
 To restore from backup:
 ```bash
-aws s3 cp s3://investment-system-data/portfolio/current_state.json /tmp/
-# Edit if needed
-aws s3 cp /tmp/current_state.json s3://investment-system-data/portfolio/current_state.json
+LATEST_DATE=$(aws s3 cp s3://investment-system-data/daily/latest.json - | jq -r .date)
+aws s3 cp "s3://investment-system-data/daily/${LATEST_DATE}/portfolio_state.json" /tmp/portfolio_state.json
+# Edit if needed, then upload to a date-specific key:
+aws s3 cp /tmp/portfolio_state.json "s3://investment-system-data/daily/${LATEST_DATE}/portfolio_state.json"
 ```
 
 ### Config Files
 
 Config stored in:
 - `s3://bucket/config/universe.csv`
-- `s3://bucket/config/decision_params.json`
-- `s3://bucket/config/regime_compatibility.json`
+- `s3://bucket/config/decision_params.active.json` (canonical live bundle)
+- `s3://bucket/config/decision_params.json` (legacy/reference)
+- `s3://bucket/config/regime_compatibility.json` (legacy/reference)
 
 ---
 
@@ -222,8 +350,9 @@ aws s3 cp s3://investment-system-data/daily/latest.json - | jq .regime
 aws s3 cp s3://investment-system-data/daily/$(date +%Y-%m-%d)/weather_blurb.json - | jq
 
 # Check current holdings
-aws s3 cp s3://investment-system-data/portfolio/current_state.json - | jq .holdings
+LATEST_DATE=$(aws s3 cp s3://investment-system-data/daily/latest.json - | jq -r .date)
+aws s3 cp "s3://investment-system-data/daily/${LATEST_DATE}/portfolio_state.json" - | jq .holdings
 
 # View recent trades
-aws s3 cp s3://investment-system-data/portfolio/trades_history.jsonl - | tail -5
+aws s3 cp "s3://investment-system-data/daily/${LATEST_DATE}/trades.jsonl" - | tail -5
 ```

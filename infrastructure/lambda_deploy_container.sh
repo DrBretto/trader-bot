@@ -25,6 +25,49 @@ ROLE_ARN="arn:aws:iam::$ACCOUNT_ID:role/$ROLE_NAME"
 echo "Account: $ACCOUNT_ID"
 echo "ECR URI: $IMAGE_URI"
 
+build_environment_arg() {
+    local function_name="$1"
+    local region="$2"
+    local bucket="$3"
+
+    python3 - "$function_name" "$region" "$bucket" <<'PY'
+import json
+import os
+import subprocess
+import sys
+
+function_name, region, bucket = sys.argv[1:]
+
+env = {}
+try:
+    existing = subprocess.check_output(
+        [
+            "aws", "lambda", "get-function-configuration",
+            "--function-name", function_name,
+            "--region", region,
+            "--query", "Environment.Variables",
+            "--output", "json",
+        ],
+        text=True,
+    ).strip()
+    if existing and existing != "null":
+        env = json.loads(existing)
+except Exception:
+    env = {}
+
+env["S3_BUCKET"] = bucket
+env["AWS_REGION_NAME"] = region
+
+for key in ("BROKER_MODE", "BROKER_TRADING_ENABLED"):
+    value = os.environ.get(key)
+    if value:
+        env[key] = value
+
+parts = ",".join(f"{key}={value}" for key, value in env.items())
+print(f"Variables={{{parts}}}")
+PY
+}
+
 # Create ECR repository if it doesn't exist
 if ! aws ecr describe-repositories --repository-names "$ECR_REPO_NAME" --region "$REGION" 2>/dev/null; then
     echo "Creating ECR repository..."
@@ -102,6 +145,7 @@ EXISTING_FUNCTION=$(aws lambda get-function --function-name "$FUNCTION_NAME" --r
 
 if [ -n "$EXISTING_FUNCTION" ]; then
     PACKAGE_TYPE=$(echo "$EXISTING_FUNCTION" | python3 -c "import sys,json; print(json.load(sys.stdin)['Configuration']['PackageType'])")
+    ENV_ARG=$(build_environment_arg "$FUNCTION_NAME" "$REGION" "$BUCKET_NAME")
 
     if [ "$PACKAGE_TYPE" = "Image" ]; then
         echo "Updating existing container function..."
@@ -123,7 +167,7 @@ if [ -n "$EXISTING_FUNCTION" ]; then
             --role "$ROLE_ARN" \
             --timeout 900 \
             --memory-size 3008 \
-            --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
+            --environment "$ENV_ARG" \
             --region "$REGION"
     fi
 
@@ -138,7 +182,7 @@ if [ -n "$EXISTING_FUNCTION" ]; then
         --function-name "$FUNCTION_NAME" \
         --timeout 900 \
         --memory-size 3008 \
-        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
+        --environment "$ENV_ARG" \
         --region "$REGION"
 
     aws lambda wait function-updated \
@@ -146,6 +190,7 @@ if [ -n "$EXISTING_FUNCTION" ]; then
         --region "$REGION"
 else
     echo "Creating new function with container image..."
+    ENV_ARG=$(build_environment_arg "$FUNCTION_NAME" "$REGION" "$BUCKET_NAME")
     aws lambda create-function \
         --function-name "$FUNCTION_NAME" \
         --package-type Image \
@@ -153,7 +198,7 @@ else
         --role "$ROLE_ARN" \
         --timeout 900 \
         --memory-size 3008 \
-        --environment "Variables={S3_BUCKET=$BUCKET_NAME,AWS_REGION_NAME=$REGION}" \
+        --environment "$ENV_ARG" \
         --region "$REGION"
 
     echo "Waiting for function to be active..."

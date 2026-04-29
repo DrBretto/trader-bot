@@ -1,0 +1,2521 @@
+{
+  "folds": [
+    {
+      "fold_id": 1,
+      "train_dates": [
+        "2025-08-04",
+        "2025-08-05"
+      ],
+      "test_dates": [
+        "2025-08-06"
+      ],
+      "train_start": "2025-08-04",
+      "train_end": "2025-08-05",
+      "test_start": "2025-08-06",
+      "test_end": "2025-08-06",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 2,
+      "train_dates": [
+        "2025-08-05",
+        "2025-08-06"
+      ],
+      "test_dates": [
+        "2025-08-07"
+      ],
+      "train_start": "2025-08-05",
+      "train_end": "2025-08-06",
+      "test_start": "2025-08-07",
+      "test_end": "2025-08-07",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 3,
+      "train_dates": [
+        "2025-08-06",
+        "2025-08-07"
+      ],
+      "test_dates": [
+        "2025-08-08"
+      ],
+      "train_start": "2025-08-06",
+      "train_end": "2025-08-07",
+      "test_start": "2025-08-08",
+      "test_end": "2025-08-08",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 4,
+      "train_dates": [
+        "2025-08-07",
+        "2025-08-08"
+      ],
+      "test_dates": [
+        "2025-08-11"
+      ],
+      "train_start": "2025-08-07",
+      "train_end": "2025-08-08",
+      "test_start": "2025-08-11",
+      "test_end": "2025-08-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 5,
+      "train_dates": [
+        "2025-08-08",
+        "2025-08-11"
+      ],
+      "test_dates": [
+        "2025-08-12"
+      ],
+      "train_start": "2025-08-08",
+      "train_end": "2025-08-11",
+      "test_start": "2025-08-12",
+      "test_end": "2025-08-12",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 6,
+      "train_dates": [
+        "2025-08-11",
+        "2025-08-12"
+      ],
+      "test_dates": [
+        "2025-08-13"
+      ],
+      "train_start": "2025-08-11",
+      "train_end": "2025-08-12",
+      "test_start": "2025-08-13",
+      "test_end": "2025-08-13",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 7,
+      "train_dates": [
+        "2025-08-12",
+        "2025-08-13"
+      ],
+      "test_dates": [
+        "2025-08-14"
+      ],
+      "train_start": "2025-08-12",
+      "train_end": "2025-08-13",
+      "test_start": "2025-08-14",
+      "test_end": "2025-08-14",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 8,
+      "train_dates": [
+        "2025-08-13",
+        "2025-08-14"
+      ],
+      "test_dates": [
+        "2025-08-15"
+      ],
+      "train_start": "2025-08-13",
+      "train_end": "2025-08-14",
+      "test_start": "2025-08-15",
+      "test_end": "2025-08-15",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 9,
+      "train_dates": [
+        "2025-08-14",
+        "2025-08-15"
+      ],
+      "test_dates": [
+        "2025-08-18"
+      ],
+      "train_start": "2025-08-14",
+      "train_end": "2025-08-15",
+      "test_start": "2025-08-18",
+      "test_end": "2025-08-18",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 10,
+      "train_dates": [
+        "2025-08-15",
+        "2025-08-18"
+      ],
+      "test_dates": [
+        "2025-08-19"
+      ],
+      "train_start": "2025-08-15",
+      "train_end": "2025-08-18",
+      "test_start": "2025-08-19",
+      "test_end": "2025-08-19",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 11,
+      "train_dates": [
+        "2025-08-18",
+        "2025-08-19"
+      ],
+      "test_dates": [
+        "2025-08-20"
+      ],
+      "train_start": "2025-08-18",
+      "train_end": "2025-08-19",
+      "test_start": "2025-08-20",
+      "test_end": "2025-08-20",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 12,
+      "train_dates": [
+        "2025-08-19",
+        "2025-08-20"
+      ],
+      "test_dates": [
+        "2025-08-21"
+      ],
+      "train_start": "2025-08-19",
+      "train_end": "2025-08-20",
+      "test_start": "2025-08-21",
+      "test_end": "2025-08-21",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 13,
+      "train_dates": [
+        "2025-08-20",
+        "2025-08-21"
+      ],
+      "test_dates": [
+        "2025-08-22"
+      ],
+      "train_start": "2025-08-20",
+      "train_end": "2025-08-21",
+      "test_start": "2025-08-22",
+      "test_end": "2025-08-22",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 14,
+      "train_dates": [
+        "2025-08-21",
+        "2025-08-22"
+      ],
+      "test_dates": [
+        "2025-08-25"
+      ],
+      "train_start": "2025-08-21",
+      "train_end": "2025-08-22",
+      "test_start": "2025-08-25",
+      "test_end": "2025-08-25",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 15,
+      "train_dates": [
+        "2025-08-22",
+        "2025-08-25"
+      ],
+      "test_dates": [
+        "2025-08-26"
+      ],
+      "train_start": "2025-08-22",
+      "train_end": "2025-08-25",
+      "test_start": "2025-08-26",
+      "test_end": "2025-08-26",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 16,
+      "train_dates": [
+        "2025-08-25",
+        "2025-08-26"
+      ],
+      "test_dates": [
+        "2025-08-27"
+      ],
+      "train_start": "2025-08-25",
+      "train_end": "2025-08-26",
+      "test_start": "2025-08-27",
+      "test_end": "2025-08-27",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 17,
+      "train_dates": [
+        "2025-08-26",
+        "2025-08-27"
+      ],
+      "test_dates": [
+        "2025-08-28"
+      ],
+      "train_start": "2025-08-26",
+      "train_end": "2025-08-27",
+      "test_start": "2025-08-28",
+      "test_end": "2025-08-28",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 18,
+      "train_dates": [
+        "2025-08-27",
+        "2025-08-28"
+      ],
+      "test_dates": [
+        "2025-08-29"
+      ],
+      "train_start": "2025-08-27",
+      "train_end": "2025-08-28",
+      "test_start": "2025-08-29",
+      "test_end": "2025-08-29",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 19,
+      "train_dates": [
+        "2025-08-28",
+        "2025-08-29"
+      ],
+      "test_dates": [
+        "2025-09-02"
+      ],
+      "train_start": "2025-08-28",
+      "train_end": "2025-08-29",
+      "test_start": "2025-09-02",
+      "test_end": "2025-09-02",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 20,
+      "train_dates": [
+        "2025-08-29",
+        "2025-09-02"
+      ],
+      "test_dates": [
+        "2025-09-03"
+      ],
+      "train_start": "2025-08-29",
+      "train_end": "2025-09-02",
+      "test_start": "2025-09-03",
+      "test_end": "2025-09-03",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 21,
+      "train_dates": [
+        "2025-09-02",
+        "2025-09-03"
+      ],
+      "test_dates": [
+        "2025-09-04"
+      ],
+      "train_start": "2025-09-02",
+      "train_end": "2025-09-03",
+      "test_start": "2025-09-04",
+      "test_end": "2025-09-04",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 22,
+      "train_dates": [
+        "2025-09-03",
+        "2025-09-04"
+      ],
+      "test_dates": [
+        "2025-09-05"
+      ],
+      "train_start": "2025-09-03",
+      "train_end": "2025-09-04",
+      "test_start": "2025-09-05",
+      "test_end": "2025-09-05",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 23,
+      "train_dates": [
+        "2025-09-04",
+        "2025-09-05"
+      ],
+      "test_dates": [
+        "2025-09-08"
+      ],
+      "train_start": "2025-09-04",
+      "train_end": "2025-09-05",
+      "test_start": "2025-09-08",
+      "test_end": "2025-09-08",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 24,
+      "train_dates": [
+        "2025-09-05",
+        "2025-09-08"
+      ],
+      "test_dates": [
+        "2025-09-09"
+      ],
+      "train_start": "2025-09-05",
+      "train_end": "2025-09-08",
+      "test_start": "2025-09-09",
+      "test_end": "2025-09-09",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 25,
+      "train_dates": [
+        "2025-09-08",
+        "2025-09-09"
+      ],
+      "test_dates": [
+        "2025-09-10"
+      ],
+      "train_start": "2025-09-08",
+      "train_end": "2025-09-09",
+      "test_start": "2025-09-10",
+      "test_end": "2025-09-10",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 26,
+      "train_dates": [
+        "2025-09-09",
+        "2025-09-10"
+      ],
+      "test_dates": [
+        "2025-09-11"
+      ],
+      "train_start": "2025-09-09",
+      "train_end": "2025-09-10",
+      "test_start": "2025-09-11",
+      "test_end": "2025-09-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 27,
+      "train_dates": [
+        "2025-09-10",
+        "2025-09-11"
+      ],
+      "test_dates": [
+        "2025-09-12"
+      ],
+      "train_start": "2025-09-10",
+      "train_end": "2025-09-11",
+      "test_start": "2025-09-12",
+      "test_end": "2025-09-12",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 28,
+      "train_dates": [
+        "2025-09-11",
+        "2025-09-12"
+      ],
+      "test_dates": [
+        "2025-09-15"
+      ],
+      "train_start": "2025-09-11",
+      "train_end": "2025-09-12",
+      "test_start": "2025-09-15",
+      "test_end": "2025-09-15",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 29,
+      "train_dates": [
+        "2025-09-12",
+        "2025-09-15"
+      ],
+      "test_dates": [
+        "2025-09-16"
+      ],
+      "train_start": "2025-09-12",
+      "train_end": "2025-09-15",
+      "test_start": "2025-09-16",
+      "test_end": "2025-09-16",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 30,
+      "train_dates": [
+        "2025-09-15",
+        "2025-09-16"
+      ],
+      "test_dates": [
+        "2025-09-17"
+      ],
+      "train_start": "2025-09-15",
+      "train_end": "2025-09-16",
+      "test_start": "2025-09-17",
+      "test_end": "2025-09-17",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 31,
+      "train_dates": [
+        "2025-09-16",
+        "2025-09-17"
+      ],
+      "test_dates": [
+        "2025-09-18"
+      ],
+      "train_start": "2025-09-16",
+      "train_end": "2025-09-17",
+      "test_start": "2025-09-18",
+      "test_end": "2025-09-18",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 32,
+      "train_dates": [
+        "2025-09-17",
+        "2025-09-18"
+      ],
+      "test_dates": [
+        "2025-09-19"
+      ],
+      "train_start": "2025-09-17",
+      "train_end": "2025-09-18",
+      "test_start": "2025-09-19",
+      "test_end": "2025-09-19",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 33,
+      "train_dates": [
+        "2025-09-18",
+        "2025-09-19"
+      ],
+      "test_dates": [
+        "2025-09-22"
+      ],
+      "train_start": "2025-09-18",
+      "train_end": "2025-09-19",
+      "test_start": "2025-09-22",
+      "test_end": "2025-09-22",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 34,
+      "train_dates": [
+        "2025-09-19",
+        "2025-09-22"
+      ],
+      "test_dates": [
+        "2025-09-23"
+      ],
+      "train_start": "2025-09-19",
+      "train_end": "2025-09-22",
+      "test_start": "2025-09-23",
+      "test_end": "2025-09-23",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 35,
+      "train_dates": [
+        "2025-09-22",
+        "2025-09-23"
+      ],
+      "test_dates": [
+        "2025-09-24"
+      ],
+      "train_start": "2025-09-22",
+      "train_end": "2025-09-23",
+      "test_start": "2025-09-24",
+      "test_end": "2025-09-24",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 36,
+      "train_dates": [
+        "2025-09-23",
+        "2025-09-24"
+      ],
+      "test_dates": [
+        "2025-09-25"
+      ],
+      "train_start": "2025-09-23",
+      "train_end": "2025-09-24",
+      "test_start": "2025-09-25",
+      "test_end": "2025-09-25",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 37,
+      "train_dates": [
+        "2025-09-24",
+        "2025-09-25"
+      ],
+      "test_dates": [
+        "2025-09-26"
+      ],
+      "train_start": "2025-09-24",
+      "train_end": "2025-09-25",
+      "test_start": "2025-09-26",
+      "test_end": "2025-09-26",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 38,
+      "train_dates": [
+        "2025-09-25",
+        "2025-09-26"
+      ],
+      "test_dates": [
+        "2025-09-29"
+      ],
+      "train_start": "2025-09-25",
+      "train_end": "2025-09-26",
+      "test_start": "2025-09-29",
+      "test_end": "2025-09-29",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 39,
+      "train_dates": [
+        "2025-09-26",
+        "2025-09-29"
+      ],
+      "test_dates": [
+        "2025-09-30"
+      ],
+      "train_start": "2025-09-26",
+      "train_end": "2025-09-29",
+      "test_start": "2025-09-30",
+      "test_end": "2025-09-30",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 40,
+      "train_dates": [
+        "2025-09-29",
+        "2025-09-30"
+      ],
+      "test_dates": [
+        "2025-10-01"
+      ],
+      "train_start": "2025-09-29",
+      "train_end": "2025-09-30",
+      "test_start": "2025-10-01",
+      "test_end": "2025-10-01",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 41,
+      "train_dates": [
+        "2025-09-30",
+        "2025-10-01"
+      ],
+      "test_dates": [
+        "2025-10-02"
+      ],
+      "train_start": "2025-09-30",
+      "train_end": "2025-10-01",
+      "test_start": "2025-10-02",
+      "test_end": "2025-10-02",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 42,
+      "train_dates": [
+        "2025-10-01",
+        "2025-10-02"
+      ],
+      "test_dates": [
+        "2025-10-03"
+      ],
+      "train_start": "2025-10-01",
+      "train_end": "2025-10-02",
+      "test_start": "2025-10-03",
+      "test_end": "2025-10-03",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 43,
+      "train_dates": [
+        "2025-10-02",
+        "2025-10-03"
+      ],
+      "test_dates": [
+        "2025-10-06"
+      ],
+      "train_start": "2025-10-02",
+      "train_end": "2025-10-03",
+      "test_start": "2025-10-06",
+      "test_end": "2025-10-06",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 44,
+      "train_dates": [
+        "2025-10-03",
+        "2025-10-06"
+      ],
+      "test_dates": [
+        "2025-10-07"
+      ],
+      "train_start": "2025-10-03",
+      "train_end": "2025-10-06",
+      "test_start": "2025-10-07",
+      "test_end": "2025-10-07",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 45,
+      "train_dates": [
+        "2025-10-06",
+        "2025-10-07"
+      ],
+      "test_dates": [
+        "2025-10-08"
+      ],
+      "train_start": "2025-10-06",
+      "train_end": "2025-10-07",
+      "test_start": "2025-10-08",
+      "test_end": "2025-10-08",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 46,
+      "train_dates": [
+        "2025-10-07",
+        "2025-10-08"
+      ],
+      "test_dates": [
+        "2025-10-09"
+      ],
+      "train_start": "2025-10-07",
+      "train_end": "2025-10-08",
+      "test_start": "2025-10-09",
+      "test_end": "2025-10-09",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 47,
+      "train_dates": [
+        "2025-10-08",
+        "2025-10-09"
+      ],
+      "test_dates": [
+        "2025-10-10"
+      ],
+      "train_start": "2025-10-08",
+      "train_end": "2025-10-09",
+      "test_start": "2025-10-10",
+      "test_end": "2025-10-10",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 48,
+      "train_dates": [
+        "2025-10-09",
+        "2025-10-10"
+      ],
+      "test_dates": [
+        "2025-10-13"
+      ],
+      "train_start": "2025-10-09",
+      "train_end": "2025-10-10",
+      "test_start": "2025-10-13",
+      "test_end": "2025-10-13",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 49,
+      "train_dates": [
+        "2025-10-10",
+        "2025-10-13"
+      ],
+      "test_dates": [
+        "2025-10-14"
+      ],
+      "train_start": "2025-10-10",
+      "train_end": "2025-10-13",
+      "test_start": "2025-10-14",
+      "test_end": "2025-10-14",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 50,
+      "train_dates": [
+        "2025-10-13",
+        "2025-10-14"
+      ],
+      "test_dates": [
+        "2025-10-15"
+      ],
+      "train_start": "2025-10-13",
+      "train_end": "2025-10-14",
+      "test_start": "2025-10-15",
+      "test_end": "2025-10-15",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 51,
+      "train_dates": [
+        "2025-10-14",
+        "2025-10-15"
+      ],
+      "test_dates": [
+        "2025-10-16"
+      ],
+      "train_start": "2025-10-14",
+      "train_end": "2025-10-15",
+      "test_start": "2025-10-16",
+      "test_end": "2025-10-16",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 52,
+      "train_dates": [
+        "2025-10-15",
+        "2025-10-16"
+      ],
+      "test_dates": [
+        "2025-10-17"
+      ],
+      "train_start": "2025-10-15",
+      "train_end": "2025-10-16",
+      "test_start": "2025-10-17",
+      "test_end": "2025-10-17",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 53,
+      "train_dates": [
+        "2025-10-16",
+        "2025-10-17"
+      ],
+      "test_dates": [
+        "2025-10-20"
+      ],
+      "train_start": "2025-10-16",
+      "train_end": "2025-10-17",
+      "test_start": "2025-10-20",
+      "test_end": "2025-10-20",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 54,
+      "train_dates": [
+        "2025-10-17",
+        "2025-10-20"
+      ],
+      "test_dates": [
+        "2025-10-21"
+      ],
+      "train_start": "2025-10-17",
+      "train_end": "2025-10-20",
+      "test_start": "2025-10-21",
+      "test_end": "2025-10-21",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 55,
+      "train_dates": [
+        "2025-10-20",
+        "2025-10-21"
+      ],
+      "test_dates": [
+        "2025-10-22"
+      ],
+      "train_start": "2025-10-20",
+      "train_end": "2025-10-21",
+      "test_start": "2025-10-22",
+      "test_end": "2025-10-22",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 56,
+      "train_dates": [
+        "2025-10-21",
+        "2025-10-22"
+      ],
+      "test_dates": [
+        "2025-10-23"
+      ],
+      "train_start": "2025-10-21",
+      "train_end": "2025-10-22",
+      "test_start": "2025-10-23",
+      "test_end": "2025-10-23",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 57,
+      "train_dates": [
+        "2025-10-22",
+        "2025-10-23"
+      ],
+      "test_dates": [
+        "2025-10-24"
+      ],
+      "train_start": "2025-10-22",
+      "train_end": "2025-10-23",
+      "test_start": "2025-10-24",
+      "test_end": "2025-10-24",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 58,
+      "train_dates": [
+        "2025-10-23",
+        "2025-10-24"
+      ],
+      "test_dates": [
+        "2025-10-27"
+      ],
+      "train_start": "2025-10-23",
+      "train_end": "2025-10-24",
+      "test_start": "2025-10-27",
+      "test_end": "2025-10-27",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 59,
+      "train_dates": [
+        "2025-10-24",
+        "2025-10-27"
+      ],
+      "test_dates": [
+        "2025-10-28"
+      ],
+      "train_start": "2025-10-24",
+      "train_end": "2025-10-27",
+      "test_start": "2025-10-28",
+      "test_end": "2025-10-28",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 60,
+      "train_dates": [
+        "2025-10-27",
+        "2025-10-28"
+      ],
+      "test_dates": [
+        "2025-10-29"
+      ],
+      "train_start": "2025-10-27",
+      "train_end": "2025-10-28",
+      "test_start": "2025-10-29",
+      "test_end": "2025-10-29",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 61,
+      "train_dates": [
+        "2025-10-28",
+        "2025-10-29"
+      ],
+      "test_dates": [
+        "2025-10-30"
+      ],
+      "train_start": "2025-10-28",
+      "train_end": "2025-10-29",
+      "test_start": "2025-10-30",
+      "test_end": "2025-10-30",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 62,
+      "train_dates": [
+        "2025-10-29",
+        "2025-10-30"
+      ],
+      "test_dates": [
+        "2025-10-31"
+      ],
+      "train_start": "2025-10-29",
+      "train_end": "2025-10-30",
+      "test_start": "2025-10-31",
+      "test_end": "2025-10-31",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 63,
+      "train_dates": [
+        "2025-10-30",
+        "2025-10-31"
+      ],
+      "test_dates": [
+        "2025-11-03"
+      ],
+      "train_start": "2025-10-30",
+      "train_end": "2025-10-31",
+      "test_start": "2025-11-03",
+      "test_end": "2025-11-03",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 64,
+      "train_dates": [
+        "2025-10-31",
+        "2025-11-03"
+      ],
+      "test_dates": [
+        "2025-11-04"
+      ],
+      "train_start": "2025-10-31",
+      "train_end": "2025-11-03",
+      "test_start": "2025-11-04",
+      "test_end": "2025-11-04",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 65,
+      "train_dates": [
+        "2025-11-03",
+        "2025-11-04"
+      ],
+      "test_dates": [
+        "2025-11-05"
+      ],
+      "train_start": "2025-11-03",
+      "train_end": "2025-11-04",
+      "test_start": "2025-11-05",
+      "test_end": "2025-11-05",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 66,
+      "train_dates": [
+        "2025-11-04",
+        "2025-11-05"
+      ],
+      "test_dates": [
+        "2025-11-06"
+      ],
+      "train_start": "2025-11-04",
+      "train_end": "2025-11-05",
+      "test_start": "2025-11-06",
+      "test_end": "2025-11-06",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 67,
+      "train_dates": [
+        "2025-11-05",
+        "2025-11-06"
+      ],
+      "test_dates": [
+        "2025-11-07"
+      ],
+      "train_start": "2025-11-05",
+      "train_end": "2025-11-06",
+      "test_start": "2025-11-07",
+      "test_end": "2025-11-07",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 68,
+      "train_dates": [
+        "2025-11-06",
+        "2025-11-07"
+      ],
+      "test_dates": [
+        "2025-11-10"
+      ],
+      "train_start": "2025-11-06",
+      "train_end": "2025-11-07",
+      "test_start": "2025-11-10",
+      "test_end": "2025-11-10",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 69,
+      "train_dates": [
+        "2025-11-07",
+        "2025-11-10"
+      ],
+      "test_dates": [
+        "2025-11-11"
+      ],
+      "train_start": "2025-11-07",
+      "train_end": "2025-11-10",
+      "test_start": "2025-11-11",
+      "test_end": "2025-11-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 70,
+      "train_dates": [
+        "2025-11-10",
+        "2025-11-11"
+      ],
+      "test_dates": [
+        "2025-11-12"
+      ],
+      "train_start": "2025-11-10",
+      "train_end": "2025-11-11",
+      "test_start": "2025-11-12",
+      "test_end": "2025-11-12",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 71,
+      "train_dates": [
+        "2025-11-11",
+        "2025-11-12"
+      ],
+      "test_dates": [
+        "2025-11-13"
+      ],
+      "train_start": "2025-11-11",
+      "train_end": "2025-11-12",
+      "test_start": "2025-11-13",
+      "test_end": "2025-11-13",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 72,
+      "train_dates": [
+        "2025-11-12",
+        "2025-11-13"
+      ],
+      "test_dates": [
+        "2025-11-14"
+      ],
+      "train_start": "2025-11-12",
+      "train_end": "2025-11-13",
+      "test_start": "2025-11-14",
+      "test_end": "2025-11-14",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 73,
+      "train_dates": [
+        "2025-11-13",
+        "2025-11-14"
+      ],
+      "test_dates": [
+        "2025-11-17"
+      ],
+      "train_start": "2025-11-13",
+      "train_end": "2025-11-14",
+      "test_start": "2025-11-17",
+      "test_end": "2025-11-17",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 74,
+      "train_dates": [
+        "2025-11-14",
+        "2025-11-17"
+      ],
+      "test_dates": [
+        "2025-11-18"
+      ],
+      "train_start": "2025-11-14",
+      "train_end": "2025-11-17",
+      "test_start": "2025-11-18",
+      "test_end": "2025-11-18",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 75,
+      "train_dates": [
+        "2025-11-17",
+        "2025-11-18"
+      ],
+      "test_dates": [
+        "2025-11-19"
+      ],
+      "train_start": "2025-11-17",
+      "train_end": "2025-11-18",
+      "test_start": "2025-11-19",
+      "test_end": "2025-11-19",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 76,
+      "train_dates": [
+        "2025-11-18",
+        "2025-11-19"
+      ],
+      "test_dates": [
+        "2025-11-20"
+      ],
+      "train_start": "2025-11-18",
+      "train_end": "2025-11-19",
+      "test_start": "2025-11-20",
+      "test_end": "2025-11-20",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 77,
+      "train_dates": [
+        "2025-11-19",
+        "2025-11-20"
+      ],
+      "test_dates": [
+        "2025-11-21"
+      ],
+      "train_start": "2025-11-19",
+      "train_end": "2025-11-20",
+      "test_start": "2025-11-21",
+      "test_end": "2025-11-21",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 78,
+      "train_dates": [
+        "2025-11-20",
+        "2025-11-21"
+      ],
+      "test_dates": [
+        "2025-11-24"
+      ],
+      "train_start": "2025-11-20",
+      "train_end": "2025-11-21",
+      "test_start": "2025-11-24",
+      "test_end": "2025-11-24",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 79,
+      "train_dates": [
+        "2025-11-21",
+        "2025-11-24"
+      ],
+      "test_dates": [
+        "2025-11-25"
+      ],
+      "train_start": "2025-11-21",
+      "train_end": "2025-11-24",
+      "test_start": "2025-11-25",
+      "test_end": "2025-11-25",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 80,
+      "train_dates": [
+        "2025-11-24",
+        "2025-11-25"
+      ],
+      "test_dates": [
+        "2025-11-26"
+      ],
+      "train_start": "2025-11-24",
+      "train_end": "2025-11-25",
+      "test_start": "2025-11-26",
+      "test_end": "2025-11-26",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 81,
+      "train_dates": [
+        "2025-11-25",
+        "2025-11-26"
+      ],
+      "test_dates": [
+        "2025-11-28"
+      ],
+      "train_start": "2025-11-25",
+      "train_end": "2025-11-26",
+      "test_start": "2025-11-28",
+      "test_end": "2025-11-28",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 82,
+      "train_dates": [
+        "2025-11-26",
+        "2025-11-28"
+      ],
+      "test_dates": [
+        "2025-12-01"
+      ],
+      "train_start": "2025-11-26",
+      "train_end": "2025-11-28",
+      "test_start": "2025-12-01",
+      "test_end": "2025-12-01",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 83,
+      "train_dates": [
+        "2025-11-28",
+        "2025-12-01"
+      ],
+      "test_dates": [
+        "2025-12-02"
+      ],
+      "train_start": "2025-11-28",
+      "train_end": "2025-12-01",
+      "test_start": "2025-12-02",
+      "test_end": "2025-12-02",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 84,
+      "train_dates": [
+        "2025-12-01",
+        "2025-12-02"
+      ],
+      "test_dates": [
+        "2025-12-03"
+      ],
+      "train_start": "2025-12-01",
+      "train_end": "2025-12-02",
+      "test_start": "2025-12-03",
+      "test_end": "2025-12-03",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 85,
+      "train_dates": [
+        "2025-12-02",
+        "2025-12-03"
+      ],
+      "test_dates": [
+        "2025-12-04"
+      ],
+      "train_start": "2025-12-02",
+      "train_end": "2025-12-03",
+      "test_start": "2025-12-04",
+      "test_end": "2025-12-04",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 86,
+      "train_dates": [
+        "2025-12-03",
+        "2025-12-04"
+      ],
+      "test_dates": [
+        "2025-12-05"
+      ],
+      "train_start": "2025-12-03",
+      "train_end": "2025-12-04",
+      "test_start": "2025-12-05",
+      "test_end": "2025-12-05",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 87,
+      "train_dates": [
+        "2025-12-04",
+        "2025-12-05"
+      ],
+      "test_dates": [
+        "2025-12-08"
+      ],
+      "train_start": "2025-12-04",
+      "train_end": "2025-12-05",
+      "test_start": "2025-12-08",
+      "test_end": "2025-12-08",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 88,
+      "train_dates": [
+        "2025-12-05",
+        "2025-12-08"
+      ],
+      "test_dates": [
+        "2025-12-09"
+      ],
+      "train_start": "2025-12-05",
+      "train_end": "2025-12-08",
+      "test_start": "2025-12-09",
+      "test_end": "2025-12-09",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 89,
+      "train_dates": [
+        "2025-12-08",
+        "2025-12-09"
+      ],
+      "test_dates": [
+        "2025-12-10"
+      ],
+      "train_start": "2025-12-08",
+      "train_end": "2025-12-09",
+      "test_start": "2025-12-10",
+      "test_end": "2025-12-10",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 90,
+      "train_dates": [
+        "2025-12-09",
+        "2025-12-10"
+      ],
+      "test_dates": [
+        "2025-12-11"
+      ],
+      "train_start": "2025-12-09",
+      "train_end": "2025-12-10",
+      "test_start": "2025-12-11",
+      "test_end": "2025-12-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 91,
+      "train_dates": [
+        "2025-12-10",
+        "2025-12-11"
+      ],
+      "test_dates": [
+        "2025-12-12"
+      ],
+      "train_start": "2025-12-10",
+      "train_end": "2025-12-11",
+      "test_start": "2025-12-12",
+      "test_end": "2025-12-12",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 92,
+      "train_dates": [
+        "2025-12-11",
+        "2025-12-12"
+      ],
+      "test_dates": [
+        "2025-12-15"
+      ],
+      "train_start": "2025-12-11",
+      "train_end": "2025-12-12",
+      "test_start": "2025-12-15",
+      "test_end": "2025-12-15",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 93,
+      "train_dates": [
+        "2025-12-12",
+        "2025-12-15"
+      ],
+      "test_dates": [
+        "2025-12-16"
+      ],
+      "train_start": "2025-12-12",
+      "train_end": "2025-12-15",
+      "test_start": "2025-12-16",
+      "test_end": "2025-12-16",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 94,
+      "train_dates": [
+        "2025-12-15",
+        "2025-12-16"
+      ],
+      "test_dates": [
+        "2025-12-17"
+      ],
+      "train_start": "2025-12-15",
+      "train_end": "2025-12-16",
+      "test_start": "2025-12-17",
+      "test_end": "2025-12-17",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 95,
+      "train_dates": [
+        "2025-12-16",
+        "2025-12-17"
+      ],
+      "test_dates": [
+        "2025-12-18"
+      ],
+      "train_start": "2025-12-16",
+      "train_end": "2025-12-17",
+      "test_start": "2025-12-18",
+      "test_end": "2025-12-18",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 96,
+      "train_dates": [
+        "2025-12-17",
+        "2025-12-18"
+      ],
+      "test_dates": [
+        "2025-12-19"
+      ],
+      "train_start": "2025-12-17",
+      "train_end": "2025-12-18",
+      "test_start": "2025-12-19",
+      "test_end": "2025-12-19",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 97,
+      "train_dates": [
+        "2025-12-18",
+        "2025-12-19"
+      ],
+      "test_dates": [
+        "2025-12-22"
+      ],
+      "train_start": "2025-12-18",
+      "train_end": "2025-12-19",
+      "test_start": "2025-12-22",
+      "test_end": "2025-12-22",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 98,
+      "train_dates": [
+        "2025-12-19",
+        "2025-12-22"
+      ],
+      "test_dates": [
+        "2025-12-23"
+      ],
+      "train_start": "2025-12-19",
+      "train_end": "2025-12-22",
+      "test_start": "2025-12-23",
+      "test_end": "2025-12-23",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 99,
+      "train_dates": [
+        "2025-12-22",
+        "2025-12-23"
+      ],
+      "test_dates": [
+        "2025-12-24"
+      ],
+      "train_start": "2025-12-22",
+      "train_end": "2025-12-23",
+      "test_start": "2025-12-24",
+      "test_end": "2025-12-24",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 100,
+      "train_dates": [
+        "2025-12-23",
+        "2025-12-24"
+      ],
+      "test_dates": [
+        "2025-12-26"
+      ],
+      "train_start": "2025-12-23",
+      "train_end": "2025-12-24",
+      "test_start": "2025-12-26",
+      "test_end": "2025-12-26",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 101,
+      "train_dates": [
+        "2025-12-24",
+        "2025-12-26"
+      ],
+      "test_dates": [
+        "2025-12-29"
+      ],
+      "train_start": "2025-12-24",
+      "train_end": "2025-12-26",
+      "test_start": "2025-12-29",
+      "test_end": "2025-12-29",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 102,
+      "train_dates": [
+        "2025-12-26",
+        "2025-12-29"
+      ],
+      "test_dates": [
+        "2025-12-30"
+      ],
+      "train_start": "2025-12-26",
+      "train_end": "2025-12-29",
+      "test_start": "2025-12-30",
+      "test_end": "2025-12-30",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 103,
+      "train_dates": [
+        "2025-12-29",
+        "2025-12-30"
+      ],
+      "test_dates": [
+        "2025-12-31"
+      ],
+      "train_start": "2025-12-29",
+      "train_end": "2025-12-30",
+      "test_start": "2025-12-31",
+      "test_end": "2025-12-31",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 104,
+      "train_dates": [
+        "2025-12-30",
+        "2025-12-31"
+      ],
+      "test_dates": [
+        "2026-01-02"
+      ],
+      "train_start": "2025-12-30",
+      "train_end": "2025-12-31",
+      "test_start": "2026-01-02",
+      "test_end": "2026-01-02",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 105,
+      "train_dates": [
+        "2025-12-31",
+        "2026-01-02"
+      ],
+      "test_dates": [
+        "2026-01-05"
+      ],
+      "train_start": "2025-12-31",
+      "train_end": "2026-01-02",
+      "test_start": "2026-01-05",
+      "test_end": "2026-01-05",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 106,
+      "train_dates": [
+        "2026-01-02",
+        "2026-01-05"
+      ],
+      "test_dates": [
+        "2026-01-06"
+      ],
+      "train_start": "2026-01-02",
+      "train_end": "2026-01-05",
+      "test_start": "2026-01-06",
+      "test_end": "2026-01-06",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 107,
+      "train_dates": [
+        "2026-01-05",
+        "2026-01-06"
+      ],
+      "test_dates": [
+        "2026-01-07"
+      ],
+      "train_start": "2026-01-05",
+      "train_end": "2026-01-06",
+      "test_start": "2026-01-07",
+      "test_end": "2026-01-07",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 108,
+      "train_dates": [
+        "2026-01-06",
+        "2026-01-07"
+      ],
+      "test_dates": [
+        "2026-01-08"
+      ],
+      "train_start": "2026-01-06",
+      "train_end": "2026-01-07",
+      "test_start": "2026-01-08",
+      "test_end": "2026-01-08",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 109,
+      "train_dates": [
+        "2026-01-07",
+        "2026-01-08"
+      ],
+      "test_dates": [
+        "2026-01-09"
+      ],
+      "train_start": "2026-01-07",
+      "train_end": "2026-01-08",
+      "test_start": "2026-01-09",
+      "test_end": "2026-01-09",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 110,
+      "train_dates": [
+        "2026-01-08",
+        "2026-01-09"
+      ],
+      "test_dates": [
+        "2026-01-12"
+      ],
+      "train_start": "2026-01-08",
+      "train_end": "2026-01-09",
+      "test_start": "2026-01-12",
+      "test_end": "2026-01-12",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 111,
+      "train_dates": [
+        "2026-01-09",
+        "2026-01-12"
+      ],
+      "test_dates": [
+        "2026-01-13"
+      ],
+      "train_start": "2026-01-09",
+      "train_end": "2026-01-12",
+      "test_start": "2026-01-13",
+      "test_end": "2026-01-13",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 112,
+      "train_dates": [
+        "2026-01-12",
+        "2026-01-13"
+      ],
+      "test_dates": [
+        "2026-01-14"
+      ],
+      "train_start": "2026-01-12",
+      "train_end": "2026-01-13",
+      "test_start": "2026-01-14",
+      "test_end": "2026-01-14",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 113,
+      "train_dates": [
+        "2026-01-13",
+        "2026-01-14"
+      ],
+      "test_dates": [
+        "2026-01-15"
+      ],
+      "train_start": "2026-01-13",
+      "train_end": "2026-01-14",
+      "test_start": "2026-01-15",
+      "test_end": "2026-01-15",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 114,
+      "train_dates": [
+        "2026-01-14",
+        "2026-01-15"
+      ],
+      "test_dates": [
+        "2026-01-16"
+      ],
+      "train_start": "2026-01-14",
+      "train_end": "2026-01-15",
+      "test_start": "2026-01-16",
+      "test_end": "2026-01-16",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 115,
+      "train_dates": [
+        "2026-01-15",
+        "2026-01-16"
+      ],
+      "test_dates": [
+        "2026-01-20"
+      ],
+      "train_start": "2026-01-15",
+      "train_end": "2026-01-16",
+      "test_start": "2026-01-20",
+      "test_end": "2026-01-20",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 116,
+      "train_dates": [
+        "2026-01-16",
+        "2026-01-20"
+      ],
+      "test_dates": [
+        "2026-01-21"
+      ],
+      "train_start": "2026-01-16",
+      "train_end": "2026-01-20",
+      "test_start": "2026-01-21",
+      "test_end": "2026-01-21",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 117,
+      "train_dates": [
+        "2026-01-20",
+        "2026-01-21"
+      ],
+      "test_dates": [
+        "2026-01-22"
+      ],
+      "train_start": "2026-01-20",
+      "train_end": "2026-01-21",
+      "test_start": "2026-01-22",
+      "test_end": "2026-01-22",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 118,
+      "train_dates": [
+        "2026-01-21",
+        "2026-01-22"
+      ],
+      "test_dates": [
+        "2026-01-23"
+      ],
+      "train_start": "2026-01-21",
+      "train_end": "2026-01-22",
+      "test_start": "2026-01-23",
+      "test_end": "2026-01-23",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 119,
+      "train_dates": [
+        "2026-01-22",
+        "2026-01-23"
+      ],
+      "test_dates": [
+        "2026-01-26"
+      ],
+      "train_start": "2026-01-22",
+      "train_end": "2026-01-23",
+      "test_start": "2026-01-26",
+      "test_end": "2026-01-26",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 120,
+      "train_dates": [
+        "2026-01-23",
+        "2026-01-26"
+      ],
+      "test_dates": [
+        "2026-01-27"
+      ],
+      "train_start": "2026-01-23",
+      "train_end": "2026-01-26",
+      "test_start": "2026-01-27",
+      "test_end": "2026-01-27",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 121,
+      "train_dates": [
+        "2026-01-26",
+        "2026-01-27"
+      ],
+      "test_dates": [
+        "2026-01-28"
+      ],
+      "train_start": "2026-01-26",
+      "train_end": "2026-01-27",
+      "test_start": "2026-01-28",
+      "test_end": "2026-01-28",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 122,
+      "train_dates": [
+        "2026-01-27",
+        "2026-01-28"
+      ],
+      "test_dates": [
+        "2026-01-29"
+      ],
+      "train_start": "2026-01-27",
+      "train_end": "2026-01-28",
+      "test_start": "2026-01-29",
+      "test_end": "2026-01-29",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 123,
+      "train_dates": [
+        "2026-01-28",
+        "2026-01-29"
+      ],
+      "test_dates": [
+        "2026-01-30"
+      ],
+      "train_start": "2026-01-28",
+      "train_end": "2026-01-29",
+      "test_start": "2026-01-30",
+      "test_end": "2026-01-30",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 124,
+      "train_dates": [
+        "2026-01-29",
+        "2026-01-30"
+      ],
+      "test_dates": [
+        "2026-01-31"
+      ],
+      "train_start": "2026-01-29",
+      "train_end": "2026-01-30",
+      "test_start": "2026-01-31",
+      "test_end": "2026-01-31",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 125,
+      "train_dates": [
+        "2026-01-30",
+        "2026-01-31"
+      ],
+      "test_dates": [
+        "2026-02-02"
+      ],
+      "train_start": "2026-01-30",
+      "train_end": "2026-01-31",
+      "test_start": "2026-02-02",
+      "test_end": "2026-02-02",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 126,
+      "train_dates": [
+        "2026-01-31",
+        "2026-02-02"
+      ],
+      "test_dates": [
+        "2026-02-03"
+      ],
+      "train_start": "2026-01-31",
+      "train_end": "2026-02-02",
+      "test_start": "2026-02-03",
+      "test_end": "2026-02-03",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 127,
+      "train_dates": [
+        "2026-02-02",
+        "2026-02-03"
+      ],
+      "test_dates": [
+        "2026-02-04"
+      ],
+      "train_start": "2026-02-02",
+      "train_end": "2026-02-03",
+      "test_start": "2026-02-04",
+      "test_end": "2026-02-04",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 128,
+      "train_dates": [
+        "2026-02-03",
+        "2026-02-04"
+      ],
+      "test_dates": [
+        "2026-02-05"
+      ],
+      "train_start": "2026-02-03",
+      "train_end": "2026-02-04",
+      "test_start": "2026-02-05",
+      "test_end": "2026-02-05",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 129,
+      "train_dates": [
+        "2026-02-04",
+        "2026-02-05"
+      ],
+      "test_dates": [
+        "2026-02-06"
+      ],
+      "train_start": "2026-02-04",
+      "train_end": "2026-02-05",
+      "test_start": "2026-02-06",
+      "test_end": "2026-02-06",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 130,
+      "train_dates": [
+        "2026-02-05",
+        "2026-02-06"
+      ],
+      "test_dates": [
+        "2026-02-07"
+      ],
+      "train_start": "2026-02-05",
+      "train_end": "2026-02-06",
+      "test_start": "2026-02-07",
+      "test_end": "2026-02-07",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 131,
+      "train_dates": [
+        "2026-02-06",
+        "2026-02-07"
+      ],
+      "test_dates": [
+        "2026-02-10"
+      ],
+      "train_start": "2026-02-06",
+      "train_end": "2026-02-07",
+      "test_start": "2026-02-10",
+      "test_end": "2026-02-10",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 132,
+      "train_dates": [
+        "2026-02-07",
+        "2026-02-10"
+      ],
+      "test_dates": [
+        "2026-02-11"
+      ],
+      "train_start": "2026-02-07",
+      "train_end": "2026-02-10",
+      "test_start": "2026-02-11",
+      "test_end": "2026-02-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 133,
+      "train_dates": [
+        "2026-02-10",
+        "2026-02-11"
+      ],
+      "test_dates": [
+        "2026-02-12"
+      ],
+      "train_start": "2026-02-10",
+      "train_end": "2026-02-11",
+      "test_start": "2026-02-12",
+      "test_end": "2026-02-12",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 134,
+      "train_dates": [
+        "2026-02-11",
+        "2026-02-12"
+      ],
+      "test_dates": [
+        "2026-02-13"
+      ],
+      "train_start": "2026-02-11",
+      "train_end": "2026-02-12",
+      "test_start": "2026-02-13",
+      "test_end": "2026-02-13",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 135,
+      "train_dates": [
+        "2026-02-12",
+        "2026-02-13"
+      ],
+      "test_dates": [
+        "2026-02-17"
+      ],
+      "train_start": "2026-02-12",
+      "train_end": "2026-02-13",
+      "test_start": "2026-02-17",
+      "test_end": "2026-02-17",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 136,
+      "train_dates": [
+        "2026-02-13",
+        "2026-02-17"
+      ],
+      "test_dates": [
+        "2026-02-18"
+      ],
+      "train_start": "2026-02-13",
+      "train_end": "2026-02-17",
+      "test_start": "2026-02-18",
+      "test_end": "2026-02-18",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 137,
+      "train_dates": [
+        "2026-02-17",
+        "2026-02-18"
+      ],
+      "test_dates": [
+        "2026-02-19"
+      ],
+      "train_start": "2026-02-17",
+      "train_end": "2026-02-18",
+      "test_start": "2026-02-19",
+      "test_end": "2026-02-19",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 138,
+      "train_dates": [
+        "2026-02-18",
+        "2026-02-19"
+      ],
+      "test_dates": [
+        "2026-02-20"
+      ],
+      "train_start": "2026-02-18",
+      "train_end": "2026-02-19",
+      "test_start": "2026-02-20",
+      "test_end": "2026-02-20",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 139,
+      "train_dates": [
+        "2026-02-19",
+        "2026-02-20"
+      ],
+      "test_dates": [
+        "2026-02-24"
+      ],
+      "train_start": "2026-02-19",
+      "train_end": "2026-02-20",
+      "test_start": "2026-02-24",
+      "test_end": "2026-02-24",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 140,
+      "train_dates": [
+        "2026-02-20",
+        "2026-02-24"
+      ],
+      "test_dates": [
+        "2026-02-25"
+      ],
+      "train_start": "2026-02-20",
+      "train_end": "2026-02-24",
+      "test_start": "2026-02-25",
+      "test_end": "2026-02-25",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 141,
+      "train_dates": [
+        "2026-02-24",
+        "2026-02-25"
+      ],
+      "test_dates": [
+        "2026-02-26"
+      ],
+      "train_start": "2026-02-24",
+      "train_end": "2026-02-25",
+      "test_start": "2026-02-26",
+      "test_end": "2026-02-26",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 142,
+      "train_dates": [
+        "2026-02-25",
+        "2026-02-26"
+      ],
+      "test_dates": [
+        "2026-02-27"
+      ],
+      "train_start": "2026-02-25",
+      "train_end": "2026-02-26",
+      "test_start": "2026-02-27",
+      "test_end": "2026-02-27",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 143,
+      "train_dates": [
+        "2026-02-26",
+        "2026-02-27"
+      ],
+      "test_dates": [
+        "2026-03-03"
+      ],
+      "train_start": "2026-02-26",
+      "train_end": "2026-02-27",
+      "test_start": "2026-03-03",
+      "test_end": "2026-03-03",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 144,
+      "train_dates": [
+        "2026-02-27",
+        "2026-03-03"
+      ],
+      "test_dates": [
+        "2026-03-04"
+      ],
+      "train_start": "2026-02-27",
+      "train_end": "2026-03-03",
+      "test_start": "2026-03-04",
+      "test_end": "2026-03-04",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 145,
+      "train_dates": [
+        "2026-03-03",
+        "2026-03-04"
+      ],
+      "test_dates": [
+        "2026-03-05"
+      ],
+      "train_start": "2026-03-03",
+      "train_end": "2026-03-04",
+      "test_start": "2026-03-05",
+      "test_end": "2026-03-05",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 146,
+      "train_dates": [
+        "2026-03-04",
+        "2026-03-05"
+      ],
+      "test_dates": [
+        "2026-03-06"
+      ],
+      "train_start": "2026-03-04",
+      "train_end": "2026-03-05",
+      "test_start": "2026-03-06",
+      "test_end": "2026-03-06",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 147,
+      "train_dates": [
+        "2026-03-05",
+        "2026-03-06"
+      ],
+      "test_dates": [
+        "2026-03-10"
+      ],
+      "train_start": "2026-03-05",
+      "train_end": "2026-03-06",
+      "test_start": "2026-03-10",
+      "test_end": "2026-03-10",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 148,
+      "train_dates": [
+        "2026-03-06",
+        "2026-03-10"
+      ],
+      "test_dates": [
+        "2026-03-11"
+      ],
+      "train_start": "2026-03-06",
+      "train_end": "2026-03-10",
+      "test_start": "2026-03-11",
+      "test_end": "2026-03-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 149,
+      "train_dates": [
+        "2026-03-10",
+        "2026-03-11"
+      ],
+      "test_dates": [
+        "2026-03-12"
+      ],
+      "train_start": "2026-03-10",
+      "train_end": "2026-03-11",
+      "test_start": "2026-03-12",
+      "test_end": "2026-03-12",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 150,
+      "train_dates": [
+        "2026-03-11",
+        "2026-03-12"
+      ],
+      "test_dates": [
+        "2026-03-13"
+      ],
+      "train_start": "2026-03-11",
+      "train_end": "2026-03-12",
+      "test_start": "2026-03-13",
+      "test_end": "2026-03-13",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 151,
+      "train_dates": [
+        "2026-03-12",
+        "2026-03-13"
+      ],
+      "test_dates": [
+        "2026-03-17"
+      ],
+      "train_start": "2026-03-12",
+      "train_end": "2026-03-13",
+      "test_start": "2026-03-17",
+      "test_end": "2026-03-17",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 152,
+      "train_dates": [
+        "2026-03-13",
+        "2026-03-17"
+      ],
+      "test_dates": [
+        "2026-03-18"
+      ],
+      "train_start": "2026-03-13",
+      "train_end": "2026-03-17",
+      "test_start": "2026-03-18",
+      "test_end": "2026-03-18",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 153,
+      "train_dates": [
+        "2026-03-17",
+        "2026-03-18"
+      ],
+      "test_dates": [
+        "2026-03-19"
+      ],
+      "train_start": "2026-03-17",
+      "train_end": "2026-03-18",
+      "test_start": "2026-03-19",
+      "test_end": "2026-03-19",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 154,
+      "train_dates": [
+        "2026-03-18",
+        "2026-03-19"
+      ],
+      "test_dates": [
+        "2026-03-20"
+      ],
+      "train_start": "2026-03-18",
+      "train_end": "2026-03-19",
+      "test_start": "2026-03-20",
+      "test_end": "2026-03-20",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 155,
+      "train_dates": [
+        "2026-03-19",
+        "2026-03-20"
+      ],
+      "test_dates": [
+        "2026-03-24"
+      ],
+      "train_start": "2026-03-19",
+      "train_end": "2026-03-20",
+      "test_start": "2026-03-24",
+      "test_end": "2026-03-24",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 156,
+      "train_dates": [
+        "2026-03-20",
+        "2026-03-24"
+      ],
+      "test_dates": [
+        "2026-03-25"
+      ],
+      "train_start": "2026-03-20",
+      "train_end": "2026-03-24",
+      "test_start": "2026-03-25",
+      "test_end": "2026-03-25",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 157,
+      "train_dates": [
+        "2026-03-24",
+        "2026-03-25"
+      ],
+      "test_dates": [
+        "2026-03-26"
+      ],
+      "train_start": "2026-03-24",
+      "train_end": "2026-03-25",
+      "test_start": "2026-03-26",
+      "test_end": "2026-03-26",
+      "test_days": 1,
+      "complete_dates": 1
+    }
+  ],
+  "gate_segment": {
+    "start": "2026-03-27",
+    "end": "2026-03-27",
+    "days": 1
+  }
+}

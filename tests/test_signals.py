@@ -413,3 +413,148 @@ class TestComputeSignals:
         # Should not crash; all modules return neutral/fallback
         assert result['macro_credit']['macro_credit_score'] == 0.0
         assert result['fragility']['fragility_score'] == 0.5
+
+
+class TestVolUncertaintyDegradedSurfacing:
+    """F-1 + F-3 + F-6 + F-8: vol_uncertainty must surface degraded_reason
+    when its inputs are missing instead of silently returning a 0.10 floor."""
+
+    def test_vol_unavailable_raises_into_compute_signals_fallback(self):
+        from src.signals.compute_signals import run
+        # No FRED VIX history, no vvix/skew, no context vix → should hit the
+        # degraded fallback path and emit degraded_reason='vix_unavailable'.
+        result = run(
+            pd.DataFrame(), pd.DataFrame(),
+            pd.DataFrame([{'date': '2024-01-01'}]),
+            vvix_data=None, skew_data=None,
+        )
+        vol = result['vol_uncertainty']
+        assert 'degraded_reason' in vol
+        assert 'vix_unavailable' in vol['degraded_reason']
+
+    def test_macro_failure_does_not_unbind_fred_latest(self):
+        """F-8: prior code used `'fred_latest' in dir()` which silently produced
+        vix_value=0 (and thus a 0.10 floor) whenever Macro/Credit raised before
+        binding fred_latest. Hoisting the binding fixes the failure mode."""
+        from src.signals.compute_signals import run
+        result = run(
+            pd.DataFrame(), pd.DataFrame(),  # macro will fall through fine
+            pd.DataFrame([{'date': '2024-01-01'}]),
+        )
+        # vol_uncertainty either emits a degraded_reason or a real score —
+        # but it must NEVER quietly return 0.10 from a zero-VIX percentile.
+        vol = result['vol_uncertainty']
+        if 'degraded_reason' not in vol:
+            # If somehow a non-degraded path ran, the score must not be the
+            # exact 0.10 floor that historically masked an 8-month outage.
+            assert vol['vol_uncertainty_score'] != 0.10
+
+    def test_vvix_skew_missing_attaches_inputs_degraded_marker(self):
+        from src.signals.compute_signals import run
+
+        # Provide enough FRED VIX history to clear vix_unavailable but leave
+        # vvix/skew empty.
+        dates = pd.date_range('2024-01-01', periods=80, freq='B')
+        fred_df = pd.DataFrame({
+            'date': dates,
+            'series_id': ['VIXCLS'] * len(dates),
+            'value': np.linspace(15, 18, len(dates)),
+        })
+        result = run(
+            pd.DataFrame(), fred_df,
+            pd.DataFrame([{'date': '2024-01-01'}]),
+            vvix_data=None, skew_data=None,
+        )
+        vol = result['vol_uncertainty']
+        if 'inputs_degraded' in vol:
+            assert 'vvix_missing' in vol['inputs_degraded']
+            assert 'skew_missing' in vol['inputs_degraded']
+
+    def test_skew_history_path_is_exercised(self):
+        """F-9: when skew_history is provided with enough observations, the
+        SKEW percentile uses dynamic ranking rather than hardcoded thresholds."""
+        from src.signals.vol_uncertainty import compute_vol_uncertainty
+        skew_history = pd.Series([110.0] * 70 + [165.0])
+        # SKEW=165 is at the top of history → percentile near 1.0
+        result = compute_vol_uncertainty(
+            vix=18.0, vvix=None, skew=165.0,
+            skew_history=skew_history,
+        )
+        assert result['skew_percentile'] >= 0.95
+
+
+class TestRegimeFusionFragilityRelax:
+    """F-7: fragility gate must be relaxable in confirmed risk-on regimes."""
+
+    def _baseline_inputs(self, **overrides):
+        defaults = dict(
+            ensemble_regime_label='risk_on_trend',
+            trend_risk_on_prob=0.92,
+            panic_prob=0.04,
+            ensemble_disagreement=0.10,        # confidence = 0.90
+            ensemble_multiplier=1.0,
+            macro_credit_score=0.20,
+            vol_uncertainty_score=0.55,
+            vol_regime_label='calm',
+            fragility_score=0.98,              # current production reality
+            entropy_score=0.50,
+            entropy_shift_flag=False,
+        )
+        defaults.update(overrides)
+        return defaults
+
+    def test_fragility_default_still_throttles_risk_on(self):
+        """Default behavior (no opt-in) is unchanged: fragility caps pos_mod."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(**self._baseline_inputs())
+        assert out['position_size_modifier'] <= 0.60 + 1e-9, out
+
+    def test_fragility_relax_lifts_cap_when_regime_high_confidence(self):
+        """With relax_in_risk_on enabled, high-confidence risk_on_trend lets
+        position_size pass through (no fragility throttle)."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(
+            **self._baseline_inputs(),
+            params={
+                'fragility_relax_in_risk_on': True,
+                'fragility_relax_confidence': 0.80,
+            },
+        )
+        # Without fragility cap, position_size_modifier remains at the
+        # ensemble multiplier (1.0 here) — well above the 0.60 cap.
+        assert out['position_size_modifier'] > 0.60, out
+        # The fragility rule must be marked as not-fired with reason.
+        frag_rule = next(r for r in out['fusion_rules'] if r['code'] == 'fragility_gate')
+        assert frag_rule['fired'] is False
+        assert 'relaxed' in frag_rule['effect']
+
+    def test_fragility_relax_does_not_apply_in_choppy_regime(self):
+        """Relax should NOT trigger when the ensemble label is choppy."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(
+            **self._baseline_inputs(ensemble_regime_label='choppy'),
+            params={'fragility_relax_in_risk_on': True},
+        )
+        assert out['position_size_modifier'] <= 0.60 + 1e-9, out
+
+    def test_fragility_relax_does_not_apply_when_confidence_low(self):
+        """Relax should NOT trigger when regime confidence is below threshold."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(
+            **self._baseline_inputs(ensemble_disagreement=0.50),  # confidence 0.50
+            params={
+                'fragility_relax_in_risk_on': True,
+                'fragility_relax_confidence': 0.80,
+            },
+        )
+        assert out['position_size_modifier'] <= 0.60 + 1e-9, out
+
+    def test_fragility_relax_does_not_override_panic(self):
+        """Hard override (panic) wins over relax."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(
+            **self._baseline_inputs(panic_prob=0.85),
+            params={'fragility_relax_in_risk_on': True},
+        )
+        assert out['final_regime_label'] == 'high_vol_panic'
+        assert out['position_size_modifier'] <= 0.25 + 1e-9

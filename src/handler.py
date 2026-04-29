@@ -1,12 +1,14 @@
 """
 Main Lambda handler for the daily investment pipeline.
 
-Supports two execution phases:
+Supports three execution phases:
 - Night analysis (default): Full pipeline + generate trade intents
 - Morning execution: Validate intents + execute trades at market prices
+- Midday check: Trailing stop re-eval, VIX circuit breaker, skipped-buy re-check
 
 Routed via event['source']:
 - "morning-execution" -> morning phase
+- "midday-check" -> midday check phase
 - Anything else -> night phase (backward compatible)
 """
 
@@ -27,14 +29,17 @@ from src.steps import (
     decision_engine,
     paper_trader,
     morning_executor,
+    midday_checker,
     llm_weather,
     publish_artifacts
 )
 from src.signals.compute_signals import run as compute_signals
 from src.utils.s3_client import S3Client
 from src.utils.logging_utils import setup_logger, log_step, StepTimer
+from src.brokers.router import get_broker, resolve_broker_mode, BrokerMode
 from src.utils.sns_alerts import (
-    send_alert, format_night_summary, format_morning_summary, format_error_alert
+    send_alert, format_night_summary, format_morning_summary,
+    format_midday_summary, format_error_alert
 )
 
 
@@ -72,28 +77,41 @@ def load_config_from_s3(s3_client: S3Client) -> dict:
         logger.warning("Universe not found in S3, using empty")
         config['universe'] = pd.DataFrame()
 
-    # Load decision params
-    decision_params = s3_client.read_json('config/decision_params.json')
-    if decision_params:
-        config['decision_params'] = decision_params
-    else:
-        logger.warning("Decision params not found, using defaults")
-        config['decision_params'] = {
-            'max_positions': 8,
-            'max_position_weight': 0.20,
-            'buy_score_threshold': 0.65,
-            'min_health_buy': 0.60,
-            'trailing_stop_base': 0.10,
-            'min_order_dollars': 250,
-            'initial_portfolio_value': 100000
-        }
+    # Load active decision bundle (single live source of truth).
+    # Expected schema:
+    # {
+    #   "decision_params": {...},
+    #   "regime_compatibility": {...},
+    #   "signals": {...},
+    #   "regime_fusion": {...},
+    #   "decision_engine": {...},
+    #   "ensemble": {...},
+    #   "transaction_costs": {...}
+    # }
+    active_bundle = s3_client.read_json('config/decision_params.active.json')
+    if not active_bundle:
+        raise RuntimeError(
+            "Missing required live params bundle at config/decision_params.active.json"
+        )
 
-    # Load regime compatibility
-    regime_compat = s3_client.read_json('config/regime_compatibility.json')
-    if regime_compat:
-        config['regime_compatibility'] = regime_compat
-    else:
-        config['regime_compatibility'] = {}
+    config['decision_params'] = active_bundle.get('decision_params', {})
+    config['regime_compatibility'] = active_bundle.get('regime_compatibility', {})
+    config['signal_overrides'] = active_bundle.get('signals', {})
+    config['regime_fusion_overrides'] = active_bundle.get('regime_fusion', {})
+    config['decision_engine_overrides'] = active_bundle.get('decision_engine', {})
+    config['ensemble_overrides'] = active_bundle.get('ensemble', {})
+    config['transaction_cost_overrides'] = active_bundle.get('transaction_costs', {})
+    config['broker'] = active_bundle.get('broker', {})
+    config['active_params_metadata'] = {
+        'version_id': active_bundle.get('version_id'),
+        'source_run_id': active_bundle.get('source_run_id'),
+        'updated_at': active_bundle.get('updated_at'),
+    }
+
+    if not config['decision_params'] or not config['regime_compatibility']:
+        raise RuntimeError(
+            "Invalid config/decision_params.active.json: missing decision_params or regime_compatibility"
+        )
 
     # Load current portfolio state
     portfolio_state = paper_trader.load_portfolio_state(s3_client)
@@ -124,6 +142,8 @@ def lambda_handler(event: dict, context) -> dict:
 
     if source == 'morning-execution':
         return _run_morning_phase(event, bucket, region)
+    elif source == 'midday-check':
+        return _run_midday_check(event, bucket, region)
     else:
         return _run_night_phase(event, bucket, region)
 
@@ -152,6 +172,17 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
             openai_key = get_secret('investment-system/openai-key', region)
             fred_key = get_secret('investment-system/fred-key', region)
             alphavantage_key = get_secret('investment-system/alphavantage-key', region)
+            alpaca_key_id = ''
+            alpaca_secret_key = ''
+            broker_mode = resolve_broker_mode(config)
+            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
+                prefix = 'paper' if broker_mode == BrokerMode.ALPACA_PAPER else 'live'
+                alpaca_key_id = get_secret(
+                    f'investment-system/alpaca-{prefix}-key-id', region
+                )
+                alpaca_secret_key = get_secret(
+                    f'investment-system/alpaca-{prefix}-secret-key', region
+                )
             logger.info("Using Claude Haiku via Bedrock for LLM calls")
 
         # Extract universe symbols
@@ -165,7 +196,12 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
         # Step 1: Ingest prices
         log_step(1, 12, "Ingesting prices...", logger)
         with StepTimer("Ingest prices", logger):
-            prices_df = ingest_prices.run(symbols, alphavantage_key)
+            prices_df = ingest_prices.run(
+                symbols,
+                alphavantage_key=alphavantage_key,
+                alpaca_key_id=alpaca_key_id,
+                alpaca_secret_key=alpaca_secret_key,
+            )
 
         # Step 2: Ingest FRED
         log_step(2, 12, "Ingesting FRED data...", logger)
@@ -214,6 +250,7 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
                 vvix_data=vvix_data,
                 skew_data=skew_data,
                 s3_client=s3_client,
+                signal_params=config.get('signal_overrides'),
             )
 
         # Step 8: Run inference
@@ -231,12 +268,60 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
                 inference_output, features_df, context_df, openai_key, config
             )
 
-        # Step 10: Decision engine (with expert signal fusion)
+        # Step 10: Decision engine (with expert signal fusion + ranking model if active)
         log_step(10, 12, "Running decision engine...", logger)
         with StepTimer("Decision engine", logger):
+            active_ranking_blend = config.get('decision_engine_overrides', {}).get('ranking_blend', 0)
+            active_ranking_model_dir = config.get('decision_engine_overrides', {}).get('ranking_model_dir', '')
+            active_ranking_scores = None
+
+            if active_ranking_blend > 0 and active_ranking_model_dir:
+                try:
+                    from training.models.ranking_mlp import RankingMLP, RANKING_FEATURES
+                    import torch, json as _json
+                    from pathlib import Path
+                    import tempfile
+
+                    model_path = Path(active_ranking_model_dir) / 'ranking_mlp.pt'
+                    norm_path = Path(active_ranking_model_dir) / 'ranking_normalization.json'
+
+                    if not model_path.exists():
+                        logger.info("Active ranking: model not local, downloading from S3...")
+                        _tmp = Path(tempfile.mkdtemp()) / 'ranking'
+                        _tmp.mkdir(parents=True, exist_ok=True)
+                        s3_model = s3_client.download_file(f'{active_ranking_model_dir}/ranking_mlp.pt', str(_tmp / 'ranking_mlp.pt'))
+                        s3_norm = s3_client.download_file(f'{active_ranking_model_dir}/ranking_normalization.json', str(_tmp / 'ranking_normalization.json'))
+                        if s3_model and s3_norm:
+                            model_path = _tmp / 'ranking_mlp.pt'
+                            norm_path = _tmp / 'ranking_normalization.json'
+                        else:
+                            logger.warning("Active ranking: model not available on S3, falling back to health-only")
+                            model_path = None
+
+                    if model_path and model_path.exists() and norm_path.exists():
+                        with open(norm_path) as _f:
+                            ranking_norm = _json.load(_f)
+                        ranking_model = RankingMLP(input_dim=len(RANKING_FEATURES))
+                        ranking_model.load_state_dict(torch.load(model_path, weights_only=True))
+                        ranking_model.eval()
+
+                        active_ranking_scores = {}
+                        for _, row in features_df.iterrows():
+                            sym = row.get('symbol')
+                            if sym:
+                                feat_dict = {f: float(row.get(f, 0) or 0) for f in RANKING_FEATURES}
+                                active_ranking_scores[sym] = ranking_model.predict_scores(feat_dict, ranking_norm)
+                        logger.info(f"Active ranking: loaded model, scored {len(active_ranking_scores)} symbols at blend {active_ranking_blend}")
+                    else:
+                        logger.warning("Active ranking: model files not available, falling back to health-only")
+                except Exception as rank_err:
+                    logger.warning(f"Active ranking: model load failed, falling back to health-only: {rank_err}")
+
             decisions = decision_engine.run(
                 inference_output, llm_risks, features_df, config, validation,
-                expert_signals=expert_signals
+                expert_signals=expert_signals,
+                ranking_scores=active_ranking_scores,
+                ranking_blend=active_ranking_blend,
             )
 
         # Save trade intents to S3 (queued for morning execution)
@@ -251,6 +336,108 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
         }
         s3_client.write_json(trade_intents, f'daily/{run_date}/trade_intents.json')
         logger.info(f"Saved {len(trade_intents['actions'])} trade intents for morning execution")
+
+        # Shadow challenger computation (non-executing)
+        try:
+            candidate_bundle = s3_client.read_json('config/decision_params.candidate.json')
+            if candidate_bundle and candidate_bundle.get('version_id') != config.get('active_version'):
+                ranking_blend = candidate_bundle.get('decision_engine', {}).get('ranking_blend', 0)
+                ranking_model_dir = candidate_bundle.get('decision_engine', {}).get('ranking_model_dir', '')
+
+                if ranking_blend > 0 and ranking_model_dir:
+                    from training.models.ranking_mlp import RankingMLP, RANKING_FEATURES
+                    import torch, json as _json
+                    from pathlib import Path
+                    import tempfile
+
+                    model_path = Path(ranking_model_dir) / 'ranking_mlp.pt'
+                    norm_path = Path(ranking_model_dir) / 'ranking_normalization.json'
+
+                    # Try local filesystem first; fall back to S3 download
+                    if not model_path.exists():
+                        logger.info("Shadow: ranking model not local, downloading from S3...")
+                        _tmp = Path(tempfile.mkdtemp()) / 'ranking'
+                        _tmp.mkdir(parents=True, exist_ok=True)
+                        s3_model = s3_client.download_file(f'{ranking_model_dir}/ranking_mlp.pt', str(_tmp / 'ranking_mlp.pt'))
+                        s3_norm = s3_client.download_file(f'{ranking_model_dir}/ranking_normalization.json', str(_tmp / 'ranking_normalization.json'))
+                        if s3_model and s3_norm:
+                            model_path = _tmp / 'ranking_mlp.pt'
+                            norm_path = _tmp / 'ranking_normalization.json'
+                        else:
+                            logger.info("Shadow: ranking model not available on S3 either, skipping")
+                            model_path = None
+
+                    if model_path and model_path.exists() and norm_path.exists():
+                        with open(norm_path) as _f:
+                            ranking_norm = _json.load(_f)
+                        ranking_model = RankingMLP(input_dim=len(RANKING_FEATURES))
+                        ranking_model.load_state_dict(torch.load(model_path, weights_only=True))
+                        ranking_model.eval()
+
+                        # Compute ranking scores
+                        ranking_scores = {}
+                        for _, row in features_df.iterrows():
+                            sym = row.get('symbol')
+                            if sym:
+                                feat_dict = {f: float(row.get(f, 0) or 0) for f in RANKING_FEATURES}
+                                ranking_scores[sym] = ranking_model.predict_scores(feat_dict, ranking_norm)
+
+                        # Build shadow config from candidate bundle
+                        shadow_config = dict(config)
+                        shadow_config['decision_params'] = candidate_bundle.get('decision_params', config.get('decision_params', {}))
+                        shadow_config['regime_compatibility'] = candidate_bundle.get('regime_compatibility', config.get('regime_compatibility', {}))
+                        shadow_config['regime_fusion_overrides'] = candidate_bundle.get('regime_fusion', {})
+                        shadow_config['decision_engine_overrides'] = candidate_bundle.get('decision_engine', {})
+                        shadow_config['ensemble_overrides'] = candidate_bundle.get('ensemble', {})
+
+                        shadow_decisions = decision_engine.run(
+                            inference_output, llm_risks, features_df, shadow_config, validation,
+                            expert_signals=expert_signals,
+                            ranking_scores=ranking_scores,
+                            ranking_blend=ranking_blend,
+                        )
+
+                        shadow_intents = {
+                            'generated_date': run_date,
+                            'generated_timestamp': datetime.now().isoformat(),
+                            'shadow': True,
+                            'candidate_version': candidate_bundle.get('version_id', 'unknown'),
+                            'ranking_blend': ranking_blend,
+                            'regime': shadow_decisions.get('regime', 'unknown'),
+                            'actions': shadow_decisions.get('actions', []),
+                            'buy_candidates': shadow_decisions.get('buy_candidates', []),
+                        }
+                        s3_client.write_json(shadow_intents, f'daily/{run_date}/shadow_intents.json')
+
+                        # Write daily comparison
+                        inc_syms = set(a.get('symbol', '') for a in trade_intents['actions'])
+                        shd_syms = set(a.get('symbol', '') for a in shadow_intents['actions'])
+                        comparison = {
+                            'date': run_date,
+                            'incumbent_version': config.get('active_params_metadata', {}).get('version_id', 'unknown'),
+                            'candidate_version': candidate_bundle.get('version_id', 'unknown'),
+                            'ranking_blend': ranking_blend,
+                            'regime': decisions.get('regime', 'unknown'),
+                            'incumbent_actions': len(trade_intents['actions']),
+                            'shadow_actions': len(shadow_intents['actions']),
+                            'symbol_overlap': sorted(inc_syms & shd_syms),
+                            'incumbent_only': sorted(inc_syms - shd_syms),
+                            'shadow_only': sorted(shd_syms - inc_syms),
+                        }
+                        s3_client.write_json(comparison, f'daily/{run_date}/shadow_comparison.json')
+                        logger.info(
+                            f"Shadow challenger ({candidate_bundle.get('version_id')}): "
+                            f"{len(shadow_intents['actions'])} actions "
+                            f"(incumbent: {len(trade_intents['actions'])})"
+                        )
+                    else:
+                        logger.info("Shadow: ranking model not available at %s, skipping", model_path)
+                else:
+                    logger.info("Shadow: candidate has no ranking_blend, skipping")
+            else:
+                logger.info("Shadow: no candidate bundle or same as active, skipping")
+        except Exception as shadow_err:
+            logger.warning(f"Shadow challenger computation failed (non-fatal): {shadow_err}")
 
         # Step 11: Portfolio valuation update (NO trade execution)
         log_step(11, 12, "Updating portfolio valuations...", logger)
@@ -371,17 +558,35 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
         with StepTimer("Load configuration", logger):
             config = load_config_from_s3(s3_client)
 
+        # Set up broker adapter
+        with StepTimer("Broker setup", logger):
+            broker_mode = resolve_broker_mode(config)
+            alpaca_key_id = ''
+            alpaca_secret_key = ''
+            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
+                prefix = 'paper' if broker_mode == BrokerMode.ALPACA_PAPER else 'live'
+                alpaca_key_id = get_secret(
+                    f'investment-system/alpaca-{prefix}-key-id', region
+                )
+                alpaca_secret_key = get_secret(
+                    f'investment-system/alpaca-{prefix}-secret-key', region
+                )
+            broker = get_broker(config, alpaca_key_id, alpaca_secret_key)
+            logger.info("Broker mode: %s", broker.mode_label)
+
         # Execute morning phase
         with StepTimer("Morning execution", logger):
-            result = morning_executor.run(bucket, config)
+            result = morning_executor.run(bucket, config, broker=broker)
 
         portfolio_state = result['portfolio_state']
         trades = result['trades']
         validation_log = result.get('validation_log', [])
 
-        # Load night artifacts for dashboard rebuild
+        # Load night artifacts for dashboard rebuild.
+        # Use intents_date (when the night phase last ran), not date (which
+        # the morning phase overwrites to today).  Over weekends these diverge.
         latest = s3_client.read_json('daily/latest.json') or {}
-        night_date = latest.get('date', run_date)
+        night_date = latest.get('intents_date', latest.get('date', run_date))
         night_inference = s3_client.read_json(f'daily/{night_date}/inference.json') or {}
         night_decisions = s3_client.read_json(f'daily/{night_date}/decisions.json') or {}
         night_weather = s3_client.read_json(f'daily/{night_date}/weather_blurb.json') or {}
@@ -426,6 +631,7 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
             'intents_stale': result.get('intents_stale', False),
             'trades_executed': len(trades),
             'validation_log': validation_log,
+            'skipped_buys': result.get('skipped_buys', []),
             'timestamp': datetime.now().isoformat()
         }
 
@@ -489,6 +695,102 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
         }
 
 
+def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
+    """
+    Midday check phase: trailing stop re-eval, VIX circuit breaker, skipped-buy re-check.
+
+    A lightweight check that reuses existing calibrated parameters. Does not
+    run features, signals, inference, or the decision engine.
+    """
+    start_time = datetime.now()
+    run_date = datetime.now().strftime('%Y-%m-%d')
+    logger.info(f"Midday check started at {start_time}")
+
+    s3_client = S3Client(bucket, region)
+
+    try:
+        # Load configuration
+        with StepTimer("Load configuration", logger):
+            config = load_config_from_s3(s3_client)
+
+        # Set up broker adapter
+        with StepTimer("Broker setup", logger):
+            broker_mode = resolve_broker_mode(config)
+            alpaca_key_id = ''
+            alpaca_secret_key = ''
+            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
+                prefix = 'paper' if broker_mode == BrokerMode.ALPACA_PAPER else 'live'
+                alpaca_key_id = get_secret(
+                    f'investment-system/alpaca-{prefix}-key-id', region
+                )
+                alpaca_secret_key = get_secret(
+                    f'investment-system/alpaca-{prefix}-secret-key', region
+                )
+            broker = get_broker(config, alpaca_key_id, alpaca_secret_key)
+            logger.info("Midday check broker mode: %s", broker.mode_label)
+
+        # Run midday check
+        with StepTimer("Midday check", logger):
+            result = midday_checker.run(bucket, config, broker=broker)
+
+        actions = result['actions_taken']
+        check_log = result['check_log']
+        circuit_breaker = result['circuit_breaker_active']
+        portfolio_state = result['portfolio_state']
+
+        end_time = datetime.now()
+        duration = (end_time - start_time).total_seconds()
+
+        logger.info(f"Midday check completed in {duration:.1f}s")
+
+        # Send email alert
+        send_alert(
+            subject=(
+                f"[TraderBot] Midday: {len(actions)} actions"
+                + (" [CIRCUIT BREAKER]" if circuit_breaker else "")
+            ),
+            body=format_midday_summary(
+                run_date,
+                portfolio_state.get('portfolio_value', 0),
+                actions, check_log, circuit_breaker, duration
+            ),
+            region=region
+        )
+
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'status': 'success',
+                'phase': 'midday-check',
+                'date': run_date,
+                'duration_seconds': duration,
+                'actions_taken': len(actions),
+                'circuit_breaker_active': circuit_breaker,
+                'portfolio_value': portfolio_state.get('portfolio_value', 0)
+            })
+        }
+
+    except Exception as e:
+        logger.error(f"Midday check failed: {e}", exc_info=True)
+
+        send_alert(
+            subject="[TraderBot] ALERT: Midday check failed",
+            body=format_error_alert('midday-check', run_date, str(e)),
+            region=region
+        )
+
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                'status': 'failed',
+                'phase': 'midday-check',
+                'date': run_date,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            })
+        }
+
+
 # For local testing
 if __name__ == '__main__':
     import argparse
@@ -496,11 +798,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run investment pipeline locally')
     parser.add_argument('--bucket', default='investment-system-data', help='S3 bucket name')
     parser.add_argument('--region', default='us-east-1', help='AWS region')
-    parser.add_argument('--phase', default='night', choices=['night', 'morning'],
+    parser.add_argument('--phase', default='night', choices=['night', 'morning', 'midday'],
                         help='Which phase to run')
     args = parser.parse_args()
 
-    source = 'morning-execution' if args.phase == 'morning' else 'manual'
+    source_map = {'morning': 'morning-execution', 'midday': 'midday-check'}
+    source = source_map.get(args.phase, 'manual')
     result = lambda_handler(
         {'bucket': args.bucket, 'region': args.region, 'source': source}, None
     )

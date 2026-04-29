@@ -4,6 +4,7 @@ import { TimeseriesPoint } from '../types';
 const TS_URL = import.meta.env.VITE_DATA_URL
   ? 'timeseries.json'
   : './data/timeseries.json';
+const TS_FALLBACK = './data/timeseries.json';
 
 export function useTimeseriesData() {
   const [data, setData] = useState<TimeseriesPoint[]>([]);
@@ -11,14 +12,20 @@ export function useTimeseriesData() {
 
   useEffect(() => {
     async function fetchData() {
-      try {
-        const response = await fetch(TS_URL);
-        if (response.ok) {
+      const urls = [TS_URL];
+      if (TS_URL !== TS_FALLBACK) urls.push(TS_FALLBACK);
+
+      for (const url of urls) {
+        try {
+          const cacheBustedUrl = `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+          const response = await fetch(cacheBustedUrl, { cache: 'no-store' });
+          if (!response.ok) continue;
           const json = await response.json();
           setData(json);
+          break;
+        } catch {
+          continue;
         }
-      } catch {
-        // Timeseries is optional; fail silently
       }
       setLoading(false);
     }

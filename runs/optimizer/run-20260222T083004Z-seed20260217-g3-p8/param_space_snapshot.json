@@ -1,0 +1,2600 @@
+{
+  "parameters": [
+    {
+      "name": "decision_engine.high_vol_bucket_exception_score",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.8,
+      "component": "buy_filter_gate",
+      "where_defined": "src/steps/decision_engine.py:117"
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.calm_uptrend",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "position_sizing",
+      "where_defined": "src/steps/decision_engine.py:300"
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.choppy",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "position_sizing",
+      "where_defined": "src/steps/decision_engine.py:302"
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.high_vol_panic",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.5,
+      "component": "position_sizing",
+      "where_defined": "src/steps/decision_engine.py:304"
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.risk_off_trend",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.8,
+      "component": "position_sizing",
+      "where_defined": "src/steps/decision_engine.py:303"
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.risk_on_trend",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "position_sizing",
+      "where_defined": "src/steps/decision_engine.py:301"
+    },
+    {
+      "name": "decision_engine.position_size.throttle_scale",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "position_sizing",
+      "where_defined": "src/steps/decision_engine.py:319"
+    },
+    {
+      "name": "decision_engine.position_size.vol_adj.high",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.8,
+      "component": "position_sizing",
+      "where_defined": "src/steps/decision_engine.py:296"
+    },
+    {
+      "name": "decision_engine.position_size.vol_adj.low",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "position_sizing",
+      "where_defined": "src/steps/decision_engine.py:296"
+    },
+    {
+      "name": "decision_engine.position_size.vol_adj.med",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "position_sizing",
+      "where_defined": "src/steps/decision_engine.py:296"
+    },
+    {
+      "name": "decision_engine.watchlist.min_target_count",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 100.0
+      },
+      "current_value": 8,
+      "component": "dashboard_watchlist",
+      "where_defined": "src/steps/decision_engine.py:648"
+    },
+    {
+      "name": "decision_params.buy_score_threshold",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.65,
+      "component": "decision_engine",
+      "where_defined": "config/decision_params.json:17"
+    },
+    {
+      "name": "decision_params.initial_portfolio_value",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 10000000.0
+      },
+      "current_value": 100000,
+      "component": "decision_engine",
+      "where_defined": "config/decision_params.json:25"
+    },
+    {
+      "name": "decision_params.leveraged_constraints.max_hold_days",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 365.0
+      },
+      "current_value": 10,
+      "component": "leveraged_risk_controls",
+      "where_defined": "config/decision_params.json:14"
+    },
+    {
+      "name": "decision_params.max_position_weight",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.2,
+      "component": "decision_engine",
+      "where_defined": "config/decision_params.json:3"
+    },
+    {
+      "name": "decision_params.max_positions",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 365.0
+      },
+      "current_value": 8,
+      "component": "decision_engine",
+      "where_defined": "config/decision_params.json:2"
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.calm_uptrend",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.1,
+      "component": "cash_reserve_gate",
+      "where_defined": "config/decision_params.json:6"
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.choppy",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.2,
+      "component": "cash_reserve_gate",
+      "where_defined": "config/decision_params.json:8"
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.high_vol_panic",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.4,
+      "component": "cash_reserve_gate",
+      "where_defined": "config/decision_params.json:10"
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.risk_off_trend",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.4,
+      "component": "cash_reserve_gate",
+      "where_defined": "config/decision_params.json:9"
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.risk_on_trend",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.1,
+      "component": "cash_reserve_gate",
+      "where_defined": "config/decision_params.json:7"
+    },
+    {
+      "name": "decision_params.min_health_buy",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.6,
+      "component": "decision_engine",
+      "where_defined": "config/decision_params.json:18"
+    },
+    {
+      "name": "decision_params.min_order_dollars",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 10000000.0
+      },
+      "current_value": 250,
+      "component": "decision_engine",
+      "where_defined": "config/decision_params.json:24"
+    },
+    {
+      "name": "decision_params.sell_health_threshold",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.35,
+      "component": "decision_engine",
+      "where_defined": "config/decision_params.json:19"
+    },
+    {
+      "name": "decision_params.trailing_stop_base",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.1,
+      "component": "decision_engine",
+      "where_defined": "config/decision_params.json:22"
+    },
+    {
+      "name": "decision_params.trailing_stop_leveraged",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.06,
+      "component": "decision_engine",
+      "where_defined": "config/decision_params.json:23"
+    },
+    {
+      "name": "ensemble.disagreement_threshold",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.3,
+      "component": "ensemble_uncertainty",
+      "where_defined": "src/models/loader.py:286"
+    },
+    {
+      "name": "ensemble.gru_weight",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "ensemble_uncertainty",
+      "where_defined": "src/models/loader.py:284"
+    },
+    {
+      "name": "ensemble.multiplier.base_floor",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "ensemble_uncertainty",
+      "where_defined": "src/models/ensemble_regime.py:244"
+    },
+    {
+      "name": "ensemble.multiplier.base_span",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "ensemble_uncertainty",
+      "where_defined": "src/models/ensemble_regime.py:244"
+    },
+    {
+      "name": "ensemble.multiplier.clip_max",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 1.0,
+      "component": "ensemble_uncertainty",
+      "where_defined": "src/models/ensemble_regime.py:252"
+    },
+    {
+      "name": "ensemble.multiplier.clip_min",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "ensemble_uncertainty",
+      "where_defined": "src/models/ensemble_regime.py:252"
+    },
+    {
+      "name": "ensemble.multiplier.disagreement_penalty_scale",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "ensemble_uncertainty",
+      "where_defined": "src/models/ensemble_regime.py:250"
+    },
+    {
+      "name": "ensemble.transformer_weight",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "ensemble_uncertainty",
+      "where_defined": "src/models/loader.py:285"
+    },
+    {
+      "name": "entropy_shift.consecutive_days_required",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 3,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/entropy_shift.py:18"
+    },
+    {
+      "name": "entropy_shift.max_lookback_days",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 252,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/entropy_shift.py:54"
+    },
+    {
+      "name": "entropy_shift.min_rolling_samples_for_zscore",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 10,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/entropy_shift.py:63"
+    },
+    {
+      "name": "entropy_shift.num_bins",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 20,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/entropy_shift.py:16"
+    },
+    {
+      "name": "entropy_shift.window_days",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 60,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/entropy_shift.py:15"
+    },
+    {
+      "name": "entropy_shift.z_threshold",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 1.5,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/entropy_shift.py:17"
+    },
+    {
+      "name": "fragility.AVG_CORR_MEAN",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.3,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/fragility.py:19"
+    },
+    {
+      "name": "fragility.AVG_CORR_STD",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.15,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/fragility.py:20"
+    },
+    {
+      "name": "fragility.MIN_DAYS",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 40,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/fragility.py:15"
+    },
+    {
+      "name": "fragility.MIN_SYMBOLS",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 6,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/fragility.py:14"
+    },
+    {
+      "name": "fragility.PC1_MEAN",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.45,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/fragility.py:22"
+    },
+    {
+      "name": "fragility.PC1_STD",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.12,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/fragility.py:23"
+    },
+    {
+      "name": "fragility.window_days",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 60,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/fragility.py:29"
+    },
+    {
+      "name": "macro_credit.HY_SPREAD_MEAN",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/macro_credit.py:20"
+    },
+    {
+      "name": "macro_credit.HY_SPREAD_STD",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.02,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/macro_credit.py:21"
+    },
+    {
+      "name": "macro_credit.SLOPE_MEAN",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 1.5,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/macro_credit.py:15"
+    },
+    {
+      "name": "macro_credit.SLOPE_STD",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 1.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/macro_credit.py:16"
+    },
+    {
+      "name": "macro_credit.hy_lookback_days",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 21,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/macro_credit.py:57"
+    },
+    {
+      "name": "macro_credit.hy_spread_weight",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.4,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/macro_credit.py:68"
+    },
+    {
+      "name": "macro_credit.slope_weight",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.6,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/macro_credit.py:68"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.bond",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:84"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.commodity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:85"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.credit_high_yield",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:100"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.equity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:83"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.fx",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:87"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_comm",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:97"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_cons_disc",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:92"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_cons_staples",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:93"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_energy",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:89"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_financials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:91"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_healthcare",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:95"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_industrials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:94"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_materials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:96"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_reit",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:98"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_tech",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:88"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_utilities",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:90"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.treas_long",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:99"
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.vol",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.85,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:86"
+    },
+    {
+      "name": "regime_compatibility.choppy.bond",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:64"
+    },
+    {
+      "name": "regime_compatibility.choppy.commodity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:65"
+    },
+    {
+      "name": "regime_compatibility.choppy.credit_high_yield",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:80"
+    },
+    {
+      "name": "regime_compatibility.choppy.equity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:63"
+    },
+    {
+      "name": "regime_compatibility.choppy.fx",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:67"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_comm",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:77"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_cons_disc",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:72"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_cons_staples",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:73"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_energy",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:69"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_financials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:71"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_healthcare",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:75"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_industrials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:74"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_materials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:76"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_reit",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:78"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_tech",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:68"
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_utilities",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:70"
+    },
+    {
+      "name": "regime_compatibility.choppy.treas_long",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:79"
+    },
+    {
+      "name": "regime_compatibility.choppy.vol",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:66"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.bond",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.2,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:44"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.commodity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:45"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.credit_high_yield",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.4,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:60"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.equity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.5,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:43"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.fx",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:47"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_comm",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.5,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:57"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_cons_disc",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.45,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:52"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_cons_staples",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:53"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_energy",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.5,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:49"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_financials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.4,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:51"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_healthcare",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.7,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:55"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_industrials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.5,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:54"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_materials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.5,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:56"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_reit",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.5,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:58"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_tech",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.4,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:48"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_utilities",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:50"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.treas_long",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.25,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:59"
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.vol",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.3,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:46"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.bond",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:24"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.commodity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:25"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.credit_high_yield",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.6,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:40"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.equity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.85,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:23"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.fx",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:27"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_comm",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:37"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_cons_disc",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.8,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:32"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_cons_staples",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:33"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_energy",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.85,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:29"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_financials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.85,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:31"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_healthcare",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:35"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_industrials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:34"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_materials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.85,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:36"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_reit",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:38"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_tech",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.8,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:28"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_utilities",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:30"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.treas_long",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.15,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:39"
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.vol",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:26"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.bond",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:4"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.commodity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:5"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.credit_high_yield",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:20"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.equity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:3"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.fx",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:7"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_comm",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:17"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_cons_disc",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:12"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_cons_staples",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.95,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:13"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_energy",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:9"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_financials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.1,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:11"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_healthcare",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:15"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_industrials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:14"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_materials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.05,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:16"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_reit",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.0,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:18"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_tech",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 1.15,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:8"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_utilities",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:10"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.treas_long",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:19"
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.vol",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.9,
+      "component": "candidate_scoring_regime_multiplier",
+      "where_defined": "config/regime_compatibility.json:6"
+    },
+    {
+      "name": "regime_fusion.entropy_size_multiplier",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.7,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:57"
+    },
+    {
+      "name": "regime_fusion.entropy_throttle_increment",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.15,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:200"
+    },
+    {
+      "name": "regime_fusion.final_position_size_clip_max",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 1.0,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:232"
+    },
+    {
+      "name": "regime_fusion.final_position_size_clip_min",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.25,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:232"
+    },
+    {
+      "name": "regime_fusion.final_risk_throttle_clip_max",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 1.0,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:233"
+    },
+    {
+      "name": "regime_fusion.final_risk_throttle_clip_min",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.0,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:233"
+    },
+    {
+      "name": "regime_fusion.fragility_position_cap",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "current_value": 0.6,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:180"
+    },
+    {
+      "name": "regime_fusion.fragility_threshold",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.75,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:56"
+    },
+    {
+      "name": "regime_fusion.fragility_throttle_increment",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.2,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:181"
+    },
+    {
+      "name": "regime_fusion.macro_downgrade_threshold",
+      "type": "float",
+      "allowed_range": {
+        "min": -1.0,
+        "max": 1.0
+      },
+      "current_value": -0.5,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:54"
+    },
+    {
+      "name": "regime_fusion.macro_upgrade_threshold",
+      "type": "float",
+      "allowed_range": {
+        "min": -1.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:55"
+    },
+    {
+      "name": "regime_fusion.panic_position_size",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.25,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:97"
+    },
+    {
+      "name": "regime_fusion.panic_prob_threshold",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.7,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:52"
+    },
+    {
+      "name": "regime_fusion.panic_risk_throttle",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 1.0,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:98"
+    },
+    {
+      "name": "regime_fusion.throttle_to_exposure_scale",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:236"
+    },
+    {
+      "name": "regime_fusion.unstable_calm_panic_threshold",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.3,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:53"
+    },
+    {
+      "name": "regime_fusion.unstable_position_size",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.5,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:123"
+    },
+    {
+      "name": "regime_fusion.unstable_risk_throttle",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "current_value": 0.7,
+      "component": "regime_fusion_rules",
+      "where_defined": "src/signals/regime_fusion.py:124"
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.bond",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.5,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:72"
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.commodity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 4.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:72"
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.equity",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:72"
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.fx",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:72"
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.vol",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 8.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:72"
+    },
+    {
+      "name": "transaction_costs.slippage_range_bps",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 10.0
+      },
+      "current_value": 2.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:81"
+    },
+    {
+      "name": "transaction_costs.spread_bps.aggregate",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.broad",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 1.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.broad_commodities",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 4.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.country_brazil",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 6.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.country_china",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 6.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.country_india",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 6.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.country_japan",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 5.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.credit_high_yield",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.credit_investment_grade",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.5,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.eur",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_dividend",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_dividend_growth",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_minvol",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_momentum",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_quality",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_value",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.global",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.gold",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_aerospace_defense",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 4.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_biotech",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 4.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_regional_banks",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 5.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_retail",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 5.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_semis",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.5,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_transport",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 4.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.international_dev",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.international_em",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 5.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.muni",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.natural_gas",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 8.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.oil",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 4.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.region_europe",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 4.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_comm",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_cons_disc",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_cons_staples",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_energy",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_financials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.5,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_healthcare",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.5,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_industrials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_materials",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_reit",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_tech",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_utilities",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.silver",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.style_growth",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.5,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.style_value",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.5,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.theme_innovation",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 5.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.treas_intermediate",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 1.5,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.treas_long",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.treas_short",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 1.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.treas_tips",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 2.5,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.usd",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 3.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "transaction_costs.spread_bps.volatility",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 25.0
+      },
+      "current_value": 8.0,
+      "component": "cost_model",
+      "where_defined": "src/utils/transaction_costs.py:8"
+    },
+    {
+      "name": "vol_uncertainty.dynamic_history_min_obs",
+      "type": "int",
+      "allowed_range": {
+        "min": 1.0,
+        "max": 500.0
+      },
+      "current_value": 60,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:57"
+    },
+    {
+      "name": "vol_uncertainty.regime_thresholds.panic.vix_pctile",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.8,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:88"
+    },
+    {
+      "name": "vol_uncertainty.regime_thresholds.panic.vvix_pctile",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.8,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:88"
+    },
+    {
+      "name": "vol_uncertainty.regime_thresholds.unstable.vix_pctile_max",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.6,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:90"
+    },
+    {
+      "name": "vol_uncertainty.regime_thresholds.unstable.vvix_pctile",
+      "type": "float",
+      "allowed_range": {
+        "min": -5.0,
+        "max": 5.0
+      },
+      "current_value": 0.8,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:90"
+    },
+    {
+      "name": "vol_uncertainty.skew_thresholds.p20",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 115.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:19"
+    },
+    {
+      "name": "vol_uncertainty.skew_thresholds.p50",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 125.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:19"
+    },
+    {
+      "name": "vol_uncertainty.skew_thresholds.p80",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 140.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:19"
+    },
+    {
+      "name": "vol_uncertainty.skew_thresholds.p95",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 150.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:19"
+    },
+    {
+      "name": "vol_uncertainty.vix_thresholds.p20",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 13.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:15"
+    },
+    {
+      "name": "vol_uncertainty.vix_thresholds.p50",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 17.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:15"
+    },
+    {
+      "name": "vol_uncertainty.vix_thresholds.p80",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 25.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:15"
+    },
+    {
+      "name": "vol_uncertainty.vix_thresholds.p95",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 30.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:15"
+    },
+    {
+      "name": "vol_uncertainty.vvix_thresholds.p20",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 75.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:17"
+    },
+    {
+      "name": "vol_uncertainty.vvix_thresholds.p50",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 85.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:17"
+    },
+    {
+      "name": "vol_uncertainty.vvix_thresholds.p80",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 105.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:17"
+    },
+    {
+      "name": "vol_uncertainty.vvix_thresholds.p95",
+      "type": "float",
+      "allowed_range": {
+        "min": 0.0,
+        "max": 300.0
+      },
+      "current_value": 120.0,
+      "component": "expert_signal_computation",
+      "where_defined": "src/signals/vol_uncertainty.py:17"
+    }
+  ]
+}

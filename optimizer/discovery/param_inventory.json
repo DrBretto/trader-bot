@@ -1,0 +1,4522 @@
+{
+  "generated_at": "2026-02-17T15:04:29.992715Z",
+  "scope": "decision_path_parameters_excluding_nn_weights",
+  "entrypoint": "src/steps/decision_engine.py:429",
+  "total_parameters": 253,
+  "parameters": [
+    {
+      "name": "baseline_health.health_weights.inverse_risk",
+      "where_defined": "src/models/baseline_health.py:55",
+      "type": "float",
+      "current_value": 0.2,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "model_fallback",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Used only when trained models are unavailable/failing."
+    },
+    {
+      "name": "baseline_health.health_weights.momentum",
+      "where_defined": "src/models/baseline_health.py:53",
+      "type": "float",
+      "current_value": 0.45,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "model_fallback",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Used only when trained models are unavailable/failing."
+    },
+    {
+      "name": "baseline_health.health_weights.rel_strength",
+      "where_defined": "src/models/baseline_health.py:54",
+      "type": "float",
+      "current_value": 0.35,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "model_fallback",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Used only when trained models are unavailable/failing."
+    },
+    {
+      "name": "baseline_regime.vol_p40",
+      "where_defined": "src/models/baseline_regime.py:18",
+      "type": "float",
+      "current_value": 0.08,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "model_fallback",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Used only when trained models are unavailable/failing."
+    },
+    {
+      "name": "baseline_regime.vol_p50",
+      "where_defined": "src/models/baseline_regime.py:19",
+      "type": "float",
+      "current_value": 0.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "model_fallback",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Used only when trained models are unavailable/failing."
+    },
+    {
+      "name": "baseline_regime.vol_p85",
+      "where_defined": "src/models/baseline_regime.py:20",
+      "type": "float",
+      "current_value": 0.14,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "model_fallback",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Used only when trained models are unavailable/failing."
+    },
+    {
+      "name": "decision_engine.high_vol_bucket_exception_score",
+      "where_defined": "src/steps/decision_engine.py:117",
+      "type": "float",
+      "current_value": 0.8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "buy_filter_gate",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.calm_uptrend",
+      "where_defined": "src/steps/decision_engine.py:300",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "position_sizing",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.choppy",
+      "where_defined": "src/steps/decision_engine.py:302",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "position_sizing",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.high_vol_panic",
+      "where_defined": "src/steps/decision_engine.py:304",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "position_sizing",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.risk_off_trend",
+      "where_defined": "src/steps/decision_engine.py:303",
+      "type": "float",
+      "current_value": 0.8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "position_sizing",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.position_size.regime_adj.risk_on_trend",
+      "where_defined": "src/steps/decision_engine.py:301",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "position_sizing",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.position_size.throttle_scale",
+      "where_defined": "src/steps/decision_engine.py:319",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "position_sizing",
+      "dependencies": [
+        "throttle_adj = 1 - risk_throttle_factor * throttle_scale"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.position_size.vol_adj.high",
+      "where_defined": "src/steps/decision_engine.py:296",
+      "type": "float",
+      "current_value": 0.8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "position_sizing",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.position_size.vol_adj.low",
+      "where_defined": "src/steps/decision_engine.py:296",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "position_sizing",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.position_size.vol_adj.med",
+      "where_defined": "src/steps/decision_engine.py:296",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "position_sizing",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_engine.watchlist.min_target_count",
+      "where_defined": "src/steps/decision_engine.py:648",
+      "type": "int",
+      "current_value": 8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 100
+      },
+      "used_live": true,
+      "component": "dashboard_watchlist",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.buy_score_threshold",
+      "where_defined": "config/decision_params.json:17",
+      "type": "float",
+      "current_value": 0.65,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.initial_portfolio_value",
+      "where_defined": "config/decision_params.json:25",
+      "type": "int",
+      "current_value": 100000,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 10000000
+      },
+      "used_live": true,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.leveraged_constraints.max_hold_days",
+      "where_defined": "config/decision_params.json:14",
+      "type": "int",
+      "current_value": 10,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 365
+      },
+      "used_live": true,
+      "component": "leveraged_risk_controls",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.leveraged_constraints.max_weight",
+      "where_defined": "config/decision_params.json:13",
+      "type": "float",
+      "current_value": 0.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": false,
+      "component": "leveraged_risk_controls",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Present in config but not referenced by live decision path."
+    },
+    {
+      "name": "decision_params.leveraged_constraints.stop_multiplier",
+      "where_defined": "config/decision_params.json:15",
+      "type": "float",
+      "current_value": 0.6,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": false,
+      "component": "leveraged_risk_controls",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Present in config but not referenced by live decision path."
+    },
+    {
+      "name": "decision_params.max_position_weight",
+      "where_defined": "config/decision_params.json:3",
+      "type": "float",
+      "current_value": 0.2,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.max_positions",
+      "where_defined": "config/decision_params.json:2",
+      "type": "int",
+      "current_value": 8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 365
+      },
+      "used_live": true,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.max_sector_weight",
+      "where_defined": "config/decision_params.json:4",
+      "type": "float",
+      "current_value": 0.35,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": false,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Present in config but not referenced by live decision path."
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.calm_uptrend",
+      "where_defined": "config/decision_params.json:6",
+      "type": "float",
+      "current_value": 0.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "cash_reserve_gate",
+      "dependencies": [
+        "applies when final regime label == 'calm_uptrend'"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.choppy",
+      "where_defined": "config/decision_params.json:8",
+      "type": "float",
+      "current_value": 0.2,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "cash_reserve_gate",
+      "dependencies": [
+        "applies when final regime label == 'choppy'"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.high_vol_panic",
+      "where_defined": "config/decision_params.json:10",
+      "type": "float",
+      "current_value": 0.4,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "cash_reserve_gate",
+      "dependencies": [
+        "applies when final regime label == 'high_vol_panic'"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.risk_off_trend",
+      "where_defined": "config/decision_params.json:9",
+      "type": "float",
+      "current_value": 0.4,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "cash_reserve_gate",
+      "dependencies": [
+        "applies when final regime label == 'risk_off_trend'"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.min_cash_reserve_by_regime.risk_on_trend",
+      "where_defined": "config/decision_params.json:7",
+      "type": "float",
+      "current_value": 0.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "cash_reserve_gate",
+      "dependencies": [
+        "applies when final regime label == 'risk_on_trend'"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.min_health_buy",
+      "where_defined": "config/decision_params.json:18",
+      "type": "float",
+      "current_value": 0.6,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.min_order_dollars",
+      "where_defined": "config/decision_params.json:24",
+      "type": "int",
+      "current_value": 250,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 10000000
+      },
+      "used_live": true,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.reduce_health_drop",
+      "where_defined": "config/decision_params.json:21",
+      "type": "float",
+      "current_value": 0.2,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": false,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Present in config but not referenced by live decision path."
+    },
+    {
+      "name": "decision_params.sell_health_days",
+      "where_defined": "config/decision_params.json:20",
+      "type": "int",
+      "current_value": 3,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 365
+      },
+      "used_live": false,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Present in config but not referenced by live decision path."
+    },
+    {
+      "name": "decision_params.sell_health_threshold",
+      "where_defined": "config/decision_params.json:19",
+      "type": "float",
+      "current_value": 0.35,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.trailing_stop_base",
+      "where_defined": "config/decision_params.json:22",
+      "type": "float",
+      "current_value": 0.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "decision_params.trailing_stop_leveraged",
+      "where_defined": "config/decision_params.json:23",
+      "type": "float",
+      "current_value": 0.06,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "decision_engine",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "ensemble.disagreement_threshold",
+      "where_defined": "src/models/loader.py:286",
+      "type": "float",
+      "current_value": 0.3,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "ensemble_uncertainty",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "ensemble.gru_weight",
+      "where_defined": "src/models/loader.py:284",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "ensemble_uncertainty",
+      "dependencies": [
+        "gru_weight + transformer_weight should remain ~= 1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "ensemble.multiplier.base_floor",
+      "where_defined": "src/models/ensemble_regime.py:244",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "ensemble_uncertainty",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "ensemble.multiplier.base_span",
+      "where_defined": "src/models/ensemble_regime.py:244",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "ensemble_uncertainty",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "ensemble.multiplier.clip_max",
+      "where_defined": "src/models/ensemble_regime.py:252",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "ensemble_uncertainty",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "ensemble.multiplier.clip_min",
+      "where_defined": "src/models/ensemble_regime.py:252",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "ensemble_uncertainty",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "ensemble.multiplier.disagreement_penalty_scale",
+      "where_defined": "src/models/ensemble_regime.py:250",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "ensemble_uncertainty",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "ensemble.transformer_weight",
+      "where_defined": "src/models/loader.py:285",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "ensemble_uncertainty",
+      "dependencies": [
+        "gru_weight + transformer_weight should remain ~= 1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "entropy_shift.consecutive_days_required",
+      "where_defined": "src/signals/entropy_shift.py:18",
+      "type": "int",
+      "current_value": 3,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "entropy_shift.max_lookback_days",
+      "where_defined": "src/signals/entropy_shift.py:54",
+      "type": "int",
+      "current_value": 252,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "entropy_shift.min_rolling_samples_for_zscore",
+      "where_defined": "src/signals/entropy_shift.py:63",
+      "type": "int",
+      "current_value": 10,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "entropy_shift.num_bins",
+      "where_defined": "src/signals/entropy_shift.py:16",
+      "type": "int",
+      "current_value": 20,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "entropy_shift.window_days",
+      "where_defined": "src/signals/entropy_shift.py:15",
+      "type": "int",
+      "current_value": 60,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "entropy_shift.z_threshold",
+      "where_defined": "src/signals/entropy_shift.py:17",
+      "type": "float",
+      "current_value": 1.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "fragility.AVG_CORR_MEAN",
+      "where_defined": "src/signals/fragility.py:19",
+      "type": "float",
+      "current_value": 0.3,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "fragility.AVG_CORR_STD",
+      "where_defined": "src/signals/fragility.py:20",
+      "type": "float",
+      "current_value": 0.15,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "fragility.MIN_DAYS",
+      "where_defined": "src/signals/fragility.py:15",
+      "type": "int",
+      "current_value": 40,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "fragility.MIN_SYMBOLS",
+      "where_defined": "src/signals/fragility.py:14",
+      "type": "int",
+      "current_value": 6,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "fragility.PANEL_SYMBOLS",
+      "where_defined": "src/signals/fragility.py:13",
+      "type": "enum_list",
+      "current_value": [
+        "SPY",
+        "QQQ",
+        "IWM",
+        "TLT",
+        "HYG",
+        "GLD",
+        "EFA",
+        "EEM"
+      ],
+      "allowed_range": {
+        "source": "code_constant",
+        "needs_bounds_confirmation": true,
+        "enum": [
+          "SPY",
+          "QQQ",
+          "IWM",
+          "TLT",
+          "HYG",
+          "GLD",
+          "EFA",
+          "EEM"
+        ]
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Symbol universe list; changing requires data-availability and interpretation checks."
+    },
+    {
+      "name": "fragility.PC1_MEAN",
+      "where_defined": "src/signals/fragility.py:22",
+      "type": "float",
+      "current_value": 0.45,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "fragility.PC1_STD",
+      "where_defined": "src/signals/fragility.py:23",
+      "type": "float",
+      "current_value": 0.12,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "fragility.window_days",
+      "where_defined": "src/signals/fragility.py:29",
+      "type": "int",
+      "current_value": 60,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "llm_risk.max_symbols_checked",
+      "where_defined": "src/steps/llm_risk_check.py:258",
+      "type": "int",
+      "current_value": 16,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 50
+      },
+      "used_live": true,
+      "component": "llm_risk_overlay",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Impacts LLM call volume/cost and qualitative veto behavior; treat as ops policy, not evolutionary gene."
+    },
+    {
+      "name": "llm_risk.prompt_confidence_adjustment_max",
+      "where_defined": "src/steps/llm_risk_check.py:36",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "llm_risk_overlay",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Impacts LLM call volume/cost and qualitative veto behavior; treat as ops policy, not evolutionary gene."
+    },
+    {
+      "name": "llm_risk.top_candidate_count",
+      "where_defined": "src/steps/llm_risk_check.py:255",
+      "type": "int",
+      "current_value": 5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 50
+      },
+      "used_live": true,
+      "component": "llm_risk_overlay",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Impacts LLM call volume/cost and qualitative veto behavior; treat as ops policy, not evolutionary gene."
+    },
+    {
+      "name": "macro_credit.HY_SPREAD_MEAN",
+      "where_defined": "src/signals/macro_credit.py:20",
+      "type": "float",
+      "current_value": 0.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "macro_credit.HY_SPREAD_STD",
+      "where_defined": "src/signals/macro_credit.py:21",
+      "type": "float",
+      "current_value": 0.02,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "macro_credit.SLOPE_MEAN",
+      "where_defined": "src/signals/macro_credit.py:15",
+      "type": "float",
+      "current_value": 1.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "macro_credit.SLOPE_STD",
+      "where_defined": "src/signals/macro_credit.py:16",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "macro_credit.hy_lookback_days",
+      "where_defined": "src/signals/macro_credit.py:57",
+      "type": "int",
+      "current_value": 21,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "macro_credit.hy_spread_weight",
+      "where_defined": "src/signals/macro_credit.py:68",
+      "type": "float",
+      "current_value": 0.4,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "macro_credit.slope_weight",
+      "where_defined": "src/signals/macro_credit.py:68",
+      "type": "float",
+      "current_value": 0.6,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "morning_execution.buy_price_gap_threshold",
+      "where_defined": "src/steps/morning_executor.py:17",
+      "type": "float",
+      "current_value": 0.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 0.5
+      },
+      "used_live": true,
+      "component": "execution_validation",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Execution-safety policy, separate from alpha/selection optimization."
+    },
+    {
+      "name": "morning_execution.max_intent_age_days",
+      "where_defined": "src/steps/morning_executor.py:13",
+      "type": "int",
+      "current_value": 3,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 10
+      },
+      "used_live": true,
+      "component": "execution_validation",
+      "dependencies": [],
+      "safe_to_optimize": false,
+      "notes": "Execution-safety policy, separate from alpha/selection optimization."
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.bond",
+      "where_defined": "config/regime_compatibility.json:84",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.commodity",
+      "where_defined": "config/regime_compatibility.json:85",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.credit_high_yield",
+      "where_defined": "config/regime_compatibility.json:100",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.equity",
+      "where_defined": "config/regime_compatibility.json:83",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.fx",
+      "where_defined": "config/regime_compatibility.json:87",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_comm",
+      "where_defined": "config/regime_compatibility.json:97",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_cons_disc",
+      "where_defined": "config/regime_compatibility.json:92",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_cons_staples",
+      "where_defined": "config/regime_compatibility.json:93",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_energy",
+      "where_defined": "config/regime_compatibility.json:89",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_financials",
+      "where_defined": "config/regime_compatibility.json:91",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_healthcare",
+      "where_defined": "config/regime_compatibility.json:95",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_industrials",
+      "where_defined": "config/regime_compatibility.json:94",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_materials",
+      "where_defined": "config/regime_compatibility.json:96",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_reit",
+      "where_defined": "config/regime_compatibility.json:98",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_tech",
+      "where_defined": "config/regime_compatibility.json:88",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.sector_utilities",
+      "where_defined": "config/regime_compatibility.json:90",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.treas_long",
+      "where_defined": "config/regime_compatibility.json:99",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.calm_uptrend.vol",
+      "where_defined": "config/regime_compatibility.json:86",
+      "type": "float",
+      "current_value": 0.85,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.bond",
+      "where_defined": "config/regime_compatibility.json:64",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.commodity",
+      "where_defined": "config/regime_compatibility.json:65",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.credit_high_yield",
+      "where_defined": "config/regime_compatibility.json:80",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.equity",
+      "where_defined": "config/regime_compatibility.json:63",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.fx",
+      "where_defined": "config/regime_compatibility.json:67",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_comm",
+      "where_defined": "config/regime_compatibility.json:77",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_cons_disc",
+      "where_defined": "config/regime_compatibility.json:72",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_cons_staples",
+      "where_defined": "config/regime_compatibility.json:73",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_energy",
+      "where_defined": "config/regime_compatibility.json:69",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_financials",
+      "where_defined": "config/regime_compatibility.json:71",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_healthcare",
+      "where_defined": "config/regime_compatibility.json:75",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_industrials",
+      "where_defined": "config/regime_compatibility.json:74",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_materials",
+      "where_defined": "config/regime_compatibility.json:76",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_reit",
+      "where_defined": "config/regime_compatibility.json:78",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_tech",
+      "where_defined": "config/regime_compatibility.json:68",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.sector_utilities",
+      "where_defined": "config/regime_compatibility.json:70",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.treas_long",
+      "where_defined": "config/regime_compatibility.json:79",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.choppy.vol",
+      "where_defined": "config/regime_compatibility.json:66",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.bond",
+      "where_defined": "config/regime_compatibility.json:44",
+      "type": "float",
+      "current_value": 1.2,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.commodity",
+      "where_defined": "config/regime_compatibility.json:45",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.credit_high_yield",
+      "where_defined": "config/regime_compatibility.json:60",
+      "type": "float",
+      "current_value": 0.4,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.equity",
+      "where_defined": "config/regime_compatibility.json:43",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.fx",
+      "where_defined": "config/regime_compatibility.json:47",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_comm",
+      "where_defined": "config/regime_compatibility.json:57",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_cons_disc",
+      "where_defined": "config/regime_compatibility.json:52",
+      "type": "float",
+      "current_value": 0.45,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_cons_staples",
+      "where_defined": "config/regime_compatibility.json:53",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_energy",
+      "where_defined": "config/regime_compatibility.json:49",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_financials",
+      "where_defined": "config/regime_compatibility.json:51",
+      "type": "float",
+      "current_value": 0.4,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_healthcare",
+      "where_defined": "config/regime_compatibility.json:55",
+      "type": "float",
+      "current_value": 0.7,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_industrials",
+      "where_defined": "config/regime_compatibility.json:54",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_materials",
+      "where_defined": "config/regime_compatibility.json:56",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_reit",
+      "where_defined": "config/regime_compatibility.json:58",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_tech",
+      "where_defined": "config/regime_compatibility.json:48",
+      "type": "float",
+      "current_value": 0.4,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.sector_utilities",
+      "where_defined": "config/regime_compatibility.json:50",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.treas_long",
+      "where_defined": "config/regime_compatibility.json:59",
+      "type": "float",
+      "current_value": 1.25,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.high_vol_panic.vol",
+      "where_defined": "config/regime_compatibility.json:46",
+      "type": "float",
+      "current_value": 1.3,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.bond",
+      "where_defined": "config/regime_compatibility.json:24",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.commodity",
+      "where_defined": "config/regime_compatibility.json:25",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.credit_high_yield",
+      "where_defined": "config/regime_compatibility.json:40",
+      "type": "float",
+      "current_value": 0.6,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.equity",
+      "where_defined": "config/regime_compatibility.json:23",
+      "type": "float",
+      "current_value": 0.85,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.fx",
+      "where_defined": "config/regime_compatibility.json:27",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_comm",
+      "where_defined": "config/regime_compatibility.json:37",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_cons_disc",
+      "where_defined": "config/regime_compatibility.json:32",
+      "type": "float",
+      "current_value": 0.8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_cons_staples",
+      "where_defined": "config/regime_compatibility.json:33",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_energy",
+      "where_defined": "config/regime_compatibility.json:29",
+      "type": "float",
+      "current_value": 0.85,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_financials",
+      "where_defined": "config/regime_compatibility.json:31",
+      "type": "float",
+      "current_value": 0.85,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_healthcare",
+      "where_defined": "config/regime_compatibility.json:35",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_industrials",
+      "where_defined": "config/regime_compatibility.json:34",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_materials",
+      "where_defined": "config/regime_compatibility.json:36",
+      "type": "float",
+      "current_value": 0.85,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_reit",
+      "where_defined": "config/regime_compatibility.json:38",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_tech",
+      "where_defined": "config/regime_compatibility.json:28",
+      "type": "float",
+      "current_value": 0.8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.sector_utilities",
+      "where_defined": "config/regime_compatibility.json:30",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.treas_long",
+      "where_defined": "config/regime_compatibility.json:39",
+      "type": "float",
+      "current_value": 1.15,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_off_trend.vol",
+      "where_defined": "config/regime_compatibility.json:26",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.bond",
+      "where_defined": "config/regime_compatibility.json:4",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.commodity",
+      "where_defined": "config/regime_compatibility.json:5",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.credit_high_yield",
+      "where_defined": "config/regime_compatibility.json:20",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.equity",
+      "where_defined": "config/regime_compatibility.json:3",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.fx",
+      "where_defined": "config/regime_compatibility.json:7",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_comm",
+      "where_defined": "config/regime_compatibility.json:17",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_cons_disc",
+      "where_defined": "config/regime_compatibility.json:12",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_cons_staples",
+      "where_defined": "config/regime_compatibility.json:13",
+      "type": "float",
+      "current_value": 0.95,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_energy",
+      "where_defined": "config/regime_compatibility.json:9",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_financials",
+      "where_defined": "config/regime_compatibility.json:11",
+      "type": "float",
+      "current_value": 1.1,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_healthcare",
+      "where_defined": "config/regime_compatibility.json:15",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_industrials",
+      "where_defined": "config/regime_compatibility.json:14",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_materials",
+      "where_defined": "config/regime_compatibility.json:16",
+      "type": "float",
+      "current_value": 1.05,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_reit",
+      "where_defined": "config/regime_compatibility.json:18",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_tech",
+      "where_defined": "config/regime_compatibility.json:8",
+      "type": "float",
+      "current_value": 1.15,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.sector_utilities",
+      "where_defined": "config/regime_compatibility.json:10",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.treas_long",
+      "where_defined": "config/regime_compatibility.json:19",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_compatibility.risk_on_trend.vol",
+      "where_defined": "config/regime_compatibility.json:6",
+      "type": "float",
+      "current_value": 0.9,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "candidate_scoring_regime_multiplier",
+      "dependencies": [
+        "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
+      ],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.entropy_size_multiplier",
+      "where_defined": "src/signals/regime_fusion.py:57",
+      "type": "float",
+      "current_value": 0.7,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.entropy_throttle_increment",
+      "where_defined": "src/signals/regime_fusion.py:200",
+      "type": "float",
+      "current_value": 0.15,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.final_position_size_clip_max",
+      "where_defined": "src/signals/regime_fusion.py:232",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.final_position_size_clip_min",
+      "where_defined": "src/signals/regime_fusion.py:232",
+      "type": "float",
+      "current_value": 0.25,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.final_risk_throttle_clip_max",
+      "where_defined": "src/signals/regime_fusion.py:233",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.final_risk_throttle_clip_min",
+      "where_defined": "src/signals/regime_fusion.py:233",
+      "type": "float",
+      "current_value": 0.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.fragility_position_cap",
+      "where_defined": "src/signals/regime_fusion.py:180",
+      "type": "float",
+      "current_value": 0.6,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 2.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.fragility_threshold",
+      "where_defined": "src/signals/regime_fusion.py:56",
+      "type": "float",
+      "current_value": 0.75,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.fragility_throttle_increment",
+      "where_defined": "src/signals/regime_fusion.py:181",
+      "type": "float",
+      "current_value": 0.2,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.macro_downgrade_threshold",
+      "where_defined": "src/signals/regime_fusion.py:54",
+      "type": "float",
+      "current_value": -0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -1.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.macro_upgrade_threshold",
+      "where_defined": "src/signals/regime_fusion.py:55",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -1.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.panic_position_size",
+      "where_defined": "src/signals/regime_fusion.py:97",
+      "type": "float",
+      "current_value": 0.25,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.panic_prob_threshold",
+      "where_defined": "src/signals/regime_fusion.py:52",
+      "type": "float",
+      "current_value": 0.7,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.panic_risk_throttle",
+      "where_defined": "src/signals/regime_fusion.py:98",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.throttle_to_exposure_scale",
+      "where_defined": "src/signals/regime_fusion.py:236",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.unstable_calm_panic_threshold",
+      "where_defined": "src/signals/regime_fusion.py:53",
+      "type": "float",
+      "current_value": 0.3,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.unstable_position_size",
+      "where_defined": "src/signals/regime_fusion.py:123",
+      "type": "float",
+      "current_value": 0.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "regime_fusion.unstable_risk_throttle",
+      "where_defined": "src/signals/regime_fusion.py:124",
+      "type": "float",
+      "current_value": 0.7,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "used_live": true,
+      "component": "regime_fusion_rules",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.bond",
+      "where_defined": "src/utils/transaction_costs.py:72",
+      "type": "float",
+      "current_value": 2.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.commodity",
+      "where_defined": "src/utils/transaction_costs.py:72",
+      "type": "float",
+      "current_value": 4.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.equity",
+      "where_defined": "src/utils/transaction_costs.py:72",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.fx",
+      "where_defined": "src/utils/transaction_costs.py:72",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "transaction_costs.asset_class_default_bps.vol",
+      "where_defined": "src/utils/transaction_costs.py:72",
+      "type": "float",
+      "current_value": 8.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "transaction_costs.slippage_range_bps",
+      "where_defined": "src/utils/transaction_costs.py:81",
+      "type": "float",
+      "current_value": 2.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 10.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "transaction_costs.spread_bps.aggregate",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.broad",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.broad_commodities",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 4.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.country_brazil",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 6.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.country_china",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 6.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.country_india",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 6.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.country_japan",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 5.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.credit_high_yield",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.credit_investment_grade",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.eur",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_dividend",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_dividend_growth",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_minvol",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_momentum",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_quality",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.factor_value",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.global",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.gold",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_aerospace_defense",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 4.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_biotech",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 4.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_regional_banks",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 5.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_retail",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 5.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_semis",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.industry_transport",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 4.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.international_dev",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.international_em",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 5.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.muni",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.natural_gas",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 8.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.oil",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 4.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.region_europe",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 4.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_comm",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_cons_disc",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_cons_staples",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_energy",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_financials",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_healthcare",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_industrials",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_materials",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_reit",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_tech",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.sector_utilities",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.silver",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.style_growth",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.style_value",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.theme_innovation",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 5.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.treas_intermediate",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 1.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.treas_long",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.treas_short",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 1.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.treas_tips",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 2.5,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.usd",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 3.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "transaction_costs.spread_bps.volatility",
+      "where_defined": "src/utils/transaction_costs.py:8",
+      "type": "float",
+      "current_value": 8.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 25.0
+      },
+      "used_live": true,
+      "component": "cost_model",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": "Half-spread bps assumption used to simulate fill prices."
+    },
+    {
+      "name": "vol_uncertainty.dynamic_history_min_obs",
+      "where_defined": "src/signals/vol_uncertainty.py:57",
+      "type": "int",
+      "current_value": 60,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 1,
+        "max": 500
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.regime_thresholds.panic.vix_pctile",
+      "where_defined": "src/signals/vol_uncertainty.py:88",
+      "type": "float",
+      "current_value": 0.8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.regime_thresholds.panic.vvix_pctile",
+      "where_defined": "src/signals/vol_uncertainty.py:88",
+      "type": "float",
+      "current_value": 0.8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.regime_thresholds.unstable.vix_pctile_max",
+      "where_defined": "src/signals/vol_uncertainty.py:90",
+      "type": "float",
+      "current_value": 0.6,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.regime_thresholds.unstable.vvix_pctile",
+      "where_defined": "src/signals/vol_uncertainty.py:90",
+      "type": "float",
+      "current_value": 0.8,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": -5.0,
+        "max": 5.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.skew_thresholds.p20",
+      "where_defined": "src/signals/vol_uncertainty.py:19",
+      "type": "float",
+      "current_value": 115.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.skew_thresholds.p50",
+      "where_defined": "src/signals/vol_uncertainty.py:19",
+      "type": "float",
+      "current_value": 125.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.skew_thresholds.p80",
+      "where_defined": "src/signals/vol_uncertainty.py:19",
+      "type": "float",
+      "current_value": 140.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.skew_thresholds.p95",
+      "where_defined": "src/signals/vol_uncertainty.py:19",
+      "type": "float",
+      "current_value": 150.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.vix_thresholds.p20",
+      "where_defined": "src/signals/vol_uncertainty.py:15",
+      "type": "float",
+      "current_value": 13.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.vix_thresholds.p50",
+      "where_defined": "src/signals/vol_uncertainty.py:15",
+      "type": "float",
+      "current_value": 17.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.vix_thresholds.p80",
+      "where_defined": "src/signals/vol_uncertainty.py:15",
+      "type": "float",
+      "current_value": 25.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.vix_thresholds.p95",
+      "where_defined": "src/signals/vol_uncertainty.py:15",
+      "type": "float",
+      "current_value": 30.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.vvix_thresholds.p20",
+      "where_defined": "src/signals/vol_uncertainty.py:17",
+      "type": "float",
+      "current_value": 75.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.vvix_thresholds.p50",
+      "where_defined": "src/signals/vol_uncertainty.py:17",
+      "type": "float",
+      "current_value": 85.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.vvix_thresholds.p80",
+      "where_defined": "src/signals/vol_uncertainty.py:17",
+      "type": "float",
+      "current_value": 105.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    },
+    {
+      "name": "vol_uncertainty.vvix_thresholds.p95",
+      "where_defined": "src/signals/vol_uncertainty.py:17",
+      "type": "float",
+      "current_value": 120.0,
+      "allowed_range": {
+        "source": "inferred_from_usage",
+        "needs_bounds_confirmation": true,
+        "min": 0.0,
+        "max": 300.0
+      },
+      "used_live": true,
+      "component": "expert_signal_computation",
+      "dependencies": [],
+      "safe_to_optimize": true,
+      "notes": null
+    }
+  ]
+}

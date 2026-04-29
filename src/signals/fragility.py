@@ -27,6 +27,7 @@ def compute_fragility(
     prices_df: pd.DataFrame,
     panel_symbols: Optional[List[str]] = None,
     window: int = 60,
+    params: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Compute cross-asset fragility score.
@@ -40,6 +41,16 @@ def compute_fragility(
     Returns:
         Dict with fragility_score and diagnostics.
     """
+    params = params or {}
+    min_symbols = int(params.get('MIN_SYMBOLS', MIN_SYMBOLS))
+    min_days = int(params.get('MIN_DAYS', MIN_DAYS))
+    avg_corr_mean = float(params.get('AVG_CORR_MEAN', AVG_CORR_MEAN))
+    avg_corr_std = float(params.get('AVG_CORR_STD', AVG_CORR_STD))
+    pc1_mean = float(params.get('PC1_MEAN', PC1_MEAN))
+    pc1_std = float(params.get('PC1_STD', PC1_STD))
+    if 'window_days' in params:
+        window = int(params.get('window_days', window))
+
     if panel_symbols is None:
         panel_symbols = PANEL_SYMBOLS
 
@@ -54,17 +65,17 @@ def compute_fragility(
     pivot = pivot.sort_index()
 
     # Check minimum data requirements
-    valid_symbols = pivot.columns[pivot.tail(window).notna().sum() >= MIN_DAYS]
-    if len(valid_symbols) < MIN_SYMBOLS:
+    valid_symbols = pivot.columns[pivot.tail(window).notna().sum() >= min_days]
+    if len(valid_symbols) < min_symbols:
         return _neutral_result(
-            f'Insufficient symbols: {len(valid_symbols)} < {MIN_SYMBOLS}'
+            f'Insufficient symbols: {len(valid_symbols)} < {min_symbols}'
         )
 
     # Compute daily returns for the window
     returns = pivot[valid_symbols].tail(window + 1).pct_change().dropna()
 
-    if len(returns) < MIN_DAYS:
-        return _neutral_result(f'Insufficient return history: {len(returns)} < {MIN_DAYS}')
+    if len(returns) < min_days:
+        return _neutral_result(f'Insufficient return history: {len(returns)} < {min_days}')
 
     # Correlation matrix
     corr_matrix = returns.corr().values
@@ -87,8 +98,8 @@ def compute_fragility(
         pc2_explained = 0.0
 
     # Normalize to [0, 1] using tanh of z-scores
-    corr_z = (avg_correlation - AVG_CORR_MEAN) / AVG_CORR_STD if AVG_CORR_STD > 0 else 0.0
-    pc1_z = (pc1_explained - PC1_MEAN) / PC1_STD if PC1_STD > 0 else 0.0
+    corr_z = (avg_correlation - avg_corr_mean) / avg_corr_std if avg_corr_std > 0 else 0.0
+    pc1_z = (pc1_explained - pc1_mean) / pc1_std if pc1_std > 0 else 0.0
 
     # Higher correlation and higher PC1 absorption = more fragile
     norm_corr = (np.tanh(corr_z) + 1) / 2  # map tanh [-1,1] to [0,1]

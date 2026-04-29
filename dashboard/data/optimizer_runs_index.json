@@ -1,0 +1,193 @@
+{
+  "updated_at": "2026-04-19T07:40:26Z",
+  "active_version": "hybrid-ranking-035-v1",
+  "runs": [
+    {
+      "run_id": "run-20260419T073007Z-seed20260217-g3-p8",
+      "started_at": "2026-04-19T07:30:07Z",
+      "finished_at": "2026-04-19T07:40:26Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "hybrid-ranking-035-v1",
+      "challenger_version": "opt-20260419T074026Z-cc4c1511-20260419T073007Z",
+      "wf_delta": 0.004201853936548983,
+      "gate_delta": 0.03707485309202996
+    },
+    {
+      "run_id": "run-20260412T073006Z-seed20260217-g3-p8",
+      "started_at": "2026-04-12T07:30:06Z",
+      "finished_at": "2026-04-12T07:30:13Z",
+      "status": "failed",
+      "decision": "not_promoted",
+      "champion_version_before": "hybrid-ranking-035-v1",
+      "challenger_version": "unknown",
+      "wf_delta": 0.0,
+      "gate_delta": 0.0
+    },
+    {
+      "run_id": "run-20260405T073005Z-seed20260217-g3-p8",
+      "started_at": "2026-04-05T07:30:05Z",
+      "finished_at": "2026-04-05T07:39:13Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "hybrid-ranking-035-v1",
+      "challenger_version": "opt-20260405T073913Z-cc4c1511-20260405T073005Z",
+      "wf_delta": 0.0042693147222047645,
+      "gate_delta": -0.43382949979228336
+    },
+    {
+      "run_id": "run-20260329T073004Z-seed20260217-g3-p8",
+      "started_at": "2026-03-29T07:30:04Z",
+      "finished_at": "2026-03-29T07:38:25Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "hybrid-ranking-035-v1",
+      "challenger_version": "opt-20260329T073825Z-cc4c1511-20260329T073004Z",
+      "wf_delta": 0.006220176736196015,
+      "gate_delta": 0.42479104140701884
+    },
+    {
+      "run_id": "run-20260322T073002Z-seed20260217-g3-p8",
+      "started_at": "2026-03-22T07:30:02Z",
+      "finished_at": "2026-03-22T07:37:30Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "opt-20260322T073730Z-cc4c1511-20260322T073002Z",
+      "wf_delta": 0.00650488723129633,
+      "gate_delta": 0.02620053698404648
+    },
+    {
+      "run_id": "run-20260315T131517Z-seed20260217-g3-p8",
+      "started_at": "2026-03-15T13:15:17Z",
+      "finished_at": "2026-03-15T13:19:30Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "opt-20260315T131930Z-63fd9eba-20260315T131517Z",
+      "wf_delta": 0.018482445508649553,
+      "gate_delta": 0.0
+    },
+    {
+      "run_id": "run-20260308T073003Z-seed20260217-g3-p8",
+      "started_at": "2026-03-08T07:30:03Z",
+      "finished_at": "2026-03-08T07:33:07Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "opt-20260308T073307Z-2d1de1ab-20260308T073003Z",
+      "wf_delta": -0.020867336304189243,
+      "gate_delta": -0.016128035108243732
+    },
+    {
+      "run_id": "run-20260301T083002Z-seed20260217-g3-p8",
+      "started_at": "2026-03-01T08:30:02Z",
+      "finished_at": "2026-03-01T08:32:21Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "opt-20260301T083221Z-63bfd30b-20260301T083002Z",
+      "wf_delta": 0.04387550734110335,
+      "gate_delta": 0.06470541210859782
+    },
+    {
+      "run_id": "run-20260222T083004Z-seed20260217-g3-p8",
+      "started_at": "2026-02-22T08:30:04Z",
+      "finished_at": "2026-02-22T08:31:46Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "opt-20260222T083146Z-f0822268-20260222T083004Z",
+      "wf_delta": 0.0016526087971283077,
+      "gate_delta": -0.008187905918651706
+    },
+    {
+      "run_id": "run-20260217T173938Z-seed20260217-g3-p8",
+      "started_at": "2026-02-17T17:39:38Z",
+      "finished_at": "2026-02-17T17:40:34Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "opt-20260217T174034Z-8c445a8f-20260217T173938Z",
+      "wf_delta": -0.033702753033006516,
+      "gate_delta": 0.0
+    },
+    {
+      "run_id": "run-20260217T171205Z-seed20260217-g30-p40",
+      "started_at": "2026-02-17T17:12:05Z",
+      "finished_at": "2026-02-17T17:30:18Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "opt-20260217T173018Z-18234ac3-20260217T171205Z",
+      "wf_delta": 0.006518166014905402,
+      "gate_delta": 0.0
+    },
+    {
+      "run_id": "run-20260217T171040Z-seed20260217-g30-p40",
+      "started_at": "2026-02-17T17:10:40Z",
+      "finished_at": "2026-02-17T17:29:21Z",
+      "status": "rejected_guardrails",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "opt-20260217T172921Z-18234ac3-20260217T171040Z",
+      "wf_delta": 0.006518166014905402,
+      "gate_delta": 0.0
+    },
+    {
+      "run_id": "run-20260217T171114Z-seed20260217-g30-p40",
+      "started_at": "2026-02-17T17:11:14Z",
+      "finished_at": "2026-02-17T17:11:18Z",
+      "status": "failed",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "unknown",
+      "wf_delta": 0.0,
+      "gate_delta": 0.0
+    },
+    {
+      "run_id": "run-20260217T170658Z-seed20260217-g30-p40",
+      "started_at": "2026-02-17T17:06:58Z",
+      "finished_at": "2026-02-17T17:07:37Z",
+      "status": "failed",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "unknown",
+      "wf_delta": 0.0,
+      "gate_delta": 0.0
+    },
+    {
+      "run_id": "run-20260217T170601Z-seed20260217-g30-p40",
+      "started_at": "2026-02-17T17:06:01Z",
+      "finished_at": "2026-02-17T17:06:01Z",
+      "status": "failed",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "unknown",
+      "wf_delta": 0.0,
+      "gate_delta": 0.0
+    },
+    {
+      "run_id": "run-20260217T163816Z-seed20260217-g3-p8",
+      "started_at": "2026-02-17T16:38:16Z",
+      "finished_at": "2026-02-17T16:38:51Z",
+      "status": "rejected_objective",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "opt-20260217T163851Z-8c445a8f-20260217T163816Z",
+      "wf_delta": -0.033702753033006516,
+      "gate_delta": 0.0
+    },
+    {
+      "run_id": "run-20260217T163648Z-seed20260217-g30-p40",
+      "started_at": "2026-02-17T16:36:48Z",
+      "finished_at": "2026-02-17T16:37:32Z",
+      "status": "failed",
+      "decision": "not_promoted",
+      "champion_version_before": "opt-bootstrap",
+      "challenger_version": "unknown",
+      "wf_delta": 0.0,
+      "gate_delta": 0.0
+    }
+  ]
+}

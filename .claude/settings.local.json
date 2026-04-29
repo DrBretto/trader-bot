@@ -85,7 +85,8 @@
       "Bash(aws sns subscribe:*)",
       "Bash(aws sns list-subscriptions-by-topic:*)",
       "Bash(aws events:*)",
-      "Bash(./infrastructure/eventbridge_setup.sh:*)"
+      "Bash(./infrastructure/eventbridge_setup.sh:*)",
+      "Bash(launchctl list:*)"
     ]
   }
 }

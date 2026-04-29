@@ -1,11 +1,62 @@
 """Publish artifacts to S3 for dashboard consumption."""
 
 import json
+import os
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 import pandas as pd
 
 from src.utils.s3_client import S3Client
+from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
+
+
+def _load_chart_markers() -> List[Dict[str, Any]]:
+    """Load timeline markers from config/chart_markers.json.
+
+    Markers are vertical event labels rendered on time-series dashboard charts
+    (equity curve, drawdowns, regime strip). The config file is small and
+    editable so operators can add new markers (model upgrades, bug fixes,
+    incidents) without changing code.
+    """
+    env_override = os.environ.get('CHART_MARKERS_PATH')
+    candidates: List[Path] = []
+    if env_override:
+        candidates.append(Path(env_override))
+    candidates.append(Path('config/chart_markers.json'))
+    candidates.append(Path(__file__).resolve().parents[2] / 'config' / 'chart_markers.json')
+    for p in candidates:
+        if p.is_file():
+            try:
+                with p.open() as f:
+                    data = json.load(f)
+                markers = data.get('markers', [])
+                return sorted(markers, key=lambda m: m.get('date', ''))
+            except (OSError, json.JSONDecodeError):
+                return []
+    return []
+
+DUST_SHARE_EPSILON = 0.001
+DUST_VALUE_EPSILON = 0.01
+
+
+def _build_snapshot_meta(
+    run_date: str,
+    phase: str,
+    portfolio_state: Dict[str, Any],
+) -> Dict[str, str]:
+    """Build a stable snapshot identifier shared by all dashboard panels."""
+    timestamp = (
+        portfolio_state.get('last_updated')
+        or datetime.now().isoformat()
+    )
+    snapshot_id = f"{run_date}:{phase}:{timestamp}"
+    return {
+        'id': snapshot_id,
+        'date': run_date,
+        'phase': phase,
+        'timestamp': timestamp,
+    }
 
 
 def build_dashboard_data(
@@ -14,36 +65,88 @@ def build_dashboard_data(
     decisions: Dict[str, Any],
     weather: Dict[str, Any],
     s3: S3Client,
-    expert_signals: Optional[Dict[str, Any]] = None
+    expert_signals: Optional[Dict[str, Any]] = None,
+    snapshot_meta: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     """Build the dashboard.json data structure for the frontend."""
-    timestamp = datetime.now().isoformat()
+    snapshot = snapshot_meta or _build_snapshot_meta(
+        run_date=datetime.now().strftime('%Y-%m-%d'),
+        phase='night',
+        portfolio_state=portfolio_state,
+    )
+    timestamp = snapshot['timestamp']
+    snapshot_date = snapshot['date']
+    snapshot_id = snapshot['id']
+
+    canonical = compute_canonical_dashboard_metrics(
+        s3=s3,
+        portfolio_state=portfolio_state,
+        snapshot_date=snapshot_date,
+        current_state=portfolio_state,
+        max_days=730,
+        initial_value=100000.0,
+        risk_free_rate_annual=0.0,
+        min_sharpe_observations=60,
+    )
+    canonical_metrics = canonical['metrics']
+    continuity_curve = canonical.get('equity_curve', [])
+    continuity_total_value = (
+        continuity_curve[-1]['value']
+        if continuity_curve
+        else portfolio_state.get('portfolio_value', 100000)
+    )
+    broker_total_value = portfolio_state.get('portfolio_value', continuity_total_value)
+
+    # Keep invested aligned with current holdings if upstream field is missing.
+    invested = portfolio_state.get('invested')
+    if invested is None:
+        invested = sum(float(h.get('market_value', 0.0) or 0.0) for h in portfolio_state.get('holdings', []))
 
     # Build metrics
     metrics = {
-        'total_value': portfolio_state.get('portfolio_value', 100000),
+        # Continuity-adjusted value for dashboard presentation.
+        'total_value': continuity_total_value,
+        # Raw broker/account-reconciled value for auditability.
+        'broker_total_value': broker_total_value,
         'cash': portfolio_state.get('cash', 100000),
-        'invested': portfolio_state.get('invested', 0),
-        'ytd_return': portfolio_state.get('ytd_return', 0),
-        'mtd_return': portfolio_state.get('mtd_return', 0),
-        'sharpe_ratio': portfolio_state.get('sharpe_ratio', 0),
-        'max_drawdown': portfolio_state.get('max_drawdown', 0),
-        'current_drawdown': portfolio_state.get('current_drawdown', 0),
-        'win_rate': portfolio_state.get('win_rate', 0),
-        'total_trades': portfolio_state.get('total_trades', 0),
-        'cumulative_transaction_costs': portfolio_state.get('cumulative_transaction_costs', 0),
-        'timestamp': timestamp
+        'invested': invested,
+        'ytd_return': canonical_metrics['ytd_return'],
+        'mtd_return': canonical_metrics['mtd_return'],
+        'sharpe_ratio': canonical_metrics['sharpe_ratio'],
+        'sharpe_observations': canonical_metrics['sharpe_observations'],
+        'sharpe_min_observations': canonical_metrics['sharpe_min_observations'],
+        'max_drawdown': canonical_metrics['max_drawdown'],
+        'current_drawdown': canonical_metrics['current_drawdown'],
+        'win_rate': canonical_metrics['win_rate'],
+        'total_trades': canonical_metrics['total_trades'],
+        'wins': canonical_metrics['wins'],
+        'losses': canonical_metrics['losses'],
+        'breakeven_trades': canonical_metrics['breakeven_trades'],
+        'realized_round_trips': canonical_metrics['realized_round_trips'],
+        'total_fills': canonical_metrics['total_fills'],
+        'cumulative_transaction_costs': canonical_metrics['cumulative_transaction_costs'],
+        'cash_pct': canonical_metrics['cash_pct'],
+        'gross_exposure': canonical_metrics['gross_exposure'],
+        'net_exposure': canonical_metrics['net_exposure'],
+        'top_position_pct': canonical_metrics['top_position_pct'],
+        'beta_proxy': canonical_metrics['beta_proxy'],
+        'snapshot_id': snapshot_id,
+        'timestamp': timestamp,
     }
 
     # Build holdings
     holdings = []
     for h in portfolio_state.get('holdings', []):
+        shares = float(h.get('shares', 0) or 0)
+        market_value = float(h.get('market_value', 0) or 0)
+        if abs(shares) < DUST_SHARE_EPSILON or abs(market_value) < DUST_VALUE_EPSILON:
+            continue
         holdings.append({
             'symbol': h.get('symbol', ''),
-            'shares': h.get('shares', 0),
+            'shares': shares,
             'entry_price': h.get('entry_price', 0),
             'current_price': h.get('current_price', 0),
-            'market_value': h.get('market_value', 0),
+            'market_value': market_value,
             'unrealized_pnl': h.get('unrealized_pnl', 0),
             'unrealized_pnl_pct': h.get('unrealized_pnl_pct', 0),
             'health_score': h.get('health_score', 0.5),
@@ -65,10 +168,10 @@ def build_dashboard_data(
             'suggested_size': candidate.get('suggested_size', 0)
         })
 
-    # Load historical equity curve if available
-    equity_curve = load_historical_equity(s3)
-    drawdowns = load_historical_drawdowns(s3)
-    monthly_returns = load_monthly_returns(s3)
+    # Canonical timeseries from the same snapshot context.
+    equity_curve = canonical['equity_curve']
+    drawdowns = canonical['drawdowns']
+    monthly_returns = canonical['monthly_returns']
 
     # Build regime info (use fused regime if available)
     regime_data = inference_output.get('regime', {})
@@ -125,21 +228,39 @@ def build_dashboard_data(
         'regime': regime_info,
         'outlook': weather.get('outlook', ''),
         'risks': weather.get('risks', []),
-        'timestamp': timestamp
+        'timestamp': timestamp,
     }
 
-    # Load recent trade history from trades.jsonl files
-    trades_history = load_recent_trades(s3, max_days=90)
+    # Canonical fill history and round-trip summary from same active segment.
+    fills = canonical.get('fills', [])
+    trades_history = []
+    for fill in fills:
+        trade = {k: v for k, v in fill.items() if not k.startswith('_')}
+        trades_history.append(trade)
+    trades_history.sort(key=lambda t: t.get('timestamp', ''), reverse=True)
 
     result = {
+        'snapshot': snapshot,
+        'panel_snapshot_ids': {
+            'metrics': snapshot_id,
+            'equity_curve': snapshot_id,
+            'drawdowns': snapshot_id,
+            'monthly_returns': snapshot_id,
+            'trade_log': snapshot_id,
+            'regime': snapshot_id,
+        },
         'metrics': metrics,
         'holdings': holdings,
         'candidates': candidates,
         'equity_curve': equity_curve,
         'drawdowns': drawdowns,
         'monthly_returns': monthly_returns,
+        'chart_markers': _load_chart_markers(),
         'weather': weather_report,
-        'trades': trades_history
+        'trades': trades_history,
+        'trade_summary': canonical.get('trade_summary', {}),
+        'round_trips': canonical.get('round_trips', []),
+        'reset_boundary': canonical.get('reset_boundary'),
     }
 
     # Add expert signals if available
@@ -167,6 +288,10 @@ def build_dashboard_data(
             'position_size_modifier': expert_metrics.get('position_size_modifier', 1.0),
             'risk_throttle_factor': expert_metrics.get('risk_throttle_factor', 0.0),
             'override_reason': expert_metrics.get('override_reason'),
+            'target_gross_exposure': expert_metrics.get('target_gross_exposure'),
+            'effective_exposure_multiplier': expert_metrics.get('effective_exposure_multiplier'),
+            'throttle_mapping': expert_metrics.get('throttle_mapping'),
+            'fusion_rules': expert_metrics.get('fusion_rules', []),
             'ensemble_regime_label': regime_data.get('label', 'unknown'),
             'panic_prob': regime_data.get('probs', {}).get('high_vol_panic', 0.0),
             'ensemble_disagreement': regime_data.get('disagreement', 0.0),
@@ -175,6 +300,11 @@ def build_dashboard_data(
         result['timeseries_url'] = 'timeseries.json'
 
     return result
+
+
+def _can_publish_dashboard(expert_signals: Optional[Dict[str, Any]]) -> bool:
+    """Return whether the current snapshot is safe to expose as live dashboard truth."""
+    return expert_signals is not None
 
 
 def load_recent_trades(s3: S3Client, max_days: int = 90) -> List[Dict]:
@@ -304,6 +434,18 @@ def _build_timeseries_row(
     regime_data = inference_output.get('regime', {})
     ctx = context_df.iloc[0] if len(context_df) > 0 else {}
 
+    # F-6: propagate signal-block status flags into the timeseries row so a
+    # neutral fallback value (e.g. fragility_score=0.5 from _neutral_result)
+    # can be distinguished from a real computation. Without these markers,
+    # 168 days of fallback-VIX (F-1) looked byte-identical to live signal.
+    def _signal_status(d: Dict[str, Any]) -> str:
+        if d.get('degraded_reason'):
+            return f"degraded:{d['degraded_reason'][:60]}"
+        inputs_degraded = d.get('inputs_degraded')
+        if inputs_degraded:
+            return 'partial:' + ','.join(inputs_degraded)
+        return 'ok'
+
     return {
         'date': run_date,
         'final_regime_label': expert_metrics.get('final_regime_label',
@@ -313,17 +455,21 @@ def _build_timeseries_row(
         'trend_risk_on_prob': regime_data.get('probs', {}).get('risk_on_trend', 0.0),
         'panic_prob': regime_data.get('probs', {}).get('high_vol_panic', 0.0),
         'macro_credit_score': macro.get('macro_credit_score', 0.0),
+        'macro_credit_status': _signal_status(macro),
         'yield_slope_10y_3m': macro.get('yield_slope_10y_3m', 0.0),
         'hy_spread_proxy': macro.get('hy_spread_proxy', 0.0),
         'vol_uncertainty_score': vol.get('vol_uncertainty_score', 0.5),
+        'vol_uncertainty_status': _signal_status(vol),
         'vol_regime_label': vol.get('vol_regime_label', 'calm'),
         'vix_percentile': vol.get('vix_percentile', 0.5),
         'vvix_percentile': vol.get('vvix_percentile', 0.5),
         'skew_value': vol.get('skew_value', 0.0),
         'fragility_score': frag.get('fragility_score', 0.5),
+        'fragility_status': _signal_status(frag),
         'avg_correlation': frag.get('avg_correlation', 0.0),
         'pc1_explained': frag.get('pc1_explained', 0.0),
         'entropy_score': ent.get('entropy_score', 0.5),
+        'entropy_status': _signal_status(ent),
         'entropy_z_score': ent.get('entropy_z_score', 0.0),
         'entropy_shift_flag': ent.get('entropy_shift_flag', False),
         'entropy_consecutive_days': ent.get('entropy_consecutive_days', 0),
@@ -379,6 +525,9 @@ def run(
 
     s3 = S3Client(bucket)
     base_path = f"daily/{run_date}"
+    snapshot_meta = _build_snapshot_meta(run_date, 'night', portfolio_state)
+    portfolio_state = dict(portfolio_state)
+    portfolio_state['date'] = run_date
 
     published = []
     failed = []
@@ -487,29 +636,7 @@ def run(
         print(f"Failed to publish run_report.json: {e}")
         failed.append("run_report.json")
 
-    # 11. Update latest.json pointer
-    try:
-        fused_regime = decisions.get('expert_metrics', {}).get(
-            'final_regime_label',
-            inference_output.get('regime', {}).get('label', 'unknown')
-        )
-        latest = {
-            'date': run_date,
-            'intents_date': run_date,
-            'timestamp': datetime.now().isoformat(),
-            'regime': fused_regime,
-            'portfolio_value': portfolio_state.get('portfolio_value', 0),
-            'positions_count': len(portfolio_state.get('holdings', [])),
-            'actions_count': len(decisions.get('actions', [])),
-            'phase': 'night'
-        }
-        s3.write_json(latest, "daily/latest.json")
-        published.append("latest.json")
-    except Exception as e:
-        print(f"Failed to update latest.json: {e}")
-        failed.append("latest.json")
-
-    # 12. Expert signals parquet (if available)
+    # 11. Expert signals parquet (if available)
     if expert_signals is not None:
         try:
             signals_row = _build_timeseries_row(
@@ -523,7 +650,7 @@ def run(
             print(f"Failed to publish signals.parquet: {e}")
             failed.append("signals.parquet")
 
-    # 13. Rolling timeseries (append today, trim to 400 days)
+    # 12. Rolling timeseries (append today, trim to 400 days)
     if expert_signals is not None:
         try:
             ts_row = _build_timeseries_row(
@@ -548,7 +675,12 @@ def run(
             published.append("timeseries.parquet")
 
             # Also write JSON version for frontend
-            ts_json = ts_df.to_dict(orient='records')
+            # Sanitize pandas NaN → null before JSON serialization.
+            # DataFrame.to_dict() converts NaN to float('nan'), which
+            # Python's json module serializes as the non-standard token
+            # NaN, breaking browser JSON.parse().  DataFrame.to_json()
+            # correctly emits null for NaN, so round-trip through it.
+            ts_json = json.loads(ts_df.to_json(orient='records'))
             s3.write_json(ts_json, 'dashboard/data/timeseries.json')
             s3.write_json(ts_json, 'dashboard/timeseries.json')
             published.append("timeseries.json")
@@ -556,19 +688,57 @@ def run(
             print(f"Failed to publish timeseries: {e}")
             failed.append("timeseries.parquet")
 
-    # 14. Generate dashboard.json for frontend
+    # 13. Generate dashboard.json for frontend
+    dashboard_publishable = _can_publish_dashboard(expert_signals)
     try:
         dashboard_data = build_dashboard_data(
             portfolio_state, inference_output, decisions, weather, s3,
-            expert_signals=expert_signals
+            expert_signals=expert_signals,
+            snapshot_meta=snapshot_meta,
         )
-        # Write to both locations for compatibility
-        s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
-        s3.write_json(dashboard_data, "dashboard/dashboard.json")
-        published.append("dashboard.json")
+        # Publish guard: do not overwrite a valid dashboard with broken data.
+        # When expert_signals is None the frontend shows "unknown" posture and
+        # hides Today's Story.  Preserving the last known good dashboard.json
+        # is strictly better than publishing a degraded snapshot.
+        if not dashboard_publishable:
+            print("  WARNING: Skipping dashboard.json publish — expert_signals is null. "
+                  "Preserving last known good dashboard state.")
+            failed.append("dashboard.json (skipped: null signals)")
+        else:
+            # Write to both locations for compatibility
+            s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
+            s3.write_json(dashboard_data, "dashboard/dashboard.json")
+            published.append("dashboard.json")
     except Exception as e:
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")
+
+    # 14. Update latest.json pointer only when the dashboard snapshot is valid.
+    try:
+        if dashboard_publishable:
+            fused_regime = decisions.get('expert_metrics', {}).get(
+                'final_regime_label',
+                inference_output.get('regime', {}).get('label', 'unknown')
+            )
+            latest = {
+                'date': run_date,
+                'intents_date': run_date,
+                'timestamp': snapshot_meta['timestamp'],
+                'snapshot_id': snapshot_meta['id'],
+                'regime': fused_regime,
+                'portfolio_value': portfolio_state.get('portfolio_value', 0),
+                'positions_count': len(portfolio_state.get('holdings', [])),
+                'actions_count': len(decisions.get('actions', [])),
+                'phase': 'night'
+            }
+            s3.write_json(latest, "daily/latest.json")
+            published.append("latest.json")
+        else:
+            print("  WARNING: Skipping latest.json update — dashboard snapshot was not publishable.")
+            failed.append("latest.json (skipped: invalid dashboard snapshot)")
+    except Exception as e:
+        print(f"Failed to update latest.json: {e}")
+        failed.append("latest.json")
 
     print(f"  Published: {len(published)} artifacts")
     if failed:
@@ -603,6 +773,9 @@ def publish_morning_artifacts(
 
     s3 = S3Client(bucket)
     base_path = f"daily/{run_date}"
+    snapshot_meta = _build_snapshot_meta(run_date, 'morning', portfolio_state)
+    portfolio_state = dict(portfolio_state)
+    portfolio_state['date'] = run_date
     published = []
     failed = []
 
@@ -632,33 +805,46 @@ def publish_morning_artifacts(
         print(f"Failed to publish morning_execution.json: {e}")
         failed.append("morning_execution.json")
 
-    # 4. Update latest.json
+    # 4. Update latest.json only if the dashboard snapshot is publishable.
     try:
-        latest = s3.read_json('daily/latest.json') or {}
-        latest.update({
-            'date': run_date,
-            'portfolio_value': portfolio_state.get('portfolio_value', 0),
-            'positions_count': len(portfolio_state.get('holdings', [])),
-            'morning_executed': True,
-            'trades_count': len(trades),
-            'phase': 'morning',
-            'timestamp': datetime.now().isoformat()
-        })
-        s3.write_json(latest, 'daily/latest.json')
-        published.append("latest.json")
+        if _can_publish_dashboard(expert_signals):
+            latest = s3.read_json('daily/latest.json') or {}
+            latest.update({
+                'date': run_date,
+                'portfolio_value': portfolio_state.get('portfolio_value', 0),
+                'positions_count': len(portfolio_state.get('holdings', [])),
+                'morning_executed': True,
+                'trades_count': len(trades),
+                'phase': 'morning',
+                'timestamp': snapshot_meta['timestamp'],
+                'snapshot_id': snapshot_meta['id'],
+            })
+            s3.write_json(latest, 'daily/latest.json')
+            published.append("latest.json")
+        else:
+            print("  WARNING: Skipping morning latest.json update — dashboard snapshot was not publishable.")
+            failed.append("latest.json (skipped: invalid dashboard snapshot)")
     except Exception as e:
         print(f"Failed to update latest.json: {e}")
         failed.append("latest.json")
 
     # 5. Rebuild and publish dashboard.json with post-trade portfolio
     try:
+        dashboard_publishable = _can_publish_dashboard(expert_signals)
         dashboard_data = build_dashboard_data(
             portfolio_state, night_inference, night_decisions, night_weather, s3,
-            expert_signals=expert_signals
+            expert_signals=expert_signals,
+            snapshot_meta=snapshot_meta,
         )
-        s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
-        s3.write_json(dashboard_data, "dashboard/dashboard.json")
-        published.append("dashboard.json")
+        # Publish guard: do not overwrite a valid dashboard with broken data.
+        if not dashboard_publishable:
+            print("  WARNING: Skipping morning dashboard.json publish — expert_signals is null. "
+                  "Preserving last known good dashboard state.")
+            failed.append("dashboard.json (skipped: null signals)")
+        else:
+            s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
+            s3.write_json(dashboard_data, "dashboard/dashboard.json")
+            published.append("dashboard.json")
     except Exception as e:
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")

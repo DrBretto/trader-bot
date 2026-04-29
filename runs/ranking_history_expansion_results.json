@@ -1,0 +1,42 @@
+{
+  "prev_conditioned": {
+    "mean_spearman_rho": 0.04797488226059654,
+    "mean_quintile_spread": 0.008764952013445196,
+    "hit_rate": 0.6666666666666666,
+    "n_dates": 21,
+    "information_ratio": 0.38682219371102977
+  },
+  "expanded_conditioned": {
+    "mean_spearman_rho": -0.08053714613190277,
+    "mean_quintile_spread": -0.029467998002157623,
+    "hit_rate": 0.23809523809523808,
+    "n_dates": 21,
+    "information_ratio": -0.8130601104736297
+  },
+  "expanded_unconditioned": {
+    "mean_spearman_rho": 0.24810657596371882,
+    "mean_quintile_spread": 0.03607788180462758,
+    "hit_rate": 0.7619047619047619,
+    "n_dates": 21,
+    "information_ratio": 0.8217179589237413
+  },
+  "training": {
+    "expanded_conditioned": {
+      "train_samples": 29388,
+      "val_samples": 7348,
+      "best_val_loss": 0.08591216320878473
+    },
+    "expanded_unconditioned": {
+      "train_samples": 29388,
+      "val_samples": 7348,
+      "best_val_loss": 0.08741972955136464
+    }
+  },
+  "history": {
+    "total_rows": 40960,
+    "total_symbols": 64,
+    "total_dates": 640,
+    "train_rows": 38080,
+    "train_dates": 595
+  }
+}

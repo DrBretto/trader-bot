@@ -1,0 +1,105 @@
+{
+  "folds": [
+    {
+      "fold_id": 1,
+      "train_dates": [
+        "2026-02-07",
+        "2026-02-10"
+      ],
+      "test_dates": [
+        "2026-02-11"
+      ],
+      "train_start": "2026-02-07",
+      "train_end": "2026-02-10",
+      "test_start": "2026-02-11",
+      "test_end": "2026-02-11",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 2,
+      "train_dates": [
+        "2026-02-10",
+        "2026-02-11"
+      ],
+      "test_dates": [
+        "2026-02-12"
+      ],
+      "train_start": "2026-02-10",
+      "train_end": "2026-02-11",
+      "test_start": "2026-02-12",
+      "test_end": "2026-02-12",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 3,
+      "train_dates": [
+        "2026-02-11",
+        "2026-02-12"
+      ],
+      "test_dates": [
+        "2026-02-13"
+      ],
+      "train_start": "2026-02-11",
+      "train_end": "2026-02-12",
+      "test_start": "2026-02-13",
+      "test_end": "2026-02-13",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 4,
+      "train_dates": [
+        "2026-02-12",
+        "2026-02-13"
+      ],
+      "test_dates": [
+        "2026-02-17"
+      ],
+      "train_start": "2026-02-12",
+      "train_end": "2026-02-13",
+      "test_start": "2026-02-17",
+      "test_end": "2026-02-17",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 5,
+      "train_dates": [
+        "2026-02-13",
+        "2026-02-17"
+      ],
+      "test_dates": [
+        "2026-02-18"
+      ],
+      "train_start": "2026-02-13",
+      "train_end": "2026-02-17",
+      "test_start": "2026-02-18",
+      "test_end": "2026-02-18",
+      "test_days": 1,
+      "complete_dates": 1
+    },
+    {
+      "fold_id": 6,
+      "train_dates": [
+        "2026-02-17",
+        "2026-02-18"
+      ],
+      "test_dates": [
+        "2026-02-19"
+      ],
+      "train_start": "2026-02-17",
+      "train_end": "2026-02-18",
+      "test_start": "2026-02-19",
+      "test_end": "2026-02-19",
+      "test_days": 1,
+      "complete_dates": 1
+    }
+  ],
+  "gate_segment": {
+    "start": "2026-02-20",
+    "end": "2026-02-20",
+    "days": 1
+  }
+}

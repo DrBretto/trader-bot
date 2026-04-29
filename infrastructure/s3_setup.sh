@@ -62,12 +62,32 @@ echo "" | aws s3 cp - "s3://$BUCKET_NAME/templates/.keep"
 echo "" | aws s3 cp - "s3://$BUCKET_NAME/backtests/.keep"
 
 # Upload config files if they exist locally
+echo "Uploading config files (if present)..."
+
 if [ -f "config/universe.csv" ]; then
-    echo "Uploading config files..."
     aws s3 cp config/universe.csv "s3://$BUCKET_NAME/config/universe.csv"
+fi
+
+# Canonical live config bundle required by src/handler.py
+if [ -f "config/decision_params.active.json" ]; then
+    aws s3 cp config/decision_params.active.json "s3://$BUCKET_NAME/config/decision_params.active.json"
+else
+    echo "WARNING: config/decision_params.active.json not found."
+    echo "         Upload it before running Lambda (required live config bundle)."
+fi
+
+# Legacy files are still useful for audit/history and backward references
+if [ -f "config/decision_params.json" ]; then
     aws s3 cp config/decision_params.json "s3://$BUCKET_NAME/config/decision_params.json"
+fi
+if [ -f "config/regime_compatibility.json" ]; then
     aws s3 cp config/regime_compatibility.json "s3://$BUCKET_NAME/config/regime_compatibility.json"
+fi
+
+if [ -f "config/aws_config.json" ]; then
     aws s3 cp config/aws_config.json "s3://$BUCKET_NAME/config/aws_config.json"
+fi
+if [ -f "config/data_sources.json" ]; then
     aws s3 cp config/data_sources.json "s3://$BUCKET_NAME/config/data_sources.json"
 fi
 

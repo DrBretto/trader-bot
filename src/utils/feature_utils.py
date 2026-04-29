@@ -150,6 +150,10 @@ def compute_context_features(
         'credit_spread_proxy': credit_spread_proxy,
         'risk_off_proxy': risk_off_proxy,
         'vixy_return_21d': vixy_latest.get('return_21d', 0) if len(vixy_latest) > 0 else 0,
+        'vixy_return_5d': vixy_latest.get('return_5d', 0) if len(vixy_latest) > 0 else 0,
+        'vix_term_slope': (
+            (vixy_latest.get('return_5d', 0) or 0) - (vixy_latest.get('return_21d', 0) or 0)
+        ) if len(vixy_latest) > 0 else 0,
         'vvix_value': vvix_value if vvix_value is not None else 0,
         'skew_value': skew_value if skew_value is not None else 0,
         'gdelt_doc_count': gdelt_data.get('gdelt_doc_count', 0),

@@ -1,8 +1,10 @@
-import { Trade } from '../types';
+import { Trade, TradeSummary } from '../types';
+import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
   trades: Trade[];
   cumulativeCosts?: number;
+  tradeSummary?: TradeSummary;
 }
 
 function formatCurrency(value: number): string {
@@ -30,78 +32,86 @@ const actionColors: Record<string, string> = {
   REDUCE: '#8b5cf6',
 };
 
-export function TradeLog({ trades, cumulativeCosts }: Props) {
+export function TradeLog({ trades, cumulativeCosts, tradeSummary }: Props) {
   const sellTrades = trades.filter((t) => t.action === 'SELL' && t.pnl !== undefined);
-  const wins = sellTrades.filter((t) => (t.pnl ?? 0) > 0).length;
-  const losses = sellTrades.length - wins;
-  const winRate = sellTrades.length > 0 ? wins / sellTrades.length : 0;
+  const wins = tradeSummary?.wins ?? sellTrades.filter((t) => (t.pnl ?? 0) > 0).length;
+  const losses = tradeSummary?.losses ?? sellTrades.filter((t) => (t.pnl ?? 0) < 0).length;
+  const breakeven = tradeSummary?.breakeven ?? (sellTrades.length - wins - losses);
+  const roundTrips = tradeSummary?.realized_round_trips ?? sellTrades.length;
+  const fillsTotal = tradeSummary?.fills_total ?? trades.length;
+  const winRate = tradeSummary?.win_rate ?? (wins + losses > 0 ? wins / (wins + losses) : 0);
+  const txnCosts = tradeSummary?.cumulative_transaction_costs ?? cumulativeCosts;
 
   if (trades.length === 0) {
     return (
       <div className="card">
-        <div className="card-title">Trade Log</div>
-        <p style={{ color: '#64748b', textAlign: 'center', padding: '40px 0' }}>
-          No trades recorded yet
-        </p>
+        <div className="card-title" style={{ marginBottom: 0 }}>
+          <span>Trade Log</span>
+          <InfoTooltip
+            content={`Execution-level fill history. A fill is one executed order event.\nRound-trips are realized entry+exit pairings (FIFO), used for win/loss accounting and realized performance stats.`}
+            label="Trade log"
+          />
+        </div>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: '#64748b', textAlign: 'center' }}>No trades recorded yet</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="card">
-      <div className="card-title">Trade Log</div>
-      {sellTrades.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '24px',
-            padding: '8px 0 16px',
-            fontSize: '0.85rem',
-            color: '#94a3b8',
-            flexWrap: 'wrap',
-          }}
-        >
-          <span>
-            {trades.length} trades total
-          </span>
-          <span style={{ color: '#22c55e' }}>
-            {wins} wins
-          </span>
-          <span style={{ color: '#ef4444' }}>
-            {losses} losses
-          </span>
-          <span>
-            Win rate:{' '}
-            <span
-              style={{
-                color: winRate >= 0.5 ? '#22c55e' : '#ef4444',
-                fontWeight: 600,
-              }}
-            >
-              {(winRate * 100).toFixed(0)}%
+      <div className="lower-deck-header-row">
+        <div className="card-title" style={{ marginBottom: 0 }}>
+          <span>Trade Log</span>
+          <InfoTooltip
+            content={`Execution-level fill history. A fill is one executed order event.\nRound-trips are realized entry+exit pairings (FIFO), used for win/loss accounting and realized performance stats.`}
+            label="Trade log"
+          />
+        </div>
+        {(roundTrips > 0 || fillsTotal > 0) && (
+          <div className="lower-deck-header-detail">
+            <span style={{ color: '#22c55e' }}>{wins}w</span>
+            <span style={{ color: '#ef4444' }}>{losses}l</span>
+            {breakeven > 0 && <span>{breakeven}be</span>}
+            {txnCosts != null && txnCosts > 0 && (
+              <span>costs: <span style={{ color: '#f59e0b' }}>{formatCurrency(txnCosts)}</span></span>
+            )}
+          </div>
+        )}
+      </div>
+      {(roundTrips > 0 || fillsTotal > 0) && (
+        <div className="lower-deck-summary">
+          <div className="lower-deck-summary-row">
+            <span className="lower-deck-summary-stat">
+              <span className="lower-deck-summary-value">{fillsTotal}</span>
+              <span className="lower-deck-summary-label">fills</span>
             </span>
-          </span>
-          {cumulativeCosts != null && cumulativeCosts > 0 && (
-            <span>
-              Txn costs: <span style={{ color: '#f59e0b', fontWeight: 600 }}>{formatCurrency(cumulativeCosts)}</span>
+            <span className="lower-deck-summary-stat">
+              <span className="lower-deck-summary-value">{roundTrips}</span>
+              <span className="lower-deck-summary-label">round-trips</span>
             </span>
-          )}
+            <span className="lower-deck-summary-stat">
+              <span className="lower-deck-summary-value" style={{ color: winRate >= 0.5 ? '#22c55e' : '#ef4444' }}>
+                {(winRate * 100).toFixed(0)}%
+              </span>
+              <span className="lower-deck-summary-label">win rate</span>
+            </span>
+          </div>
         </div>
       )}
-      <div style={{ overflowX: 'auto' }}>
+      <div className="bounded-scroll" style={{ overflowX: 'auto' }}>
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Symbol</th>
-              <th style={{ textAlign: 'center' }}>Action</th>
-              <th style={{ textAlign: 'right' }}>Shares</th>
-              <th style={{ textAlign: 'right' }}>Price</th>
-              <th style={{ textAlign: 'right' }}>Cost</th>
-              <th style={{ textAlign: 'right' }}>P&L</th>
-              <th style={{ textAlign: 'right' }}>P&L %</th>
-              <th style={{ textAlign: 'right' }}>Days</th>
-              <th>Reason</th>
+              <th title="Execution date of the fill.">Date</th>
+              <th title="Ticker symbol.">Symbol</th>
+              <th style={{ textAlign: 'center' }} title="Execution action type: BUY, SELL, or REDUCE.">Action</th>
+              <th style={{ textAlign: 'right' }} title="Executed share quantity.">Shares</th>
+              <th style={{ textAlign: 'right' }} title="Executed fill price per share.">Price</th>
+              <th style={{ textAlign: 'right' }} title="Per-trade transaction-cost assumption in basis points (bps).">Cost</th>
+              <th style={{ textAlign: 'right' }} title="Realized dollar P&L for closing fills; blank for opening fills.">P&L</th>
+              <th style={{ textAlign: 'right' }} title="Realized percent P&L for closing fills; blank for opening fills.">P&L %</th>
             </tr>
           </thead>
           <tbody>
@@ -152,22 +162,6 @@ export function TradeLog({ trades, cumulativeCosts }: Props) {
                   }}
                 >
                   {trade.pnl_pct !== undefined ? formatPercent(trade.pnl_pct) : '\u2014'}
-                </td>
-                <td style={{ textAlign: 'right', color: '#94a3b8' }}>
-                  {trade.days_held !== undefined ? trade.days_held : '\u2014'}
-                </td>
-                <td
-                  style={{
-                    color: '#94a3b8',
-                    fontSize: '0.8rem',
-                    maxWidth: '150px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                  title={trade.reason}
-                >
-                  {trade.reason || '\u2014'}
                 </td>
               </tr>
             ))}

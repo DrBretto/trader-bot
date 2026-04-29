@@ -1,0 +1,428 @@
+{
+  "generated_at": "2026-02-17T15:05:24.429073+00:00",
+  "workspace": "/Users/drbretto/Desktop/Projects/trader-bot",
+  "summary": {
+    "local_present_count": 3,
+    "runtime_s3_expected_count": 11
+  },
+  "datasets": [
+    {
+      "dataset_id": "local.historical_combined.parquet",
+      "category": "model_inputs_context_plus_sentiment",
+      "availability": "local_present",
+      "location": "training/data/historical_combined.parquet",
+      "format": "parquet",
+      "time_coverage": {
+        "date_column": "date",
+        "start": "2014-12-10",
+        "end": "2026-02-03",
+        "row_count": 2803
+      },
+      "schema_fields": [
+        "date",
+        "spy_return_1d",
+        "spy_return_21d",
+        "spy_vol_21d",
+        "rate_2y",
+        "rate_10y",
+        "yield_slope",
+        "credit_spread_proxy",
+        "risk_off_proxy",
+        "vixy_return_21d",
+        "gdelt_avg_tone",
+        "gdelt_doc_count",
+        "gdelt_tone_std",
+        "gdelt_neg_tone_share"
+      ],
+      "used_by": [
+        "training/train.py",
+        "evolution/evolve.py (indirect via S3DataDownloader when built from daily artifacts)"
+      ],
+      "notes": "Combined context + GDELT feature history used by training workflows."
+    },
+    {
+      "dataset_id": "local.historical_context.parquet",
+      "category": "market_context_features",
+      "availability": "local_present",
+      "location": "training/data/historical_context.parquet",
+      "format": "parquet",
+      "time_coverage": {
+        "date_column": "date",
+        "start": "2014-12-10",
+        "end": "2026-02-03",
+        "row_count": 2803
+      },
+      "schema_fields": [
+        "date",
+        "spy_return_1d",
+        "spy_return_21d",
+        "spy_vol_21d",
+        "rate_2y",
+        "rate_10y",
+        "yield_slope",
+        "credit_spread_proxy",
+        "risk_off_proxy",
+        "vixy_return_21d",
+        "gdelt_avg_tone"
+      ],
+      "used_by": [
+        "training/train.py",
+        "evolution/evolve.py (indirect via S3DataDownloader when built from daily artifacts)"
+      ],
+      "notes": "Core context features for regime training/inference."
+    },
+    {
+      "dataset_id": "local.historical_gdelt.parquet",
+      "category": "news_sentiment_features",
+      "availability": "local_present",
+      "location": "training/data/historical_gdelt.parquet",
+      "format": "parquet",
+      "time_coverage": {
+        "date_column": "date",
+        "start": "2015-02-18",
+        "end": "2026-02-04",
+        "row_count": 4005
+      },
+      "schema_fields": [
+        "date",
+        "gdelt_doc_count",
+        "gdelt_avg_tone",
+        "gdelt_tone_std",
+        "gdelt_neg_tone_share",
+        "gdelt_available"
+      ],
+      "used_by": [
+        "training/train.py",
+        "evolution/evolve.py (indirect via S3DataDownloader when built from daily artifacts)"
+      ],
+      "notes": "Historical GDELT aggregates."
+    },
+    {
+      "dataset_id": "runtime.daily.prices",
+      "category": "market_data_bars",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "daily/<YYYY-MM-DD>/prices.parquet",
+      "format": "parquet",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "date",
+        "symbol",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:469"
+    },
+    {
+      "dataset_id": "runtime.daily.context",
+      "category": "model_inputs_context",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "daily/<YYYY-MM-DD>/context.parquet",
+      "format": "parquet",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "date",
+        "spy_return_1d",
+        "spy_return_21d",
+        "spy_vol_21d",
+        "rate_2y",
+        "rate_3m",
+        "rate_10y",
+        "yield_slope",
+        "yield_slope_10y_3m",
+        "credit_spread_proxy",
+        "risk_off_proxy",
+        "vixy_return_21d",
+        "vvix_value",
+        "skew_value",
+        "gdelt_*"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:478"
+    },
+    {
+      "dataset_id": "runtime.daily.features",
+      "category": "asset_features",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "daily/<YYYY-MM-DD>/features.parquet",
+      "format": "parquet",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "date",
+        "symbol",
+        "close",
+        "return_1d",
+        "return_5d",
+        "return_21d",
+        "return_63d",
+        "vol_21d",
+        "vol_63d",
+        "drawdown_63d",
+        "trend_63d",
+        "volume_ma21",
+        "rel_strength_21d",
+        "rel_strength_63d"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:490"
+    },
+    {
+      "dataset_id": "runtime.daily.inference",
+      "category": "model_outputs_regime_health",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "daily/<YYYY-MM-DD>/inference.json",
+      "format": "json",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "date",
+        "model_versions",
+        "regime",
+        "asset_health"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:498"
+    },
+    {
+      "dataset_id": "runtime.daily.decisions",
+      "category": "decision_outputs_orders_regime",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "daily/<YYYY-MM-DD>/decisions.json",
+      "format": "json",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "date",
+        "regime",
+        "actions",
+        "buy_candidates",
+        "ensemble_metrics",
+        "expert_metrics"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:520"
+    },
+    {
+      "dataset_id": "runtime.daily.trade_intents",
+      "category": "overnight_order_intents",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "daily/<YYYY-MM-DD>/trade_intents.json",
+      "format": "json",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "generated_date",
+        "generated_timestamp",
+        "regime",
+        "actions",
+        "buy_candidates",
+        "expert_metrics",
+        "expires_after_days"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/handler.py:243"
+    },
+    {
+      "dataset_id": "runtime.daily.trades",
+      "category": "fills_execution_log",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "daily/<YYYY-MM-DD>/trades.jsonl",
+      "format": "jsonl",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "timestamp",
+        "symbol",
+        "action",
+        "shares",
+        "price",
+        "market_price",
+        "dollars",
+        "transaction_cost_bps",
+        "reason",
+        "regime",
+        "entry_price?",
+        "pnl?",
+        "pnl_pct?",
+        "days_held?"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:537"
+    },
+    {
+      "dataset_id": "runtime.daily.portfolio_state",
+      "category": "portfolio_snapshot_equity_holdings",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "daily/<YYYY-MM-DD>/portfolio_state.json",
+      "format": "json",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "portfolio_value",
+        "cash",
+        "holdings",
+        "benchmark_value",
+        "last_updated",
+        "metrics fields"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:528"
+    },
+    {
+      "dataset_id": "runtime.daily.latest_pointer",
+      "category": "latest_snapshot_pointer",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "daily/latest.json",
+      "format": "json",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "date",
+        "intents_date",
+        "timestamp",
+        "snapshot_id",
+        "regime",
+        "portfolio_value",
+        "phase"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:587"
+    },
+    {
+      "dataset_id": "runtime.dashboard.snapshot",
+      "category": "frontend_snapshot_payload",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "dashboard/data/dashboard.json (and dashboard/dashboard.json)",
+      "format": "json",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "snapshot",
+        "panel_snapshot_ids",
+        "metrics",
+        "holdings",
+        "candidates",
+        "equity_curve",
+        "drawdowns",
+        "monthly_returns",
+        "trades",
+        "trade_summary",
+        "expert_signals"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:648"
+    },
+    {
+      "dataset_id": "runtime.dashboard.timeseries",
+      "category": "rolling_regime_signal_history",
+      "availability": "expected_runtime_s3_not_local_workspace",
+      "location": "dashboard/timeseries.parquet and dashboard/data/timeseries.json",
+      "format": "parquet+json",
+      "time_coverage": {
+        "start": null,
+        "end": null,
+        "row_count": null,
+        "coverage_note": "Not inferable from this local workspace snapshot; stored in S3 at runtime."
+      },
+      "schema_fields": [
+        "date",
+        "final_regime_label",
+        "trend_risk_on_prob",
+        "panic_prob",
+        "macro_credit_score",
+        "vol_uncertainty_score",
+        "fragility_score",
+        "entropy_score",
+        "position_size_modifier",
+        "risk_throttle_factor",
+        "portfolio_value"
+      ],
+      "used_by": [
+        "night pipeline publish",
+        "morning pipeline/dashboard"
+      ],
+      "notes": "Referenced at src/steps/publish_artifacts.py:628"
+    }
+  ],
+  "gaps": [
+    "No local daily/* artifact history checked into repo; historical replay data is S3-backed.",
+    "No local dashboard/data/dashboard.json or timeseries.json snapshot in workspace.",
+    "No local fills/orders/portfolio snapshot history beyond what may exist in S3."
+  ]
+}

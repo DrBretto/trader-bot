@@ -27,6 +27,7 @@ def compute_macro_credit(
     hyg_prices: Optional[pd.Series] = None,
     ief_prices: Optional[pd.Series] = None,
     rate_2y: Optional[float] = None,
+    params: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Compute macro/credit regime score.
@@ -41,6 +42,21 @@ def compute_macro_credit(
     Returns:
         Dict with macro_credit_score and diagnostics.
     """
+    params = params or {}
+    slope_mean = float(params.get('SLOPE_MEAN', SLOPE_MEAN))
+    slope_std = float(params.get('SLOPE_STD', SLOPE_STD))
+    hy_spread_mean = float(params.get('HY_SPREAD_MEAN', HY_SPREAD_MEAN))
+    hy_spread_std = float(params.get('HY_SPREAD_STD', HY_SPREAD_STD))
+    hy_lookback_days = int(params.get('hy_lookback_days', 21))
+    slope_weight = float(params.get('slope_weight', 0.6))
+    hy_spread_weight = float(params.get('hy_spread_weight', 0.4))
+    total_weight = slope_weight + hy_spread_weight
+    if total_weight <= 0:
+        slope_weight, hy_spread_weight = 0.6, 0.4
+    else:
+        slope_weight /= total_weight
+        hy_spread_weight /= total_weight
+
     # Yield curve slope
     if rate_3m and rate_3m != 0:
         yield_slope = rate_10y - rate_3m
@@ -49,23 +65,23 @@ def compute_macro_credit(
     else:
         yield_slope = 0.0
 
-    slope_z = (yield_slope - SLOPE_MEAN) / SLOPE_STD if SLOPE_STD > 0 else 0.0
+    slope_z = (yield_slope - slope_mean) / slope_std if slope_std > 0 else 0.0
 
     # HY spread proxy from ETF returns
     hy_spread_proxy = 0.0
     if hyg_prices is not None and ief_prices is not None:
-        if len(hyg_prices) >= 21 and len(ief_prices) >= 21:
-            hyg_ret = (hyg_prices.iloc[-1] / hyg_prices.iloc[-21]) - 1.0
-            ief_ret = (ief_prices.iloc[-1] / ief_prices.iloc[-21]) - 1.0
+        if len(hyg_prices) >= hy_lookback_days and len(ief_prices) >= hy_lookback_days:
+            hyg_ret = (hyg_prices.iloc[-1] / hyg_prices.iloc[-hy_lookback_days]) - 1.0
+            ief_ret = (ief_prices.iloc[-1] / ief_prices.iloc[-hy_lookback_days]) - 1.0
             hy_spread_proxy = hyg_ret - ief_ret
 
     hy_spread_z = (
-        (hy_spread_proxy - HY_SPREAD_MEAN) / HY_SPREAD_STD
-        if HY_SPREAD_STD > 0 else 0.0
+        (hy_spread_proxy - hy_spread_mean) / hy_spread_std
+        if hy_spread_std > 0 else 0.0
     )
 
     # Combine: positive slope + tight spreads = bullish
-    score = 0.6 * np.tanh(slope_z) + 0.4 * np.tanh(hy_spread_z)
+    score = slope_weight * np.tanh(slope_z) + hy_spread_weight * np.tanh(hy_spread_z)
     score = float(np.clip(score, -1.0, 1.0))
 
     return {

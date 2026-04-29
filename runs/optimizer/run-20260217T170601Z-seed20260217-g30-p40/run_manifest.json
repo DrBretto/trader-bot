@@ -1,0 +1,22 @@
+{
+  "run_id": "run-20260217T170601Z-seed20260217-g30-p40",
+  "started_at": "2026-02-17T17:06:01Z",
+  "finished_at": "2026-02-17T17:06:01Z",
+  "status": "failed",
+  "seed": 20260217,
+  "population": 40,
+  "generations": 30,
+  "max_days": 900,
+  "train_days": 63,
+  "test_days": 21,
+  "step_days": 21,
+  "gate_days": 21,
+  "bucket": "investment-system-data",
+  "region": "us-east-1",
+  "git_commit": "0f43aa9edd93ce635393b8534c7774653aaf402d",
+  "param_inventory_hash": "04c772c7280b1afb95212b46b2153fb6937ddd2ffb55c1357626339409288490",
+  "pipeline_map_hash": "c0965045313658cece534e90d9da3617bdc0a1d2694171f409a6efa1d7601d7a",
+  "data_inventory_hash": "7169dcf6a98b18709d7a64d7705c34bdab1132cfa04067685185547b4ca6d8fc",
+  "max_runtime_minutes": 120,
+  "max_workers": 1
+}
