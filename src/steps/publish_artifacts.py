@@ -405,6 +405,18 @@ def _build_timeseries_row(
     regime_data = inference_output.get('regime', {})
     ctx = context_df.iloc[0] if len(context_df) > 0 else {}
 
+    # F-6: propagate signal-block status flags into the timeseries row so a
+    # neutral fallback value (e.g. fragility_score=0.5 from _neutral_result)
+    # can be distinguished from a real computation. Without these markers,
+    # 168 days of fallback-VIX (F-1) looked byte-identical to live signal.
+    def _signal_status(d: Dict[str, Any]) -> str:
+        if d.get('degraded_reason'):
+            return f"degraded:{d['degraded_reason'][:60]}"
+        inputs_degraded = d.get('inputs_degraded')
+        if inputs_degraded:
+            return 'partial:' + ','.join(inputs_degraded)
+        return 'ok'
+
     return {
         'date': run_date,
         'final_regime_label': expert_metrics.get('final_regime_label',
@@ -414,17 +426,21 @@ def _build_timeseries_row(
         'trend_risk_on_prob': regime_data.get('probs', {}).get('risk_on_trend', 0.0),
         'panic_prob': regime_data.get('probs', {}).get('high_vol_panic', 0.0),
         'macro_credit_score': macro.get('macro_credit_score', 0.0),
+        'macro_credit_status': _signal_status(macro),
         'yield_slope_10y_3m': macro.get('yield_slope_10y_3m', 0.0),
         'hy_spread_proxy': macro.get('hy_spread_proxy', 0.0),
         'vol_uncertainty_score': vol.get('vol_uncertainty_score', 0.5),
+        'vol_uncertainty_status': _signal_status(vol),
         'vol_regime_label': vol.get('vol_regime_label', 'calm'),
         'vix_percentile': vol.get('vix_percentile', 0.5),
         'vvix_percentile': vol.get('vvix_percentile', 0.5),
         'skew_value': vol.get('skew_value', 0.0),
         'fragility_score': frag.get('fragility_score', 0.5),
+        'fragility_status': _signal_status(frag),
         'avg_correlation': frag.get('avg_correlation', 0.0),
         'pc1_explained': frag.get('pc1_explained', 0.0),
         'entropy_score': ent.get('entropy_score', 0.5),
+        'entropy_status': _signal_status(ent),
         'entropy_z_score': ent.get('entropy_z_score', 0.0),
         'entropy_shift_flag': ent.get('entropy_shift_flag', False),
         'entropy_consecutive_days': ent.get('entropy_consecutive_days', 0),

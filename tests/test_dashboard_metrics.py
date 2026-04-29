@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
+import pandas as pd
 import pytest
 
 import sys
@@ -377,3 +378,54 @@ class TestCanonicalDashboardMetrics:
         )
 
         assert [holding["symbol"] for holding in dashboard["holdings"]] == ["TLT"]
+
+
+class TestTimeseriesStatusFlags:
+    """F-6 regression: each signal block contributes a status flag to the
+    timeseries row so a neutral fallback can be distinguished from a real
+    computation. Without this, the F-1 outage was invisible."""
+
+    def test_healthy_signals_emit_ok(self):
+        from src.steps.publish_artifacts import _build_timeseries_row
+        row = _build_timeseries_row(
+            run_date='2026-04-29',
+            expert_signals={
+                'macro_credit': {'macro_credit_score': 0.2},
+                'vol_uncertainty': {'vol_uncertainty_score': 0.55},
+                'fragility': {'fragility_score': 0.7},
+                'entropy_shift': {'entropy_score': 0.5},
+            },
+            inference_output={'regime': {'label': 'risk_on_trend'}},
+            decisions={'expert_metrics': {}},
+            portfolio_state={'portfolio_value': 100000},
+            context_df=pd.DataFrame(),
+        )
+        assert row['macro_credit_status'] == 'ok'
+        assert row['vol_uncertainty_status'] == 'ok'
+        assert row['fragility_status'] == 'ok'
+        assert row['entropy_status'] == 'ok'
+
+    def test_degraded_signals_surface_reason(self):
+        from src.steps.publish_artifacts import _build_timeseries_row
+        row = _build_timeseries_row(
+            run_date='2026-04-29',
+            expert_signals={
+                'macro_credit': {'macro_credit_score': 0.0,
+                                  'degraded_reason': 'fred_unavailable'},
+                'vol_uncertainty': {'vol_uncertainty_score': 0.5,
+                                     'inputs_degraded': ['vvix_missing', 'skew_missing']},
+                'fragility': {'fragility_score': 0.5,
+                               'degraded_reason': 'Insufficient symbols: 4 < 6'},
+                'entropy_shift': {'entropy_score': 0.5},
+            },
+            inference_output={'regime': {'label': 'risk_on_trend'}},
+            decisions={'expert_metrics': {}},
+            portfolio_state={'portfolio_value': 100000},
+            context_df=pd.DataFrame(),
+        )
+        assert row['macro_credit_status'].startswith('degraded:')
+        assert 'fred_unavailable' in row['macro_credit_status']
+        assert row['vol_uncertainty_status'].startswith('partial:')
+        assert 'vvix_missing' in row['vol_uncertainty_status']
+        assert row['fragility_status'].startswith('degraded:')
+        assert row['entropy_status'] == 'ok'
