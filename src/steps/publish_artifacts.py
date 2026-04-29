@@ -1,12 +1,40 @@
 """Publish artifacts to S3 for dashboard consumption."""
 
 import json
+import os
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 import pandas as pd
 
 from src.utils.s3_client import S3Client
 from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
+
+
+def _load_chart_markers() -> List[Dict[str, Any]]:
+    """Load timeline markers from config/chart_markers.json.
+
+    Markers are vertical event labels rendered on time-series dashboard charts
+    (equity curve, drawdowns, regime strip). The config file is small and
+    editable so operators can add new markers (model upgrades, bug fixes,
+    incidents) without changing code.
+    """
+    env_override = os.environ.get('CHART_MARKERS_PATH')
+    candidates: List[Path] = []
+    if env_override:
+        candidates.append(Path(env_override))
+    candidates.append(Path('config/chart_markers.json'))
+    candidates.append(Path(__file__).resolve().parents[2] / 'config' / 'chart_markers.json')
+    for p in candidates:
+        if p.is_file():
+            try:
+                with p.open() as f:
+                    data = json.load(f)
+                markers = data.get('markers', [])
+                return sorted(markers, key=lambda m: m.get('date', ''))
+            except (OSError, json.JSONDecodeError):
+                return []
+    return []
 
 DUST_SHARE_EPSILON = 0.001
 DUST_VALUE_EPSILON = 0.01
@@ -227,6 +255,7 @@ def build_dashboard_data(
         'equity_curve': equity_curve,
         'drawdowns': drawdowns,
         'monthly_returns': monthly_returns,
+        'chart_markers': _load_chart_markers(),
         'weather': weather_report,
         'trades': trades_history,
         'trade_summary': canonical.get('trade_summary', {}),

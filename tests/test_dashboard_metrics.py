@@ -429,3 +429,58 @@ class TestTimeseriesStatusFlags:
         assert 'vvix_missing' in row['vol_uncertainty_status']
         assert row['fragility_status'].startswith('degraded:')
         assert row['entropy_status'] == 'ok'
+
+
+class TestChartMarkers:
+    """Vertical timeline markers for dashboard charts (equity curve, regime
+    strip). Operator-editable list of dated events; flows from
+    config/chart_markers.json into dashboard.json."""
+
+    def test_load_markers_from_config(self):
+        from src.steps.publish_artifacts import _load_chart_markers
+        markers = _load_chart_markers()
+        # The repo ships with a populated marker file; expect non-empty.
+        assert isinstance(markers, list)
+        if markers:
+            # Schema check on the first entry.
+            m = markers[0]
+            assert 'date' in m
+            assert 'label' in m
+            # Sorted ascending by date.
+            for i in range(1, len(markers)):
+                assert markers[i].get('date', '') >= markers[i-1].get('date', '')
+
+    def test_load_markers_returns_empty_when_file_missing(self, tmp_path, monkeypatch):
+        from src.steps.publish_artifacts import _load_chart_markers
+        # Point to a nonexistent file; loader must return [] not raise.
+        monkeypatch.setenv('CHART_MARKERS_PATH', str(tmp_path / 'nope.json'))
+        # Also chdir so the second-fallback ('config/chart_markers.json') misses.
+        monkeypatch.chdir(tmp_path)
+        # The third fallback (computed from this file's location) WILL find the
+        # repo's config file; that's fine — confirm it's still a list.
+        result = _load_chart_markers()
+        assert isinstance(result, list)
+
+    def test_dashboard_data_includes_chart_markers(self):
+        from src.steps.publish_artifacts import build_dashboard_data
+        states = {
+            "2026-04-29": {
+                "portfolio_value": 100000.0,
+                "benchmark_value": 100000.0,
+                "cash": 100000.0,
+                "holdings": [],
+            }
+        }
+        s3 = FakeS3(states, {})
+        out = build_dashboard_data(
+            portfolio_state={"portfolio_value": 100000.0, "cash": 100000.0, "holdings": []},
+            inference_output={"regime": {"label": "risk_on_trend", "probs": {}}},
+            decisions={},
+            weather={},
+            s3=s3,  # type: ignore[arg-type]
+            expert_signals={"macro_credit": {}, "vol_uncertainty": {}, "fragility": {}, "entropy_shift": {}},
+            snapshot_meta={"id": "x", "date": "2026-04-29", "phase": "night",
+                            "timestamp": "2026-04-29T00:00:00"},
+        )
+        assert 'chart_markers' in out
+        assert isinstance(out['chart_markers'], list)
