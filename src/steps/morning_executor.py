@@ -376,17 +376,33 @@ def _reconcile_portfolio_from_broker(
 
         symbol = pos['symbol']
         existing = existing_map.get(symbol, {})
+        entry_price = existing.get('entry_price', pos['avg_entry_price'])
+        current_price = pos['current_price']
+        # F-4 / F-5: unrealized_pnl and unrealized_pnl_pct must use the SAME
+        # cost basis. The prior code used pos['unrealized_pl'] (broker basis)
+        # for $ and existing['entry_price'] (local basis) for %. When the
+        # broker's avg_entry_price drifts from local entry_price (e.g. VUG
+        # post-cutover) the two fields disagree on sign and magnitude. The
+        # local-basis path preserves continuity-bridge intent (broker_total_value
+        # is exposed separately for broker-truth reconciliation).
+        if entry_price > 0:
+            unrealized_pnl = (current_price - entry_price) * qty
+            unrealized_pnl_pct = current_price / entry_price - 1
+        else:
+            unrealized_pnl = 0.0
+            unrealized_pnl_pct = 0.0
         holding = {
             'symbol': symbol,
             'shares': qty,
-            'entry_price': existing.get('entry_price', pos['avg_entry_price']),
+            'entry_price': entry_price,
             'entry_date': existing.get('entry_date', datetime.now().isoformat()),
             'peak_price': max(
-                existing.get('peak_price', 0), pos['current_price']
+                existing.get('peak_price', 0), current_price
             ),
-            'current_price': pos['current_price'],
+            'current_price': current_price,
             'market_value': market_value,
-            'unrealized_pnl': pos['unrealized_pl'],
+            'unrealized_pnl': unrealized_pnl,
+            'unrealized_pnl_pct': unrealized_pnl_pct,
             'entry_regime': existing.get('entry_regime', 'unknown'),
             'entry_health': existing.get('entry_health', 0.5),
             'peak_health': existing.get('peak_health', 0.5),
@@ -394,12 +410,6 @@ def _reconcile_portfolio_from_broker(
             'sector': existing.get('sector', 'broad'),
             'leverage_flag': existing.get('leverage_flag', 0),
         }
-        if holding['entry_price'] > 0:
-            holding['unrealized_pnl_pct'] = (
-                pos['current_price'] / holding['entry_price'] - 1
-            )
-        else:
-            holding['unrealized_pnl_pct'] = 0
         broker_holdings.append(holding)
         holdings_value += market_value
 

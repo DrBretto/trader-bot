@@ -290,6 +290,45 @@ class TestReconcilePortfolio:
         assert result['holdings'][0]['shares'] == 5.5
         assert result['broker_reconciled'] is True
 
+    def test_pnl_dollar_and_pct_share_one_cost_basis(self):
+        """F-4 / F-5 regression: when the broker's avg_entry_price drifts from
+        the local entry_price (the VUG post-cutover failure mode), the published
+        unrealized_pnl ($) and unrealized_pnl_pct (%) MUST agree on sign and
+        on cost basis. The fix uses the local entry_price for both fields."""
+        broker = MockBroker()
+        # Broker thinks avg_entry is $142.11 (legacy lot from cutover).
+        # Local thinks entry is $73.48 (the bot-tracked cost).
+        # Current price is $82.77.
+        broker._positions = [
+            {
+                'symbol': 'VUG',
+                'qty': 102.766,
+                'market_value': 102.766 * 82.77,
+                'avg_entry_price': 142.11,
+                'current_price': 82.77,
+                'unrealized_pl': (82.77 - 142.11) * 102.766,  # broker: -$6098
+                'side': 'long',
+            }
+        ]
+        portfolio = {
+            'cash': 0,
+            'holdings': [
+                {'symbol': 'VUG', 'shares': 102.766, 'entry_price': 73.48,
+                 'entry_date': '2026-03-01T00:00:00', 'peak_price': 84.0}
+            ],
+            'portfolio_value': 0,
+        }
+        result = _reconcile_portfolio_from_broker(broker, portfolio)
+        h = result['holdings'][0]
+        # Both fields must reflect the local entry_price = 73.48.
+        expected_pnl = (82.77 - 73.48) * 102.766
+        expected_pct = 82.77 / 73.48 - 1
+        assert abs(h['unrealized_pnl'] - expected_pnl) < 0.01
+        assert abs(h['unrealized_pnl_pct'] - expected_pct) < 1e-6
+        # Sign coherence: $ and % must agree. The pre-fix code published
+        # pnl<0 alongside pct>0 in this exact scenario.
+        assert (h['unrealized_pnl'] >= 0) == (h['unrealized_pnl_pct'] >= 0)
+
 
 class TestMorningRunWithBroker:
     """Integration test for morning run with broker adapter."""
