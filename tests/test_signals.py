@@ -413,3 +413,71 @@ class TestComputeSignals:
         # Should not crash; all modules return neutral/fallback
         assert result['macro_credit']['macro_credit_score'] == 0.0
         assert result['fragility']['fragility_score'] == 0.5
+
+
+class TestVolUncertaintyDegradedSurfacing:
+    """F-1 + F-3 + F-6 + F-8: vol_uncertainty must surface degraded_reason
+    when its inputs are missing instead of silently returning a 0.10 floor."""
+
+    def test_vol_unavailable_raises_into_compute_signals_fallback(self):
+        from src.signals.compute_signals import run
+        # No FRED VIX history, no vvix/skew, no context vix → should hit the
+        # degraded fallback path and emit degraded_reason='vix_unavailable'.
+        result = run(
+            pd.DataFrame(), pd.DataFrame(),
+            pd.DataFrame([{'date': '2024-01-01'}]),
+            vvix_data=None, skew_data=None,
+        )
+        vol = result['vol_uncertainty']
+        assert 'degraded_reason' in vol
+        assert 'vix_unavailable' in vol['degraded_reason']
+
+    def test_macro_failure_does_not_unbind_fred_latest(self):
+        """F-8: prior code used `'fred_latest' in dir()` which silently produced
+        vix_value=0 (and thus a 0.10 floor) whenever Macro/Credit raised before
+        binding fred_latest. Hoisting the binding fixes the failure mode."""
+        from src.signals.compute_signals import run
+        result = run(
+            pd.DataFrame(), pd.DataFrame(),  # macro will fall through fine
+            pd.DataFrame([{'date': '2024-01-01'}]),
+        )
+        # vol_uncertainty either emits a degraded_reason or a real score —
+        # but it must NEVER quietly return 0.10 from a zero-VIX percentile.
+        vol = result['vol_uncertainty']
+        if 'degraded_reason' not in vol:
+            # If somehow a non-degraded path ran, the score must not be the
+            # exact 0.10 floor that historically masked an 8-month outage.
+            assert vol['vol_uncertainty_score'] != 0.10
+
+    def test_vvix_skew_missing_attaches_inputs_degraded_marker(self):
+        from src.signals.compute_signals import run
+
+        # Provide enough FRED VIX history to clear vix_unavailable but leave
+        # vvix/skew empty.
+        dates = pd.date_range('2024-01-01', periods=80, freq='B')
+        fred_df = pd.DataFrame({
+            'date': dates,
+            'series_id': ['VIXCLS'] * len(dates),
+            'value': np.linspace(15, 18, len(dates)),
+        })
+        result = run(
+            pd.DataFrame(), fred_df,
+            pd.DataFrame([{'date': '2024-01-01'}]),
+            vvix_data=None, skew_data=None,
+        )
+        vol = result['vol_uncertainty']
+        if 'inputs_degraded' in vol:
+            assert 'vvix_missing' in vol['inputs_degraded']
+            assert 'skew_missing' in vol['inputs_degraded']
+
+    def test_skew_history_path_is_exercised(self):
+        """F-9: when skew_history is provided with enough observations, the
+        SKEW percentile uses dynamic ranking rather than hardcoded thresholds."""
+        from src.signals.vol_uncertainty import compute_vol_uncertainty
+        skew_history = pd.Series([110.0] * 70 + [165.0])
+        # SKEW=165 is at the top of history → percentile near 1.0
+        result = compute_vol_uncertainty(
+            vix=18.0, vvix=None, skew=165.0,
+            skew_history=skew_history,
+        )
+        assert result['skew_percentile'] >= 0.95

@@ -96,6 +96,10 @@ def run(
     # Extract context values
     ctx = context_df.iloc[0] if len(context_df) > 0 else {}
 
+    # Hoisted: shared across blocks. Bind once so a Macro/Credit failure cannot
+    # silently leave Vol Uncertainty reading from an unbound name (F-8).
+    fred_latest: Dict[str, Any] = {}
+
     # --- 1. Macro/Credit ---
     try:
         from src.steps.ingest_fred import get_latest_values
@@ -127,23 +131,30 @@ def run(
 
     # --- 2. Vol Uncertainty ---
     try:
-        vix_value = fred_latest.get('VIXCLS', 0) if 'fred_latest' in dir() else 0
-        # Also try context_df
-        if vix_value == 0:
-            vix_value = float(ctx.get('vixy_return_21d', 0)) if hasattr(ctx, 'get') else 0
-
-        # Get VIX from FRED history for percentile computation
+        # Use FRED VIX history when available; fall back to last value or context.
+        # If no live VIX is reachable, do NOT silently fall through to a 0-valued
+        # percentile (F-1: that historically produced an "always 0.10" signal
+        # for 168 production days). Surface a degraded_reason instead.
         vix_history = None
+        vix_value = float(fred_latest.get('VIXCLS', 0) or 0)
         if len(fred_df) > 0:
             vix_data = fred_df[fred_df['series_id'] == 'VIXCLS'].sort_values('date')
             if len(vix_data) >= 60:
                 vix_history = vix_data['value']
                 vix_value = float(vix_data['value'].iloc[-1])
 
+        if vix_value <= 0 and hasattr(ctx, 'get'):
+            ctx_vix = float(ctx.get('vix_close', 0) or 0)
+            if ctx_vix > 0:
+                vix_value = ctx_vix
+
+        if vix_value <= 0:
+            raise ValueError("vix_unavailable")
+
         vvix_value = _get_latest_close(vvix_data)
         skew_value = _get_latest_close(skew_data)
-
         vvix_history = _get_close_series(vvix_data)
+        skew_history = _get_close_series(skew_data)  # F-9
 
         vol = compute_vol_uncertainty(
             vix=vix_value,
@@ -151,8 +162,17 @@ def run(
             skew=skew_value,
             vix_history=vix_history,
             vvix_history=vvix_history,
+            skew_history=skew_history,
             params=vol_params,
         )
+        # Per-input degraded markers so timeseries readers can see when the
+        # composite is silently running on a single VIX (F-3, F-6).
+        if vvix_value is None:
+            vol.setdefault('inputs_degraded', []).append('vvix_missing')
+        if skew_value is None:
+            vol.setdefault('inputs_degraded', []).append('skew_missing')
+        if vix_history is None:
+            vol.setdefault('inputs_degraded', []).append('vix_history_short')
         result['vol_uncertainty'] = vol
         print(f"  Vol Uncertainty score: {vol['vol_uncertainty_score']:.3f} ({vol['vol_regime_label']})")
     except Exception as e:

@@ -39,6 +39,7 @@ def compute_vol_uncertainty(
     skew: Optional[float] = None,
     vix_history: Optional[pd.Series] = None,
     vvix_history: Optional[pd.Series] = None,
+    skew_history: Optional[pd.Series] = None,
     params: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
@@ -82,7 +83,10 @@ def compute_vol_uncertainty(
         vvix_pctile = 0.5  # neutral if unavailable
 
     if skew is not None:
-        skew_pctile = _percentile_score(skew, skew_thresholds)
+        if skew_history is not None and len(skew_history) >= dynamic_history_min_obs:
+            skew_pctile = float((skew_history < skew).mean())
+        else:
+            skew_pctile = _percentile_score(skew, skew_thresholds)
     else:
         skew_pctile = 0.5  # neutral if unavailable
 
