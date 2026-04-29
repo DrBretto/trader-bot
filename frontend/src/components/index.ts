@@ -24,3 +24,4 @@ export { ModelPredictionsPanel } from './ModelPredictionsPanel';
 export { UnifiedSignalMonitor } from './UnifiedSignalMonitor';
 export { TodaysStoryCard } from './TodaysStoryCard';
 export { SystemBrainPanel } from './SystemBrainPanel';
+export { PerformanceLenses } from './PerformanceLenses';

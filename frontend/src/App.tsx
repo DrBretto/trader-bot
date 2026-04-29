@@ -16,6 +16,7 @@ import {
   SystemStatusBar,
   TodaysStoryCard,
   SystemBrainPanel,
+  PerformanceLenses,
 } from './components';
 import { PerformanceChart } from './components/PerformanceChart';
 import { LearnModeProvider, useLearnMode } from './components/LearnModeProvider';
@@ -163,6 +164,7 @@ export function App() {
                 drawdownData={data.drawdowns}
                 monthlyReturns={data.monthly_returns}
                 timeseries={timeseries}
+                chartMarkers={data.chart_markers}
               />
             </LearnModeOverlay>
           </div>
@@ -224,6 +226,8 @@ export function App() {
               </div>
             )}
           </div>
+
+          <PerformanceLenses equityCurve={data.equity_curve} />
         </div>
 
         <LearnModeNav />

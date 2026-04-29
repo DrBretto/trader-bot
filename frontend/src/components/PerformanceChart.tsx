@@ -12,7 +12,7 @@ import {
   ReferenceArea,
   TooltipProps,
 } from 'recharts';
-import { EquityCurvePoint, DrawdownPoint, MonthlyReturn, TimeseriesPoint } from '../types';
+import { ChartMarker, EquityCurvePoint, DrawdownPoint, MonthlyReturn, TimeseriesPoint } from '../types';
 import { format, parseISO } from 'date-fns';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -21,7 +21,17 @@ interface Props {
   drawdownData: DrawdownPoint[];
   monthlyReturns?: MonthlyReturn[];
   timeseries?: TimeseriesPoint[];
+  chartMarkers?: ChartMarker[];
 }
+
+const MARKER_COLORS: Record<string, string> = {
+  milestone: '#22c55e',
+  infrastructure: '#eab308',
+  data_plane: '#06b6d4',
+  model: '#a855f7',
+  code_fix: '#f97316',
+};
+const MARKER_DEFAULT_COLOR = '#94a3b8';
 
 interface MergedPoint {
   date: string;
@@ -141,7 +151,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
 const ALPACA_CUTOVER_DATE = '2026-03-12';
 const HYBRID_PROMOTION_DATE = '2026-03-28';
 
-export function PerformanceChart({ equityData, drawdownData, monthlyReturns, timeseries = [] }: Props) {
+export function PerformanceChart({ equityData, drawdownData, monthlyReturns, timeseries = [], chartMarkers }: Props) {
   const [eraView, setEraView] = useState<EraView>('all');
 
   // Build drawdown lookup
@@ -373,6 +383,32 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
               }}
             />
           )}
+
+          {/* Operator-editable timeline markers from config/chart_markers.json */}
+          {(chartMarkers ?? [])
+            .filter((m) => merged.some((p) => p.date >= m.date))
+            .map((m) => {
+              const matchPoint =
+                merged.find((p) => p.date >= m.date) ?? merged[merged.length - 1];
+              const color = MARKER_COLORS[m.category ?? ''] ?? MARKER_DEFAULT_COLOR;
+              return (
+                <ReferenceLine
+                  key={`marker-${m.date}-${m.label}`}
+                  yAxisId="equity"
+                  x={matchPoint.date}
+                  stroke={color}
+                  strokeDasharray="2 4"
+                  strokeOpacity={0.55}
+                  label={{
+                    value: m.label,
+                    position: 'insideTopLeft',
+                    fill: color,
+                    fontSize: 9,
+                    fontWeight: 500,
+                  }}
+                />
+              );
+            })}
 
           {/* Latest value reference — faint horizontal guide */}
           {lastPoint && (

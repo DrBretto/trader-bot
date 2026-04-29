@@ -964,6 +964,49 @@ table tbody tr {
     linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
 }
 
+.performance-lenses-section {
+  margin-bottom: 16px;
+}
+
+.performance-lenses-title {
+  margin-bottom: 12px;
+}
+
+.performance-lenses-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.performance-lens-card {
+  padding: 14px 16px 12px;
+  background:
+    radial-gradient(circle at top left, rgba(52, 211, 153, 0.08), transparent 32%),
+    linear-gradient(160deg, rgba(15, 23, 42, 0.96), rgba(18, 29, 48, 0.96));
+}
+
+.performance-lens-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.performance-lens-card__header h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.performance-lens-card__header p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
 .performance-chart-card .recharts-cartesian-grid-bg {
   fill: transparent;
 }
@@ -1057,7 +1100,8 @@ table tbody tr {
 @media (max-width: 1024px) {
   .charts-row,
   .tables-row,
-  .expert-panels-grid {
+  .expert-panels-grid,
+  .performance-lenses-grid {
     grid-template-columns: 1fr;
   }
 }

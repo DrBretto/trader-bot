@@ -54,6 +54,8 @@ export interface EquityCurvePoint {
   date: string;
   value: number;
   benchmark: number;
+  raw_value?: number;
+  cumulative_external_cashflow?: number;
   regimeLabel?: string | null;
 }
 
@@ -211,6 +213,13 @@ export interface PanelSnapshotIds {
   regime: string;
 }
 
+export interface ChartMarker {
+  date: string;
+  label: string;
+  category?: string;
+  description?: string;
+}
+
 export interface DashboardData {
   snapshot?: SnapshotMeta;
   panel_snapshot_ids?: PanelSnapshotIds;
@@ -220,6 +229,7 @@ export interface DashboardData {
   equity_curve: EquityCurvePoint[];
   drawdowns: DrawdownPoint[];
   monthly_returns: MonthlyReturn[];
+  chart_markers?: ChartMarker[];
   weather: WeatherReport;
   trades?: Trade[];
   trade_summary?: TradeSummary;
