@@ -303,6 +303,56 @@ Goal: Add broker-connected execution (paper first, live later) with fractional/n
 - [x] 40 new tests (broker router, Alpaca adapter, morning execution integration)
 - [x] Updated secrets setup, deployment docs, operations guide
 
+### Phase 9: Diagnostic + Recalibration (2026-04-29) — IN PROGRESS
+
+Goal: Diagnose the algorithm's 9-point lag to SPY since 2026-04-02 (after 7 months of beating SPY by 7 points). Find every bug in the daily decision pipeline, fix with rollback safety, recalibrate, re-backtest. End state: algorithm fixed, backtested, golden, ready to ship.
+
+Packet: `docs/plans/2026-04-29-deep-diagnostic-and-calibration-packet.md`
+
+#### 9.1 Phase 1 — Bug audit ✅
+- 16 findings (F-1 through F-16). Output: `docs/plans/2026-04-29-phase1-bug-audit-findings.md`.
+- F-1, F-3, F-4 confirmed; F-2 reframed (tanh saturation, not ratchet).
+- F-5 through F-10 surfaced from adjacent decision-pipeline code review.
+- F-11 through F-16 surfaced from Phase-2 / Phase-3 cross-cutting analysis.
+
+#### 9.2 Phase 2 — 26-field signal diagnostic ✅
+- Output: `docs/plans/2026-04-29-phase2-signal-diagnostic.md`.
+- 5 signals dead all-time, 3 dead until 2026-04-02, 12 stuck pre-pivot (F-11), 1 mislabeled (F-14), 1 effectively binary (F-15).
+- Headline discovery: pre-2026-01-31 timeseries rows are structurally inhomogeneous from post-pivot rows. The bot held 100% cash for the first 125 of 161 "pre-hybrid" days. Prior audit's 7-point outperformance attribution was misleading.
+
+#### 9.3 Phase 3 — P&L reconciliation ✅
+- Output: `docs/plans/2026-04-29-phase3-pnl-reconciliation.md`.
+- Headline metrics reconcile to the cent today. The $10k continuity gap is traced to the cutover bridge (`cumulative_external_cashflow = -10,077.83`).
+- F-4 VUG bug was transient — present in 2026-04-28 snapshot, absent in 2026-04-29 snapshot — direct empirical confirmation of F-5 (two divergent valuation paths).
+- Direct broker poll blocked: Alpaca paper API is not in this session's sandbox network allowlist; broker-truth comparisons require operator-side execution (3 calls itemized in Phase 3 §F).
+
+#### 9.4 Phase 4 — Fix branches ✅ (on `ai/diagnostic-fix-batch`)
+- 4 commits, each with focused tests:
+  - `b591ccd` — F-1/F-3/F-6/F-8/F-9 vol_uncertainty degraded surfacing
+  - `d195437` — F-4/F-5 unified cost basis in broker reconciliation
+  - `73d3791` — F-7 regime-conditional fragility relax (opt-in, default off)
+  - `f3e490a` — F-6 per-signal status flags in timeseries
+- All Phase-4 tests pass. Pre-existing failure in `test_buy_uses_notional` (broker_status 'accepted' vs 'filled') is unrelated.
+
+#### 9.5 Phase 5 — Calibration sweep ⛔ BLOCKED
+- Output: `docs/plans/2026-04-29-phase5-calibration-recommendation.md`.
+- Walk-forward 900-day verification cannot run: S3 has only 200 daily snapshots, of which 125 are F-11 backfill. The remaining 63 post-pivot days are too short for the harness's gate windows.
+- Required: dataset rebuild via signal-replay against historical FRED/price/GDELT data (separate scope).
+- First-cut calibration recommendation drafted (F-7 fragility-relax), pending the dataset rebuild + sweep.
+
+#### 9.6 Phase 6 — Pre-deploy + shadow day ⛔ BLOCKED on Phase 5
+- Operator-gated; cannot run shadow day until calibration sweep produces a recommendation. Per packet rule: "Phase 5 walk-forward gate must pass before Phase 6 begins. If it doesn't pass, that is the finding."
+
+#### 9.7 Phase 8 — Postmortems ✅
+- Three new entries in `docs/POSTMORTEMS.md`:
+  - silent-fallback-signals class (the F-1, F-3, F-13 pattern)
+  - one-way-ratchet class (the F-2 saturation pattern)
+  - first-pass-audit-framing-trap (the prior-audit failure mode)
+
+#### 9.8 Phase 10 — RETURN doc
+- Output: `docs/plans/2026-04-29-trader-bot-diagnostic-RETURN.md`.
+- Does NOT yet end with the literal stop-condition line. Per packet's stop-condition arithmetic, the line is gated on Phase 5 walk-forward verification + Phase 6 shadow day. Both blocked. The RETURN doc surfaces the gap honestly and recommends the dataset-rebuild path forward.
+
 ## Non-Goals
 
 - Intraday trading (daily resolution only)
