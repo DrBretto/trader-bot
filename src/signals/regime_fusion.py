@@ -56,6 +56,16 @@ def decide_regime_v3(
     macro_downgrade_threshold = float(params.get('macro_downgrade_threshold', -0.50))
     macro_upgrade_threshold = float(params.get('macro_upgrade_threshold', 0.50))
     fragility_threshold = float(params.get('fragility_threshold', 0.75))
+    # F-7: when ensemble is high-confidence in a risk-on regime, fragility
+    # saturating at high cross-asset correlation reflects "concentrated
+    # leadership in a rally" more than "imminent shock." Allow the fragility
+    # gate to be relaxed (skipped) under that condition. Defaults preserve
+    # current behavior (relax_in_risk_on=False).
+    fragility_relax_in_risk_on = bool(params.get('fragility_relax_in_risk_on', False))
+    fragility_relax_confidence = float(params.get('fragility_relax_confidence', 0.80))
+    fragility_relax_regimes = tuple(params.get(
+        'fragility_relax_regimes', ('risk_on_trend', 'calm_uptrend')
+    ))
     entropy_size_multiplier = float(params.get('entropy_size_multiplier', 0.70))
     panic_position_size = float(params.get('panic_position_size', 0.25))
     panic_risk_throttle = float(params.get('panic_risk_throttle', 1.0))
@@ -189,7 +199,18 @@ def decide_regime_v3(
     )
 
     # --- 4. Caution Gate: Fragility ---
-    fragility_fired = fragility_score > fragility_threshold
+    # F-7: optionally relax the gate when the ensemble is high-confidence in a
+    # risk-on regime. Without this, fragility saturating at high cross-asset
+    # correlation throttles confirmed risk_on_trend exactly as hard as it
+    # throttles incipient shocks.
+    ensemble_confidence = 1.0 - ensemble_disagreement
+    relax_active = (
+        fragility_relax_in_risk_on
+        and ensemble_regime_label in fragility_relax_regimes
+        and ensemble_confidence >= fragility_relax_confidence
+        and not hard_override
+    )
+    fragility_fired = fragility_score > fragility_threshold and not relax_active
     if fragility_fired:
         position_size_mod = min(position_size_mod, fragility_position_cap)
         risk_throttle = min(risk_throttle + fragility_throttle_increment, 1.0)
@@ -198,12 +219,22 @@ def decide_regime_v3(
         code='fragility_gate',
         label='Fragility Gate',
         fired=fragility_fired,
-        inputs=f"fragility_score={fragility_score:.2f}",
-        threshold=f"fragility_score>{fragility_threshold:.2f}",
+        inputs=(
+            f"fragility_score={fragility_score:.2f}, "
+            f"ens_label={ensemble_regime_label}, "
+            f"ens_conf={ensemble_confidence:.2f}, "
+            f"relax={relax_active}"
+        ),
+        threshold=(
+            f"fragility_score>{fragility_threshold:.2f} AND "
+            f"NOT (relax_in_risk_on={fragility_relax_in_risk_on} AND "
+            f"ens_label∈{fragility_relax_regimes} AND "
+            f"ens_conf≥{fragility_relax_confidence:.2f})"
+        ),
         effect=(
             f"size={position_size_mod:.2f}, throttle={risk_throttle:.2f}"
             if fragility_fired
-            else "no change"
+            else ("relaxed (high-confidence risk-on)" if relax_active else "no change")
         ),
     )
 

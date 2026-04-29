@@ -481,3 +481,80 @@ class TestVolUncertaintyDegradedSurfacing:
             skew_history=skew_history,
         )
         assert result['skew_percentile'] >= 0.95
+
+
+class TestRegimeFusionFragilityRelax:
+    """F-7: fragility gate must be relaxable in confirmed risk-on regimes."""
+
+    def _baseline_inputs(self, **overrides):
+        defaults = dict(
+            ensemble_regime_label='risk_on_trend',
+            trend_risk_on_prob=0.92,
+            panic_prob=0.04,
+            ensemble_disagreement=0.10,        # confidence = 0.90
+            ensemble_multiplier=1.0,
+            macro_credit_score=0.20,
+            vol_uncertainty_score=0.55,
+            vol_regime_label='calm',
+            fragility_score=0.98,              # current production reality
+            entropy_score=0.50,
+            entropy_shift_flag=False,
+        )
+        defaults.update(overrides)
+        return defaults
+
+    def test_fragility_default_still_throttles_risk_on(self):
+        """Default behavior (no opt-in) is unchanged: fragility caps pos_mod."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(**self._baseline_inputs())
+        assert out['position_size_modifier'] <= 0.60 + 1e-9, out
+
+    def test_fragility_relax_lifts_cap_when_regime_high_confidence(self):
+        """With relax_in_risk_on enabled, high-confidence risk_on_trend lets
+        position_size pass through (no fragility throttle)."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(
+            **self._baseline_inputs(),
+            params={
+                'fragility_relax_in_risk_on': True,
+                'fragility_relax_confidence': 0.80,
+            },
+        )
+        # Without fragility cap, position_size_modifier remains at the
+        # ensemble multiplier (1.0 here) — well above the 0.60 cap.
+        assert out['position_size_modifier'] > 0.60, out
+        # The fragility rule must be marked as not-fired with reason.
+        frag_rule = next(r for r in out['fusion_rules'] if r['code'] == 'fragility_gate')
+        assert frag_rule['fired'] is False
+        assert 'relaxed' in frag_rule['effect']
+
+    def test_fragility_relax_does_not_apply_in_choppy_regime(self):
+        """Relax should NOT trigger when the ensemble label is choppy."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(
+            **self._baseline_inputs(ensemble_regime_label='choppy'),
+            params={'fragility_relax_in_risk_on': True},
+        )
+        assert out['position_size_modifier'] <= 0.60 + 1e-9, out
+
+    def test_fragility_relax_does_not_apply_when_confidence_low(self):
+        """Relax should NOT trigger when regime confidence is below threshold."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(
+            **self._baseline_inputs(ensemble_disagreement=0.50),  # confidence 0.50
+            params={
+                'fragility_relax_in_risk_on': True,
+                'fragility_relax_confidence': 0.80,
+            },
+        )
+        assert out['position_size_modifier'] <= 0.60 + 1e-9, out
+
+    def test_fragility_relax_does_not_override_panic(self):
+        """Hard override (panic) wins over relax."""
+        from src.signals.regime_fusion import decide_regime_v3
+        out = decide_regime_v3(
+            **self._baseline_inputs(panic_prob=0.85),
+            params={'fragility_relax_in_risk_on': True},
+        )
+        assert out['final_regime_label'] == 'high_vol_panic'
+        assert out['position_size_modifier'] <= 0.25 + 1e-9
