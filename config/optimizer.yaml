@@ -18,6 +18,8 @@
   "max_workers": 1,
   "random_seed": 20260217,
   "initial_portfolio_value": 100000.0,
+  "enable_empirical_mutation": true,
+  "rejection_streak_alert_threshold": 3,
   "guardrails": {
     "max_drawdown": -0.25,
     "max_cost_ratio": 0.015,
