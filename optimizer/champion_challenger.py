@@ -13,7 +13,12 @@ from typing import Any, Dict, List, Optional, Tuple
 from optimizer.config import OptimizerConfig
 from optimizer.data_access import load_optimizer_dataset
 from optimizer.guardrails import evaluate_guardrails
-from optimizer.param_space import ParameterSpace, diff_genes, load_parameter_specs
+from optimizer.param_space import (
+    ParameterSpace,
+    diff_genes,
+    empirical_genome,
+    load_parameter_specs,
+)
 from optimizer.persistence import (
     append_lineage_event,
     build_run_detail_payload,
@@ -206,6 +211,34 @@ def run_optimizer_cycle(config: OptimizerConfig) -> Dict[str, Any]:
 
         rng = random.Random(config.random_seed)
         population: List[Dict[str, Any]] = [champion_genes]
+
+        # Empirical re-derivation candidate (Phase 2 of the
+        # 2026-04-30 optimizer empirical-mutation packet). When the feature
+        # flag is on, build a candidate genome where every parameter tagged
+        # `parameter_class: normalization_constant` with an empirical_statistic
+        # is set to the live-data statistic computed from the optimizer's
+        # signal_row dataset. The candidate competes under the existing
+        # fitness + guardrail pipeline; this is seeding, not replacement.
+        empirical_summary: Dict[str, float] = {}
+        if config.enable_empirical_mutation:
+            signal_rows = [snapshot.signal_row for snapshot in dataset.snapshots]
+            empirical_genes, empirical_summary = empirical_genome(
+                specs=specs,
+                signal_rows=signal_rows,
+                base_genes=champion_genes,
+            )
+            if empirical_summary:
+                log(
+                    'Empirical-mutation candidate proposed for '
+                    f'{len(empirical_summary)} normalization constants: '
+                    + ', '.join(
+                        f'{name}={value:.4f}' for name, value in empirical_summary.items()
+                    )
+                )
+                population.append(empirical_genes)
+            else:
+                log('Empirical-mutation enabled but no candidates produced (insufficient data).')
+
         while len(population) < config.population_size:
             population.append(
                 param_space.random_population_member(
