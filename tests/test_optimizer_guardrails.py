@@ -1,6 +1,6 @@
 from optimizer.config import GuardrailConfig
 from optimizer.fitness import SegmentMetrics
-from optimizer.guardrails import evaluate_guardrails
+from optimizer.guardrails import CALIBRATION_GUARDRAIL_DROPS, evaluate_guardrails
 
 
 def _segment(
@@ -54,3 +54,62 @@ def test_guardrails_fail_on_gate_win_rate() -> None:
     assert result['passed'] is False
     gate_check = [check for check in result['checks'] if check['name'] == 'min_gate_win_rate'][0]
     assert gate_check['passed'] is False
+
+
+# Phase 3 of the 2026-04-30 optimizer empirical-mutation packet.
+
+def test_calibration_only_drops_trade_frequency_gates() -> None:
+    """A challenger with zero round-trips fails the standard path
+    (min_round_trips_total, min_gate_round_trips, min_gate_win_rate) but
+    should pass the calibration-only path because those gates are
+    irrelevant to a normalization-constant-only delta. Outcome-quality
+    gates remain strict.
+    """
+    config = GuardrailConfig()
+    folds = [
+        _segment(0.0, -0.02, 0.0, 0, 0.0),
+        _segment(0.0, -0.01, 0.0, 0, 0.0),
+    ]
+    gate = _segment(0.0, -0.02, 0.0, 0, 0.0)
+
+    standard = evaluate_guardrails(folds, gate, config, calibration_only=False)
+    calibration = evaluate_guardrails(folds, gate, config, calibration_only=True)
+
+    assert standard['passed'] is False
+    standard_failures = {c['name'] for c in standard['checks'] if not c['passed']}
+    assert 'min_round_trips_total' in standard_failures
+    assert 'min_gate_round_trips' in standard_failures
+    assert 'min_gate_win_rate' in standard_failures
+
+    assert calibration['passed'] is True
+    calibration_check_names = {c['name'] for c in calibration['checks']}
+    assert calibration_check_names.isdisjoint(CALIBRATION_GUARDRAIL_DROPS)
+
+
+def test_calibration_only_keeps_outcome_quality_gates() -> None:
+    """Calibration-only path stays strict on max_drawdown_cap,
+    cost_ratio_cap, min_fold_ann_return. A blowup in any of those rejects.
+    """
+    config = GuardrailConfig()
+    folds = [_segment(0.10, -0.30, 0.55, 5, 0.010)]
+    gate = _segment(0.05, -0.30, 0.55, 5, 0.010)
+
+    result = evaluate_guardrails(folds, gate, config, calibration_only=True)
+    assert result['passed'] is False
+    failures = {c['name'] for c in result['checks'] if not c['passed']}
+    assert 'max_drawdown_cap' in failures
+
+
+def test_calibration_only_flag_in_payload() -> None:
+    """Result payload exposes `calibration_only` so downstream tools can
+    distinguish calibration-class rejections from mixed-class rejections.
+    """
+    config = GuardrailConfig()
+    folds = [_segment(0.10, -0.10, 0.55, 12, 0.010)]
+    gate = _segment(0.05, -0.05, 0.55, 8, 0.010)
+
+    standard = evaluate_guardrails(folds, gate, config, calibration_only=False)
+    calibration = evaluate_guardrails(folds, gate, config, calibration_only=True)
+
+    assert standard['calibration_only'] is False
+    assert calibration['calibration_only'] is True

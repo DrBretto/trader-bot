@@ -17,6 +17,7 @@ from optimizer.param_space import (
     ParameterSpace,
     diff_genes,
     empirical_genome,
+    is_calibration_only_diff,
     load_parameter_specs,
 )
 from optimizer.persistence import (
@@ -198,10 +199,20 @@ def run_optimizer_cycle(config: OptimizerConfig) -> Dict[str, Any]:
                     initial_capital=config.initial_portfolio_value,
                 )
                 cached['gate'] = gate
+                # Phase 3: classify the challenger as calibration-only iff
+                # every gene that differs from the champion is tagged
+                # parameter_class="normalization_constant" in the inventory.
+                # Calibration-only challengers use the looser guardrail
+                # path (trade-frequency gates dropped); mixed challengers
+                # stay on the strict path.
+                gene_diffs = diff_genes(champion_genes, genes)
+                calibration_only = is_calibration_only_diff(gene_diffs, specs)
+                cached['calibration_only'] = calibration_only
                 cached['guardrails'] = evaluate_guardrails(
                     fold_metrics=cached['wf']['fold_metrics'],
                     gate_metrics=gate,
                     config=config.guardrails,
+                    calibration_only=calibration_only,
                 )
 
             return cached
