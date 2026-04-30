@@ -421,6 +421,46 @@ Branch: `ai/fix-ensemble-double-apply-20260430`
 - Output: `docs/plans/2026-04-30-ensemble-double-fix-RETURN.md` ending with the literal stop-condition line.
 - **No operator action required.** The recalibration packet's recommendation (promote `decision_params.recalibrated_2026_04_30.json` ± F-7 relax) is unchanged. The double-fix gate stays off because turning it on changes nothing.
 
+### Phase 12: Optimizer empirical-mutation fix (2026-04-30)
+
+Goal: prevent future stale-historical-norm incidents from requiring an operator-driven audit. The 2026-04-30 fragility audit had to be done manually because the weekly optimizer (launchd Sundays 03:30) couldn't find empirical-distribution-based improvements. Four-part fix to the optimizer itself, gated, default off.
+
+Packet: `docs/plans/2026-04-30-optimizer-empirical-mutation-packet.md`
+Branch: `ai/optimizer-empirical-mutation-20260430`
+
+#### 12.1 Phase 1 — Inventory bounds derivation + tagging ✅
+- 8 fragility / macro normalization constants tagged `parameter_class: "normalization_constant"` with `empirical_statistic` mappings; bounds re-derived from p1 / p99 of the underlying input distribution.
+- 12 vol_uncertainty percentile bins tagged but with `empirical_statistic: null` (raw VIX/VVIX/SKEW not in the optimizer's signal_row); bounds derived from historical knowledge.
+- Output: `docs/plans/2026-04-30-optimizer-inventory-bounds-derivation.md`.
+- Commit `1715fc1`.
+
+#### 12.2 Phase 2 — Empirical re-derivation candidate operator ✅
+- Once per cycle, computes the live-data statistic for every tagged normalization constant and injects as one candidate genome. Competes under existing fitness + guardrail pipeline.
+- Feature flag: `OptimizerConfig.enable_empirical_mutation`, default False.
+- New CLI flag `--empirical-mutation-debug` runs the dry-run path: prints what the candidate would propose, exits without GA.
+- 17 new tests in `tests/test_optimizer_empirical_mutation.py`.
+- Commit `472c21c`.
+
+#### 12.3 Phase 3 — Calibration-only guardrail path ✅
+- When every gene that differs between champion and challenger is `parameter_class="normalization_constant"`, drop `min_round_trips_total`, `min_gate_round_trips`, `min_gate_win_rate`. Outcome-quality gates (max_drawdown, cost_ratio, min_fold_ann_return) stay strict.
+- Resolves the cause of recent weekly runs rejecting 100% of challengers with `min_round_trips_total = 0` even when the calibration was directionally correct.
+- 3 new tests in `tests/test_optimizer_guardrails.py`.
+- Commit `672e999`.
+
+#### 12.4 Phase 4 — Persistent-rejection alert ✅
+- Counter in `runs/optimizer/rejection_streak.json`; SNS alert via existing `[TraderBot]` topic on 3rd consecutive rejection. Resets on promotion. Fires exactly once per streak.
+- Alert body includes failed-guardrail breakdown and runbook directing operator to `--empirical-mutation-debug`.
+- 8 new tests in `tests/test_optimizer_rejection_streak.py`.
+- Commit `a1c6e39`.
+
+#### 12.5 Verification gate ✅
+- Dry-run output proposed `fragility.AVG_CORR_MEAN = 0.4847` (target 0.477 ± 0.02). PASSED.
+- 31 new + existing optimizer tests green; no regressions in 39 signal tests, 16 decision-engine tests.
+
+#### 12.6 RETURN doc ✅
+- Output: `docs/plans/2026-04-30-optimizer-empirical-mutation-RETURN.md` ending with the literal stop-condition line.
+- Operator action gated: flip `enable_empirical_mutation: true` in `config/optimizer.yaml` after reviewing the dry-run output. The next weekly run will then propose the empirical candidate and (under the calibration-only guardrail path) promote it if it dominates.
+
 ## Non-Goals
 
 - Intraday trading (daily resolution only)

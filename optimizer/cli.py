@@ -11,6 +11,7 @@ from optimizer.champion_challenger import run_optimizer_cycle
 from optimizer.config import load_optimizer_config
 from optimizer.data_access import OptimizerDataset, load_optimizer_dataset
 from optimizer.guardrails import evaluate_guardrails
+from optimizer.param_space import empirical_genome, load_parameter_specs, ParameterSpace
 from optimizer.persistence import append_lineage_event, read_json, utc_now_iso
 from optimizer.promote import load_active_bundle, promote_candidate_bundle
 from optimizer.rollback import rollback_to
@@ -84,8 +85,81 @@ def _compute_spy_benchmarks(
 
 def cmd_run(args: argparse.Namespace) -> int:
     config = load_optimizer_config(args.config)
+    if getattr(args, 'empirical_mutation_debug', False):
+        # Dry-run path for the verification gate. Skips the GA cycle
+        # entirely; loads the dataset and prints what the empirical-mutation
+        # candidate would propose. Operator inspects the output and confirms
+        # the verification gate (AVG_CORR_MEAN ≈ 0.477 ± 0.02) before
+        # flipping `enable_empirical_mutation: true` in optimizer.yaml.
+        return cmd_empirical_mutation_debug(config)
     result = run_optimizer_cycle(config)
     _print_json(result)
+    return 0
+
+
+def cmd_empirical_mutation_debug(config: 'OptimizerConfig') -> int:
+    """Print the empirical-mutation candidate WITHOUT running a full GA cycle.
+
+    This is the verification gate dry-run. Output is the candidate's
+    proposed values for every normalization-constant parameter, the
+    underlying empirical statistic, and the count of source rows used.
+    """
+    active_bundle = load_active_bundle(config.config_dir_path)
+    specs = load_parameter_specs(config.inventory_file)
+    if not specs:
+        print(json.dumps({'error': 'No safe optimizable parameters discovered'}))
+        return 1
+
+    param_space = ParameterSpace(specs)
+    champion_genes = param_space.genes_from_bundle(active_bundle)
+
+    dataset = load_optimizer_dataset(config)
+    signal_rows = [snapshot.signal_row for snapshot in dataset.snapshots]
+
+    empirical_genes, summary = empirical_genome(
+        specs=specs,
+        signal_rows=signal_rows,
+        base_genes=champion_genes,
+    )
+
+    payload = {
+        'mode': 'empirical_mutation_debug',
+        'dataset_size': len(dataset.snapshots),
+        'date_range': f'{dataset.dates[0]} to {dataset.dates[-1]}',
+        'feature_flag': {
+            'enable_empirical_mutation': config.enable_empirical_mutation,
+            'note': 'Flag is config-controlled. This dry-run computes the '
+                    'empirical candidate regardless of the flag, so the '
+                    'operator can verify the verification gate before '
+                    'flipping the flag on.',
+        },
+        'normalization_constants_with_empirical_statistic': [
+            {
+                'name': spec.name,
+                'current_value': champion_genes.get(spec.name),
+                'empirical_statistic': spec.empirical_statistic,
+                'proposed_value': summary.get(spec.name),
+                'within_bounds': (
+                    spec.min_value <= summary[spec.name] <= spec.max_value
+                    if spec.name in summary else None
+                ),
+                'allowed_range': {'min': spec.min_value, 'max': spec.max_value},
+            }
+            for spec in specs
+            if spec.parameter_class == 'normalization_constant'
+        ],
+        'verification_gate': {
+            'target_param': 'fragility.AVG_CORR_MEAN',
+            'target_value': 0.477,
+            'tolerance': 0.02,
+            'proposed_value': summary.get('fragility.AVG_CORR_MEAN'),
+            'within_tolerance': (
+                'fragility.AVG_CORR_MEAN' in summary
+                and abs(summary['fragility.AVG_CORR_MEAN'] - 0.477) <= 0.02
+            ),
+        },
+    }
+    _print_json(payload)
     return 0
 
 
@@ -212,6 +286,18 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest='command', required=True)
 
     run_parser = subparsers.add_parser('run', parents=[common], help='Run one optimization cycle and exit')
+    run_parser.add_argument(
+        '--empirical-mutation-debug',
+        action='store_true',
+        help=(
+            'Verification gate dry-run for the 2026-04-30 empirical-mutation '
+            'fix. Loads the dataset, computes what the empirical-mutation '
+            'candidate would propose, prints the result, and exits without '
+            'running the GA cycle. Use this to verify '
+            'AVG_CORR_MEAN ≈ 0.477 ± 0.02 before flipping '
+            'enable_empirical_mutation: true in optimizer.yaml.'
+        ),
+    )
     run_parser.set_defaults(func=cmd_run)
 
     eval_parser = subparsers.add_parser('evaluate', parents=[common], help='Evaluate active params only')

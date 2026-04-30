@@ -170,6 +170,70 @@ def mirror_dashboard_artifacts(
         write_json(optimizer_runs_dir / f'{run_id}.json', run_detail_payload)
 
 
+def update_rejection_streak(
+    config: OptimizerConfig,
+    run_summary: Dict[str, Any],
+    challenger_metrics: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Phase 4: maintain a persistent rejection counter.
+
+    Increments on not-promoted runs (any decision != "promoted"), resets
+    on any promotion. Returns the updated state including a flag for
+    whether the alert threshold has been crossed *for the first time*
+    on this update — so the caller can fire the SNS alert exactly once
+    per streak-of-rejections.
+
+    State file: runs/optimizer/rejection_streak.json. Lives alongside
+    index.json and active_params_lineage.json.
+    """
+    streak_path = config.run_root_path / 'rejection_streak.json'
+    state = read_json(
+        streak_path,
+        default={
+            'consecutive_rejections': 0,
+            'alert_threshold': config.rejection_streak_alert_threshold,
+            'last_alert_run_id': None,
+            'history': [],
+        },
+    )
+
+    decision = str(run_summary.get('decision', 'not_promoted'))
+    promoted = decision == 'promoted'
+
+    if promoted:
+        state['consecutive_rejections'] = 0
+        state['last_alert_run_id'] = None
+        new_alert_should_fire = False
+    else:
+        state['consecutive_rejections'] = int(state.get('consecutive_rejections', 0)) + 1
+        # Fire alert if threshold reached AND we haven't already alerted
+        # for this streak. Without the second condition the alert would
+        # fire every weekly cycle once the streak is long enough.
+        threshold = config.rejection_streak_alert_threshold
+        already_alerted = state.get('last_alert_run_id') is not None
+        new_alert_should_fire = (
+            state['consecutive_rejections'] >= threshold and not already_alerted
+        )
+        if new_alert_should_fire:
+            state['last_alert_run_id'] = run_summary.get('run_id')
+
+    history = list(state.get('history', []))
+    history.insert(0, {
+        'run_id': run_summary.get('run_id'),
+        'decision': decision,
+        'timestamp': utc_now_iso(),
+        'consecutive_rejections_after': state['consecutive_rejections'],
+        'challenger_summary': challenger_metrics,
+    })
+    state['history'] = history[:30]
+    state['updated_at'] = utc_now_iso()
+    state['alert_threshold'] = config.rejection_streak_alert_threshold
+    state['alert_should_fire'] = new_alert_should_fire
+
+    write_json(streak_path, state)
+    return state
+
+
 def build_run_detail_payload(run_dir: Path, run_id: str) -> Dict[str, Any]:
     """Build consolidated per-run detail payload for UI."""
 

@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from copy import deepcopy
 import hashlib
 import json
 import random
+import re
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 
 def _safe_float(value: Any, default: float = 0.0) -> float:
@@ -16,6 +17,34 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
         return float(value)
     except (TypeError, ValueError):
         return default
+
+
+# Parser for empirical_statistic strings of the form
+# "<fn>(<field>, exclude_zero=<bool>)" — returns (fn, field, exclude_zero)
+# or None if the string is missing / unparseable. fn is one of {mean, std}.
+_EMPIRICAL_STAT_RE = re.compile(
+    r'^\s*(?P<fn>mean|std)\s*\(\s*(?P<field>[A-Za-z_][A-Za-z0-9_]*)\s*'
+    r'(?:,\s*exclude_zero\s*=\s*(?P<exclude>True|False)\s*)?\)\s*$'
+)
+
+
+def parse_empirical_statistic(spec_str: Optional[str]) -> Optional[Dict[str, Any]]:
+    """Parse an inventory entry's `empirical_statistic` field.
+
+    Returns {fn, field, exclude_zero} or None if unparseable. The empirical
+    re-derivation operator skips parameters whose statistic is None (either
+    not tagged or in an unsupported form).
+    """
+    if not spec_str:
+        return None
+    match = _EMPIRICAL_STAT_RE.match(str(spec_str))
+    if not match:
+        return None
+    return {
+        'fn': match.group('fn'),
+        'field': match.group('field'),
+        'exclude_zero': match.group('exclude') == 'True',
+    }
 
 
 @dataclass
@@ -27,6 +56,8 @@ class ParameterSpec:
     current_value: Any
     component: str
     where_defined: str
+    parameter_class: str = 'decision_threshold'
+    empirical_statistic: Optional[Dict[str, Any]] = None
 
     def clamp(self, value: Any) -> Any:
         if self.type == 'bool':
@@ -111,6 +142,8 @@ def load_parameter_specs(inventory_path: Path) -> List[ParameterSpec]:
             current_value=raw.get('current_value'),
             component=str(raw.get('component', 'unknown')),
             where_defined=str(raw.get('where_defined', 'unknown')),
+            parameter_class=str(raw.get('parameter_class', 'decision_threshold')),
+            empirical_statistic=parse_empirical_statistic(raw.get('empirical_statistic')),
         )
         specs.append(spec)
 
@@ -262,3 +295,91 @@ def diff_genes(base: Dict[str, Any], other: Dict[str, Any]) -> List[Dict[str, An
             'to': other.get(key),
         })
     return diffs
+
+
+def is_calibration_only_diff(diffs: List[Dict[str, Any]], specs: List[ParameterSpec]) -> bool:
+    """True iff every gene that differs between two genomes is a
+    `parameter_class: normalization_constant` per the inventory.
+
+    Empty diff list returns False (no calibration delta present at all —
+    not a meaningful "calibration-only" classification).
+    """
+    if not diffs:
+        return False
+    spec_class = {spec.name: spec.parameter_class for spec in specs}
+    for diff in diffs:
+        if spec_class.get(diff['name']) != 'normalization_constant':
+            return False
+    return True
+
+
+def compute_empirical_statistic(
+    spec: ParameterSpec,
+    signal_rows: List[Dict[str, Any]],
+) -> Optional[float]:
+    """Compute the live-data statistic for a normalization-constant spec.
+
+    `signal_rows` is the list of per-day signal_row dicts the optimizer
+    loaded from S3 (one per snapshot). Returns the float statistic clamped
+    to the spec's bounds, or None if the spec has no empirical_statistic
+    or insufficient non-null data.
+    """
+    if spec.empirical_statistic is None:
+        return None
+
+    fn = spec.empirical_statistic.get('fn')
+    field_name = spec.empirical_statistic.get('field')
+    exclude_zero = bool(spec.empirical_statistic.get('exclude_zero', False))
+
+    if fn not in ('mean', 'std') or not field_name:
+        return None
+
+    values: List[float] = []
+    for row in signal_rows:
+        raw = row.get(field_name)
+        if raw is None:
+            continue
+        value = _safe_float(raw, default=float('nan'))
+        if value != value:  # NaN
+            continue
+        if exclude_zero and abs(value) < 1e-9:
+            continue
+        values.append(value)
+
+    min_n = 10  # under 10 samples is noise; refuse to propose
+    if len(values) < min_n:
+        return None
+
+    if fn == 'mean':
+        statistic = sum(values) / len(values)
+    else:  # std
+        mean = sum(values) / len(values)
+        var = sum((x - mean) ** 2 for x in values) / max(1, len(values) - 1)
+        statistic = var ** 0.5
+
+    return float(spec.clamp(statistic))
+
+
+def empirical_genome(
+    specs: List[ParameterSpec],
+    signal_rows: List[Dict[str, Any]],
+    base_genes: Dict[str, Any],
+) -> Tuple[Dict[str, Any], Dict[str, float]]:
+    """Build a candidate genome where every parameter with an
+    empirical_statistic is set to the live-data statistic, and all other
+    genes inherit from `base_genes`.
+
+    Returns (genes, summary) where `summary` maps spec.name → computed
+    empirical value (only for specs that had a non-None empirical_statistic
+    AND enough data to compute). Specs that were skipped do not appear in
+    the summary.
+    """
+    genes = dict(base_genes)
+    summary: Dict[str, float] = {}
+    for spec in specs:
+        empirical = compute_empirical_statistic(spec, signal_rows)
+        if empirical is None:
+            continue
+        genes[spec.name] = spec.clamp(empirical)
+        summary[spec.name] = float(empirical)
+    return genes, summary

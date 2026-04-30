@@ -59,6 +59,18 @@ class OptimizerConfig:
 
     initial_portfolio_value: float = 100000.0
 
+    # Phase 2: empirical-mutation feature flag. Default off so the
+    # behavior is identical to pre-2026-04-30 until the operator
+    # promotes via config (or via --empirical-mutation-debug for the
+    # verification gate dry-run). See
+    # docs/plans/2026-04-30-optimizer-empirical-mutation-RETURN.md.
+    enable_empirical_mutation: bool = False
+
+    # Phase 4: persistent-rejection alert threshold. After N consecutive
+    # cycles where every challenger was rejected, fire an SNS alert. Reset
+    # the counter on any promotion. Default 3 per packet.
+    rejection_streak_alert_threshold: int = 3
+
     guardrails: GuardrailConfig = field(default_factory=GuardrailConfig)
     promotion_deltas: PromotionDeltaConfig = field(default_factory=PromotionDeltaConfig)
     paths: PathConfig = field(default_factory=PathConfig)
@@ -165,6 +177,8 @@ def load_optimizer_config(config_path: str, repo_root: Path | None = None) -> Op
         max_workers=max(1, int(_read_nested(raw, 'max_workers', OptimizerConfig.max_workers))),
         random_seed=int(_read_nested(raw, 'random_seed', OptimizerConfig.random_seed)),
         initial_portfolio_value=float(_read_nested(raw, 'initial_portfolio_value', OptimizerConfig.initial_portfolio_value)),
+        enable_empirical_mutation=bool(_read_nested(raw, 'enable_empirical_mutation', OptimizerConfig.enable_empirical_mutation)),
+        rejection_streak_alert_threshold=int(_read_nested(raw, 'rejection_streak_alert_threshold', OptimizerConfig.rejection_streak_alert_threshold)),
         guardrails=GuardrailConfig(
             max_drawdown=float(_read_nested(guardrails_raw, 'max_drawdown', GuardrailConfig.max_drawdown)),
             max_cost_ratio=float(_read_nested(guardrails_raw, 'max_cost_ratio', GuardrailConfig.max_cost_ratio)),

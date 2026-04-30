@@ -13,7 +13,13 @@ from typing import Any, Dict, List, Optional, Tuple
 from optimizer.config import OptimizerConfig
 from optimizer.data_access import load_optimizer_dataset
 from optimizer.guardrails import evaluate_guardrails
-from optimizer.param_space import ParameterSpace, diff_genes, load_parameter_specs
+from optimizer.param_space import (
+    ParameterSpace,
+    diff_genes,
+    empirical_genome,
+    is_calibration_only_diff,
+    load_parameter_specs,
+)
 from optimizer.persistence import (
     append_lineage_event,
     build_run_detail_payload,
@@ -22,6 +28,7 @@ from optimizer.persistence import (
     file_sha256,
     mirror_dashboard_artifacts,
     read_lineage,
+    update_rejection_streak,
     update_run_index,
     utc_now_iso,
     write_run_artifacts,
@@ -193,10 +200,20 @@ def run_optimizer_cycle(config: OptimizerConfig) -> Dict[str, Any]:
                     initial_capital=config.initial_portfolio_value,
                 )
                 cached['gate'] = gate
+                # Phase 3: classify the challenger as calibration-only iff
+                # every gene that differs from the champion is tagged
+                # parameter_class="normalization_constant" in the inventory.
+                # Calibration-only challengers use the looser guardrail
+                # path (trade-frequency gates dropped); mixed challengers
+                # stay on the strict path.
+                gene_diffs = diff_genes(champion_genes, genes)
+                calibration_only = is_calibration_only_diff(gene_diffs, specs)
+                cached['calibration_only'] = calibration_only
                 cached['guardrails'] = evaluate_guardrails(
                     fold_metrics=cached['wf']['fold_metrics'],
                     gate_metrics=gate,
                     config=config.guardrails,
+                    calibration_only=calibration_only,
                 )
 
             return cached
@@ -206,6 +223,34 @@ def run_optimizer_cycle(config: OptimizerConfig) -> Dict[str, Any]:
 
         rng = random.Random(config.random_seed)
         population: List[Dict[str, Any]] = [champion_genes]
+
+        # Empirical re-derivation candidate (Phase 2 of the
+        # 2026-04-30 optimizer empirical-mutation packet). When the feature
+        # flag is on, build a candidate genome where every parameter tagged
+        # `parameter_class: normalization_constant` with an empirical_statistic
+        # is set to the live-data statistic computed from the optimizer's
+        # signal_row dataset. The candidate competes under the existing
+        # fitness + guardrail pipeline; this is seeding, not replacement.
+        empirical_summary: Dict[str, float] = {}
+        if config.enable_empirical_mutation:
+            signal_rows = [snapshot.signal_row for snapshot in dataset.snapshots]
+            empirical_genes, empirical_summary = empirical_genome(
+                specs=specs,
+                signal_rows=signal_rows,
+                base_genes=champion_genes,
+            )
+            if empirical_summary:
+                log(
+                    'Empirical-mutation candidate proposed for '
+                    f'{len(empirical_summary)} normalization constants: '
+                    + ', '.join(
+                        f'{name}={value:.4f}' for name, value in empirical_summary.items()
+                    )
+                )
+                population.append(empirical_genes)
+            else:
+                log('Empirical-mutation enabled but no candidates produced (insufficient data).')
+
         while len(population) < config.population_size:
             population.append(
                 param_space.random_population_member(
@@ -501,6 +546,36 @@ def run_optimizer_cycle(config: OptimizerConfig) -> Dict[str, Any]:
         lineage_payload=lineage_payload,
         run_detail_payload=run_detail_payload,
     )
+
+    # Phase 4: persistent-rejection alert. Increment counter on
+    # not-promoted runs, reset on promotion. Fire SNS alert exactly once
+    # per streak when the threshold is reached.
+    streak_state = update_rejection_streak(
+        config=config,
+        run_summary=run_summary,
+        challenger_metrics=challenger_metrics_payload,
+    )
+    if streak_state.get('alert_should_fire'):
+        try:
+            from optimizer.alerts import (
+                build_persistent_rejection_alert_body,
+                send_optimizer_alert,
+            )
+            subject, body = build_persistent_rejection_alert_body(
+                streak_state=streak_state,
+                config=config,
+                latest_guardrail_results=guardrail_results_payload,
+                latest_promotion_payload=promotion_payload,
+                latest_challenger_metrics=challenger_metrics_payload,
+            )
+            sent = send_optimizer_alert(subject=subject, body=body)
+            log(
+                f'Persistent-rejection threshold reached after '
+                f'{streak_state["consecutive_rejections"]} cycles; '
+                f'alert sent={sent}.'
+            )
+        except Exception as alert_exc:  # never crash the run on alert failure
+            log(f'Persistent-rejection alert failed (non-fatal): {alert_exc}')
 
     return {
         'run_id': run_id,
