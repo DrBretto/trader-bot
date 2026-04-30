@@ -14,13 +14,43 @@ PANEL_SYMBOLS = ['SPY', 'QQQ', 'IWM', 'TLT', 'HYG', 'GLD', 'EFA', 'EEM']
 MIN_SYMBOLS = 6
 MIN_DAYS = 40
 
-# Historical norms for normalization
-# Average pairwise correlation: mean ~0.30, std ~0.15
+# Historical norms for normalization.
+#
+# These constants are the **production defaults**. They are kept at their
+# original values for backward compatibility; operator opt-in to the
+# 2026-04-30 recalibration is done by promoting a decision-params bundle
+# whose `signals.fragility` block sets the values from RECALIBRATED_2026_04_30
+# below (see `config/decision_params.recalibrated_2026_04_30.json`). See
+# `docs/plans/2026-04-30-phase2-fragility-baseline-audit.md` for the
+# empirical-re-derivation evidence and `docs/POSTMORTEMS.md` →
+# "stale-historical-norm" for the failure mode this gate exists to prevent.
+#
+# Original provenance: introduced in commit b9317e1 (2026-02-06) without a
+# documented source dataset; values approximated as "Average pairwise
+# correlation: mean ~0.30, std ~0.15" / "PC1 explained variance: mean ~0.45,
+# std ~0.12". Re-validation against 900-day empirical (2022-09 → 2026-04)
+# panel close prices found the originals to be at the empirical 5th
+# percentile (avg_corr_mean) and below the empirical minimum (pc1_mean).
 AVG_CORR_MEAN = 0.30
 AVG_CORR_STD = 0.15
-# PC1 explained variance: mean ~0.45, std ~0.12
 PC1_MEAN = 0.45
 PC1_STD = 0.12
+
+# Empirical 900-day re-derivation, panel = PANEL_SYMBOLS, window = 60 trading
+# days, source = yfinance closes 2022-09 → 2026-04. Cross-validated against
+# production signals.parquet to ±0.005 absolute. See Phase 2 audit doc.
+# Operator promotes to active by deploying
+# config/decision_params.recalibrated_2026_04_30.json or by setting these
+# values in the runtime params bundle's `signals.fragility` block.
+RECALIBRATED_2026_04_30 = {
+    'AVG_CORR_MEAN': 0.4774,
+    'AVG_CORR_STD': 0.0979,
+    'PC1_MEAN': 0.6007,
+    'PC1_STD': 0.0658,
+    'source_dataset': 'yfinance close, PANEL_SYMBOLS, 900 trading days ending 2026-04-29',
+    'derivation_date': '2026-04-30',
+    're_validation_cadence': 'quarterly; see test_fragility_calibration.py',
+}
 
 
 def compute_fragility(

@@ -353,6 +353,45 @@ Packet: `docs/plans/2026-04-29-deep-diagnostic-and-calibration-packet.md`
 - Output: `docs/plans/2026-04-29-trader-bot-diagnostic-RETURN.md`.
 - Does NOT yet end with the literal stop-condition line. Per packet's stop-condition arithmetic, the line is gated on Phase 5 walk-forward verification + Phase 6 shadow day. Both blocked. The RETURN doc surfaces the gap honestly and recommends the dataset-rebuild path forward.
 
+### Phase 10: Fragility + Throttle Calibration Audit (2026-04-30)
+
+Goal: re-validate the throttle pipeline's calibration after Phase 9 left F-2 fragility tanh-saturation as a still-open knob defaulted off. Question the metric, not just the gate parameters. Recalibrate normalizer constants against current empirical distribution. Default off; ship behind feature gate; operator-gated cutover.
+
+Packet: `docs/plans/2026-04-30-fragility-and-throttle-calibration-audit-packet.md`
+Branch: `ai/recal-fragility-norms-20260430`
+
+#### 10.1 Phase 1 — Throttle distribution diagnostic ✅
+- 1272-day empirical distribution of every multiplicative throttle and its inputs.
+- Output: `docs/plans/2026-04-30-phase1-throttle-distribution-diagnostic.md`
+- Headline: `fragility_score` saturated (median 0.905, last 42d median 0.965); `avg_correlation` and `pc1_explained` misnormalized (current constants treat empirical median as +1.8σ).
+
+#### 10.2 Phase 2 — Fragility baseline audit ✅
+- Source-traced `AVG_CORR_MEAN=0.30`, `AVG_CORR_STD=0.15`, `PC1_MEAN=0.45`, `PC1_STD=0.12` to commit `b9317e1` (2026-02-06) with no documented source dataset.
+- Empirically re-derived from 900d production-equivalent panel: `AVG_CORR_MEAN=0.4774`, `AVG_CORR_STD=0.0979`, `PC1_MEAN=0.6007`, `PC1_STD=0.0658`.
+- Output: `docs/plans/2026-04-30-phase2-fragility-baseline-audit.md`
+
+#### 10.3 Phase 3 — Compound throttle cost ✅
+- Three representative-day walk-throughs (rally 2026-04-23, panic 2026-03-25, choppy 2026-04-08).
+- Output: `docs/plans/2026-04-30-phase3-compound-throttle-cost.md`
+- Headline: recalibration alone does not produce rally relief because the current rally has correlations at historical extremes; **must be paired with F-7 relax** for the rally-window improvement to materialize.
+- Independent finding: **F-2030-A** — `ensemble_multiplier` is double-applied in the position-size chain (`regime_fusion.py:262` × `decision_engine.py:440`). Estimated 15-25% over-throttle on every v3 trade. Logged for operator review; not silently fixed.
+
+#### 10.4 Phase 4 — Recalibration recommendation + walk-forward sweep ✅
+- Output: `docs/plans/2026-04-30-phase4-recalibration-recommendation.md`
+- 7 variants tested. **`recalibrated_plus_F7_relax_on` strictly dominates `current_production` on both broad gate (-14.95% vs -17.97%) and rally (-31.21% vs -98.28%) windows**; panic return improved (+23.81% vs +13.26%), rally drawdown improved (-2.41% vs -9.98%), panic drawdown slightly worse (-1.54% vs -0.82%, still very small).
+- Recalibration-only variant: +9pp gate improvement, no rally change. Operator-safe half-step.
+- Code: `src/signals/fragility.py` adds `RECALIBRATED_2026_04_30` constant block with provenance fields; defaults preserved.
+- Bundle: `config/decision_params.recalibrated_2026_04_30.json` shadow-only, not promoted.
+- Test: `tests/test_fragility_calibration.py` (5 passing tests; 39 prior signal tests still green).
+- Sweep harness: `scripts/run_recalibration_sweep_20260430.py` → `runs/recalibration_sweep_20260430.json`.
+
+#### 10.5 Postmortems ✅
+- One new entry: **stale-historical-norm class** (normalizer constants embedded once, never re-validated against current data).
+
+#### 10.6 RETURN doc ✅
+- Output: `docs/plans/2026-04-30-fragility-throttle-audit-RETURN.md` ending with the literal stop-condition line.
+- Operator action gated: promote `decision_params.recalibrated_2026_04_30.json` to active and (for full rally relief) flip `regime_fusion.fragility_relax_in_risk_on=True` after one-day shadow.
+
 ## Non-Goals
 
 - Intraday trading (daily resolution only)

@@ -149,3 +149,52 @@ This is not in itself wrong. Two specific problems compound it:
 3. **Phase-2 health-card automation:** any rolling timeseries column whose `distinct_values == 1` for more than N days should fire a health alert. F-3 would have been caught in week 1 with this check.
 4. **Fallback values should be visibly suspicious.** A fallback `0.10` for a percentile signal is worse than `0.5` because it looks like a real low-percentile reading. When choosing fallbacks, prefer values that make the failure obvious in a chart (e.g. `NaN` rendered as a dropped point, or a sentinel like `-1.0` outside the normal range). Do this at signal-design time, not after the fact.
 5. **The same class manifested again in F-13** (`yield_slope_10y_3m` was 0.0 for 168 days because `DGS3MO` was missing in `fred_df`). This is a system-wide pattern, not a one-off bug. Any signal that depends on a FRED series, a Stooq fetch, or a model artifact must surface a `degraded_reason` when the dependency fails — and the timeseries row must carry that flag forward.
+
+---
+
+## 2026-04-30 — UNDERSTANDING — Stale-historical-norm class (normalizer constants embedded once, never re-validated)
+
+**Task**: Diagnose why `fragility_score` has been pegged ≥ 0.97 for six straight weeks (operator's complaint that motivated the 2026-04-30 audit packet).
+
+**Struggle**: The fragility metric normalizes two inputs (`avg_correlation`, `pc1_explained`) via z-scores against four hardcoded constants:
+
+```python
+# src/signals/fragility.py:17-23 (as-written, 2026-02-06)
+AVG_CORR_MEAN = 0.30
+AVG_CORR_STD = 0.15
+PC1_MEAN = 0.45
+PC1_STD = 0.12
+```
+
+The comment above them said "Average pairwise correlation: mean ~0.30, std ~0.15" / "PC1 explained variance: mean ~0.45, std ~0.12" — bare assertions, no source dataset, no derivation date, no panel composition, no rolling window assumption. Empirical re-derivation from 1272 trading days (2021-04 → 2026-04) using the production code path against the production panel found:
+
+| constant | code value | empirical 900d | gap |
+|----------|-----------:|---------------:|-----|
+| `AVG_CORR_MEAN` | 0.30 | 0.4774 | code value is at the empirical 5th percentile |
+| `AVG_CORR_STD`  | 0.15 | 0.0979 | code value is 53% wider than empirical |
+| `PC1_MEAN`      | 0.45 | 0.6007 | code value is below the empirical minimum (0.40) |
+| `PC1_STD`       | 0.12 | 0.0658 | code value is 82% wider than empirical |
+
+The metric had been treating the empirical median as ≈ +1.8σ above the mean — squarely on the saturated side of `tanh`. Result: gate fires on 82.5% of historical days; 50.8% of days score ≥ 0.90; the operator's reported "stuck at 0.97 for six weeks" was directly produced by this. The metric was not measuring fragility — it was measuring "we are in any market that exists in 2025-2026."
+
+**Why it is a class, not a one-off**:
+
+- `vol_uncertainty.py` carries similarly hardcoded `VIX_THRESHOLDS = {'p20': 13, 'p50': 17, 'p80': 25, 'p95': 30}` etc. Empirically over 1272d the VIX median is 17.93 — these are still close, but the same pattern. **No test fails when the empirical distribution drifts**.
+- `entropy_shift.py` has `z_threshold=1.5` hardcoded as a default; the consecutive-days flag has not fired in the 188-day production window. (Cross-check shows it does fire ~22.9% of the 1272-day historical window — i.e. it was window-quiet, not dead — but no automated mechanism would have alerted if it had been mis-set.)
+- `macro_credit.py` has `slope_mean`/`slope_std`/`hy_mean`/`hy_std` defaults in `optimizer/replay.py` (`SLOPE_MEAN=1.5`, `SLOPE_STD=1.0`, `HY_SPREAD_MEAN=0.0`, `HY_SPREAD_STD=0.02`). Same pattern: hardcoded, undocumented source, no re-validation cadence.
+
+**Resolution**: Phase 4 of the 2026-04-30 audit shipped:
+
+1. `RECALIBRATED_2026_04_30` constants added to `src/signals/fragility.py` with provenance fields (`source_dataset`, `derivation_date`, `re_validation_cadence`).
+2. `config/decision_params.recalibrated_2026_04_30.json` ships the recalibrated values behind a bundle gate. Code defaults preserved; cutover is a one-file copy by the operator.
+3. `tests/test_fragility_calibration.py` locks both the original defaults (regression guard) and the recalibrated values (drift guard), and asserts a >0.40 fragility-score gap on synthetic near-p25 input.
+
+**Retry Count**: discovered after one prior audit (2026-04-29) had reframed F-2 as "tanh-saturation, calibration knob default off because no setting strictly dominated." The prior audit was correct *at the gate-parameter axis* and wrong *at the input-normalization axis* — a textbook case of First-pass-audit-framing-trap (cited above).
+
+**Prevention**:
+
+1. **Every normalization constant must carry provenance.** Inline at the constant: source dataset path, source dataset date, panel composition, rolling-window assumption. If you cannot write that comment, you do not have a constant; you have a guess.
+2. **Every normalization constant must carry a re-validation cadence and a test that fails when the empirical distribution drifts.** The new `tests/test_fragility_calibration.py` is the template. Per-quarter rerun of the empirical re-derivation, fail the test if the constant has drifted > 15% from the empirical mean, and require an audit doc to update it. Drift between `compute_X.py` and the empirical world is a statistic-quality bug, not a magical constant change.
+3. **A normalizer's saturation is NOT the same as the underlying signal's saturation.** When debugging a metric that is pinned, *first* check where the input variable lives in the input distribution. Phase 1 of this audit found this in fifteen minutes; the prior audit missed it for an axis-of-investigation reason. The diagnostic order should be: input distribution → normalizer parameters → output distribution → gate parameters. Working that order in reverse produces no-setting-dominates findings, because the loss has already happened upstream.
+4. **Bundle-vs-code drift is its own class.** The recalibrated values ship in `config/decision_params.recalibrated_2026_04_30.json`. The Python module's `RECALIBRATED_2026_04_30` constants must agree. The new test verifies this — the failure mode where someone updates the bundle but not the constant (or vice versa) is silent without it.
+5. **The 2026-02-06 commit that introduced these constants did not include a `tests/` change locking them to a derivation procedure.** That is the root cause. Future expert-engine work must include such a test as a precondition for merge — the constant in the file is the assertion, the test is the source of truth.
