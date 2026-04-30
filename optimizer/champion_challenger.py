@@ -28,6 +28,7 @@ from optimizer.persistence import (
     file_sha256,
     mirror_dashboard_artifacts,
     read_lineage,
+    update_rejection_streak,
     update_run_index,
     utc_now_iso,
     write_run_artifacts,
@@ -545,6 +546,36 @@ def run_optimizer_cycle(config: OptimizerConfig) -> Dict[str, Any]:
         lineage_payload=lineage_payload,
         run_detail_payload=run_detail_payload,
     )
+
+    # Phase 4: persistent-rejection alert. Increment counter on
+    # not-promoted runs, reset on promotion. Fire SNS alert exactly once
+    # per streak when the threshold is reached.
+    streak_state = update_rejection_streak(
+        config=config,
+        run_summary=run_summary,
+        challenger_metrics=challenger_metrics_payload,
+    )
+    if streak_state.get('alert_should_fire'):
+        try:
+            from optimizer.alerts import (
+                build_persistent_rejection_alert_body,
+                send_optimizer_alert,
+            )
+            subject, body = build_persistent_rejection_alert_body(
+                streak_state=streak_state,
+                config=config,
+                latest_guardrail_results=guardrail_results_payload,
+                latest_promotion_payload=promotion_payload,
+                latest_challenger_metrics=challenger_metrics_payload,
+            )
+            sent = send_optimizer_alert(subject=subject, body=body)
+            log(
+                f'Persistent-rejection threshold reached after '
+                f'{streak_state["consecutive_rejections"]} cycles; '
+                f'alert sent={sent}.'
+            )
+        except Exception as alert_exc:  # never crash the run on alert failure
+            log(f'Persistent-rejection alert failed (non-fatal): {alert_exc}')
 
     return {
         'run_id': run_id,
