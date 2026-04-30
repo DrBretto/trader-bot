@@ -198,3 +198,52 @@ The metric had been treating the empirical median as ≈ +1.8σ above the mean �
 3. **A normalizer's saturation is NOT the same as the underlying signal's saturation.** When debugging a metric that is pinned, *first* check where the input variable lives in the input distribution. Phase 1 of this audit found this in fifteen minutes; the prior audit missed it for an axis-of-investigation reason. The diagnostic order should be: input distribution → normalizer parameters → output distribution → gate parameters. Working that order in reverse produces no-setting-dominates findings, because the loss has already happened upstream.
 4. **Bundle-vs-code drift is its own class.** The recalibrated values ship in `config/decision_params.recalibrated_2026_04_30.json`. The Python module's `RECALIBRATED_2026_04_30` constants must agree. The new test verifies this — the failure mode where someone updates the bundle but not the constant (or vice versa) is silent without it.
 5. **The 2026-02-06 commit that introduced these constants did not include a `tests/` change locking them to a derivation procedure.** That is the root cause. Future expert-engine work must include such a test as a precondition for merge — the constant in the file is the assertion, the test is the source of truth.
+
+---
+
+## 2026-04-30 — UNDERSTANDING — Known-bug-documented-as-feature class (and false-positive findings from function-in-isolation analysis)
+
+**Task**: Implement the F-2030-A fix from the 2026-04-30 fragility audit. The audit claimed `ensemble_multiplier` was applied twice in the position-size chain — once at `regime_fusion.py:262` (folded into `position_size_modifier`) and again at `decision_engine.py:440-454` (as `ensemble_adj`) — producing a silent ~15% over-throttle on every v3 trade.
+
+**Struggle**: The bug did not reproduce in production. Reading the actual call sites:
+
+```python
+# src/steps/decision_engine.py:798
+position = compute_position_size(
+    ...,
+    ensemble_multiplier if expert_signals is None else 1.0,  # v3 defense
+    position_size_modifier,
+    ...
+)
+```
+
+Whenever `expert_signals is not None` (the v3 production path), the caller passes `ensemble_multiplier=1.0` — neutralizing the second multiplication inside `compute_position_size`. The v2 caller (`expert_signals is None`) leaves `position_size_modifier=1.0` (the default), neutralizing the first multiplication. Either way, the multiplier is applied exactly once. The 2x2 walk-forward confirmed this empirically: `current_production` and `double_fix_on_only` produce byte-identical fills across the 42-day broad gate, the 11-day rally, and the 35-day panic windows. Same gate Sharpe, same drawdowns, same trip count.
+
+The audit's mistake was reading the function definition (`compute_position_size:440-454`) and the upstream multiplication (`regime_fusion.py:262`) in isolation, without enumerating the call sites of `compute_position_size`. A function that *would* double-apply if called naively does not double-apply if no caller invokes the naive pattern. The audit produced a believable claim from incomplete inspection.
+
+The original comment at `decision_engine.py:442-444` was a contributing factor:
+
+```python
+# Expert signal adjustments (position_size_modifier already includes
+# ensemble_multiplier via regime_fusion, but we keep ensemble_adj here
+# for backward compat when expert_signals is None)
+```
+
+Read in isolation, the comment strongly implies the function is buggy ("we keep ensemble_adj here for backward compat" sounds like documenting a known wart, not a contract). It does not mention the caller defense — the reader must chase the call sites to find the `if expert_signals is None else 1.0` guard. The audit chased the wrong thread.
+
+**Resolution**:
+
+1. The fix-branch ships the `ensemble_multiplier_already_applied` gate (default off) as defense-in-depth — if a future refactor drops the v3 defense at line 798, the gate forces correct math regardless of caller pattern.
+2. The misleading comment was rewritten to explicitly document the caller defense pattern: "the v3 production callers defend against this by passing `ensemble_multiplier=1.0` whenever `expert_signals is not None`." A future reader does not need to chase the call sites.
+3. New tests in `tests/test_decision_engine.py::TestEnsembleMultiplierCallerPatterns` lock both the v3 caller pattern (passes 1.0, expects single application) AND the v2 caller pattern (passes ensemble, expects single application) AND the unsafe pattern (both non-neutral, double-applies without the gate, single-applies with the gate). A regression that breaks the line-798 defense fails the v3 test at the unit level.
+4. The walk-forward 2x2 was run anyway as the empirical confirmation: all four cells byte-identical confirms the no-op nature.
+
+**Retry Count**: 1 packet to investigate the audit's claim; the fix is shipped as defense-in-depth, not as a remedy.
+
+**Prevention** (multiple lessons from one investigation):
+
+1. **"Backward compat" / "kept for legacy" / "preserved for X" in a comment is a flag, not a closure.** When you see one of these phrases, the next audit cycle question is *"is the legacy path still live?"* — not *"this is fine, move on."* The comment that kept this bug-shaped pattern alive said exactly the kind of thing that should trigger reinvestigation. Codify in CLAUDE.md or a comment-review checklist: any comment justifying current behavior on legacy / backward-compat grounds is a follow-up flag with a 6-month review timer.
+2. **Function-in-isolation analysis is incomplete.** A claim about a function's runtime behavior must enumerate its call sites. Tools: `grep -n "function_name(" .` is a 5-second check. The audit produced a 2,800-line writeup that cited the function definition and its upstream caller (regime_fusion.py:262) but not the downstream callers of compute_position_size (line 798, line 828). The fix to the audit method: every "X is called with Y" claim must include `file:line` references for at least one call site, not just the function body.
+3. **A susceptibility is not a bug.** A function that *would* misbehave when called naively is not the same as a function that *does* misbehave. The original comment was correct given the caller defense; the audit treated the susceptibility as a confirmed bug because the susceptibility was easy to demonstrate in a function-only reproducer (passing both arguments non-neutral). The reproducer was right; the inference from reproducer to production behavior was wrong.
+4. **The defense-in-depth gate ships anyway.** Even though the audit's claim was wrong, the resulting gate is harmless under correct callers AND useful as future-regression protection AND comes with tests that lock the caller pattern. The cost of shipping is low; the cost of a silent regression in the line-798 defense is high. Default-off so promoting the gate is a separate operator decision; the comment now documents both the caller pattern and the gate's purpose. **An audit producing a defense-in-depth fix from a false-positive finding is still useful work** — provided the RETURN doc surfaces the false-positive clearly, not silently ships the no-op.
+5. **First-pass-audit-framing-trap (entry above) repeats here in a new shape.** The 2026-04-29 audit's framing trap was "the algorithm is doing what the gates were designed to do — over-conservative." The 2026-04-30 audit's framing trap was "the comment says backward-compat, the math says double-application — therefore bug." Both rationalized one observation against another without falsifying. Disconfirming the friendly hypothesis (audit's bug-claim) before committing to a fix would have surfaced the caller defense in 5 minutes of grep work.

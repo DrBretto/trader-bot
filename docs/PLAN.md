@@ -392,6 +392,35 @@ Branch: `ai/recal-fragility-norms-20260430`
 - Output: `docs/plans/2026-04-30-fragility-throttle-audit-RETURN.md` ending with the literal stop-condition line.
 - Operator action gated: promote `decision_params.recalibrated_2026_04_30.json` to active and (for full rally relief) flip `regime_fusion.fragility_relax_in_risk_on=True` after one-day shadow.
 
+### Phase 11: Ensemble multiplier double-application investigation (2026-04-30)
+
+Goal: implement F-2030-A from the 2026-04-30 fragility audit (claimed `ensemble_multiplier` is double-applied in the position-size chain). Default off; ship behind feature gate; operator-gated cutover.
+
+Packet: `docs/plans/2026-04-30-ensemble-multiplier-double-application-fix-packet.md`
+Branch: `ai/fix-ensemble-double-apply-20260430`
+
+#### 11.1 Bug verification ✅
+- Read `regime_fusion.py:262` (folds ensemble into `position_size_mod`) and `decision_engine.py:440-454` (applies `ensemble_adj` and `expert_adj`).
+- **Reading the call sites** at `decision_engine.py:798` and `:828`: both pass `ensemble_multiplier=1.0` whenever `expert_signals is not None` — the v3 production defense.
+- **Conclusion**: the function is mathematically susceptible to double-application but no production caller invokes the unsafe pattern. F-2030-A was a false positive from function-in-isolation analysis.
+
+#### 11.2 Fix shipped as defense-in-depth ✅
+- Branch: `ai/fix-ensemble-double-apply-20260430`. One focused commit.
+- `src/steps/decision_engine.py`: added `ensemble_multiplier_already_applied` gate (default False) at lines 440-470. When True, forces `ensemble_adj=1.0` regardless of passed value. Comment rewritten to document the caller defense pattern.
+- `tests/test_decision_engine.py`: 6 new tests under `TestEnsembleMultiplierCallerPatterns` lock both production caller patterns (v3 and v2), the unsafe pattern's susceptibility, and the gate's behavior.
+- `scripts/run_ensemble_double_fix_sweep_20260430.py` + `runs/ensemble_double_fix_sweep_20260430.json`: 2x2 walk-forward sweep.
+
+#### 11.3 2x2 walk-forward result ✅
+- Output: `docs/plans/2026-04-30-ensemble-double-fix-walk-forward.md`.
+- All four cells (recal off/on × fix off/on) produce **byte-identical** trading results. The double-fix gate is a no-op under correct callers — empirical confirmation that the bug does not fire in production.
+
+#### 11.4 Postmortem ✅
+- New entry: **known-bug-documented-as-feature class** (and false-positive findings from function-in-isolation analysis). Captures: (a) "backward compat" comments are flags not closures; (b) function-in-isolation analysis is incomplete — every claim about runtime behavior must enumerate call sites; (c) a susceptibility is not a bug; (d) defense-in-depth from a false-positive finding is still useful when shipped honestly.
+
+#### 11.5 RETURN doc ✅
+- Output: `docs/plans/2026-04-30-ensemble-double-fix-RETURN.md` ending with the literal stop-condition line.
+- **No operator action required.** The recalibration packet's recommendation (promote `decision_params.recalibrated_2026_04_30.json` ± F-7 relax) is unchanged. The double-fix gate stays off because turning it on changes nothing.
+
 ## Non-Goals
 
 - Intraday trading (daily resolution only)
