@@ -308,3 +308,131 @@ class TestComputePositionSize:
         # Should return 0 because order would be below minimum
         assert result['shares'] == 0
         assert result['dollars'] == 0
+
+
+class TestEnsembleMultiplierCallerPatterns:
+    """Tests that lock the actual production caller patterns for
+    `compute_position_size`, plus the defense-in-depth gate.
+
+    The 2026-04-30 fragility audit's F-2030-A finding ("ensemble_multiplier
+    is double-applied") was a false positive. The v3 production callers at
+    `decision_engine.py:798` and `:828` pass `ensemble_multiplier=1.0`
+    whenever `expert_signals is not None`; the v2 callers pass
+    `position_size_modifier=1.0` (the default). Either way, the multiplier
+    is applied exactly once.
+
+    These tests lock both caller patterns so a future regression that breaks
+    the defense (e.g., a refactor that drops the `if expert_signals is None
+    else 1.0` guard at line 798) is caught at the unit level. They also
+    verify the `ensemble_multiplier_already_applied` gate forces correct
+    math even if a caller passes both arguments non-neutral.
+    See: docs/plans/2026-04-30-ensemble-double-fix-RETURN.md
+    """
+
+    BASE_KWARGS = dict(
+        symbol='SPY',
+        portfolio_value=100000.0,
+        current_price=100.0,
+        vol_bucket='med',
+        regime_label='risk_on_trend',
+        params={'max_position_weight': 0.20, 'min_order_dollars': 250},
+        llm_confidence_adj=0.0,
+        risk_throttle_factor=0.0,
+    )
+
+    def test_v3_caller_pattern_single_application(self):
+        # Production v3 path: caller passes ensemble_multiplier=1.0 (because
+        # `expert_signals is not None`, see decision_engine.py:798) and a
+        # position_size_modifier that already includes the ensemble multiplier
+        # via regime_fusion line 262. Net: ensemble applied exactly once
+        # via position_size_modifier.
+        # Chain: $20k * regime_adj(1.10) * llm(1.0) * ens_adj(1.0) *
+        #        expert_adj(0.85) * throttle(1.0) = $18,700 → 187 shares
+        result = compute_position_size(
+            ensemble_multiplier=1.0,        # v3 defense at caller line 798
+            position_size_modifier=0.85,    # 0.85 from regime_fusion (1.0 base * 0.85 ensemble)
+            **self.BASE_KWARGS,
+        )
+        assert result['shares'] == 187
+        assert result['dollars'] == 18700.0
+
+    def test_v2_caller_pattern_single_application(self):
+        # Production v2 / pre-hybrid path: caller passes ensemble_multiplier
+        # directly (because `expert_signals is None`) and
+        # position_size_modifier=1.0 (the parameter default). Net: ensemble
+        # applied exactly once via ensemble_adj.
+        # Chain: $20k * regime_adj(1.10) * llm(1.0) * ens_adj(0.85) *
+        #        expert_adj(1.0) * throttle(1.0) = $18,700 → 187 shares
+        result = compute_position_size(
+            ensemble_multiplier=0.85,       # v2: caller passes ensemble directly
+            position_size_modifier=1.0,     # v2: default (no fusion modifier)
+            **self.BASE_KWARGS,
+        )
+        assert result['shares'] == 187
+        assert result['dollars'] == 18700.0
+
+    def test_unsafe_caller_pattern_double_applies_without_gate(self):
+        # If a future caller forgets the v3 defense and passes BOTH
+        # arguments non-neutral, the function double-applies. This test
+        # documents the susceptibility (current production never invokes
+        # this pattern; the gate below protects against future regression).
+        # Chain: $20k * 1.10 * 0.85 * 0.85 * 1.0 = $15,895 → 158 shares
+        result = compute_position_size(
+            ensemble_multiplier=0.85,
+            position_size_modifier=0.85,
+            **self.BASE_KWARGS,
+        )
+        assert result['shares'] == 158
+        assert result['dollars'] == 15800.0
+
+    def test_gate_on_neutralizes_unsafe_caller(self):
+        # The defense-in-depth gate forces ensemble_adj=1.0, so even an
+        # unsafe caller (both non-neutral) gets correct single-application
+        # math. Chain: $20k * 1.10 * 1.00 * 0.85 * 1.0 = $18,700 → 187 shares
+        result = compute_position_size(
+            ensemble_multiplier=0.85,
+            position_size_modifier=0.85,
+            decision_engine_overrides={
+                'position_size': {'ensemble_multiplier_already_applied': True},
+            },
+            **self.BASE_KWARGS,
+        )
+        assert result['shares'] == 187
+        assert result['dollars'] == 18700.0
+
+    def test_gate_on_with_v3_caller_is_no_op(self):
+        # Critical: when the v3 caller is correct (ensemble=1.0), the gate
+        # has no effect. This proves the gate is safe to ship default-on:
+        # under the actual production path it changes nothing.
+        without = compute_position_size(
+            ensemble_multiplier=1.0,
+            position_size_modifier=0.85,
+            **self.BASE_KWARGS,
+        )
+        with_gate = compute_position_size(
+            ensemble_multiplier=1.0,
+            position_size_modifier=0.85,
+            decision_engine_overrides={
+                'position_size': {'ensemble_multiplier_already_applied': True},
+            },
+            **self.BASE_KWARGS,
+        )
+        assert without == with_gate
+
+    def test_gate_default_off_explicit_false_no_op(self):
+        # Setting the override to False explicitly must match the no-override
+        # default — no operator-error room.
+        without = compute_position_size(
+            ensemble_multiplier=0.85,
+            position_size_modifier=0.85,
+            **self.BASE_KWARGS,
+        )
+        explicit = compute_position_size(
+            ensemble_multiplier=0.85,
+            position_size_modifier=0.85,
+            decision_engine_overrides={
+                'position_size': {'ensemble_multiplier_already_applied': False},
+            },
+            **self.BASE_KWARGS,
+        )
+        assert without == explicit

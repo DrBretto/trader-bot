@@ -436,12 +436,34 @@ def compute_position_size(
     # Adjust by LLM confidence
     llm_adj = 1.0 - llm_confidence_adj
 
-    # Adjust by ensemble model agreement (reduces size when models disagree)
-    ensemble_adj = ensemble_multiplier
+    # Adjust by ensemble model agreement (reduces size when models disagree).
+    #
+    # Caller-pattern note (the F-2030-A finding from 2026-04-30 audit was
+    # a false positive — see `docs/plans/2026-04-30-ensemble-double-fix-RETURN.md`):
+    # `regime_fusion.decide_regime_v3` folds `ensemble_multiplier` into
+    # `position_size_modifier` at `src/signals/regime_fusion.py:262`, so
+    # a naive call to `compute_position_size` with both arguments non-neutral
+    # would double-apply the multiplier. The v3 production callers defend
+    # against this by passing `ensemble_multiplier=1.0` whenever
+    # `expert_signals is not None` (see `:798` and `:828`); the v2 callers
+    # pass `position_size_modifier=1.0` (its default). Either way, the
+    # multiplier is applied exactly once.
+    #
+    # The gate below (`ensemble_multiplier_already_applied`, default False)
+    # is defense-in-depth for a future caller that forgets the v3 1.0 swap.
+    # When True, `ensemble_adj` is forced to 1.0 regardless of the passed
+    # `ensemble_multiplier`, making the function robust to incorrect call
+    # patterns. Promoting the gate via config is a no-op under all current
+    # callers and is safe; it ships as documentation more than as a fix.
+    ensemble_already_applied = bool(_get_nested(
+        overrides, 'position_size.ensemble_multiplier_already_applied', False
+    ))
+    ensemble_adj = 1.0 if ensemble_already_applied else ensemble_multiplier
 
-    # Expert signal adjustments (position_size_modifier already includes
-    # ensemble_multiplier via regime_fusion, but we keep ensemble_adj here
-    # for backward compat when expert_signals is None)
+    # Expert signal adjustments. `position_size_modifier` is the canonical
+    # full-chain output of `decide_regime_v3` (fragility cap, entropy gate,
+    # panic override, ensemble multiplier — all included). The v2 / legacy
+    # callers leave it at the default 1.0.
     expert_adj = position_size_modifier
 
     # Risk throttle: higher throttle = smaller positions
