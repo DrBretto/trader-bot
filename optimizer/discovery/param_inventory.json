@@ -19,7 +19,8 @@
       "component": "model_fallback",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Used only when trained models are unavailable/failing."
+      "notes": "Used only when trained models are unavailable/failing.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "baseline_health.health_weights.momentum",
@@ -36,7 +37,8 @@
       "component": "model_fallback",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Used only when trained models are unavailable/failing."
+      "notes": "Used only when trained models are unavailable/failing.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "baseline_health.health_weights.rel_strength",
@@ -53,7 +55,8 @@
       "component": "model_fallback",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Used only when trained models are unavailable/failing."
+      "notes": "Used only when trained models are unavailable/failing.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "baseline_regime.vol_p40",
@@ -70,7 +73,8 @@
       "component": "model_fallback",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Used only when trained models are unavailable/failing."
+      "notes": "Used only when trained models are unavailable/failing.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "baseline_regime.vol_p50",
@@ -87,7 +91,8 @@
       "component": "model_fallback",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Used only when trained models are unavailable/failing."
+      "notes": "Used only when trained models are unavailable/failing.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "baseline_regime.vol_p85",
@@ -104,7 +109,8 @@
       "component": "model_fallback",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Used only when trained models are unavailable/failing."
+      "notes": "Used only when trained models are unavailable/failing.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.high_vol_bucket_exception_score",
@@ -121,7 +127,8 @@
       "component": "buy_filter_gate",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.position_size.regime_adj.calm_uptrend",
@@ -138,7 +145,8 @@
       "component": "position_sizing",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.position_size.regime_adj.choppy",
@@ -155,7 +163,8 @@
       "component": "position_sizing",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.position_size.regime_adj.high_vol_panic",
@@ -172,7 +181,8 @@
       "component": "position_sizing",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.position_size.regime_adj.risk_off_trend",
@@ -189,7 +199,8 @@
       "component": "position_sizing",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.position_size.regime_adj.risk_on_trend",
@@ -206,7 +217,8 @@
       "component": "position_sizing",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.position_size.throttle_scale",
@@ -225,7 +237,8 @@
         "throttle_adj = 1 - risk_throttle_factor * throttle_scale"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.position_size.vol_adj.high",
@@ -242,7 +255,8 @@
       "component": "position_sizing",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.position_size.vol_adj.low",
@@ -259,7 +273,8 @@
       "component": "position_sizing",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.position_size.vol_adj.med",
@@ -276,7 +291,8 @@
       "component": "position_sizing",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_engine.watchlist.min_target_count",
@@ -293,7 +309,8 @@
       "component": "dashboard_watchlist",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.buy_score_threshold",
@@ -310,7 +327,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.initial_portfolio_value",
@@ -327,7 +345,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.leveraged_constraints.max_hold_days",
@@ -344,7 +363,8 @@
       "component": "leveraged_risk_controls",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.leveraged_constraints.max_weight",
@@ -361,7 +381,8 @@
       "component": "leveraged_risk_controls",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Present in config but not referenced by live decision path."
+      "notes": "Present in config but not referenced by live decision path.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.leveraged_constraints.stop_multiplier",
@@ -378,7 +399,8 @@
       "component": "leveraged_risk_controls",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Present in config but not referenced by live decision path."
+      "notes": "Present in config but not referenced by live decision path.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.max_position_weight",
@@ -395,7 +417,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.max_positions",
@@ -412,7 +435,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.max_sector_weight",
@@ -429,7 +453,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Present in config but not referenced by live decision path."
+      "notes": "Present in config but not referenced by live decision path.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.min_cash_reserve_by_regime.calm_uptrend",
@@ -448,7 +473,8 @@
         "applies when final regime label == 'calm_uptrend'"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.min_cash_reserve_by_regime.choppy",
@@ -467,7 +493,8 @@
         "applies when final regime label == 'choppy'"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.min_cash_reserve_by_regime.high_vol_panic",
@@ -486,7 +513,8 @@
         "applies when final regime label == 'high_vol_panic'"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.min_cash_reserve_by_regime.risk_off_trend",
@@ -505,7 +533,8 @@
         "applies when final regime label == 'risk_off_trend'"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.min_cash_reserve_by_regime.risk_on_trend",
@@ -524,7 +553,8 @@
         "applies when final regime label == 'risk_on_trend'"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.min_health_buy",
@@ -541,7 +571,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.min_order_dollars",
@@ -558,7 +589,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.reduce_health_drop",
@@ -575,7 +607,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Present in config but not referenced by live decision path."
+      "notes": "Present in config but not referenced by live decision path.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.sell_health_days",
@@ -592,7 +625,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Present in config but not referenced by live decision path."
+      "notes": "Present in config but not referenced by live decision path.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.sell_health_threshold",
@@ -609,7 +643,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.trailing_stop_base",
@@ -626,7 +661,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "decision_params.trailing_stop_leveraged",
@@ -643,7 +679,8 @@
       "component": "decision_engine",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "ensemble.disagreement_threshold",
@@ -660,7 +697,8 @@
       "component": "ensemble_uncertainty",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "ensemble.gru_weight",
@@ -679,7 +717,8 @@
         "gru_weight + transformer_weight should remain ~= 1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "ensemble.multiplier.base_floor",
@@ -696,7 +735,8 @@
       "component": "ensemble_uncertainty",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "ensemble.multiplier.base_span",
@@ -713,7 +753,8 @@
       "component": "ensemble_uncertainty",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "ensemble.multiplier.clip_max",
@@ -730,7 +771,8 @@
       "component": "ensemble_uncertainty",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "ensemble.multiplier.clip_min",
@@ -747,7 +789,8 @@
       "component": "ensemble_uncertainty",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "ensemble.multiplier.disagreement_penalty_scale",
@@ -764,7 +807,8 @@
       "component": "ensemble_uncertainty",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "ensemble.transformer_weight",
@@ -783,7 +827,8 @@
         "gru_weight + transformer_weight should remain ~= 1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "entropy_shift.consecutive_days_required",
@@ -800,7 +845,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "entropy_shift.max_lookback_days",
@@ -817,7 +863,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "entropy_shift.min_rolling_samples_for_zscore",
@@ -834,7 +881,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "entropy_shift.num_bins",
@@ -851,7 +899,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "entropy_shift.window_days",
@@ -868,7 +917,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "entropy_shift.z_threshold",
@@ -885,7 +935,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "fragility.AVG_CORR_MEAN",
@@ -893,16 +944,18 @@
       "type": "float",
       "current_value": 0.3,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": -5.0,
-        "max": 5.0
+        "source": "empirical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 0.3881,
+        "max": 0.5999
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Re-derived 2026-04-30 from optimizer dataset (n=52 non-zero rows). Original 0.30 was at empirical p5; new bounds are p1/p99 of avg_correlation.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": "mean(avg_correlation, exclude_zero=True)"
     },
     {
       "name": "fragility.AVG_CORR_STD",
@@ -910,16 +963,18 @@
       "type": "float",
       "current_value": 0.15,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": -5.0,
-        "max": 5.0
+        "source": "empirical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 0.0181,
+        "max": 0.2893
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Re-derived 2026-04-30 from optimizer dataset. Bounds = [0.25x, 4x] empirical std=0.0723.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": "std(avg_correlation, exclude_zero=True)"
     },
     {
       "name": "fragility.MIN_DAYS",
@@ -936,7 +991,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "fragility.MIN_SYMBOLS",
@@ -953,7 +1009,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "fragility.PANEL_SYMBOLS",
@@ -987,7 +1044,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Symbol universe list; changing requires data-availability and interpretation checks."
+      "notes": "Symbol universe list; changing requires data-availability and interpretation checks.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "fragility.PC1_MEAN",
@@ -995,16 +1053,18 @@
       "type": "float",
       "current_value": 0.45,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": -5.0,
-        "max": 5.0
+        "source": "empirical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 0.5206,
+        "max": 0.687
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Re-derived 2026-04-30 from optimizer dataset (n=52). Original 0.45 was below empirical minimum; new bounds are p1/p99 of pc1_explained.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": "mean(pc1_explained, exclude_zero=True)"
     },
     {
       "name": "fragility.PC1_STD",
@@ -1012,16 +1072,18 @@
       "type": "float",
       "current_value": 0.12,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": -5.0,
-        "max": 5.0
+        "source": "empirical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 0.015,
+        "max": 0.2408
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Re-derived 2026-04-30 from optimizer dataset. Bounds = [0.25x, 4x] empirical std=0.0602.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": "std(pc1_explained, exclude_zero=True)"
     },
     {
       "name": "fragility.window_days",
@@ -1038,7 +1100,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "llm_risk.max_symbols_checked",
@@ -1055,7 +1118,8 @@
       "component": "llm_risk_overlay",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Impacts LLM call volume/cost and qualitative veto behavior; treat as ops policy, not evolutionary gene."
+      "notes": "Impacts LLM call volume/cost and qualitative veto behavior; treat as ops policy, not evolutionary gene.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "llm_risk.prompt_confidence_adjustment_max",
@@ -1072,7 +1136,8 @@
       "component": "llm_risk_overlay",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Impacts LLM call volume/cost and qualitative veto behavior; treat as ops policy, not evolutionary gene."
+      "notes": "Impacts LLM call volume/cost and qualitative veto behavior; treat as ops policy, not evolutionary gene.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "llm_risk.top_candidate_count",
@@ -1089,7 +1154,8 @@
       "component": "llm_risk_overlay",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Impacts LLM call volume/cost and qualitative veto behavior; treat as ops policy, not evolutionary gene."
+      "notes": "Impacts LLM call volume/cost and qualitative veto behavior; treat as ops policy, not evolutionary gene.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "macro_credit.HY_SPREAD_MEAN",
@@ -1097,16 +1163,18 @@
       "type": "float",
       "current_value": 0.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": -5.0,
-        "max": 5.0
+        "source": "empirical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": -0.0235,
+        "max": 0.0167
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Re-derived 2026-04-30 from optimizer dataset (n=52). Bounds are p1/p99 of hy_spread_proxy (signed).",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": "mean(hy_spread_proxy, exclude_zero=False)"
     },
     {
       "name": "macro_credit.HY_SPREAD_STD",
@@ -1114,16 +1182,18 @@
       "type": "float",
       "current_value": 0.02,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": -5.0,
-        "max": 5.0
+        "source": "empirical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 0.0032,
+        "max": 0.0505
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Re-derived 2026-04-30. Bounds = [0.25x, 4x] empirical std=0.0126.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": "std(hy_spread_proxy, exclude_zero=False)"
     },
     {
       "name": "macro_credit.SLOPE_MEAN",
@@ -1131,16 +1201,18 @@
       "type": "float",
       "current_value": 1.5,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": -5.0,
-        "max": 5.0
+        "source": "empirical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 0.55,
+        "max": 0.6655
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Re-derived 2026-04-30 from optimizer dataset (n=16 \u2014 DGS3MO had been missing pre-2026-04-02). Bounds are p1/p99 of yield_slope_10y_3m. Caution: small sample; re-derive once more 2y of post-DGS3MO-fix data accumulates.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": "mean(yield_slope_10y_3m, exclude_zero=True)"
     },
     {
       "name": "macro_credit.SLOPE_STD",
@@ -1148,16 +1220,18 @@
       "type": "float",
       "current_value": 1.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": -5.0,
-        "max": 5.0
+        "source": "empirical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 0.0082,
+        "max": 0.1306
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Re-derived 2026-04-30. Bounds = [0.25x, 4x] empirical std=0.0327.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": "std(yield_slope_10y_3m, exclude_zero=True)"
     },
     {
       "name": "macro_credit.hy_lookback_days",
@@ -1174,7 +1248,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "macro_credit.hy_spread_weight",
@@ -1191,7 +1266,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "macro_credit.slope_weight",
@@ -1208,7 +1284,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "morning_execution.buy_price_gap_threshold",
@@ -1225,7 +1302,8 @@
       "component": "execution_validation",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Execution-safety policy, separate from alpha/selection optimization."
+      "notes": "Execution-safety policy, separate from alpha/selection optimization.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "morning_execution.max_intent_age_days",
@@ -1242,7 +1320,8 @@
       "component": "execution_validation",
       "dependencies": [],
       "safe_to_optimize": false,
-      "notes": "Execution-safety policy, separate from alpha/selection optimization."
+      "notes": "Execution-safety policy, separate from alpha/selection optimization.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.bond",
@@ -1261,7 +1340,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.commodity",
@@ -1280,7 +1360,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.credit_high_yield",
@@ -1299,7 +1380,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.equity",
@@ -1318,7 +1400,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.fx",
@@ -1337,7 +1420,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_comm",
@@ -1356,7 +1440,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_cons_disc",
@@ -1375,7 +1460,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_cons_staples",
@@ -1394,7 +1480,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_energy",
@@ -1413,7 +1500,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_financials",
@@ -1432,7 +1520,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_healthcare",
@@ -1451,7 +1540,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_industrials",
@@ -1470,7 +1560,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_materials",
@@ -1489,7 +1580,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_reit",
@@ -1508,7 +1600,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_tech",
@@ -1527,7 +1620,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.sector_utilities",
@@ -1546,7 +1640,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.treas_long",
@@ -1565,7 +1660,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.calm_uptrend.vol",
@@ -1584,7 +1680,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.bond",
@@ -1603,7 +1700,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.commodity",
@@ -1622,7 +1720,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.credit_high_yield",
@@ -1641,7 +1740,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.equity",
@@ -1660,7 +1760,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.fx",
@@ -1679,7 +1780,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_comm",
@@ -1698,7 +1800,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_cons_disc",
@@ -1717,7 +1820,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_cons_staples",
@@ -1736,7 +1840,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_energy",
@@ -1755,7 +1860,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_financials",
@@ -1774,7 +1880,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_healthcare",
@@ -1793,7 +1900,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_industrials",
@@ -1812,7 +1920,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_materials",
@@ -1831,7 +1940,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_reit",
@@ -1850,7 +1960,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_tech",
@@ -1869,7 +1980,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.sector_utilities",
@@ -1888,7 +2000,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.treas_long",
@@ -1907,7 +2020,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.choppy.vol",
@@ -1926,7 +2040,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.bond",
@@ -1945,7 +2060,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.commodity",
@@ -1964,7 +2080,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.credit_high_yield",
@@ -1983,7 +2100,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.equity",
@@ -2002,7 +2120,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.fx",
@@ -2021,7 +2140,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_comm",
@@ -2040,7 +2160,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_cons_disc",
@@ -2059,7 +2180,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_cons_staples",
@@ -2078,7 +2200,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_energy",
@@ -2097,7 +2220,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_financials",
@@ -2116,7 +2240,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_healthcare",
@@ -2135,7 +2260,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_industrials",
@@ -2154,7 +2280,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_materials",
@@ -2173,7 +2300,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_reit",
@@ -2192,7 +2320,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_tech",
@@ -2211,7 +2340,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.sector_utilities",
@@ -2230,7 +2360,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.treas_long",
@@ -2249,7 +2380,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.high_vol_panic.vol",
@@ -2268,7 +2400,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.bond",
@@ -2287,7 +2420,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.commodity",
@@ -2306,7 +2440,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.credit_high_yield",
@@ -2325,7 +2460,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.equity",
@@ -2344,7 +2480,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.fx",
@@ -2363,7 +2500,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_comm",
@@ -2382,7 +2520,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_cons_disc",
@@ -2401,7 +2540,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_cons_staples",
@@ -2420,7 +2560,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_energy",
@@ -2439,7 +2580,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_financials",
@@ -2458,7 +2600,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_healthcare",
@@ -2477,7 +2620,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_industrials",
@@ -2496,7 +2640,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_materials",
@@ -2515,7 +2660,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_reit",
@@ -2534,7 +2680,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_tech",
@@ -2553,7 +2700,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.sector_utilities",
@@ -2572,7 +2720,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.treas_long",
@@ -2591,7 +2740,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_off_trend.vol",
@@ -2610,7 +2760,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.bond",
@@ -2629,7 +2780,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.commodity",
@@ -2648,7 +2800,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.credit_high_yield",
@@ -2667,7 +2820,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.equity",
@@ -2686,7 +2840,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.fx",
@@ -2705,7 +2860,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_comm",
@@ -2724,7 +2880,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_cons_disc",
@@ -2743,7 +2900,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_cons_staples",
@@ -2762,7 +2920,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_energy",
@@ -2781,7 +2940,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_financials",
@@ -2800,7 +2960,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_healthcare",
@@ -2819,7 +2980,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_industrials",
@@ -2838,7 +3000,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_materials",
@@ -2857,7 +3020,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_reit",
@@ -2876,7 +3040,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_tech",
@@ -2895,7 +3060,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.sector_utilities",
@@ -2914,7 +3080,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.treas_long",
@@ -2933,7 +3100,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_compatibility.risk_on_trend.vol",
@@ -2952,7 +3120,8 @@
         "applies through decision_engine.get_multiplier() lookup fallback sector->asset_class->1.0"
       ],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.entropy_size_multiplier",
@@ -2969,7 +3138,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.entropy_throttle_increment",
@@ -2986,7 +3156,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.final_position_size_clip_max",
@@ -3003,7 +3174,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.final_position_size_clip_min",
@@ -3020,7 +3192,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.final_risk_throttle_clip_max",
@@ -3037,7 +3210,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.final_risk_throttle_clip_min",
@@ -3054,7 +3228,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.fragility_position_cap",
@@ -3071,7 +3246,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.fragility_threshold",
@@ -3088,7 +3264,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.fragility_throttle_increment",
@@ -3105,7 +3282,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.macro_downgrade_threshold",
@@ -3122,7 +3300,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.macro_upgrade_threshold",
@@ -3139,7 +3318,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.panic_position_size",
@@ -3156,7 +3336,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.panic_prob_threshold",
@@ -3173,7 +3354,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.panic_risk_throttle",
@@ -3190,7 +3372,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.throttle_to_exposure_scale",
@@ -3207,7 +3390,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.unstable_calm_panic_threshold",
@@ -3224,7 +3408,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.unstable_position_size",
@@ -3241,7 +3426,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "regime_fusion.unstable_risk_throttle",
@@ -3258,7 +3444,8 @@
       "component": "regime_fusion_rules",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.asset_class_default_bps.bond",
@@ -3275,7 +3462,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.asset_class_default_bps.commodity",
@@ -3292,7 +3480,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.asset_class_default_bps.equity",
@@ -3309,7 +3498,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.asset_class_default_bps.fx",
@@ -3326,7 +3516,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.asset_class_default_bps.vol",
@@ -3343,7 +3534,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.slippage_range_bps",
@@ -3360,7 +3552,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.aggregate",
@@ -3377,7 +3570,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.broad",
@@ -3394,7 +3588,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.broad_commodities",
@@ -3411,7 +3606,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.country_brazil",
@@ -3428,7 +3624,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.country_china",
@@ -3445,7 +3642,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.country_india",
@@ -3462,7 +3660,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.country_japan",
@@ -3479,7 +3678,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.credit_high_yield",
@@ -3496,7 +3696,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.credit_investment_grade",
@@ -3513,7 +3714,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.eur",
@@ -3530,7 +3732,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.factor_dividend",
@@ -3547,7 +3750,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.factor_dividend_growth",
@@ -3564,7 +3768,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.factor_minvol",
@@ -3581,7 +3786,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.factor_momentum",
@@ -3598,7 +3804,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.factor_quality",
@@ -3615,7 +3822,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.factor_value",
@@ -3632,7 +3840,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.global",
@@ -3649,7 +3858,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.gold",
@@ -3666,7 +3876,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.industry_aerospace_defense",
@@ -3683,7 +3894,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.industry_biotech",
@@ -3700,7 +3912,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.industry_regional_banks",
@@ -3717,7 +3930,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.industry_retail",
@@ -3734,7 +3948,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.industry_semis",
@@ -3751,7 +3966,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.industry_transport",
@@ -3768,7 +3984,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.international_dev",
@@ -3785,7 +4002,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.international_em",
@@ -3802,7 +4020,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.muni",
@@ -3819,7 +4038,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.natural_gas",
@@ -3836,7 +4056,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.oil",
@@ -3853,7 +4074,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.region_europe",
@@ -3870,7 +4092,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_comm",
@@ -3887,7 +4110,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_cons_disc",
@@ -3904,7 +4128,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_cons_staples",
@@ -3921,7 +4146,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_energy",
@@ -3938,7 +4164,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_financials",
@@ -3955,7 +4182,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_healthcare",
@@ -3972,7 +4200,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_industrials",
@@ -3989,7 +4218,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_materials",
@@ -4006,7 +4236,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_reit",
@@ -4023,7 +4254,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_tech",
@@ -4040,7 +4272,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.sector_utilities",
@@ -4057,7 +4290,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.silver",
@@ -4074,7 +4308,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.style_growth",
@@ -4091,7 +4326,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.style_value",
@@ -4108,7 +4344,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.theme_innovation",
@@ -4125,7 +4362,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.treas_intermediate",
@@ -4142,7 +4380,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.treas_long",
@@ -4159,7 +4398,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.treas_short",
@@ -4176,7 +4416,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.treas_tips",
@@ -4193,7 +4434,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.usd",
@@ -4210,7 +4452,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "transaction_costs.spread_bps.volatility",
@@ -4227,7 +4470,8 @@
       "component": "cost_model",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": "Half-spread bps assumption used to simulate fill prices."
+      "notes": "Half-spread bps assumption used to simulate fill prices.",
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "vol_uncertainty.dynamic_history_min_obs",
@@ -4244,7 +4488,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "vol_uncertainty.regime_thresholds.panic.vix_pctile",
@@ -4261,7 +4506,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "vol_uncertainty.regime_thresholds.panic.vvix_pctile",
@@ -4278,7 +4524,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "vol_uncertainty.regime_thresholds.unstable.vix_pctile_max",
@@ -4295,7 +4542,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "vol_uncertainty.regime_thresholds.unstable.vvix_pctile",
@@ -4312,7 +4560,8 @@
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": null,
+      "parameter_class": "decision_threshold"
     },
     {
       "name": "vol_uncertainty.skew_thresholds.p20",
@@ -4320,16 +4569,18 @@
       "type": "float",
       "current_value": 115.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 105.0,
+        "max": 125.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "SKEW p20 historically near 115. Bounds \u00b110.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.skew_thresholds.p50",
@@ -4337,16 +4588,18 @@
       "type": "float",
       "current_value": 125.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 115.0,
+        "max": 135.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "SKEW p50 historically near 125. Bounds \u00b110.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.skew_thresholds.p80",
@@ -4354,16 +4607,18 @@
       "type": "float",
       "current_value": 140.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 130.0,
+        "max": 150.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "SKEW p80 historically near 140. Bounds \u00b110.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.skew_thresholds.p95",
@@ -4371,16 +4626,18 @@
       "type": "float",
       "current_value": 150.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 140.0,
+        "max": 160.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "SKEW p95 historically near 150. Bounds \u00b110.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.vix_thresholds.p20",
@@ -4388,16 +4645,18 @@
       "type": "float",
       "current_value": 13.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 9.0,
+        "max": 16.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Empirical VIX p20 historically near 13. Bounds \u00b13 around current value.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.vix_thresholds.p50",
@@ -4405,16 +4664,18 @@
       "type": "float",
       "current_value": 17.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 14.0,
+        "max": 21.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Empirical VIX median historically 17.93 (1272d yfinance). Bounds \u00b13.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.vix_thresholds.p80",
@@ -4422,16 +4683,18 @@
       "type": "float",
       "current_value": 25.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 21.0,
+        "max": 30.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Empirical VIX p80 historically near 25. Bounds \u00b14.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.vix_thresholds.p95",
@@ -4439,16 +4702,18 @@
       "type": "float",
       "current_value": 30.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 25.0,
+        "max": 40.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "Empirical VIX p95 historically near 30. Bounds 25-40 spans normal-to-stress regimes.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.vvix_thresholds.p20",
@@ -4456,16 +4721,18 @@
       "type": "float",
       "current_value": 75.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 65.0,
+        "max": 85.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "VVIX p20 historically near 75. Bounds \u00b110.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.vvix_thresholds.p50",
@@ -4473,16 +4740,18 @@
       "type": "float",
       "current_value": 85.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 75.0,
+        "max": 95.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "VVIX p50 historically near 85. Bounds \u00b110.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.vvix_thresholds.p80",
@@ -4490,16 +4759,18 @@
       "type": "float",
       "current_value": 105.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 95.0,
+        "max": 115.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "VVIX p80 historically near 105. Bounds \u00b110.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     },
     {
       "name": "vol_uncertainty.vvix_thresholds.p95",
@@ -4507,16 +4778,18 @@
       "type": "float",
       "current_value": 120.0,
       "allowed_range": {
-        "source": "inferred_from_usage",
-        "needs_bounds_confirmation": true,
-        "min": 0.0,
-        "max": 300.0
+        "source": "historical_distribution_2026_04_30",
+        "needs_bounds_confirmation": false,
+        "min": 110.0,
+        "max": 140.0
       },
       "used_live": true,
       "component": "expert_signal_computation",
       "dependencies": [],
       "safe_to_optimize": true,
-      "notes": null
+      "notes": "VVIX p95 historically near 120. Bounds 110-140 spans normal-to-stress.",
+      "parameter_class": "normalization_constant",
+      "empirical_statistic": null
     }
   ]
 }
