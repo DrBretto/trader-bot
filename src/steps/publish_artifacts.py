@@ -11,6 +11,26 @@ from src.utils.s3_client import S3Client
 from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
 
 
+def _invalidate_dashboard_cache() -> None:
+    distribution_id = os.environ.get('DASHBOARD_CLOUDFRONT_DISTRIBUTION_ID')
+    if not distribution_id:
+        return
+    try:
+        import boto3
+        client = boto3.client('cloudfront')
+        caller_reference = f"publish-{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}"
+        resp = client.create_invalidation(
+            DistributionId=distribution_id,
+            InvalidationBatch={
+                'Paths': {'Quantity': 1, 'Items': ['/*']},
+                'CallerReference': caller_reference,
+            },
+        )
+        print(f"  CloudFront invalidation queued: {resp['Invalidation']['Id']}")
+    except Exception as e:
+        print(f"  CloudFront invalidation failed (non-fatal): {e}")
+
+
 def _load_chart_markers() -> List[Dict[str, Any]]:
     """Load timeline markers from config/chart_markers.json.
 
@@ -744,6 +764,8 @@ def run(
     if failed:
         print(f"  Failed: {len(failed)} artifacts - {failed}")
 
+    _invalidate_dashboard_cache()
+
     return {
         'success': len(failed) == 0,
         'published': published,
@@ -852,6 +874,8 @@ def publish_morning_artifacts(
     print(f"  Published: {len(published)} morning artifacts")
     if failed:
         print(f"  Failed: {len(failed)} artifacts - {failed}")
+
+    _invalidate_dashboard_cache()
 
     return {
         'success': len(failed) == 0,
