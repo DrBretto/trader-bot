@@ -9,6 +9,11 @@ from statistics import mean, stdev
 from typing import Any, Deque, Dict, List, Optional, Tuple
 
 from src.utils.cutover_bridge import extract_cutover_date_from_marker
+from src.utils.historical_corrections import apply_split_corrections_to_fills
+from src.utils.alpaca_truth import (
+    apply_alpaca_truth_to_fills,
+    load_alpaca_orders_cache,
+)
 
 
 def _parse_date(value: str) -> datetime:
@@ -334,7 +339,16 @@ def _drawdown_series(active_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def _load_fills(s3, dates: List[str]) -> List[Dict[str, Any]]:
-    """Load fills from trades.jsonl for the specified dates."""
+    """Load fills from trades.jsonl for the specified dates and reconcile
+    post-cutoff entries against Alpaca-truth orders cached in S3.
+
+    Pre-cutoff fills (paper_trader simulated trades, no broker_order_id) pass
+    through untouched. Post-cutoff entries with broker_order_id are patched
+    when local shares/price drifted from Alpaca's filled_qty/filled_avg_price
+    (e.g. partially_filled stale snapshot). Bot-decided Alpaca orders not
+    represented in any local trades.jsonl row are injected so FIFO accounting
+    closes correctly.
+    """
     fills: List[Dict[str, Any]] = []
     for date_str in dates:
         day_fills = s3.read_jsonl(f"daily/{date_str}/trades.jsonl")
@@ -345,12 +359,22 @@ def _load_fills(s3, dates: List[str]) -> List[Dict[str, Any]]:
             normalized["_trade_index"] = idx
             fills.append(normalized)
 
+    alpaca_orders = load_alpaca_orders_cache(s3)
+    fills = apply_alpaca_truth_to_fills(fills, alpaca_orders)
+
     def _sort_key(fill: Dict[str, Any]) -> Tuple[datetime, int]:
         ts = _parse_timestamp(str(fill.get("timestamp", "")))
         if ts is not None:
             return ts, int(fill.get("_trade_index", 0))
         day = _parse_date(str(fill.get("_trade_date", "1970-01-01")))
         return day, int(fill.get("_trade_index", 0))
+
+    # Set _trade_date on injected fills so the sort key has a stable fallback.
+    for fill in fills:
+        if "_trade_date" not in fill:
+            ts = str(fill.get("timestamp", ""))
+            fill["_trade_date"] = ts[:10] if ts else "1970-01-01"
+            fill["_trade_index"] = 9999  # sort injected fills last within their day
 
     fills.sort(key=_sort_key)
     return fills
@@ -385,7 +409,18 @@ def _fill_cost_dollars(fill: Dict[str, Any]) -> float:
 
 
 def _build_trade_summary(fills: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Construct deterministic FIFO round-trip accounting from fill records."""
+    """Construct deterministic FIFO round-trip accounting from fill records.
+
+    Fills are split-adjusted before FIFO matching via
+    `apply_split_corrections_to_fills`. Without that adjustment, a pre-split
+    BUY (e.g. VUG 17.127 sh @ $441.05) gets matched against a post-split SELL
+    (56 sh @ $84.38), producing a phantom realized loss of -$6,063 driven by
+    cost-basis mismatch rather than actual strategy P&L. The corrections
+    layer translates the pre-split lot to its post-split basis (102.77 sh @
+    $73.51) so the same dollar exposure matches the same dollar basis.
+    """
+    fills = apply_split_corrections_to_fills(fills)
+
     open_lots: Dict[str, Deque[Dict[str, Any]]] = defaultdict(deque)
     round_trips: List[Dict[str, Any]] = []
     unmatched_closing_shares = 0

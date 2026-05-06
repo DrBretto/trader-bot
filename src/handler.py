@@ -501,12 +501,23 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
         # Publish all artifacts to S3
         logger.info("Publishing artifacts to S3...")
         with StepTimer("Publish artifacts", logger):
+            publish_broker = None
+            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
+                try:
+                    publish_broker = get_broker(
+                        config, alpaca_key_id, alpaca_secret_key
+                    )
+                except Exception as exc:
+                    logger.warning(
+                        "publish broker construction failed (non-fatal): %s", exc
+                    )
             publish_result = publish_artifacts.run(
                 bucket, run_date,
                 prices_df, context_df, features_df,
                 inference_output, llm_risks, decisions,
                 portfolio_state, trades, weather, validation,
-                expert_signals=expert_signals
+                expert_signals=expert_signals,
+                broker=publish_broker,
             )
 
         end_time = datetime.now()
@@ -674,7 +685,8 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
             publish_artifacts.publish_morning_artifacts(
                 bucket, run_date, portfolio_state, trades,
                 morning_execution_report, night_inference, night_decisions,
-                night_weather, expert_signals=expert_signals
+                night_weather, expert_signals=expert_signals,
+                broker=broker,
             )
 
         end_time = datetime.now()
