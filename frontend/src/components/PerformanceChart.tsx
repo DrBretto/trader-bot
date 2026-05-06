@@ -36,6 +36,8 @@ const MARKER_DEFAULT_COLOR = '#94a3b8';
 interface MergedPoint {
   date: string;
   value: number;
+  correctedValue: number;
+  actualValue: number;
   benchmark: number;
   drawdownPct: number;
   peak: number;
@@ -126,8 +128,13 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
         <span style={{ fontSize: 10, color: point.isLive ? '#22c55e' : '#64748b', fontWeight: 500 }}>{era}</span>
       </div>
       <div style={{ color: '#60a5fa' }}>
-        Portfolio: <span style={{ fontWeight: 600 }}>{formatCurrency(point.value)}</span>
+        Portfolio (corrected): <span style={{ fontWeight: 600 }}>{formatCurrency(point.correctedValue)}</span>
       </div>
+      {point.actualValue !== point.correctedValue && (
+        <div style={{ color: '#94a3b8', fontSize: 11 }}>
+          Actual (broken): <span style={{ fontWeight: 500 }}>{formatCurrency(point.actualValue)}</span>
+        </div>
+      )}
       <div style={{ color: '#94a3b8' }}>
         SPY Benchmark: <span style={{ fontWeight: 600 }}>{formatCurrency(point.benchmark)}</span>
       </div>
@@ -163,13 +170,23 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
   const firstMoveIdx = equityData.findIndex(p => Math.abs(p.value - startVal) / (startVal || 1) > 0.001);
   const trimmedEquity = firstMoveIdx > 1 ? equityData.slice(firstMoveIdx - 1) : equityData;
 
-  // Merge and compute running peak
+  // Merge and compute running peak.
+  // `corrected_value` is the counterfactual line published by the 2026-05-06
+  // day-by-day timeline correction. When present (post-cutoff dates after
+  // the correction shipped) it becomes the bold MAIN line; the existing
+  // `value` (the broken-system actual) is rendered faint as historical
+  // context. Pre-cutoff dates have `corrected_value === value` so the lines
+  // overlap.
   let peak = 0;
   const allMerged: MergedPoint[] = trimmedEquity.map((point) => {
-    peak = Math.max(peak, point.value);
+    const correctedValue = point.corrected_value ?? point.value;
+    const actualValue = point.actual_value ?? point.value;
+    peak = Math.max(peak, correctedValue);
     return {
       date: point.date,
-      value: point.value,
+      value: correctedValue,
+      correctedValue,
+      actualValue,
       benchmark: point.benchmark,
       drawdownPct: (ddMap.get(point.date) ?? 0) * 100,
       peak,
@@ -425,7 +442,7 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
           <Area
             yAxisId="equity"
             type="monotone"
-            dataKey="value"
+            dataKey="correctedValue"
             fill="url(#equityGlow)"
             stroke="none"
           />
@@ -454,11 +471,24 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
             legendType="none"
           />
 
-          {/* Portfolio equity — live-edge dot on last point */}
+          {/* Actual broken-system line — rendered FAINT as historical context.
+              This is what the broken implementation actually produced.  */}
           <Line
             yAxisId="equity"
             type="monotone"
-            dataKey="value"
+            dataKey="actualValue"
+            stroke="#475569"
+            strokeWidth={1.25}
+            strokeOpacity={0.55}
+            dot={false}
+            legendType="none"
+          />
+
+          {/* Portfolio equity — corrected counterfactual is the BOLD main line. */}
+          <Line
+            yAxisId="equity"
+            type="monotone"
+            dataKey="correctedValue"
             stroke="#3b82f6"
             strokeWidth={2.5}
             dot={false}
@@ -505,7 +535,10 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
       {/* Legend */}
       <div className="performance-legend">
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio
+          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio (corrected)
+        </span>
+        <span className="legend-item">
+          <span className="legend-swatch" style={{ background: '#475569', opacity: 0.55 }} /> Actual (broken)
         </span>
         <span className="legend-item">
           <span className="legend-swatch legend-swatch-dashed" style={{ background: '#64748b' }} /> SPY

@@ -57,6 +57,16 @@ export interface EquityCurvePoint {
   raw_value?: number;
   cumulative_external_cashflow?: number;
   regimeLabel?: string | null;
+  // Day-by-day timeline correction (2026-05-06).
+  // `corrected_value` is the counterfactual: what the portfolio would be
+  // worth if the post-cutoff calibration bugs (saturated fragility,
+  // ensemble-staleness panic-pinning) had been fixed.
+  // `actual_value` mirrors the existing `value` field (the broken-system
+  // continuity-adjusted broker equity) so the chart can render both as
+  // distinct series.
+  corrected_value?: number;
+  actual_value?: number;
+  corrected_raw_value?: number;
 }
 
 export interface DrawdownPoint {
