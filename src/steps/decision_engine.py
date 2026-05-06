@@ -298,6 +298,21 @@ def evaluate_holdings(
         current_health = health_map.get(symbol, {}).get('health_score', 0.5)
         sell_health_threshold = params.get('sell_health_threshold', 0.35)
 
+        # Persistence gate: track consecutive days at/below the sell-health
+        # threshold per holding. Required because a single-day health dip is
+        # noisy and was historically liquidating profitable positions on a
+        # one-day reading; the config has carried `sell_health_days: 3` since
+        # the optimizer's bootstrap but the gate was never wired. The counter
+        # is mutated on the holding dict so the night-phase publish persists
+        # it in portfolio_state.json for the next run.
+        sell_health_days_required = max(int(params.get('sell_health_days', 3) or 0), 1)
+        consecutive_below = int(holding.get('consecutive_below_health_days', 0) or 0)
+        if current_health <= sell_health_threshold:
+            consecutive_below += 1
+        else:
+            consecutive_below = 0
+        holding['consecutive_below_health_days'] = consecutive_below
+
         # Days held
         entry_date = pd.to_datetime(holding.get('entry_date', pd.Timestamp.now()))
         days_held = (pd.Timestamp.now() - entry_date).days
@@ -321,15 +336,21 @@ def evaluate_holdings(
             })
             continue
 
-        # 2. Health collapse
-        if current_health <= sell_health_threshold:
+        # 2. Health collapse — only fire once health has been at/below threshold
+        # for sell_health_days consecutive runs. Below-threshold-but-not-yet-
+        # persistent holdings stay open and continue to accrue the counter.
+        if (current_health <= sell_health_threshold
+                and consecutive_below >= sell_health_days_required):
             actions.append({
                 'symbol': symbol,
                 'action': 'SELL',
                 'reason': 'HEALTH_COLLAPSE',
                 'shares': shares,
                 'price': current_price,
-                'details': f'Health {current_health:.2f} <= {sell_health_threshold:.2f}'
+                'details': (
+                    f'Health {current_health:.2f} <= {sell_health_threshold:.2f} '
+                    f'for {consecutive_below} day(s) (gate={sell_health_days_required})'
+                ),
             })
             continue
 

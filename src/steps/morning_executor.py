@@ -35,12 +35,31 @@ BUY_PRICE_GAP_THRESHOLD = 0.05
 
 BROKER_TERMINAL_ORDER_STATUSES = {
     'filled',
-    'partially_filled',
     'canceled',
     'cancelled',
     'expired',
     'rejected',
     'suspended',
+    'done_for_day',
+    'stopped',
+    'calculated',
+}
+
+# Open/working statuses Alpaca may report between submission and final settlement.
+# `partially_filled` belongs here, NOT in the terminal set: a partial-fill order
+# stays active and continues working until it either fully fills or transitions
+# to a real terminal status. Treating it as terminal causes the trader-bot to
+# snapshot positions mid-fill, which is how VUG/XRT ended up reported as 28.77/
+# 73.09 shares while the broker had already cleared them to dust.
+BROKER_OPEN_ORDER_STATUSES = {
+    'new',
+    'partially_filled',
+    'pending_new',
+    'pending_replace',
+    'pending_cancel',
+    'accepted',
+    'accepted_for_bidding',
+    'replaced',
 }
 
 
@@ -288,10 +307,17 @@ def _execute_via_broker(
 def _await_broker_order_update(
     broker: BaseBroker,
     order_result: Dict[str, Any],
-    timeout_sec: float = 8.0,
+    timeout_sec: float = 30.0,
     poll_interval_sec: float = 0.5,
 ) -> Dict[str, Any]:
-    """Poll broker order status briefly so reconciliation sees near-immediate fills."""
+    """Poll broker order status until it reaches a real terminal state.
+
+    `partially_filled` is NOT terminal — the order stays active. We keep
+    polling until it transitions to filled / canceled / rejected / etc., or
+    the deadline elapses. Bumping the default timeout from 8s to 30s gives
+    fast-fill orders the room they need without forcing every order to hit
+    the cap on quiet markets.
+    """
     order_id = order_result.get('order_id')
     status = str(order_result.get('status') or '').lower()
 
@@ -321,6 +347,55 @@ def _await_broker_order_update(
     merged['filled_avg_price'] = latest_raw.get('filled_avg_price')
     merged['raw'] = latest_raw
     return merged
+
+
+def _wait_for_orders_to_settle(
+    broker: BaseBroker,
+    submitted_order_ids: List[str],
+    timeout_sec: float = 60.0,
+    poll_interval_sec: float = 1.0,
+) -> Dict[str, str]:
+    """Wait for every submitted order to leave OPEN status before reconciling.
+
+    Reconciling positions while orders are still working captures a transient
+    mid-fill state — exactly the failure mode that left the May 5 dashboard
+    reporting VUG=28.77 and XRT=73.09 shares the broker no longer held.
+    Returns a dict mapping order_id → final status; orders that never settle
+    are returned with the most recent status seen.
+    """
+    if not submitted_order_ids:
+        return {}
+
+    final_status: Dict[str, str] = {}
+    pending = list(submitted_order_ids)
+    deadline = time.time() + timeout_sec
+
+    while pending and time.time() < deadline:
+        still_pending: List[str] = []
+        for oid in pending:
+            try:
+                raw = broker.get_order(oid) or {}
+            except Exception as exc:
+                logger.warning("Order settle poll failed for %s: %s", oid, exc)
+                final_status[oid] = 'unknown'
+                continue
+            status = str(raw.get('status') or '').lower()
+            if status in BROKER_OPEN_ORDER_STATUSES:
+                still_pending.append(oid)
+            else:
+                final_status[oid] = status or 'unknown'
+        pending = still_pending
+        if pending:
+            time.sleep(poll_interval_sec)
+
+    for oid in pending:
+        try:
+            raw = broker.get_order(oid) or {}
+            final_status[oid] = str(raw.get('status') or 'unknown').lower()
+        except Exception:
+            final_status[oid] = 'unknown'
+
+    return final_status
 
 
 def _reconcile_portfolio_from_broker_with_retry(
@@ -409,6 +484,12 @@ def _reconcile_portfolio_from_broker(
             'asset_class': existing.get('asset_class', 'equity'),
             'sector': existing.get('sector', 'broad'),
             'leverage_flag': existing.get('leverage_flag', 0),
+            # Persistence-gate counter for sell_health_days. Carry through
+            # broker reconciliation so the count survives a position change
+            # that didn't actually unwind the holding.
+            'consecutive_below_health_days': int(
+                existing.get('consecutive_below_health_days', 0) or 0
+            ),
         }
         broker_holdings.append(holding)
         holdings_value += market_value
@@ -708,6 +789,31 @@ def run(bucket: str, config: Dict[str, Any], broker: Optional[BaseBroker] = None
         _REJECTED_ORDER_STATUSES = {
             'rejected', 'canceled', 'cancelled', 'expired', 'suspended',
         }
+        # Wait for every submitted order to leave OPEN status before snapshotting
+        # broker positions. Without this wait, a partially-filled SELL that
+        # finishes filling 5 seconds later leaves the trader-bot believing it
+        # still holds the partial-fill snapshot indefinitely.
+        submitted_order_ids = [
+            trade['broker_order_id']
+            for trade in trades
+            if trade.get('broker_order_id')
+        ]
+        if submitted_order_ids:
+            settled = _wait_for_orders_to_settle(broker, submitted_order_ids)
+            for trade in trades:
+                oid = trade.get('broker_order_id')
+                if oid and oid in settled:
+                    trade['broker_status'] = settled[oid] or trade.get('broker_status')
+            still_open = [
+                oid for oid, st in settled.items()
+                if st in BROKER_OPEN_ORDER_STATUSES
+            ]
+            if still_open:
+                validation_log.append(
+                    f"WARN: {len(still_open)} order(s) still working at reconcile deadline; "
+                    f"snapshot may not reflect final fills"
+                )
+
         expected_buy_symbols = [
             trade['symbol']
             for trade in trades

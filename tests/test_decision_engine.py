@@ -216,7 +216,7 @@ class TestEvaluateHoldings:
         assert result[0]['reason'] == 'STOP_HIT'
 
     def test_health_collapse_triggers_sell(self):
-        """Test that health collapse triggers a sell."""
+        """Health below threshold + persistence gate met → SELL HEALTH_COLLAPSE."""
         portfolio_state = {
             'holdings': [{
                 'symbol': 'SPY',
@@ -235,9 +235,13 @@ class TestEvaluateHoldings:
             'close': [455]  # Above stop, so stop won't trigger
         })
 
+        # sell_health_days=1 forces the gate to fire on the first reading,
+        # isolating threshold semantics from persistence semantics. The
+        # persistence gate itself is exercised in TestSellHealthPersistence.
         params = {
             'trailing_stop_base': 0.10,
-            'sell_health_threshold': 0.35
+            'sell_health_threshold': 0.35,
+            'sell_health_days': 1,
         }
 
         result = evaluate_holdings(
@@ -251,6 +255,114 @@ class TestEvaluateHoldings:
 
         assert len(result) == 1
         assert result[0]['action'] == 'SELL'
+        assert result[0]['reason'] == 'HEALTH_COLLAPSE'
+
+
+class TestSellHealthPersistence:
+    """sell_health_days persistence gate (the May 4-5 bug).
+
+    Operator's complaint: profitable positions liquidated on a single-day
+    health dip while regime stayed risk-on. Root cause: `evaluate_holdings`
+    fired SELL/HEALTH_COLLAPSE on the first below-threshold reading and
+    `sell_health_days` from config was never read. These tests lock the
+    fix: a single dip does NOT sell; three consecutive dips do; recovery
+    resets the counter.
+    """
+
+    def _evaluate(self, holding, health_score, params=None):
+        merged = {
+            'trailing_stop_base': 0.10,
+            'sell_health_threshold': 0.35,
+            'sell_health_days': 3,
+        }
+        if params:
+            merged.update(params)
+        portfolio_state = {'holdings': [holding]}
+        asset_health = [{'symbol': holding['symbol'], 'health_score': health_score}]
+        prices_df = pd.DataFrame({
+            'symbol': [holding['symbol']],
+            'date': [pd.Timestamp.now()],
+            'close': [holding['peak_price'] * 0.99],  # well above 10% stop
+        })
+        return evaluate_holdings(
+            portfolio_state, asset_health, prices_df, merged, 'risk_on_trend', {}
+        )
+
+    def test_single_day_dip_does_not_sell(self):
+        """One reading at 0.30 must NOT trigger HEALTH_COLLAPSE under default
+        sell_health_days=3 — that is exactly the May 4-5 sell-down's failure
+        mode the persistence gate exists to prevent."""
+        holding = {
+            'symbol': 'XLK', 'shares': 33, 'entry_price': 135.87,
+            'peak_price': 162.89, 'entry_date': '2026-04-07',
+        }
+        result = self._evaluate(holding, health_score=0.30)
+        assert result == []
+        assert holding['consecutive_below_health_days'] == 1
+
+    def test_three_consecutive_dips_trigger_sell(self):
+        """After sell_health_days persistent low readings, HEALTH_COLLAPSE
+        finally fires. Counter is mutated on the holding dict so the count
+        survives across runs once the night phase publishes portfolio_state."""
+        holding = {
+            'symbol': 'ARKK', 'shares': 87, 'entry_price': 69.36,
+            'peak_price': 80.00, 'entry_date': '2026-04-07',
+        }
+        # Day 1: dip → counter=1, no sell.
+        assert self._evaluate(holding, 0.26) == []
+        assert holding['consecutive_below_health_days'] == 1
+        # Day 2: still dipped → counter=2, no sell.
+        assert self._evaluate(holding, 0.28) == []
+        assert holding['consecutive_below_health_days'] == 2
+        # Day 3: still dipped → counter=3, SELL fires.
+        result = self._evaluate(holding, 0.30)
+        assert len(result) == 1
+        assert result[0]['action'] == 'SELL'
+        assert result[0]['reason'] == 'HEALTH_COLLAPSE'
+        assert holding['consecutive_below_health_days'] == 3
+
+    def test_recovery_resets_counter(self):
+        """A single recovery reading resets the counter; subsequent dips
+        must re-accumulate from zero."""
+        holding = {
+            'symbol': 'VUG', 'shares': 100, 'entry_price': 73.48,
+            'peak_price': 84.36, 'entry_date': '2026-04-07',
+            'consecutive_below_health_days': 2,  # already 2 days below
+        }
+        # Day 3: health recovers → counter resets to 0, no sell.
+        result = self._evaluate(holding, 0.50)
+        assert result == []
+        assert holding['consecutive_below_health_days'] == 0
+        # Subsequent dip must rebuild from 1, not from the prior 2.
+        result = self._evaluate(holding, 0.20)
+        assert result == []
+        assert holding['consecutive_below_health_days'] == 1
+
+    def test_existing_state_count_preserved(self):
+        """A holding loaded from S3 with prior counter must continue accumulating
+        from that count, not restart at zero. This is what makes the persistence
+        gate work across the night → morning → next-night cycle."""
+        holding = {
+            'symbol': 'SLV', 'shares': 112, 'entry_price': 64.53,
+            'peak_price': 68.78, 'entry_date': '2026-04-29',
+            'consecutive_below_health_days': 2,  # carried from prior runs
+        }
+        # One more day below → counter becomes 3 → SELL fires.
+        result = self._evaluate(holding, 0.15)
+        assert len(result) == 1
+        assert result[0]['reason'] == 'HEALTH_COLLAPSE'
+        assert holding['consecutive_below_health_days'] == 3
+
+    def test_sell_health_days_one_preserves_legacy_behavior(self):
+        """Setting sell_health_days=1 reproduces the pre-fix single-day trigger
+        for operators who explicitly opt in (e.g. the existing
+        test_health_collapse_triggers_sell case)."""
+        holding = {
+            'symbol': 'SPY', 'shares': 100, 'entry_price': 450,
+            'peak_price': 460, 'entry_date': '2025-01-01',
+        }
+        result = self._evaluate(holding, 0.30, params={'sell_health_days': 1})
+        assert len(result) == 1
         assert result[0]['reason'] == 'HEALTH_COLLAPSE'
 
 

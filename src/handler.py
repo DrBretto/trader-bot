@@ -185,6 +185,35 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
                 )
             logger.info("Using Claude Haiku via Bedrock for LLM calls")
 
+        # Reconcile portfolio_state against broker truth before the decision
+        # engine runs. Without this, the night phase evaluates phantom holdings
+        # (e.g. partial-fill leftovers the broker has since cleared to dust),
+        # which is what produced the May 4-5 sell-down + dashboard divergence.
+        if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
+            with StepTimer("Night-phase broker reconcile", logger):
+                try:
+                    from src.steps.morning_executor import _reconcile_portfolio_from_broker
+                    pre_broker = get_broker(
+                        config, alpaca_key_id, alpaca_secret_key
+                    )
+                    if pre_broker is not None:
+                        reconciled = _reconcile_portfolio_from_broker(
+                            pre_broker, config['portfolio_state']
+                        )
+                        if reconciled.get('broker_reconciled'):
+                            config['portfolio_state'] = reconciled
+                            logger.info(
+                                "Night reconcile OK: cash=$%.2f, holdings=%d, equity=$%.2f",
+                                reconciled.get('cash', 0.0),
+                                len(reconciled.get('holdings', [])),
+                                reconciled.get('portfolio_value', 0.0),
+                            )
+                except Exception as exc:
+                    logger.warning(
+                        "Night-phase broker reconcile failed (non-fatal, continuing on stored state): %s",
+                        exc,
+                    )
+
         # Extract universe symbols
         universe = config['universe']
         if isinstance(universe, pd.DataFrame) and len(universe) > 0:
@@ -439,10 +468,15 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
         except Exception as shadow_err:
             logger.warning(f"Shadow challenger computation failed (non-fatal): {shadow_err}")
 
-        # Step 11: Portfolio valuation update (NO trade execution)
+        # Step 11: Portfolio valuation update (NO trade execution).
+        # Use the in-memory portfolio_state that decision_engine just mutated
+        # (e.g. peak_price, consecutive_below_health_days). Re-loading from S3
+        # at this point would discard those per-day mutations, which is how the
+        # sell_health_days persistence counter would silently never increment
+        # across runs.
         log_step(11, 12, "Updating portfolio valuations...", logger)
         with StepTimer("Portfolio valuation", logger):
-            portfolio_state = paper_trader.load_portfolio_state(s3_client)
+            portfolio_state = config['portfolio_state']
             portfolio_state = paper_trader.update_portfolio_values(portfolio_state, prices_df)
             try:
                 portfolio_state = paper_trader.compute_portfolio_stats(portfolio_state, s3_client)

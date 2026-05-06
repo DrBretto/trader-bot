@@ -12,6 +12,10 @@ from src.steps.morning_executor import (
     run,
     _execute_via_broker,
     _reconcile_portfolio_from_broker,
+    _await_broker_order_update,
+    _wait_for_orders_to_settle,
+    BROKER_OPEN_ORDER_STATUSES,
+    BROKER_TERMINAL_ORDER_STATUSES,
 )
 from src.brokers.base import BaseBroker
 from src.brokers.router import SimulatedBroker
@@ -587,3 +591,148 @@ class TestMorningRunWithBroker:
         assert len(result['portfolio_state']['holdings']) == 1
         assert result['portfolio_state']['holdings'][0]['symbol'] == 'ARKK'
         assert result['portfolio_state']['broker_reconciled'] is True
+
+
+class TestPartialFillHandling:
+    """Alpaca `partially_filled` is NOT terminal — the order stays active.
+
+    The May 5 morning execution sold VUG and XRT via SELLs that came back
+    `partially_filled` and were treated as terminal. The trader-bot snapshot
+    saw the broker mid-fill and locked VUG=28.77 / XRT=73.09 into S3 while
+    Alpaca went on to clear the rest to dust. These tests lock the fix:
+    `partially_filled` belongs in OPEN, not TERMINAL.
+    """
+
+    def test_partially_filled_classified_as_open(self):
+        assert 'partially_filled' in BROKER_OPEN_ORDER_STATUSES
+        assert 'partially_filled' not in BROKER_TERMINAL_ORDER_STATUSES
+
+    def test_filled_classified_as_terminal(self):
+        assert 'filled' in BROKER_TERMINAL_ORDER_STATUSES
+        assert 'filled' not in BROKER_OPEN_ORDER_STATUSES
+
+    def test_await_continues_polling_through_partial_fill(self):
+        """The await loop must keep polling while status=partially_filled and
+        only return when the order reaches a real terminal state."""
+
+        class PartialThenFilledBroker(MockBroker):
+            def __init__(self):
+                super().__init__()
+                self._calls = 0
+
+            def get_order(self, order_id):
+                self._calls += 1
+                if self._calls < 3:
+                    return {'id': order_id, 'status': 'partially_filled',
+                            'filled_qty': '5.0', 'qty': '10.0'}
+                return {'id': order_id, 'status': 'filled',
+                        'filled_qty': '10.0', 'qty': '10.0',
+                        'filled_avg_price': '50.0', 'notional': '500.0'}
+
+        broker = PartialThenFilledBroker()
+        order = {
+            'order_id': 'test-1', 'status': 'pending_new',
+            'qty': '10.0', 'notional': '500.0', 'raw': {},
+        }
+
+        with patch('src.steps.morning_executor.time.sleep', return_value=None):
+            result = _await_broker_order_update(
+                broker, order, timeout_sec=2.0, poll_interval_sec=0.001
+            )
+
+        assert result['status'] == 'filled'
+        assert result['filled_qty'] == '10.0'
+        assert broker._calls >= 3
+
+    def test_wait_for_orders_to_settle_blocks_until_clear(self):
+        """`_wait_for_orders_to_settle` must keep polling until every submitted
+        order leaves the OPEN set. Without it, the post-execution reconcile
+        snapshots positions while orders are still working."""
+
+        class WorkingThenSettledBroker(MockBroker):
+            def __init__(self):
+                super().__init__()
+                self._calls = {}
+
+            def get_order(self, order_id):
+                self._calls[order_id] = self._calls.get(order_id, 0) + 1
+                # First two polls: still working. Third+: filled.
+                if self._calls[order_id] < 3:
+                    return {'id': order_id, 'status': 'partially_filled'}
+                return {'id': order_id, 'status': 'filled'}
+
+        broker = WorkingThenSettledBroker()
+        with patch('src.steps.morning_executor.time.sleep', return_value=None):
+            settled = _wait_for_orders_to_settle(
+                broker, ['o-1', 'o-2'], timeout_sec=2.0, poll_interval_sec=0.001
+            )
+
+        assert settled == {'o-1': 'filled', 'o-2': 'filled'}
+        assert broker._calls['o-1'] >= 3
+        assert broker._calls['o-2'] >= 3
+
+    def test_wait_for_orders_returns_open_status_after_deadline(self):
+        """If the deadline elapses with the order still working, return the
+        last observed status so the validation_log can flag it. The reconcile
+        proceeds on best-effort truth rather than hanging forever."""
+
+        class ForeverWorkingBroker(MockBroker):
+            def get_order(self, order_id):
+                return {'id': order_id, 'status': 'partially_filled'}
+
+        broker = ForeverWorkingBroker()
+        with patch('src.steps.morning_executor.time.sleep', return_value=None):
+            settled = _wait_for_orders_to_settle(
+                broker, ['o-1'], timeout_sec=0.05, poll_interval_sec=0.001
+            )
+
+        assert settled.get('o-1') == 'partially_filled'
+
+    def test_empty_order_list_short_circuits(self):
+        broker = MockBroker()
+        result = _wait_for_orders_to_settle(broker, [], timeout_sec=10.0)
+        assert result == {}
+
+
+class TestReconcilePreservesHealthCounter:
+    """Broker reconciliation must preserve the per-holding
+    `consecutive_below_health_days` counter so the sell_health_days persistence
+    gate survives across the night → morning → next-night cycle. If the counter
+    were dropped on every reconcile, the gate could never accumulate."""
+
+    def test_counter_carried_through_reconcile(self):
+        broker = MockBroker()
+        broker._positions = [
+            {
+                'symbol': 'XLK', 'qty': 33.4, 'market_value': 5500.0,
+                'avg_entry_price': 135.87, 'current_price': 165.0,
+                'unrealized_pl': 970.0, 'side': 'long',
+            }
+        ]
+        portfolio = {
+            'cash': 50000,
+            'holdings': [{
+                'symbol': 'XLK', 'shares': 33.4, 'entry_price': 135.87,
+                'entry_date': '2026-04-07', 'peak_price': 162.89,
+                'consecutive_below_health_days': 2,
+            }],
+            'portfolio_value': 0,
+        }
+        result = _reconcile_portfolio_from_broker(broker, portfolio)
+        assert len(result['holdings']) == 1
+        assert result['holdings'][0]['consecutive_below_health_days'] == 2
+
+    def test_counter_defaults_to_zero_for_new_position(self):
+        """A position the local state hasn't seen yet (e.g. dust filtered out
+        previously, broker carried it) starts the counter at 0."""
+        broker = MockBroker()
+        broker._positions = [
+            {
+                'symbol': 'NEW', 'qty': 10.0, 'market_value': 1000.0,
+                'avg_entry_price': 100.0, 'current_price': 100.0,
+                'unrealized_pl': 0.0, 'side': 'long',
+            }
+        ]
+        portfolio = {'cash': 50000, 'holdings': [], 'portfolio_value': 0}
+        result = _reconcile_portfolio_from_broker(broker, portfolio)
+        assert result['holdings'][0]['consecutive_below_health_days'] == 0
