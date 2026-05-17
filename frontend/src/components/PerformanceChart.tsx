@@ -130,13 +130,11 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
         <span>{dateStr}</span>
         <span style={{ fontSize: 10, color: point.isLive ? '#22c55e' : '#64748b', fontWeight: 500 }}>{era}</span>
       </div>
-      {point.optimizedValue !== null && point.optimizedValue !== undefined && (
-        <div style={{ color: '#22c55e' }}>
-          Portfolio (optimized champion): <span style={{ fontWeight: 600 }}>{formatCurrency(point.optimizedValue)}</span>
-        </div>
-      )}
-      {point.hybridValue !== null && point.hybridValue !== undefined && (
-        <div style={{ color: '#60a5fa' }}>
+      <div style={{ color: '#60a5fa' }}>
+        Portfolio: <span style={{ fontWeight: 600 }}>{formatCurrency(point.value)}</span>
+      </div>
+      {point.hybridValue !== null && point.hybridValue !== undefined && point.hybridValue !== point.value && (
+        <div style={{ color: '#94a3b8' }}>
           Hybrid (comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.hybridValue)}</span>
         </div>
       )}
@@ -500,43 +498,46 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
             dataKey="preHybridValue"
             stroke="#94a3b8"
             strokeWidth={1.25}
-            strokeOpacity={0.55}
+            strokeOpacity={0.4}
             strokeDasharray="3 3"
             dot={false}
             legendType="none"
             connectNulls
           />
 
-          {/* Hybrid configuration counterfactual — DOTTED BLUE comparison
-              line. After the 2026-05-16 canon promotion this is the
-              demoted hybrid_value field; before that date it equals the
-              corrected_value (pre-promotion canon). */}
+          {/* Hybrid configuration counterfactual — DOTTED GRAY comparison
+              line. After the 2026-05-16 canon promotion this carries the
+              live-config (hybrid-ranking-035-v1) values so viewers can see
+              what the prior canon would have shown. Rendered neutrally so
+              it reads as a reference, not a second primary. */}
           <Line
             yAxisId="equity"
             type="monotone"
             dataKey="hybridValue"
-            stroke="#3b82f6"
+            stroke="#94a3b8"
             strokeWidth={1.5}
             strokeOpacity={0.75}
-            strokeDasharray="3 3"
+            strokeDasharray="4 3"
             dot={false}
             legendType="none"
             connectNulls
           />
 
-          {/* Optimized champion — SOLID GREEN primary canon line. In-sample
-              best variant: extend_relax_choppy_conf0.50 + topup_psm_1.2_full.
-              Single-window result; not validated out-of-sample. */}
+          {/* PRIMARY canonical line — single continuous solid blue across the
+              entire date range. After the 2026-05-16 canon promotion, `value`
+              carries the optimized champion values where they exist (from
+              2026-03-12 onward) and the prior canonical hybrid replay values
+              for the pre-replay backtest segment. One line, one color, no
+              cut-off. */}
           <Line
             yAxisId="equity"
             type="monotone"
-            dataKey="optimizedValue"
-            stroke="#22c55e"
+            dataKey="value"
+            stroke="#3b82f6"
             strokeWidth={2.5}
             dot={false}
             legendType="none"
-            activeDot={{ r: 4, fill: '#22c55e', stroke: '#0f172a', strokeWidth: 2 }}
-            connectNulls
+            activeDot={{ r: 4, fill: '#3b82f6', stroke: '#0f172a', strokeWidth: 2 }}
           />
           </ComposedChart>
         </ResponsiveContainer>
@@ -578,10 +579,10 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
       {/* Legend */}
       <div className="performance-legend">
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#22c55e' }} /> Portfolio (optimized champion)
+          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio
         </span>
         <span className="legend-item">
-          <span className="legend-swatch legend-swatch-dashed" style={{ background: '#3b82f6' }} /> Hybrid (comparison)
+          <span className="legend-swatch legend-swatch-dashed" style={{ background: '#94a3b8' }} /> Hybrid (comparison)
         </span>
         <span className="legend-item">
           <span className="legend-swatch legend-swatch-dashed" style={{ background: '#64748b' }} /> SPY
