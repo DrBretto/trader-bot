@@ -38,6 +38,9 @@ interface MergedPoint {
   value: number;
   correctedValue: number;
   actualValue: number;
+  preHybridValue: number | null;
+  optimizedValue: number | null;
+  hybridValue: number | null;
   benchmark: number;
   drawdownPct: number;
   peak: number;
@@ -127,12 +130,19 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
         <span>{dateStr}</span>
         <span style={{ fontSize: 10, color: point.isLive ? '#22c55e' : '#64748b', fontWeight: 500 }}>{era}</span>
       </div>
-      <div style={{ color: '#60a5fa' }}>
-        Portfolio (corrected): <span style={{ fontWeight: 600 }}>{formatCurrency(point.correctedValue)}</span>
-      </div>
-      {point.actualValue !== point.correctedValue && (
-        <div style={{ color: '#94a3b8', fontSize: 11 }}>
-          Actual (broken): <span style={{ fontWeight: 500 }}>{formatCurrency(point.actualValue)}</span>
+      {point.optimizedValue !== null && point.optimizedValue !== undefined && (
+        <div style={{ color: '#22c55e' }}>
+          Portfolio (optimized champion): <span style={{ fontWeight: 600 }}>{formatCurrency(point.optimizedValue)}</span>
+        </div>
+      )}
+      {point.hybridValue !== null && point.hybridValue !== undefined && (
+        <div style={{ color: '#60a5fa' }}>
+          Hybrid (comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.hybridValue)}</span>
+        </div>
+      )}
+      {point.preHybridValue !== null && point.preHybridValue !== undefined && (
+        <div style={{ color: '#94a3b8' }}>
+          Pre-hybrid (older comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.preHybridValue)}</span>
         </div>
       )}
       <div style={{ color: '#94a3b8' }}>
@@ -171,22 +181,32 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
   const trimmedEquity = firstMoveIdx > 1 ? equityData.slice(firstMoveIdx - 1) : equityData;
 
   // Merge and compute running peak.
-  // `corrected_value` is the counterfactual line published by the 2026-05-06
-  // day-by-day timeline correction. When present (post-cutoff dates after
-  // the correction shipped) it becomes the bold MAIN line; the existing
-  // `value` (the broken-system actual) is rendered faint as historical
-  // context. Pre-cutoff dates have `corrected_value === value` so the lines
-  // overlap.
+  // 2026-05-16 canon promotion: the OPTIMIZED champion line is now the bold
+  // primary, rendered SOLID GREEN. The hybrid configuration's counterfactual
+  // is preserved in `hybrid_value` and rendered as a DOTTED BLUE comparison.
+  // Pre-promotion dates (or dates without optimized_value) fall back to
+  // corrected_value / value so the line stays continuous across the canon
+  // boundary.
   let peak = 0;
   const allMerged: MergedPoint[] = trimmedEquity.map((point) => {
+    const optimizedValue = point.optimized_value ?? null;
+    const hybridValue = point.hybrid_value ?? point.corrected_value ?? point.value;
     const correctedValue = point.corrected_value ?? point.value;
     const actualValue = point.actual_value ?? point.value;
-    peak = Math.max(peak, correctedValue);
+    const preHybridValue = point.pre_hybrid_value ?? null;
+    // Primary canonical line is optimized when available, else fall back to
+    // the corrected/hybrid value so historical periods (pre-2026-05-06) and
+    // any rows missing optimized_value stay connected.
+    const primaryValue = optimizedValue ?? correctedValue;
+    peak = Math.max(peak, primaryValue);
     return {
       date: point.date,
-      value: correctedValue,
+      value: primaryValue,
       correctedValue,
       actualValue,
+      preHybridValue,
+      optimizedValue,
+      hybridValue,
       benchmark: point.benchmark,
       drawdownPct: (ddMap.get(point.date) ?? 0) * 100,
       peak,
@@ -438,11 +458,11 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
             />
           )}
 
-          {/* Equity fill */}
+          {/* Equity fill (under the SOLID PRIMARY optimized line) */}
           <Area
             yAxisId="equity"
             type="monotone"
-            dataKey="correctedValue"
+            dataKey="value"
             fill="url(#equityGlow)"
             stroke="none"
           />
@@ -471,29 +491,52 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
             legendType="none"
           />
 
-          {/* Actual broken-system line — rendered FAINT as historical context.
-              This is what the broken implementation actually produced.  */}
+          {/* Pre-hybrid replay line (older comparison). opt-bootstrap config,
+              no F-7 relax. Source: 2026-05-06 known-bugs-fixed algorithm
+              comparison run. Rendered lightest gray-dashed. */}
           <Line
             yAxisId="equity"
             type="monotone"
-            dataKey="actualValue"
-            stroke="#475569"
+            dataKey="preHybridValue"
+            stroke="#94a3b8"
             strokeWidth={1.25}
             strokeOpacity={0.55}
+            strokeDasharray="3 3"
             dot={false}
             legendType="none"
+            connectNulls
           />
 
-          {/* Portfolio equity — corrected counterfactual is the BOLD main line. */}
+          {/* Hybrid configuration counterfactual — DOTTED BLUE comparison
+              line. After the 2026-05-16 canon promotion this is the
+              demoted hybrid_value field; before that date it equals the
+              corrected_value (pre-promotion canon). */}
           <Line
             yAxisId="equity"
             type="monotone"
-            dataKey="correctedValue"
+            dataKey="hybridValue"
             stroke="#3b82f6"
+            strokeWidth={1.5}
+            strokeOpacity={0.75}
+            strokeDasharray="3 3"
+            dot={false}
+            legendType="none"
+            connectNulls
+          />
+
+          {/* Optimized champion — SOLID GREEN primary canon line. In-sample
+              best variant: extend_relax_choppy_conf0.50 + topup_psm_1.2_full.
+              Single-window result; not validated out-of-sample. */}
+          <Line
+            yAxisId="equity"
+            type="monotone"
+            dataKey="optimizedValue"
+            stroke="#22c55e"
             strokeWidth={2.5}
             dot={false}
             legendType="none"
-            activeDot={{ r: 4, fill: '#3b82f6', stroke: '#0f172a', strokeWidth: 2 }}
+            activeDot={{ r: 4, fill: '#22c55e', stroke: '#0f172a', strokeWidth: 2 }}
+            connectNulls
           />
           </ComposedChart>
         </ResponsiveContainer>
@@ -535,10 +578,10 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
       {/* Legend */}
       <div className="performance-legend">
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio (corrected)
+          <span className="legend-swatch" style={{ background: '#22c55e' }} /> Portfolio (optimized champion)
         </span>
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#475569', opacity: 0.55 }} /> Actual (broken)
+          <span className="legend-swatch legend-swatch-dashed" style={{ background: '#3b82f6' }} /> Hybrid (comparison)
         </span>
         <span className="legend-item">
           <span className="legend-swatch legend-swatch-dashed" style={{ background: '#64748b' }} /> SPY

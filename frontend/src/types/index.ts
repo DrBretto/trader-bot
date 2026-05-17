@@ -67,6 +67,18 @@ export interface EquityCurvePoint {
   corrected_value?: number;
   actual_value?: number;
   corrected_raw_value?: number;
+  // Original (pre-hybrid) replay line, lighter overlay for comparison.
+  // Populated by the 2026-05-06 known-bugs-fixed algorithm comparison run.
+  pre_hybrid_value?: number;
+  // Optimized champion line from the 2026-05-06 strategy search run.
+  // In-sample best variant: extend_relax_choppy_conf0.50 + topup_psm_1.2_full.
+  // After the 2026-05-16 canon promotion, this is the SOLID PRIMARY line.
+  optimized_value?: number;
+  // Hybrid line, preserved after the 2026-05-16 optimized-canon promotion.
+  // When the optimized line is canonical (`value === optimized_value`), this
+  // field carries the hybrid `hybrid-ranking-035-v1` configuration's
+  // counterfactual so the chart can render it as the dotted blue comparison.
+  hybrid_value?: number;
 }
 
 export interface DrawdownPoint {
