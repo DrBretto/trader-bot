@@ -497,9 +497,9 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
             type="monotone"
             dataKey="preHybridValue"
             stroke="#94a3b8"
-            strokeWidth={1.25}
-            strokeOpacity={0.4}
-            strokeDasharray="3 3"
+            strokeWidth={1}
+            strokeOpacity={0.22}
+            strokeDasharray="2 4"
             dot={false}
             legendType="none"
             connectNulls
@@ -515,9 +515,9 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
             type="monotone"
             dataKey="hybridValue"
             stroke="#94a3b8"
-            strokeWidth={1.5}
-            strokeOpacity={0.75}
-            strokeDasharray="4 3"
+            strokeWidth={1}
+            strokeOpacity={0.38}
+            strokeDasharray="2 4"
             dot={false}
             legendType="none"
             connectNulls
