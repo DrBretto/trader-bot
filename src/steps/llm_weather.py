@@ -291,7 +291,10 @@ def run(
     else:
         sells_summary = "None"
 
-    # Build expert signal context string
+    # Build expert signal context string. Each numeric signal is annotated
+    # with its scale + direction so the LLM does not silently hallucinate
+    # narrative semantics (e.g. reading raw "Fragility: 0.99" as "low
+    # fragility" when 0.99 is in fact max-pegged danger on a 0..1 scale).
     expert_context = ''
     if expert_signals is not None:
         macro = expert_signals.get('macro_credit', {})
@@ -300,15 +303,49 @@ def run(
         ent = expert_signals.get('entropy_shift', {})
         throttle = expert_metrics.get('risk_throttle_factor', 0.0)
 
+        def _frag_label(s: float) -> str:
+            if s >= 0.85: return "EXTREMELY HIGH (cross-asset correlation pegged; risk-off cue)"
+            if s >= 0.70: return "HIGH (elevated cross-asset coupling)"
+            if s >= 0.50: return "ELEVATED"
+            if s >= 0.30: return "MODERATE"
+            return "LOW (decoupled assets)"
+
+        def _vol_label(s: float, regime: str) -> str:
+            base = f"vol-regime={regime}"
+            if s >= 0.80: return f"HIGH UNCERTAINTY ({base})"
+            if s >= 0.60: return f"ELEVATED ({base})"
+            if s >= 0.40: return f"MODERATE ({base})"
+            return f"LOW ({base})"
+
+        def _entropy_label(s: float, flag: bool) -> str:
+            if flag: return "REGIME-SHIFT FLAG ACTIVE"
+            if s >= 0.80: return "HIGH (sustained shift pressure)"
+            if s >= 0.60: return "ELEVATED"
+            return "stable"
+
+        def _macro_label(s: float) -> str:
+            # Score is in [-1, +1]; positive = supportive, negative = restrictive
+            if s >= 0.30: return "SUPPORTIVE"
+            if s >= -0.30: return "NEUTRAL"
+            return "RESTRICTIVE"
+
+        frag_score = frag.get('fragility_score', 0.5)
+        vol_score = vol.get('vol_uncertainty_score', 0.5)
+        ent_score = ent.get('entropy_score', 0.5)
+        macro_score = macro.get('macro_credit_score', 0.0)
+
         expert_context = (
-            f"\nExpert Signals:\n"
-            f"- Macro/Credit: {macro.get('macro_credit_score', 0):.2f} "
-            f"(slope: {macro.get('yield_slope_10y_3m', 0):.2f}%)\n"
-            f"- Vol Uncertainty: {vol.get('vol_uncertainty_score', 0.5):.2f} "
-            f"({vol.get('vol_regime_label', 'calm')})\n"
-            f"- Fragility: {frag.get('fragility_score', 0.5):.2f}\n"
-            f"- Entropy Shift: {'YES' if ent.get('entropy_shift_flag', False) else 'no'}\n"
-            f"- Risk Throttle: {throttle:.0%}\n"
+            f"\nExpert Signals (scale 0..1 unless noted; HIGH = risk-off cue):\n"
+            f"- Macro/Credit: {macro_score:+.2f} on [-1,+1] -> {_macro_label(macro_score)} "
+            f"(yield slope 10y-3m: {macro.get('yield_slope_10y_3m', 0):.2f}%)\n"
+            f"- Vol Uncertainty: {vol_score:.2f} -> {_vol_label(vol_score, vol.get('vol_regime_label', 'calm'))}\n"
+            f"- Fragility: {frag_score:.2f} -> {_frag_label(frag_score)}\n"
+            f"- Entropy Shift: {ent_score:.2f} -> {_entropy_label(ent_score, ent.get('entropy_shift_flag', False))}\n"
+            f"- Risk Throttle factor: {throttle:.0%}\n"
+            f"\nIMPORTANT: ground your narrative in the LABELED interpretations above.\n"
+            f"Do NOT describe a HIGH-fragility regime as 'calm', 'stable', or 'low fragility'.\n"
+            f"Do NOT describe a REGIME-SHIFT-FLAG-ACTIVE day as 'steady'.\n"
+            f"If signals disagree with the regime label, name the tension explicitly.\n"
         )
 
     snapshot = {

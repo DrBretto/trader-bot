@@ -74,9 +74,53 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
         champion_strategy = _build_champion_strategy()
         champion = run_variant(cache, hybrid_cfg, champion_strategy, trading_dates, universe_df)
 
-        hybrid_map = hybrid['date_value_map']
-        pre_map = pre_hybrid['date_value_map'] if pre_hybrid is not None else {}
-        champ_map = champion['date_value_map']
+        hybrid_map = dict(hybrid['date_value_map'])
+        pre_map = dict(pre_hybrid['date_value_map']) if pre_hybrid is not None else {}
+        champ_map = dict(champion['date_value_map'])
+
+        # Tail extension: the replay can only simulate dates that have full
+        # night artifacts (features/signals/inference/prices). When the night
+        # phase has been down (e.g. 2026-05-11 → 2026-05-20 during the Stooq
+        # outage), those days have no artifacts and the replay stops at the
+        # last fully-instrumented date. Without this extension, the per-row
+        # patch loop below forward-fills the last replay value forever,
+        # producing the visible "flatline since 2026-05-08" chart symptom.
+        #
+        # We use the broker's daily return (computed from raw_value, the
+        # marked-to-market broker equity already present in the dashboard
+        # payload for every day) as a proxy for the optimized champion's
+        # would-be daily return on missing days. The replay's portfolio is
+        # ~100% equity and the broker portfolio is also long-equity, so the
+        # broker's daily return is a reasonable post-seam continuation of
+        # the canon line. This keeps the chart moving with the market
+        # instead of plateauing.
+        last_replay_date = champion.get('final_date')
+        if last_replay_date:
+            prior_raw = None
+            tail_h = hybrid.get('final_value')
+            tail_p = pre_hybrid.get('final_value') if pre_hybrid is not None else None
+            tail_c = champion.get('final_value')
+            for row in dash['equity_curve']:
+                d = row['date']
+                if d <= last_replay_date:
+                    raw = row.get('raw_value')
+                    if raw is not None and raw > 0:
+                        prior_raw = float(raw)
+                    continue
+                raw = row.get('raw_value')
+                if raw is None or prior_raw is None or prior_raw <= 0 or raw <= 0:
+                    continue
+                broker_return = float(raw) / prior_raw - 1.0
+                if tail_c is not None:
+                    tail_c = tail_c * (1 + broker_return)
+                    champ_map[d] = tail_c
+                if tail_h is not None:
+                    tail_h = tail_h * (1 + broker_return)
+                    hybrid_map[d] = tail_h
+                if tail_p is not None:
+                    tail_p = tail_p * (1 + broker_return)
+                    pre_map[d] = tail_p
+                prior_raw = float(raw)
 
         # Patch equity_curve. After the 2026-05-16 canon promotion the
         # OPTIMIZED champion line is the primary canon (`value`); the live
@@ -232,9 +276,16 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
         counted = wins + losses
         win_rate = wins / counted if counted > 0 else 0.0
 
-        # Holdings array
+        # Holdings array. last_canon_date is the latest patched row's date,
+        # which equals the latest equity_curve date when the tail-extension
+        # extended through to today. Falls back to the replay's final_date
+        # (may be older than today if the tail extension had no broker
+        # raw_value continuity to follow).
         holdings_array = []
-        last_canon_date = champion.get('final_date', hybrid.get('final_date', today))
+        last_canon_date = (
+            canonical_curve_values[-1]['date'] if canonical_curve_values
+            else champion.get('final_date', hybrid.get('final_date', today))
+        )
         for h in last_canon_holdings:
             shares = h.get('shares', 0)
             cp = h.get('close_price') or h.get('peak_price') or h.get('entry_price') or 0
