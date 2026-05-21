@@ -12,6 +12,21 @@ ECR_REPO_NAME="investment-system-pipeline"
 
 echo "Deploying Lambda container: $FUNCTION_NAME"
 
+ensure_docker_ready() {
+    if docker info >/dev/null 2>&1; then
+        return 0
+    fi
+
+    # Previously this auto-started Docker Desktop via `open -gja Docker`.
+    # Even with the -g (no foreground) / -j (launch hidden) flags, Docker
+    # Desktop still surfaces its UI window during init, which the operator
+    # does not want during a deploy. We now require Docker to already be
+    # running and bail out with a clear message otherwise.
+    echo "Docker is not ready. Start Docker Desktop manually (whale icon" >&2
+    echo "stops animating in menu bar), then rerun this deploy." >&2
+    return 1
+}
+
 # Get the project root directory
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
@@ -24,6 +39,8 @@ ROLE_ARN="arn:aws:iam::$ACCOUNT_ID:role/$ROLE_NAME"
 
 echo "Account: $ACCOUNT_ID"
 echo "ECR URI: $IMAGE_URI"
+
+ensure_docker_ready
 
 build_environment_arg() {
     local function_name="$1"

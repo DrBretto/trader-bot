@@ -23,7 +23,11 @@ def fetch_stooq_daily(symbol: str, lookback_days: int = 365) -> pd.DataFrame:
     url = f"https://stooq.com/q/d/l/?s={stooq_symbol}&i=d"
 
     try:
-        response = requests.get(url, timeout=10)
+        # Short connect timeout so Stooq outages do not cascade into a
+        # 64-symbol * 10s = 640s wait that exhausts the 900s Lambda timeout
+        # (this is the failure mode that took the night phase down on
+        # 2026-05-12 onward). Stooq is now a fallback, not the primary source.
+        response = requests.get(url, timeout=(3, 8))
         response.raise_for_status()
 
         # Check for valid data (not empty or error page)
@@ -76,7 +80,7 @@ def fetch_stooq_index(symbol: str, lookback_days: int = 365) -> pd.DataFrame:
     url = f"https://stooq.com/q/d/l/?s={symbol}&i=d"
 
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=(3, 8))
         response.raise_for_status()
 
         if len(response.text) < 50 or 'No data' in response.text:
@@ -319,19 +323,27 @@ def run(
             # Small delay to avoid rate limiting
             time.sleep(0.5)
 
-        # Try Stooq first
-        df = fetch_stooq_daily(symbol, lookback_days)
+        df = pd.DataFrame()
 
-        # Fallback to Alpha Vantage for critical symbols
+        # Primary source in Lambda: Alpaca market data when authenticated.
+        # Stooq used to be the primary, but Stooq.com became unreachable from
+        # us-east-1 around 2026-05-12 and the 10s connect timeout per symbol
+        # was exhausting the 900s Lambda timeout (640s+ just on Stooq
+        # connect-fails). Alpaca is reliable, authenticated, and already
+        # required for paper-trading execution.
+        if alpaca_key_id and alpaca_secret_key:
+            df = fetch_alpaca_daily(symbol, alpaca_key_id, alpaca_secret_key, lookback_days)
+
+        # Fallback 1: Stooq (free public CSV). Short timeout so a Stooq
+        # outage cannot dominate the Lambda runtime again.
+        if len(df) == 0:
+            df = fetch_stooq_daily(symbol, lookback_days)
+
+        # Fallback 2: Alpha Vantage for critical symbols (rate-limited).
         if len(df) == 0 and symbol in critical_symbols and alphavantage_key:
             print(f"  Trying Alpha Vantage fallback for {symbol}")
             df = fetch_alphavantage_daily(symbol, alphavantage_key)
             time.sleep(1)  # Alpha Vantage rate limit
-
-        # Primary authenticated fallback for Lambda/runtime use.
-        if len(df) == 0 and alpaca_key_id and alpaca_secret_key:
-            print(f"  Trying Alpaca market-data fallback for {symbol}")
-            df = fetch_alpaca_daily(symbol, alpaca_key_id, alpaca_secret_key, lookback_days)
 
         # Final fallback to yfinance daily history. This keeps the night
         # pipeline aligned with the already-resilient morning quote path.
