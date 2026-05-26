@@ -36,6 +36,68 @@ logger = logging.getLogger(__name__)
 REPLAY_START = '2026-03-12'
 
 
+def _broker_return_extend(
+    equity_curve: List[Dict[str, Any]],
+    champ_map: Dict[str, float],
+    hybrid_map: Dict[str, float],
+    pre_map: Dict[str, float],
+) -> None:
+    """Walk equity_curve in date order; for any row whose date has a
+    raw_value but no champ_map entry, broker-return-scale forward from
+    the most-recent prior champ_map anchor and inject the result into
+    champ_map / hybrid_map / pre_map. Mutates the three maps in place.
+
+    Handles two cases under a single mechanism:
+      (a) Interior gaps inside the replay span (e.g. the 2026-05-11 →
+          2026-05-20 Stooq outage: the replay simulates 2026-05-08 and
+          resumes on 2026-05-21+, leaving gap dates with raw broker
+          values present in equity_curve but absent from champ_map).
+      (b) Tail extension past the replay's final_date (the original
+          motivation; same math but happens to be the suffix).
+
+    Earlier implementation gated with `if d <= last_replay_date:
+    continue`, which only covered case (b) and left case (a) flat-
+    filled by the downstream per-row patch loop. That dead zone was
+    the cause of the visible 2026-05-08 → 2026-05-20 flat segment.
+    """
+    if not champ_map:
+        return
+    anchor_c: Optional[float] = None
+    anchor_h: Optional[float] = None
+    anchor_p: Optional[float] = None
+    prior_raw: Optional[float] = None
+    for row in equity_curve:
+        d = row['date']
+        if d < REPLAY_START:
+            continue
+        raw = row.get('raw_value')
+        if d in champ_map:
+            anchor_c = champ_map[d]
+            if d in hybrid_map:
+                anchor_h = hybrid_map[d]
+            if d in pre_map:
+                anchor_p = pre_map[d]
+            if raw is not None and raw > 0:
+                prior_raw = float(raw)
+            continue
+        if anchor_c is None:
+            if raw is not None and raw > 0:
+                prior_raw = float(raw)
+            continue
+        if raw is None or raw <= 0 or prior_raw is None or prior_raw <= 0:
+            continue
+        broker_return = float(raw) / prior_raw - 1.0
+        anchor_c = anchor_c * (1 + broker_return)
+        champ_map[d] = anchor_c
+        if anchor_h is not None:
+            anchor_h = anchor_h * (1 + broker_return)
+            hybrid_map[d] = anchor_h
+        if anchor_p is not None:
+            anchor_p = anchor_p * (1 + broker_return)
+            pre_map[d] = anchor_p
+        prior_raw = float(raw)
+
+
 def _build_champion_strategy():
     """The in-sample champion: extend_relax_choppy_conf0.50 + topup_psm_1.2_full."""
     return compose(
@@ -78,49 +140,17 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
         pre_map = dict(pre_hybrid['date_value_map']) if pre_hybrid is not None else {}
         champ_map = dict(champion['date_value_map'])
 
-        # Tail extension: the replay can only simulate dates that have full
-        # night artifacts (features/signals/inference/prices). When the night
-        # phase has been down (e.g. 2026-05-11 → 2026-05-20 during the Stooq
-        # outage), those days have no artifacts and the replay stops at the
-        # last fully-instrumented date. Without this extension, the per-row
-        # patch loop below forward-fills the last replay value forever,
-        # producing the visible "flatline since 2026-05-08" chart symptom.
-        #
-        # We use the broker's daily return (computed from raw_value, the
-        # marked-to-market broker equity already present in the dashboard
-        # payload for every day) as a proxy for the optimized champion's
-        # would-be daily return on missing days. The replay's portfolio is
-        # ~100% equity and the broker portfolio is also long-equity, so the
-        # broker's daily return is a reasonable post-seam continuation of
-        # the canon line. This keeps the chart moving with the market
-        # instead of plateauing.
-        last_replay_date = champion.get('final_date')
-        if last_replay_date:
-            prior_raw = None
-            tail_h = hybrid.get('final_value')
-            tail_p = pre_hybrid.get('final_value') if pre_hybrid is not None else None
-            tail_c = champion.get('final_value')
-            for row in dash['equity_curve']:
-                d = row['date']
-                if d <= last_replay_date:
-                    raw = row.get('raw_value')
-                    if raw is not None and raw > 0:
-                        prior_raw = float(raw)
-                    continue
-                raw = row.get('raw_value')
-                if raw is None or prior_raw is None or prior_raw <= 0 or raw <= 0:
-                    continue
-                broker_return = float(raw) / prior_raw - 1.0
-                if tail_c is not None:
-                    tail_c = tail_c * (1 + broker_return)
-                    champ_map[d] = tail_c
-                if tail_h is not None:
-                    tail_h = tail_h * (1 + broker_return)
-                    hybrid_map[d] = tail_h
-                if tail_p is not None:
-                    tail_p = tail_p * (1 + broker_return)
-                    pre_map[d] = tail_p
-                prior_raw = float(raw)
+        # Gap-fill + tail extension via broker-return scaling. Covers both
+        # interior holes in the replay timeline (e.g. the 2026-05-11 →
+        # 2026-05-20 Stooq outage that left night artifacts absent but
+        # broker portfolio_state.json written) and dates past the
+        # replay's final_date. The broker daily return on raw_value is a
+        # reasonable canon-line continuation when the replay cannot
+        # simulate, given the replay is ~100% equity and broker is also
+        # long-equity. Without this, the per-row patch loop below
+        # forward-fills the last replay value across the gap, producing
+        # the visible flat chart segment.
+        _broker_return_extend(dash['equity_curve'], champ_map, hybrid_map, pre_map)
 
         # Patch equity_curve. After the 2026-05-16 canon promotion the
         # OPTIMIZED champion line is the primary canon (`value`); the live
