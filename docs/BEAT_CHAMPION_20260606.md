@@ -89,8 +89,9 @@ The win is **participation** — the system was under-deployed in the risk-on ho
 - **Forward-only switch:** `models/latest.json` (S3) now points at `regime_gru_v20260606.pkl` /
   `regime_transformer_v20260606.pkl`, weights 0.5/0.5. The displayed line re-runs from each day's STORED
   `inference.json`, so only post-2026-06-06 days use the new model; history is unchanged. Chart marker on
-  2026-06-06. The model artifacts are gitignored (S3-managed); they live on disk + S3 + repo pointer
-  `models/latest.candidate.json` records provenance.
+  2026-06-06. The model artifacts are gitignored (S3-managed); they live on disk + S3. Provenance is
+  recorded in this doc and git history (the earlier `models/latest.candidate.json` staging pointer was
+  removed in the cleanup sweep — see §10).
 
 ## 6. Deploy state (what is where) + how nightly persists
 
