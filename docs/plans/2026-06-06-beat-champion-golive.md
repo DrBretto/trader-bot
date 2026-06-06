@@ -29,7 +29,10 @@ the watched line does not move from a silent model swap.
 - [ ] Verify on https://trader-bot.infotrope.io.
 
 ## Execution Log
-- Config + overlay edits done and validated on the real harness (+15.0% whole period).
+- Config + overlay edits validated on the real harness (+15.0% whole period).
+- Deployed live: config+prev_champion to S3, dashboard.json regenerated+uploaded, frontend rebuilt+synced, Lambda container redeployed. Verified on https://trader-bot.infotrope.io.
+- Regime model retrained (9%->73% OOS) and switched FORWARD (models/latest.json on S3, weights 0.5/0.5, health unchanged); chart marker 2026-06-06. History untouched.
+- COMPLETE. Full durable record: docs/BEAT_CHAMPION_20260606.md.
 
 ## Follow-ups
 - Wire the retrained regime models into the live inference path (regenerate daily
