@@ -277,12 +277,24 @@ class ModelLoader:
                             trans_model.load_state_dict(transformer_data['model_state'])
                             trans_model.eval()
 
-                            # Create ensemble wrapper with actual models
+                            # Create ensemble wrapper with actual models.
+                            # GRU/transformer weights are config-readable from
+                            # models/latest.json so the optimizer can tune them.
+                            # PROVISIONAL down-weight (2026-06-06 committee exec):
+                            # the live GRU logs ~0.09 test accuracy (below the 0.20
+                            # random baseline for 5 regimes) while the transformer
+                            # is far stronger; a fixed 0.5/0.5 let the broken GRU
+                            # drive half the ensemble and spike disagreement (the
+                            # "disagreement 0.92 -> cut 60%" throttle). Validated on
+                            # the real replay (holdout +0.98% -> +2.49%). The proper
+                            # fix (retrain/replace the GRU) is the committee packet.
+                            _gw = float(latest_config.get('gru_weight', 0.2))
+                            _tw = float(latest_config.get('transformer_weight', 0.8))
                             self.ensemble_model = EnsembleRegimeModel(
                                 gru_model=gru_model,
                                 transformer_model=trans_model,
-                                gru_weight=0.5,
-                                transformer_weight=0.5,
+                                gru_weight=_gw,
+                                transformer_weight=_tw,
                                 disagreement_threshold=0.3
                             )
                             self.regime_model = self.ensemble_model

@@ -48,6 +48,10 @@ def load_optimizer_dataset(config: OptimizerConfig) -> OptimizerDataset:
     """Load date-aligned daily artifacts required for deterministic replay."""
     s3 = S3Client(config.bucket, config.region)
     daily_dates = s3.list_daily_dates(max_days=max(config.max_days + 10, config.max_days))
+    # Holdout discipline: drop any date >= holdout_start so no fold or gate can
+    # select on the held-out window. gate_dates = most-recent of what remains.
+    if config.holdout_start:
+        daily_dates = [d for d in daily_dates if str(d) < config.holdout_start]
     if len(daily_dates) < 2:
         raise RuntimeError('Insufficient daily artifacts in S3 for optimizer replay')
 

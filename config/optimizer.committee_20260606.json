@@ -1,0 +1,43 @@
+{
+  "bucket": "investment-system-data",
+  "region": "us-east-1",
+  "inventory_path": "optimizer/discovery/param_inventory.json",
+  "data_inventory_path": "optimizer/discovery/data_inventory.json",
+  "pipeline_map_path": "optimizer/discovery/pipeline_map.json",
+  "max_days": 900,
+  "holdout_start": "2026-03-11",
+  "train_days": 63,
+  "test_days": 21,
+  "step_days": 21,
+  "gate_days": 21,
+  "population_size": 12,
+  "generations": 6,
+  "elite_fraction": 0.25,
+  "mutation_rate": 0.2,
+  "mutation_scale": 0.25,
+  "max_runtime_minutes": 25,
+  "max_workers": 1,
+  "random_seed": 20260217,
+  "initial_portfolio_value": 100000.0,
+  "enable_empirical_mutation": true,
+  "rejection_streak_alert_threshold": 3,
+  "guardrails": {
+    "max_drawdown": -0.25,
+    "max_cost_ratio": 0.015,
+    "min_total_round_trips": 15,
+    "min_gate_round_trips": 3,
+    "min_gate_win_rate": 0.45,
+    "min_fold_annualized_return": -0.2
+  },
+  "promotion_deltas": {
+    "wf_objective_delta": 0.01,
+    "gate_score_delta": 0.01,
+    "gate_drawdown_tolerance": 0.02
+  },
+  "paths": {
+    "run_root": "runs/optimizer",
+    "dashboard_data_dir": "dashboard/data",
+    "frontend_data_dir": "frontend/public/data",
+    "config_dir": "config"
+  }
+}

@@ -42,6 +42,10 @@ class OptimizerConfig:
     pipeline_map_path: str = 'optimizer/discovery/pipeline_map.json'
 
     max_days: int = 900
+    # Holdout ceiling: when set (YYYY-MM-DD), the optimizer dataset DROPS all
+    # daily dates >= this value, so no fold/gate/selection can touch the holdout.
+    # Closes the leak where gate_dates = most-recent dates = the held-out window.
+    holdout_start: str = ''
     train_days: int = 252
     test_days: int = 63
     step_days: int = 63
@@ -164,6 +168,7 @@ def load_optimizer_config(config_path: str, repo_root: Path | None = None) -> Op
         data_inventory_path=str(_read_nested(raw, 'data_inventory_path', OptimizerConfig.data_inventory_path)),
         pipeline_map_path=str(_read_nested(raw, 'pipeline_map_path', OptimizerConfig.pipeline_map_path)),
         max_days=int(_read_nested(raw, 'max_days', OptimizerConfig.max_days)),
+        holdout_start=str(_read_nested(raw, 'holdout_start', OptimizerConfig.holdout_start)),
         train_days=int(_read_nested(raw, 'train_days', OptimizerConfig.train_days)),
         test_days=int(_read_nested(raw, 'test_days', OptimizerConfig.test_days)),
         step_days=int(_read_nested(raw, 'step_days', OptimizerConfig.step_days)),
