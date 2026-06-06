@@ -1,42 +1,54 @@
 {
-  "schema_version": "1",
-  "description": "Vertical event markers for the equity curve / dashboard charts. Edit this file to add/remove markers; publish_artifacts will copy the list into dashboard.json on the next pipeline run. Frontend renders them as vertical lines or labels on time-series charts.",
-  "markers": [
-    {
-      "date": "2026-01-29",
-      "label": "First live trade",
-      "category": "milestone",
-      "description": "Bot exits cash-only posture; first 5 fills (VLUE, XLB, VEA, SCHD)."
-    },
-    {
-      "date": "2026-03-12",
-      "label": "Alpaca paper cutover",
-      "category": "infrastructure",
-      "description": "Simulated paper portfolio bridged into Alpaca paper. First continuity-bridge cashflow event (-$3,025.53)."
-    },
-    {
-      "date": "2026-04-02",
-      "label": "vol_uncertainty re-armed",
-      "category": "data_plane",
-      "description": "F-1 self-healed: VIX-driven vol_uncertainty exits the 0.10 floor (where it was held for 168 days) and starts producing real percentile values. Coincides with start of SPY-relative lag."
-    },
-    {
-      "date": "2026-04-06",
-      "label": "Hybrid live (params)",
-      "category": "model",
-      "description": "Decision-params bundle updated to hybrid ranking blend 0.35 (commit c4e8831). New buy basket entered Apr 6-8."
-    },
-    {
-      "date": "2026-04-22",
-      "label": "Second continuity cashflow",
-      "category": "infrastructure",
-      "description": "Cumulative external cashflow stepped from -$3,025.53 to -$10,077.83. continuity-adjusted equity diverges from broker_total_value by this amount thereafter."
-    },
-    {
-      "date": "2026-04-29",
-      "label": "Phase-4 bug fixes shipped",
-      "category": "code_fix",
-      "description": "F-1/3/6/8/9 vol_uncertainty degraded surfacing, F-4/5 unified cost basis, F-7 fragility-relax knob (default off), F-6 per-signal status flags. Branch ai/diagnostic-fix-batch."
-    }
-  ]
+    "schema_version": "1",
+    "description": "Vertical event markers for the equity curve / dashboard charts. Edit this file to add/remove markers; publish_artifacts will copy the list into dashboard.json on the next pipeline run. Frontend renders them as vertical lines or labels on time-series charts.",
+    "markers": [
+        {
+            "date": "2026-01-29",
+            "label": "First live trade",
+            "category": "milestone",
+            "description": "Bot exits cash-only posture; first 5 fills (VLUE, XLB, VEA, SCHD)."
+        },
+        {
+            "date": "2026-03-12",
+            "label": "Alpaca paper cutover",
+            "category": "infrastructure",
+            "description": "Simulated paper portfolio bridged into Alpaca paper. First continuity-bridge cashflow event (-$3,025.53)."
+        },
+        {
+            "date": "2026-04-02",
+            "label": "vol_uncertainty re-armed",
+            "category": "data_plane",
+            "description": "F-1 self-healed: VIX-driven vol_uncertainty exits the 0.10 floor (where it was held for 168 days) and starts producing real percentile values. Coincides with start of SPY-relative lag."
+        },
+        {
+            "date": "2026-04-06",
+            "label": "Hybrid live (params)",
+            "category": "model",
+            "description": "Decision-params bundle updated to hybrid ranking blend 0.35 (commit c4e8831). New buy basket entered Apr 6-8."
+        },
+        {
+            "date": "2026-04-22",
+            "label": "Second continuity cashflow",
+            "category": "infrastructure",
+            "description": "Cumulative external cashflow stepped from -$3,025.53 to -$10,077.83. continuity-adjusted equity diverges from broker_total_value by this amount thereafter."
+        },
+        {
+            "date": "2026-04-29",
+            "label": "Phase-4 bug fixes shipped",
+            "category": "code_fix",
+            "description": "F-1/3/6/8/9 vol_uncertainty degraded surfacing, F-4/5 unified cost basis, F-7 fragility-relax knob (default off), F-6 per-signal status flags. Branch ai/diagnostic-fix-batch."
+        },
+        {
+            "date": "2026-05-07",
+            "label": "Reconciliation + 3-line dashboard",
+            "category": "milestone",
+            "description": "Canonical hybrid line promoted as dashboard truth. Three-line equity comparison shipped: hybrid (current canon, bold blue), pre-hybrid (gray dashed), optimized in-sample champion (green dashed, extend_relax_choppy + topup_psm_1.2). Live broker line removed from chart. v2 portfolio_value invariant (cash + sum(shares \u00d7 close)) verified."
+        },
+        {
+            "date": "2026-06-06",
+            "label": "Regime model retrained (forward)",
+            "category": "model",
+            "description": "Regime ensemble retrained on 11yr corpus (out-of-sample accuracy 9%% -> 73%%, replacing models trained on ~11 rows). Applies to decisions from this date FORWARD; prior history is unchanged (continuity preserved). Also: champion config tuned (position weight 0.20->0.30, topup 1.2->1.1) lifting the line from +12.5%% to +15.0%% whole-period."
+        }
+    ]
 }

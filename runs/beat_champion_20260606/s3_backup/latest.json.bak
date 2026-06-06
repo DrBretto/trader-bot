@@ -1,0 +1,21 @@
+{
+  "version": "20260601",
+  "timestamp": "2026-06-01T06:04:09.383600",
+  "regime_model": "models/regime_gru_v20260601.pkl",
+  "health_model": "models/health_v20260601.pkl",
+  "ensemble": true,
+  "regime_metrics": {
+    "test_accuracy": 0.09090909090909091,
+    "test_f1_macro": 0.05555555555555556,
+    "model_type": "ensemble",
+    "gru_accuracy": 0.09090909090909091,
+    "transformer_accuracy": 1.0
+  },
+  "health_metrics": {
+    "test_recon_mse": 0.2627693027449538,
+    "test_health_correlation": -0.2306225108243889,
+    "model_type": "autoencoder"
+  },
+  "regime_gru_model": "models/regime_gru_v20260601.pkl",
+  "regime_transformer_model": "models/regime_transformer_v20260601.pkl"
+}

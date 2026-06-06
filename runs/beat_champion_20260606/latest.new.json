@@ -1,0 +1,25 @@
+{
+  "version": "20260606",
+  "timestamp": "2026-06-06T20:00:00.000000",
+  "regime_model": "models/regime_gru_v20260606.pkl",
+  "health_model": "models/health_v20260601.pkl",
+  "ensemble": true,
+  "regime_metrics": {
+    "test_accuracy": 0.7307,
+    "test_f1_macro": 0.4862,
+    "model_type": "ensemble",
+    "gru_accuracy": 0.7307,
+    "transformer_accuracy": 0.6733,
+    "trained_on": "historical_combined.parquet (2803 rows, 2014..2026-02)",
+    "note": "retrained forward 2026-06-06; replaces broken 0.09-accuracy models; applies to decisions from switch date forward, history unchanged"
+  },
+  "health_metrics": {
+    "test_recon_mse": 0.2627693027449538,
+    "test_health_correlation": -0.2306225108243889,
+    "model_type": "autoencoder"
+  },
+  "regime_gru_model": "models/regime_gru_v20260606.pkl",
+  "regime_transformer_model": "models/regime_transformer_v20260606.pkl",
+  "gru_weight": 0.5,
+  "transformer_weight": 0.5
+}
