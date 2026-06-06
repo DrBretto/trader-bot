@@ -21,16 +21,44 @@ function formatPct(value: number): string {
   return `${sign}${value.toFixed(1)}%`;
 }
 
-function buildNormalizedGrowthData(equityCurve: EquityCurvePoint[]) {
-  const first = equityCurve.find((point) => point.value > 0 && point.benchmark > 0);
+function getCurrentModelValue(point: EquityCurvePoint): number {
+  return point.optimized_value ?? point.corrected_value ?? point.value;
+}
+
+function getPreviousModelValue(point: EquityCurvePoint): number | null {
+  return point.hybrid_value ?? point.pre_hybrid_value ?? null;
+}
+
+function buildModelComparisonData(equityCurve: EquityCurvePoint[]) {
+  const first = equityCurve.find((point) => {
+    const current = getCurrentModelValue(point);
+    const previous = getPreviousModelValue(point);
+    return current > 0 && previous != null && previous > 0;
+  });
   if (!first) return [];
 
-  return equityCurve.map((point) => ({
-    date: point.date,
-    dateLabel: format(parseISO(point.date), 'MMM d'),
-    portfolioIndex: (point.value / first.value) * 100,
-    benchmarkIndex: (point.benchmark / first.benchmark) * 100,
-  }));
+  const firstCurrent = getCurrentModelValue(first);
+  const firstPrevious = getPreviousModelValue(first);
+  if (!firstPrevious) return [];
+
+  return equityCurve
+    .map((point) => {
+      const current = getCurrentModelValue(point);
+      const previous = getPreviousModelValue(point);
+      if (current <= 0 || previous == null || previous <= 0) return null;
+
+      const currentModelIndex = (current / firstCurrent) * 100;
+      const previousModelIndex = (previous / firstPrevious) * 100;
+
+      return {
+        date: point.date,
+        dateLabel: format(parseISO(point.date), 'MMM d'),
+        currentModelIndex,
+        previousModelIndex,
+        modelDeltaPct: currentModelIndex - previousModelIndex,
+      };
+    })
+    .filter((point): point is NonNullable<typeof point> => point !== null);
 }
 
 function buildExcessSpreadData(equityCurve: EquityCurvePoint[]) {
@@ -49,10 +77,10 @@ function buildExcessSpreadData(equityCurve: EquityCurvePoint[]) {
 }
 
 export function PerformanceLenses({ equityCurve }: Props) {
-  const normalizedGrowth = buildNormalizedGrowthData(equityCurve);
+  const modelComparison = buildModelComparisonData(equityCurve);
   const excessSpread = buildExcessSpreadData(equityCurve);
 
-  if (normalizedGrowth.length === 0 || excessSpread.length === 0) {
+  if (modelComparison.length === 0 || excessSpread.length === 0) {
     return null;
   }
 
@@ -61,7 +89,7 @@ export function PerformanceLenses({ equityCurve }: Props) {
       <div className="card-title performance-lenses-title">
         <span>Performance Lenses</span>
         <InfoTooltip
-          content="Two quick alternative views of the same portfolio history. Left: portfolio and SPY rebased to the same starting level. Right: the strategy's running excess return over SPY in percentage points."
+          content="Two quick alternative views of the same portfolio history. Left: current model and previous model rebased to the same starting level. Right: the strategy's running excess return over SPY in percentage points."
           label="Performance lenses"
         />
       </div>
@@ -70,12 +98,12 @@ export function PerformanceLenses({ equityCurve }: Props) {
         <div className="card performance-lens-card">
           <div className="performance-lens-card__header">
             <div>
-              <h3>Relative Growth vs SPY</h3>
-              <p>Rebased to 100 so the shape, not the dollar size, does the talking.</p>
+              <h3>Current Model vs Previous</h3>
+              <p>Rebased to 100 so the active canon and prior model are directly comparable.</p>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={normalizedGrowth} margin={{ top: 8, right: 12, bottom: 8, left: -8 }}>
+            <LineChart data={modelComparison} margin={{ top: 8, right: 12, bottom: 8, left: -8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.12)" />
               <XAxis
                 dataKey="dateLabel"
@@ -97,27 +125,31 @@ export function PerformanceLenses({ equityCurve }: Props) {
                 }}
                 labelStyle={{ color: '#94a3b8' }}
                 formatter={(value: number, name: string) => [
-                  value.toFixed(2),
-                  name === 'portfolioIndex' ? 'Portfolio Index' : 'SPY Index',
+                  name === 'modelDeltaPct' ? formatPct(value) : value.toFixed(2),
+                  name === 'currentModelIndex'
+                    ? 'Current Model'
+                    : name === 'previousModelIndex'
+                      ? 'Previous Model'
+                      : 'Current - Previous',
                 ]}
               />
               <ReferenceLine y={100} stroke="rgba(148, 163, 184, 0.35)" strokeDasharray="4 4" />
               <Line
                 type="monotone"
-                dataKey="portfolioIndex"
-                stroke="#60a5fa"
+                dataKey="currentModelIndex"
+                stroke="#34d399"
                 strokeWidth={2.5}
                 dot={false}
-                name="portfolioIndex"
+                name="currentModelIndex"
               />
               <Line
                 type="monotone"
-                dataKey="benchmarkIndex"
-                stroke="#94a3b8"
+                dataKey="previousModelIndex"
+                stroke="#60a5fa"
                 strokeWidth={1.75}
                 strokeDasharray="6 5"
                 dot={false}
-                name="benchmarkIndex"
+                name="previousModelIndex"
               />
             </LineChart>
           </ResponsiveContainer>

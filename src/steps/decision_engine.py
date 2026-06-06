@@ -219,11 +219,20 @@ def filter_buy_candidates(
     # Filter: not already held
     candidates = candidates[~candidates['symbol'].isin(current_holdings)]
 
-    # Filter: score threshold
-    candidates = candidates[candidates['final_score'] >= params.get('buy_score_threshold', 0.65)]
+    # Filter: score threshold (regime-conditional). The flat threshold sizes the
+    # bar the same in a risk-on rally as in a panic, so the book never leans in
+    # when the coast clears (the 2026-05 cash-during-rally failure). A
+    # `buy_score_threshold_by_regime` map (regime -> threshold) lets the bar fall
+    # in benign regimes and rise in stressed ones; absent it, the flat value is
+    # used (no behavior change).
+    bst_by_regime = params.get('buy_score_threshold_by_regime') or {}
+    buy_thresh = bst_by_regime.get(regime_label, params.get('buy_score_threshold', 0.65))
+    candidates = candidates[candidates['final_score'] >= buy_thresh]
 
-    # Filter: health threshold
-    candidates = candidates[candidates['health_score'] >= params.get('min_health_buy', 0.60)]
+    # Filter: health threshold (regime-conditional, same pattern)
+    mhb_by_regime = params.get('min_health_buy_by_regime') or {}
+    min_health = mhb_by_regime.get(regime_label, params.get('min_health_buy', 0.60))
+    candidates = candidates[candidates['health_score'] >= min_health]
 
     # Filter: vol bucket (high vol allowed only in calm_uptrend with exceptional score)
     if len(candidates) > 0:

@@ -144,3 +144,22 @@ To revert: `aws s3 cp <bak> s3://investment-system-data/<orig key> --profile per
   re-weighting via `ensemble_overrides` also recomputes (and can corrupt) the label, so it's the wrong lever
   for the throttle.
 - **Pyarrow/torch live in `.venv`**, not system python3. Run everything with `./.venv/bin/python`.
+
+## 10. Repo/deploy truth after the 2026-06-06 cleanup sweep
+
+- **HEAD now matches what's deployed.** The deployed Lambda + frontend were built from working-tree
+  changes; the load-bearing ones are now committed: `src/steps/decision_engine.py` (the
+  `buy_score_threshold_by_regime` / `min_health_buy_by_regime` regime-conditional support that the live
+  config depends on), `src/utils/dashboard_metrics.py` (canonical-overrides display path),
+  `frontend/src/components/PerformanceLenses.tsx`, `docs/DEPLOY.md`. If you rebuild from HEAD you get
+  what's running.
+- **LANDMINE — do not promote `config/decision_params.candidate.json`.** It holds a *degenerate optimizer
+  output* (max_positions 75, max_position_weight 0.44, sell_health_threshold 0.0 = never-sell). The live
+  config is `config/decision_params.active.json` only. The dormant optimizer wrote that candidate; it is
+  evidence of the overfit problem, not a config to ship. (Left uncommitted intentionally as evidence.)
+- **Regime model is LIVE forward** (supersedes the "staged, not live" note in the Infotropy RESULT.md
+  receipt): `models/latest.json` (S3) points at the retrained ensemble; first live decision Monday.
+  The removed `models/latest.candidate.json` was the pre-switch staging pointer — provenance is here + git.
+- Remaining dirty files in `git status` are **generated data** (optimizer run indexes/outputs under
+  `runs/optimizer/`, `dashboard/data/`, `frontend/public/data/`) that regenerate on each optimizer run,
+  plus older scratch — not source, safe to ignore.

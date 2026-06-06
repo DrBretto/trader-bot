@@ -172,6 +172,29 @@ Access the dashboard at: `http://investment-system-data.s3-website-us-east-1.ama
 
 ---
 
+## CloudFront cache policy split (live data vs static assets)
+
+The public dashboard is served via CloudFront distribution `E10EHVNQ0CELM2` (alias `trader-bot.infotrope.io`). The distribution has two cache behaviors with different policies:
+
+- **Default behavior** — hashed Vite static assets (JS/CSS bundles, images). Uses AWS managed `Managed-CachingOptimized` (`658327ea-f89d-4fab-a63d-7e88639e58f6`). 24h edge TTL is fine because the asset filenames change on every build.
+- **Ordered behavior `*.json`** — live pipeline-written data files (`/dashboard.json`, `/data/dashboard.json`, `/timeseries.json`, `/data/timeseries.json`). Uses AWS managed `Managed-CachingDisabled` (`4135ea2d-6df8-44a3-9df3-4b5a84be39ad`). MinTTL=MaxTTL=DefaultTTL=0; query strings are not part of the cache key but each request goes to origin.
+
+This split exists because the frontend's `useDashboardData.ts` cache-busts requests with `?t=Date.now()`, but `Managed-CachingOptimized` ignores query strings, so the cache-bust did not reach the edge. With the `*.json` behavior on `Managed-CachingDisabled`, every fetch reaches origin and serves the current snapshot.
+
+If you redeploy or recreate the distribution, recreate this split. To verify it is in place:
+
+```bash
+aws cloudfront get-distribution-config --id E10EHVNQ0CELM2 --profile personal \
+  --query 'DistributionConfig.CacheBehaviors.Items[?PathPattern==`*.json`].CachePolicyId' --output text
+# expect: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+```
+
+After any pipeline run that produces a fresh `dashboard.json`, normal browser refresh on `https://trader-bot.infotrope.io` should load the current snapshot — no manual invalidation required because the live data behavior is on `Managed-CachingDisabled`.
+
+If a new live data path is introduced that does not match `*.json` (e.g. `/data/something.parquet`), either rename it to `.json` or add another ordered cache behavior under the same disabled-cache policy.
+
+---
+
 ## Go-Live Order
 
 Use this sequence for a full first-time go-live:

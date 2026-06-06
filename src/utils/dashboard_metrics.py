@@ -108,6 +108,75 @@ def _extract_state_reset_marker(state: Dict[str, Any]) -> Optional[str]:
     return None
 
 
+def _apply_canonical_overrides(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Substitute the hybrid-replay canon for the post-cutover historical
+    segment, and inject the seam cashflow that anchors broker daily moves
+    to the canon going forward.
+
+    Effect:
+    - For dates in `HYBRID_SEGMENT` (2026-03-12 -> 2026-05-05): the row's
+      `value`, `cash`, `holdings_count` are overridden with the v2 hybrid
+      replay values, and `external_cashflow` is zeroed (this nullifies the
+      live broker's continuity-bridge entries on 2026-03-12 / 2026-04-22
+      so they don't contaminate the canonical curve).
+    - For dates inside the segment span [first segment date,
+      SEAM_CASHFLOW_DATE) that are NOT in `HYBRID_SEGMENT`: forward-fill
+      the most recent canonical entry. This catches gap-trading-days
+      (Saturday-dated states from a Friday-night Lambda persist, holiday
+      Mondays, etc.) that would otherwise leak the broker raw value into
+      the canonical equity curve and produce zig-zag spikes.
+    - On `SEAM_CASHFLOW_DATE` (2026-05-06): a single synthetic
+      `external_cashflow` of `SEAM_CASHFLOW_VALUE` is added. This makes
+      `cumulative_external_cashflow` on the seam day equal to that single
+      value, so `continuity_value = broker_raw - cumulative` lands on the
+      canonical hybrid endpoint at the seam and broker daily moves carry
+      the canonical line forward unchanged.
+
+    See `src/utils/canonical_replay_anchor.py` for the segment data and
+    rationale, and `book-factory/use_lane_outputs/runs/
+    20260506_trader-bot-mar11-known-bugs-fixed-algorithm-comparison-v2/`
+    for the source-faithful replay that produced the segment values.
+    """
+    from .canonical_replay_anchor import (
+        HYBRID_SEGMENT,
+        SEAM_CASHFLOW_DATE,
+        SEAM_CASHFLOW_VALUE,
+    )
+
+    if not HYBRID_SEGMENT:
+        return rows
+
+    segment_start = min(HYBRID_SEGMENT.keys())
+    last_override: Optional[Dict[str, Any]] = None
+
+    for row in rows:
+        d = row.get("date")
+        if d in HYBRID_SEGMENT:
+            override = HYBRID_SEGMENT[d]
+            row["value"] = float(override["value"])
+            row["cash"] = float(override["cash"])
+            row["holdings_count"] = int(override["holdings_count"])
+            row["external_cashflow"] = 0.0
+            row["canonical_override"] = "hybrid_replay_v2"
+            last_override = override
+        elif d == SEAM_CASHFLOW_DATE:
+            row["external_cashflow"] = (
+                row.get("external_cashflow", 0.0) + SEAM_CASHFLOW_VALUE
+            )
+            row["canonical_override"] = "seam_cashflow"
+        elif (
+            last_override is not None
+            and d is not None
+            and segment_start <= d < SEAM_CASHFLOW_DATE
+        ):
+            row["value"] = float(last_override["value"])
+            row["cash"] = float(last_override["cash"])
+            row["holdings_count"] = int(last_override["holdings_count"])
+            row["external_cashflow"] = 0.0
+            row["canonical_override"] = "hybrid_replay_v2_forward_filled"
+    return rows
+
+
 def _load_daily_states(
     s3,
     max_days: int,
@@ -170,6 +239,11 @@ def _load_daily_states(
             rows.append(current_row)
 
     rows.sort(key=lambda row: row["date"])
+
+    # Apply canonical hybrid-replay overrides over the historical segment
+    # plus the seam cashflow that anchors broker daily moves to the canon.
+    rows = _apply_canonical_overrides(rows)
+
     return rows
 
 
