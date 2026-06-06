@@ -25,7 +25,7 @@ from statistics import mean, stdev
 from typing import Any, Dict, List, Optional
 
 from .replay_engine import (
-    S3Cache, load_variant_configs, run_variant,
+    S3Cache, load_variant_configs, run_variant, VariantConfig,
 )
 from .strategies import (
     topup_on_psm_rise, extend_fragility_relax, compose,
@@ -124,6 +124,37 @@ def _build_champion_strategy():
     )
 
 
+def _build_prev_champion_strategy():
+    """The PREVIOUS champion overlays (pre beat-champion-20260606): topup_trigger
+    1.2. Pairs with config/decision_params.prev_champion.json (max_position_weight
+    0.20) to reproduce the prior +12.5% whole-period line as the dotted comparison.
+    """
+    return compose(
+        [extend_fragility_relax(('choppy',), 0.50), topup_on_psm_rise(1.2, 1.0)],
+        'PREV extend_relax_choppy + topup_1.2_full',
+    )
+
+
+def _load_prev_champion_config(cache: S3Cache) -> Optional[VariantConfig]:
+    """Load the frozen previous-champion config for the dotted comparison line.
+    Returns None if absent (comparison line is then simply omitted)."""
+    try:
+        prev = cache.get_json('config/decision_params.prev_champion.json')
+    except Exception as exc:
+        logger.warning("prev_champion config missing; comparison line omitted: %s", exc)
+        return None
+    return VariantConfig(
+        name='prev_champion',
+        decision_params=prev['decision_params'],
+        regime_compatibility=prev['regime_compatibility'],
+        signal_overrides=prev.get('signals', {}),
+        regime_fusion_overrides=prev.get('regime_fusion', {}),
+        decision_engine_overrides=prev.get('decision_engine', {}),
+        ensemble_overrides=prev.get('ensemble', {}),
+        transaction_cost_overrides=prev.get('transaction_costs', {}),
+    )
+
+
 def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
     """Mutate `dash` in-place: add three-line equity curve fields and refresh
     canonical metrics. Returns the same dict for chaining.
@@ -139,16 +170,24 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
             return dash
 
         universe_df = cache.get_csv('config/universe.csv')
-        hybrid_cfg, pre_hybrid_cfg = load_variant_configs(cache)
+        hybrid_cfg, _pre_hybrid_cfg = load_variant_configs(cache)
 
-        logger.info("three_line_replay: running canonical hybrid")
-        hybrid = run_variant(cache, hybrid_cfg, None, trading_dates, universe_df)
-
-        if pre_hybrid_cfg is not None:
-            logger.info("three_line_replay: running pre-hybrid")
-            pre_hybrid = run_variant(cache, pre_hybrid_cfg, None, trading_dates, universe_df)
+        # Comparison line = the PREVIOUS champion (frozen prev_champion config +
+        # old topup 1.2 overlay), reproducing the prior +12.5% line. Stored in
+        # `hybrid_value` (the dotted comparison slot the frontend already renders).
+        prev_cfg = _load_prev_champion_config(cache)
+        if prev_cfg is not None:
+            logger.info("three_line_replay: running previous champion (comparison)")
+            hybrid = run_variant(cache, prev_cfg, _build_prev_champion_strategy(),
+                                 trading_dates, universe_df)
         else:
-            pre_hybrid = None
+            logger.info("three_line_replay: prev champion absent; comparison line omitted")
+            hybrid = {'date_value_map': {}, 'final_holdings': [], 'final_cash': 0.0,
+                      'final_date': None, 'actions': []}
+
+        # The faint third (pre-hybrid bootstrap) line is retired; only the
+        # optimized champion (solid) and previous champion (dotted) are shown.
+        pre_hybrid = None
 
         logger.info("three_line_replay: running optimized champion")
         champion_strategy = _build_champion_strategy()
@@ -203,6 +242,9 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
             row['cumulative_external_cashflow'] = 0.0
             if last_p is not None:
                 row['pre_hybrid_value'] = last_p
+            elif 'pre_hybrid_value' in row:
+                # retired faint third line — strip any stale values from prior runs
+                del row['pre_hybrid_value']
             if last_h is not None:
                 row['hybrid_value'] = last_h
             canonical_curve_values.append({'date': d, 'value': row['value']})

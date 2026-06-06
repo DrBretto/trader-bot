@@ -1,0 +1,5062 @@
+{
+  "snapshot": {
+    "id": "2026-06-06:three_line_replay:2026-06-06T11:03:46.330216-04:00",
+    "date": "2026-06-06",
+    "phase": "night",
+    "timestamp": "2026-06-06T11:03:46.330216-04:00"
+  },
+  "panel_snapshot_ids": {
+    "metrics": "2026-06-06:night:2026-06-06T03:01:01.723246",
+    "equity_curve": "2026-06-06:night:2026-06-06T03:01:01.723246",
+    "drawdowns": "2026-06-06:night:2026-06-06T03:01:01.723246",
+    "monthly_returns": "2026-06-06:night:2026-06-06T03:01:01.723246",
+    "trade_log": "2026-06-06:night:2026-06-06T03:01:01.723246",
+    "regime": "2026-06-06:night:2026-06-06T03:01:01.723246"
+  },
+  "metrics": {
+    "total_value": 112487.17,
+    "broker_total_value": 96661.29860777082,
+    "cash": 82288.65,
+    "invested": 30198.520000000004,
+    "ytd_return": 0.12487169999999992,
+    "mtd_return": -0.008116210190832862,
+    "sharpe_ratio": 2.252725735157571,
+    "sharpe_observations": 231,
+    "sharpe_min_observations": 60,
+    "max_drawdown": -0.013629876537935773,
+    "current_drawdown": -0.008514001951995871,
+    "win_rate": 0.7777777777777778,
+    "total_trades": 45,
+    "wins": 35,
+    "losses": 10,
+    "breakeven_trades": 0,
+    "realized_round_trips": 45,
+    "total_fills": 76,
+    "cumulative_transaction_costs": 0.0,
+    "cash_pct": 0.7315380945222464,
+    "gross_exposure": 0.2684619054777536,
+    "net_exposure": 0.2684619054777536,
+    "top_position_pct": 0.07332249535658156,
+    "beta_proxy": null,
+    "snapshot_id": "2026-06-06:night:2026-06-06T03:01:01.723246",
+    "timestamp": "2026-06-06T11:03:46.330216-04:00",
+    "corrected_total_value": 112487.17,
+    "actual_total_value": 112487.17,
+    "canon_source": "optimized_champion"
+  },
+  "holdings": [
+    {
+      "symbol": "VUG",
+      "shares": 96.0,
+      "entry_price": 73.74333333333333,
+      "current_price": 85.915,
+      "market_value": 8247.84,
+      "unrealized_pnl": 1168.48,
+      "unrealized_pnl_pct": 0.1650544682005155,
+      "health_score": 0.7,
+      "vol_bucket": "med",
+      "days_held": 0
+    },
+    {
+      "symbol": "XBI",
+      "shares": 28.0,
+      "entry_price": 128.13,
+      "current_price": 128.65,
+      "market_value": 3602.2,
+      "unrealized_pnl": 14.56,
+      "unrealized_pnl_pct": 0.004058378209630842,
+      "health_score": 0.7,
+      "vol_bucket": "med",
+      "days_held": 0
+    },
+    {
+      "symbol": "XLF",
+      "shares": 72.75,
+      "entry_price": 49.61,
+      "current_price": 52.295,
+      "market_value": 3804.46,
+      "unrealized_pnl": 195.33,
+      "unrealized_pnl_pct": 0.0541221527917759,
+      "health_score": 0.7,
+      "vol_bucket": "med",
+      "days_held": 0
+    },
+    {
+      "symbol": "XLE",
+      "shares": 30.5,
+      "entry_price": 57.11,
+      "current_price": 57.67,
+      "market_value": 1758.93,
+      "unrealized_pnl": 17.08,
+      "unrealized_pnl_pct": 0.0098056382419891,
+      "health_score": 0.7,
+      "vol_bucket": "med",
+      "days_held": 0
+    },
+    {
+      "symbol": "DBC",
+      "shares": 105.0,
+      "entry_price": 30.02,
+      "current_price": 29.24,
+      "market_value": 3070.2,
+      "unrealized_pnl": -81.9,
+      "unrealized_pnl_pct": -0.025982678214523713,
+      "health_score": 0.7,
+      "vol_bucket": "med",
+      "days_held": 0
+    },
+    {
+      "symbol": "USO",
+      "shares": 23.0,
+      "entry_price": 135.06,
+      "current_price": 133.07,
+      "market_value": 3060.61,
+      "unrealized_pnl": -45.77,
+      "unrealized_pnl_pct": -0.014734192210869357,
+      "health_score": 0.7,
+      "vol_bucket": "med",
+      "days_held": 0
+    },
+    {
+      "symbol": "EWZ",
+      "shares": 97.0,
+      "entry_price": 35.54,
+      "current_price": 34.01,
+      "market_value": 3298.97,
+      "unrealized_pnl": -148.41,
+      "unrealized_pnl_pct": -0.043050084411930256,
+      "health_score": 0.7,
+      "vol_bucket": "med",
+      "days_held": 0
+    },
+    {
+      "symbol": "FXI",
+      "shares": 96.5,
+      "entry_price": 36.42,
+      "current_price": 34.77,
+      "market_value": 3355.31,
+      "unrealized_pnl": -159.22,
+      "unrealized_pnl_pct": -0.045304777594728174,
+      "health_score": 0.7,
+      "vol_bucket": "med",
+      "days_held": 0
+    }
+  ],
+  "candidates": [
+    {
+      "symbol": "VIXY",
+      "score": 0.6802201211452484,
+      "health_score": 0.9653027057647705,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.10357537781054182,
+      "return_63d": -0.295276731382208,
+      "suggested_size": 5666.56
+    },
+    {
+      "symbol": "SOXX",
+      "score": 0.6369416820257903,
+      "health_score": 0.7805670499801636,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.06567282061407842,
+      "return_63d": 0.6695332075354969,
+      "suggested_size": 5397.1
+    },
+    {
+      "symbol": "SMH",
+      "score": 0.6100436633825302,
+      "health_score": 0.7021803855895996,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.03733775099670522,
+      "return_63d": 0.4973984338045936,
+      "suggested_size": 5128.38
+    },
+    {
+      "symbol": "XLK",
+      "score": 0.5896574875712395,
+      "health_score": 0.5974239110946655,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.06047770325920698,
+      "return_63d": 0.3149026187176307,
+      "suggested_size": 5588.06
+    },
+    {
+      "symbol": "UNG",
+      "score": 0.5882930293679237,
+      "health_score": 0.737981379032135,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.11578947368421066,
+      "return_63d": -0.08549019607843134,
+      "suggested_size": 5678.42
+    },
+    {
+      "symbol": "EWZ",
+      "score": 0.5837605901062488,
+      "health_score": 0.7431312799453735,
+      "vol_bucket": "med",
+      "behavior": "mean_reversion",
+      "return_21d": -0.14729848313902472,
+      "return_63d": -0.0630853994490358,
+      "suggested_size": 7074.08
+    },
+    {
+      "symbol": "XLP",
+      "score": 0.5712387069314718,
+      "health_score": 0.5995119214057922,
+      "vol_bucket": "high",
+      "behavior": "mixed",
+      "return_21d": -0.009142721443837543,
+      "return_63d": -0.021458724202626622,
+      "suggested_size": 5674.6
+    },
+    {
+      "symbol": "XLY",
+      "score": 0.5672438888251782,
+      "health_score": 0.5717155933380127,
+      "vol_bucket": "med",
+      "behavior": "mean_reversion",
+      "return_21d": -0.042198315403219055,
+      "return_63d": 0.005427645977413853,
+      "suggested_size": 7005.85
+    }
+  ],
+  "equity_curve": [
+    {
+      "date": "2025-08-04",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-05",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-06",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-07",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-08",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-11",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-12",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-13",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-14",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-15",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-18",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-19",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-20",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-21",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-22",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-25",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-26",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-27",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-28",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-08-29",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-02",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-03",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-04",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-05",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-08",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-09",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-10",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-11",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-12",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-15",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-16",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-17",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-18",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-19",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-22",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-23",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-24",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-25",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-26",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-29",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-09-30",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-01",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-02",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-03",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-06",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-07",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-08",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-09",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-10",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-13",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-14",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-15",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-16",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-17",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-20",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-21",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-22",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-23",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-24",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-27",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-28",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-29",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-30",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-10-31",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-03",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-04",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-05",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-06",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-07",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-10",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-11",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-12",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-13",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-14",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-17",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-18",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-19",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-20",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-21",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-24",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-25",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-26",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-11-28",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-01",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-02",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-03",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-04",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-05",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-08",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-09",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-10",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-11",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-12",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-15",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-16",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-17",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-18",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-19",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-22",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-23",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-24",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-26",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-29",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-30",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2025-12-31",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-02",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-05",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-06",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-07",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-08",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-09",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-12",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-14",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-15",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-16",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-20",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-21",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-22",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-23",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-26",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-27",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-28",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-29",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 100000.0,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-30",
+      "value": 100000.0,
+      "raw_value": 100000.0,
+      "benchmark": 99688.77874474095,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-01-31",
+      "value": 100000.00000000001,
+      "raw_value": 100000.00000000001,
+      "benchmark": 99701.7462970434,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-02",
+      "value": 100793.72659999998,
+      "raw_value": 100793.72659999998,
+      "benchmark": 100305.83251685783,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-03",
+      "value": 100960.8466,
+      "raw_value": 100960.8466,
+      "benchmark": 100197.39496282637,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-04",
+      "value": 103206.03900000002,
+      "raw_value": 103206.03900000002,
+      "benchmark": 98857.41455823871,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-05",
+      "value": 103210.194,
+      "raw_value": 103210.194,
+      "benchmark": 98868.94127139647,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-06",
+      "value": 101931.694,
+      "raw_value": 101931.694,
+      "benchmark": 97634.14212437323,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-07",
+      "value": 102156.49399999999,
+      "raw_value": 102156.49399999999,
+      "benchmark": 99511.55552994064,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-10",
+      "value": 102638.214,
+      "raw_value": 102638.214,
+      "benchmark": 99987.03244769755,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-11",
+      "value": 102940.734,
+      "raw_value": 102940.734,
+      "benchmark": 99512.99636908536,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-12",
+      "value": 103264.964,
+      "raw_value": 103264.964,
+      "benchmark": 100109.04270647225,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-13",
+      "value": 102025.55701281781,
+      "raw_value": 102025.55701281781,
+      "benchmark": 98209.08296824328,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-14",
+      "value": 102066.9570128178,
+      "raw_value": 102066.9570128178,
+      "benchmark": 98242.97055268963,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-16",
+      "value": 102062.80528998561,
+      "raw_value": 102062.80528998561,
+      "benchmark": 98249.47977892411,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-17",
+      "value": 101857.47528998562,
+      "raw_value": 101857.47528998562,
+      "benchmark": 98448.52626482229,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-18",
+      "value": 102097.86840588634,
+      "raw_value": 102097.86840588634,
+      "benchmark": 98511.3043940248,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-19",
+      "value": 102304.83660588635,
+      "raw_value": 102304.83660588635,
+      "benchmark": 98625.27853283225,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-20",
+      "value": 102528.69178854651,
+      "raw_value": 102528.69178854651,
+      "benchmark": 98360.04111312148,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-21",
+      "value": 103116.9600885465,
+      "raw_value": 103116.9600885465,
+      "benchmark": 99416.35428773958,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-23",
+      "value": 103244.09654778495,
+      "raw_value": 103244.09654778495,
+      "benchmark": 99291.69361584542,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-24",
+      "value": 102973.4137587989,
+      "raw_value": 102973.4137587989,
+      "benchmark": 98313.99560578287,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-25",
+      "value": 103242.62016193655,
+      "raw_value": 103242.62016193655,
+      "benchmark": 99630.95455341662,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-26",
+      "value": 103115.94944099121,
+      "raw_value": 103115.94944099121,
+      "benchmark": 99990.33122586641,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-27",
+      "value": 103206.23742736745,
+      "raw_value": 103206.23742736745,
+      "benchmark": 98562.27752968272,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-02-28",
+      "value": 103350.00242736745,
+      "raw_value": 103350.00242736745,
+      "benchmark": 98997.3084293819,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-02",
+      "value": 103373.51687060574,
+      "raw_value": 103373.51687060574,
+      "benchmark": 97947.69400279173,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-03",
+      "value": 102745.52502077715,
+      "raw_value": 102745.52502077715,
+      "benchmark": 97435.43533783303,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-04",
+      "value": 103130.431658918,
+      "raw_value": 103130.431658918,
+      "benchmark": 98490.02247150667,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-05",
+      "value": 103081.79889428108,
+      "raw_value": 103081.79889428108,
+      "benchmark": 98473.78655483552,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-06",
+      "value": 102917.54620538544,
+      "raw_value": 102917.54620538544,
+      "benchmark": 97244.75104450795,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-07",
+      "value": 103000.96620538544,
+      "raw_value": 103000.96620538544,
+      "benchmark": 97093.86775896532,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-09",
+      "value": 102935.72620538544,
+      "raw_value": 102935.72620538544,
+      "benchmark": 95913.68764177452,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-10",
+      "value": 103265.67411481834,
+      "raw_value": 103265.67411481834,
+      "benchmark": 97934.71471452196,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-11",
+      "value": 103025.52645321962,
+      "raw_value": 103025.52645321962,
+      "benchmark": 97615.61248059146,
+      "cumulative_external_cashflow": 0.0
+    },
+    {
+      "date": "2026-03-12",
+      "value": 102489.49,
+      "raw_value": 102422.19,
+      "benchmark": 96358.45666405224,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102489.49,
+      "pre_hybrid_value": 102489.49,
+      "hybrid_value": 102489.49
+    },
+    {
+      "date": "2026-03-13",
+      "value": 102583.44,
+      "raw_value": 102540.86,
+      "benchmark": 96206.45675316596,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102583.44,
+      "pre_hybrid_value": 102583.44,
+      "hybrid_value": 102583.44
+    },
+    {
+      "date": "2026-03-14",
+      "value": 102583.44,
+      "raw_value": 102540.86,
+      "benchmark": 95666.84864604671,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102583.44,
+      "pre_hybrid_value": 102583.44,
+      "hybrid_value": 102583.44
+    },
+    {
+      "date": "2026-03-16",
+      "value": 102583.44,
+      "raw_value": 102540.86,
+      "benchmark": 95666.84864604671,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102583.44,
+      "pre_hybrid_value": 102583.44,
+      "hybrid_value": 102583.44
+    },
+    {
+      "date": "2026-03-17",
+      "value": 102551.26,
+      "raw_value": 102508.68,
+      "benchmark": 96645.41748009152,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102551.26,
+      "pre_hybrid_value": 102551.26,
+      "hybrid_value": 102551.26
+    },
+    {
+      "date": "2026-03-18",
+      "value": 102358.6,
+      "raw_value": 102316.02,
+      "benchmark": 96904.65888416799,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102358.6,
+      "pre_hybrid_value": 102210.64,
+      "hybrid_value": 102358.6
+    },
+    {
+      "date": "2026-03-19",
+      "value": 102066.5,
+      "raw_value": 102023.92,
+      "benchmark": 95557.40999017004,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102066.5,
+      "pre_hybrid_value": 101909.51,
+      "hybrid_value": 102066.5
+    },
+    {
+      "date": "2026-03-20",
+      "value": 102054.2,
+      "raw_value": 102008.41,
+      "benchmark": 95326.8397682248,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102054.2,
+      "pre_hybrid_value": 101896.35,
+      "hybrid_value": 102054.2
+    },
+    {
+      "date": "2026-03-21",
+      "value": 102054.2,
+      "raw_value": 102008.41,
+      "benchmark": 93709.18143621227,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102054.2,
+      "pre_hybrid_value": 101896.35,
+      "hybrid_value": 102054.2
+    },
+    {
+      "date": "2026-03-23",
+      "value": 102054.2,
+      "raw_value": 102008.41,
+      "benchmark": 93709.18143621227,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102054.2,
+      "pre_hybrid_value": 101896.35,
+      "hybrid_value": 102054.2
+    },
+    {
+      "date": "2026-03-24",
+      "value": 102016.33,
+      "raw_value": 101974.48,
+      "benchmark": 94698.01497163609,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102016.33,
+      "pre_hybrid_value": 101870.36,
+      "hybrid_value": 102016.33
+    },
+    {
+      "date": "2026-03-25",
+      "value": 102233.59,
+      "raw_value": 102207.32,
+      "benchmark": 94384.9985412202,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102233.59,
+      "pre_hybrid_value": 101944.06,
+      "hybrid_value": 102233.59
+    },
+    {
+      "date": "2026-03-26",
+      "value": 102270.03,
+      "raw_value": 102243.76,
+      "benchmark": 94915.87746514607,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102270.03,
+      "pre_hybrid_value": 101970.78,
+      "hybrid_value": 102270.03
+    },
+    {
+      "date": "2026-03-27",
+      "value": 102343.74,
+      "raw_value": 102323.12,
+      "benchmark": 93225.60526095353,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102343.74,
+      "pre_hybrid_value": 102066.56,
+      "hybrid_value": 102343.74
+    },
+    {
+      "date": "2026-03-28",
+      "value": 102343.74,
+      "raw_value": 102323.12,
+      "benchmark": 91640.6602829866,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102343.74,
+      "pre_hybrid_value": 102066.56,
+      "hybrid_value": 102343.74
+    },
+    {
+      "date": "2026-03-30",
+      "value": 102343.74,
+      "raw_value": 102323.12,
+      "benchmark": 91640.6602829866,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102343.74,
+      "pre_hybrid_value": 102066.56,
+      "hybrid_value": 102343.74
+    },
+    {
+      "date": "2026-03-31",
+      "value": 102343.74,
+      "raw_value": 102323.12,
+      "benchmark": 91640.6602829866,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102343.74,
+      "pre_hybrid_value": 102066.56,
+      "hybrid_value": 102343.74
+    },
+    {
+      "date": "2026-04-01",
+      "value": 102423.58,
+      "raw_value": 102407.58,
+      "benchmark": 94706.39946605678,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102423.58,
+      "pre_hybrid_value": 102163.88,
+      "hybrid_value": 102423.58
+    },
+    {
+      "date": "2026-04-02",
+      "value": 102413.36,
+      "raw_value": 102397.22,
+      "benchmark": 94722.8511383912,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102413.36,
+      "pre_hybrid_value": 102223.54,
+      "hybrid_value": 102413.36
+    },
+    {
+      "date": "2026-04-03",
+      "value": 102413.36,
+      "raw_value": 102397.22,
+      "benchmark": 94826.61050108598,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102413.36,
+      "pre_hybrid_value": 102223.54,
+      "hybrid_value": 102413.36
+    },
+    {
+      "date": "2026-04-04",
+      "value": 102413.36,
+      "raw_value": 102397.22,
+      "benchmark": 94821.37804092516,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102413.36,
+      "pre_hybrid_value": 102223.54,
+      "hybrid_value": 102413.36
+    },
+    {
+      "date": "2026-04-06",
+      "value": 102413.36,
+      "raw_value": 102397.22,
+      "benchmark": 94923.15400771037,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102413.36,
+      "pre_hybrid_value": 102223.54,
+      "hybrid_value": 102413.36
+    },
+    {
+      "date": "2026-04-07",
+      "value": 102848.7,
+      "raw_value": 102672.0,
+      "benchmark": 94984.28521737912,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 102848.7,
+      "pre_hybrid_value": 102530.43,
+      "hybrid_value": 102687.38
+    },
+    {
+      "date": "2026-04-08",
+      "value": 104333.99,
+      "raw_value": 103864.86,
+      "benchmark": 97702.38084678209,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 104333.99,
+      "pre_hybrid_value": 103930.03,
+      "hybrid_value": 103879.49
+    },
+    {
+      "date": "2026-04-09",
+      "value": 104345.09,
+      "raw_value": 103972.44,
+      "benchmark": 98445.83760976842,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 104345.09,
+      "pre_hybrid_value": 104037.83,
+      "hybrid_value": 103988.33
+    },
+    {
+      "date": "2026-04-10",
+      "value": 104003.06,
+      "raw_value": 103708.14,
+      "benchmark": 98283.77283958973,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 104003.06,
+      "pre_hybrid_value": 103762.55,
+      "hybrid_value": 103744.87
+    },
+    {
+      "date": "2026-04-11",
+      "value": 104003.06,
+      "raw_value": 103708.14,
+      "benchmark": 98283.1246639049,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 104003.06,
+      "pre_hybrid_value": 103762.55,
+      "hybrid_value": 103744.87
+    },
+    {
+      "date": "2026-04-13",
+      "value": 104003.06,
+      "raw_value": 103708.14,
+      "benchmark": 98699.08569617273,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 104003.06,
+      "pre_hybrid_value": 103762.55,
+      "hybrid_value": 103744.87
+    },
+    {
+      "date": "2026-04-14",
+      "value": 107272.98,
+      "raw_value": 105560.31,
+      "benchmark": 100379.04271190337,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 107272.98,
+      "pre_hybrid_value": 105660.71,
+      "hybrid_value": 105519.32
+    },
+    {
+      "date": "2026-04-15",
+      "value": 108456.57,
+      "raw_value": 106216.87,
+      "benchmark": 100902.40149734457,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 108456.57,
+      "pre_hybrid_value": 106315.91,
+      "hybrid_value": 106173.23
+    },
+    {
+      "date": "2026-04-16",
+      "value": 108674.13,
+      "raw_value": 106388.53,
+      "benchmark": 101407.76780993938,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 108674.13,
+      "pre_hybrid_value": 106390.27,
+      "hybrid_value": 106308.32
+    },
+    {
+      "date": "2026-04-17",
+      "value": 109608.72,
+      "raw_value": 107333.74,
+      "benchmark": 102814.2458946287,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 109608.72,
+      "pre_hybrid_value": 107350.74,
+      "hybrid_value": 107149.59
+    },
+    {
+      "date": "2026-04-18",
+      "value": 109608.72,
+      "raw_value": 107333.74,
+      "benchmark": 102779.01677189565,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 109608.72,
+      "pre_hybrid_value": 107350.74,
+      "hybrid_value": 107149.59
+    },
+    {
+      "date": "2026-04-20",
+      "value": 109608.72,
+      "raw_value": 107333.74,
+      "benchmark": 102452.83408430449,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 109608.72,
+      "pre_hybrid_value": 107350.74,
+      "hybrid_value": 107149.59
+    },
+    {
+      "date": "2026-04-21",
+      "value": 109251.16,
+      "raw_value": 106926.66,
+      "benchmark": 102186.89048291746,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 109251.16,
+      "pre_hybrid_value": 106855.96,
+      "hybrid_value": 106785.02
+    },
+    {
+      "date": "2026-04-22",
+      "value": 110467.48,
+      "raw_value": 107477.89,
+      "benchmark": 102788.1562071008,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 110467.48,
+      "pre_hybrid_value": 107435.41,
+      "hybrid_value": 107377.52
+    },
+    {
+      "date": "2026-04-23",
+      "value": 109315.22,
+      "raw_value": 106565.91,
+      "benchmark": 102319.47652916485,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 109315.22,
+      "pre_hybrid_value": 106585.65,
+      "hybrid_value": 106622.07
+    },
+    {
+      "date": "2026-04-24",
+      "value": 109906.87,
+      "raw_value": 106873.45,
+      "benchmark": 103345.18227826295,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 109906.87,
+      "pre_hybrid_value": 106831.53,
+      "hybrid_value": 106904.45
+    },
+    {
+      "date": "2026-04-25",
+      "value": 109906.87,
+      "raw_value": 106873.45,
+      "benchmark": 103398.30259542081,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 109906.87,
+      "pre_hybrid_value": 106831.53,
+      "hybrid_value": 106904.45
+    },
+    {
+      "date": "2026-04-27",
+      "value": 109906.87,
+      "raw_value": 106873.45,
+      "benchmark": 103516.90388600953,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 109906.87,
+      "pre_hybrid_value": 106831.53,
+      "hybrid_value": 106904.45
+    },
+    {
+      "date": "2026-04-28",
+      "value": 109681.48,
+      "raw_value": 106308.71,
+      "benchmark": 103582.05065905876,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 109681.48,
+      "pre_hybrid_value": 106317.13,
+      "hybrid_value": 106469.07
+    },
+    {
+      "date": "2026-04-29",
+      "value": 110148.84,
+      "raw_value": 106091.84,
+      "benchmark": 102854.70533589955,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 110148.84,
+      "pre_hybrid_value": 106001.2,
+      "hybrid_value": 106262.83
+    },
+    {
+      "date": "2026-04-30",
+      "value": 110963.09,
+      "raw_value": 106802.69,
+      "benchmark": 103970.10481409823,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 110963.09,
+      "pre_hybrid_value": 106609.26,
+      "hybrid_value": 106784.26
+    },
+    {
+      "date": "2026-05-01",
+      "value": 111162.62,
+      "raw_value": 107004.95,
+      "benchmark": 104778.00885515018,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 111162.62,
+      "pre_hybrid_value": 106817.36,
+      "hybrid_value": 107016.01
+    },
+    {
+      "date": "2026-05-02",
+      "value": 111162.62,
+      "raw_value": 107004.95,
+      "benchmark": 104434.0841797714,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 111162.62,
+      "pre_hybrid_value": 106817.36,
+      "hybrid_value": 107016.01
+    },
+    {
+      "date": "2026-05-04",
+      "value": 111162.62,
+      "raw_value": 107004.95,
+      "benchmark": 104140.86087839275,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 111162.62,
+      "pre_hybrid_value": 106817.36,
+      "hybrid_value": 107016.01
+    },
+    {
+      "date": "2026-05-05",
+      "value": 112533.84,
+      "raw_value": 107235.83,
+      "benchmark": 104959.93667966175,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 112533.84,
+      "pre_hybrid_value": 107284.61,
+      "hybrid_value": 107411.71
+    },
+    {
+      "date": "2026-05-06",
+      "value": 113134.92,
+      "raw_value": 97104.7573476049,
+      "benchmark": 106212.54400302355,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113134.92,
+      "pre_hybrid_value": 107834.6,
+      "hybrid_value": 107903.24
+    },
+    {
+      "date": "2026-05-07",
+      "value": 113014.46,
+      "raw_value": 97031.15491692236,
+      "benchmark": 106182.6232964496,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113014.46,
+      "pre_hybrid_value": 107695.49,
+      "hybrid_value": 107799.51
+    },
+    {
+      "date": "2026-05-08",
+      "value": 113070.01,
+      "raw_value": 96983.96388818159,
+      "benchmark": 106983.03629338625,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-09",
+      "value": 113070.01,
+      "raw_value": 96988.07792786224,
+      "benchmark": 107037.89709645862,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-11",
+      "value": 113070.01,
+      "raw_value": 97030.05655558893,
+      "benchmark": 107452.69957345804,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-12",
+      "value": 113070.01,
+      "raw_value": 97040.8358172996,
+      "benchmark": 106703.49617851418,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-13",
+      "value": 113070.01,
+      "raw_value": 97166.57508921638,
+      "benchmark": 107740.77515918651,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-14",
+      "value": 113070.01,
+      "raw_value": 96996.14424201549,
+      "benchmark": 108531.47086156765,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-15",
+      "value": 113070.01,
+      "raw_value": 96795.81802198294,
+      "benchmark": 107899.48633289746,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-18",
+      "value": 113070.01,
+      "raw_value": 96834.57241378521,
+      "benchmark": 107016.17163038797,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-19",
+      "value": 113070.01,
+      "raw_value": 96826.42468510536,
+      "benchmark": 107009.06100033945,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-20",
+      "value": 113070.01,
+      "raw_value": 96826.22723218697,
+      "benchmark": 107426.02596380249,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113070.01,
+      "pre_hybrid_value": 107744.43,
+      "hybrid_value": 107851.79
+    },
+    {
+      "date": "2026-05-21",
+      "value": 113117.5,
+      "raw_value": 96702.93988806124,
+      "benchmark": 108066.29007485269,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113117.5,
+      "pre_hybrid_value": 107652.41,
+      "hybrid_value": 107769.08
+    },
+    {
+      "date": "2026-05-22",
+      "value": 113086.73,
+      "raw_value": 96747.63886127243,
+      "benchmark": 108583.73200212039,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113086.73,
+      "pre_hybrid_value": 107651.08,
+      "hybrid_value": 107770.07
+    },
+    {
+      "date": "2026-05-23",
+      "value": 113086.73,
+      "raw_value": 96731.71474426064,
+      "benchmark": 108335.08629026896,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113086.73,
+      "pre_hybrid_value": 107651.08,
+      "hybrid_value": 107770.07
+    },
+    {
+      "date": "2026-05-25",
+      "value": 113086.73,
+      "raw_value": 96733.2311207659,
+      "benchmark": 108336.31834159624,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113086.73,
+      "pre_hybrid_value": 107651.08,
+      "hybrid_value": 107770.07
+    },
+    {
+      "date": "2026-05-26",
+      "value": 113195.91,
+      "raw_value": 96708.96597261344,
+      "benchmark": 108871.66339441961,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113195.91,
+      "pre_hybrid_value": 107724.44,
+      "hybrid_value": 107837.8
+    },
+    {
+      "date": "2026-05-27",
+      "value": 113194.65,
+      "raw_value": 96659.6772450728,
+      "benchmark": 108952.66228042252,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113194.65,
+      "pre_hybrid_value": 107754.3,
+      "hybrid_value": 107860.88
+    },
+    {
+      "date": "2026-05-28",
+      "value": 113322.43,
+      "raw_value": 96621.7626256608,
+      "benchmark": 109696.479803745,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113322.43,
+      "pre_hybrid_value": 107889.23,
+      "hybrid_value": 107968.79
+    },
+    {
+      "date": "2026-05-29",
+      "value": 113407.61,
+      "raw_value": 96702.88426771938,
+      "benchmark": 109787.02107781023,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113407.61,
+      "pre_hybrid_value": 107922.45,
+      "hybrid_value": 108001.89
+    },
+    {
+      "date": "2026-05-30",
+      "value": 113407.61,
+      "raw_value": 96677.11769230735,
+      "benchmark": 109953.32678184533,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113407.61,
+      "pre_hybrid_value": 107922.45,
+      "hybrid_value": 108001.89
+    },
+    {
+      "date": "2026-06-01",
+      "value": 113407.61,
+      "raw_value": 96660.4351209186,
+      "benchmark": 110430.04247076751,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113407.61,
+      "pre_hybrid_value": 107922.45,
+      "hybrid_value": 108001.89
+    },
+    {
+      "date": "2026-06-02",
+      "value": 113453.11,
+      "raw_value": 96668.01792909476,
+      "benchmark": 110341.11134639374,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113453.11,
+      "pre_hybrid_value": 107905.23,
+      "hybrid_value": 108137.39
+    },
+    {
+      "date": "2026-06-03",
+      "value": 113277.66,
+      "raw_value": 96589.15602982523,
+      "benchmark": 109852.27486413637,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113277.66,
+      "pre_hybrid_value": 108181.89,
+      "hybrid_value": 108009.3
+    },
+    {
+      "date": "2026-06-04",
+      "value": 113255.87,
+      "raw_value": 96801.98443036032,
+      "benchmark": 110186.45509348079,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 113255.87,
+      "pre_hybrid_value": 107996.14,
+      "hybrid_value": 107898.64
+    },
+    {
+      "date": "2026-06-05",
+      "value": 112487.17,
+      "raw_value": 96697.64735560397,
+      "benchmark": 108321.6139714357,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 112487.17,
+      "pre_hybrid_value": 107733.24,
+      "hybrid_value": 107348.56
+    },
+    {
+      "date": "2026-06-06",
+      "value": 112487.17,
+      "raw_value": 96661.29860777082,
+      "benchmark": 107262.50119290884,
+      "cumulative_external_cashflow": 0.0,
+      "optimized_value": 112487.17,
+      "pre_hybrid_value": 107733.24,
+      "hybrid_value": 107348.56
+    }
+  ],
+  "drawdowns": [
+    {
+      "date": "2025-08-04",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-05",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-06",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-07",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-08",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-11",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-12",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-13",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-14",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-15",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-18",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-19",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-20",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-21",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-22",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-25",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-26",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-27",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-28",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-08-29",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-02",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-03",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-04",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-05",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-08",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-09",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-10",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-11",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-12",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-15",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-16",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-17",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-18",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-19",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-22",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-23",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-24",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-25",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-26",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-29",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-09-30",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-01",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-02",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-03",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-06",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-07",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-08",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-09",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-10",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-13",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-14",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-15",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-16",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-17",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-20",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-21",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-22",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-23",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-24",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-27",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-28",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-29",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-30",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-10-31",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-03",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-04",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-05",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-06",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-07",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-10",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-11",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-12",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-13",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-14",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-17",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-18",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-19",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-20",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-21",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-24",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-25",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-26",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-11-28",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-01",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-02",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-03",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-04",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-05",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-08",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-09",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-10",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-11",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-12",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-15",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-16",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-17",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-18",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-19",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-22",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-23",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-24",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-26",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-29",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-30",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2025-12-31",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-02",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-05",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-06",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-07",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-08",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-09",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-12",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-13",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-14",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-15",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-16",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-20",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-21",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-22",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-23",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-26",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-27",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-28",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-29",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-30",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-01-31",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-02-02",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-02-03",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-02-04",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-02-05",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-02-06",
+      "drawdown": -0.012387342281325427
+    },
+    {
+      "date": "2026-02-07",
+      "drawdown": -0.010209262856341609
+    },
+    {
+      "date": "2026-02-10",
+      "drawdown": -0.005541894437287812
+    },
+    {
+      "date": "2026-02-11",
+      "drawdown": -0.0026107886203566907
+    },
+    {
+      "date": "2026-02-12",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-02-13",
+      "drawdown": -0.012002202287914411
+    },
+    {
+      "date": "2026-02-14",
+      "drawdown": -0.011601291868771726
+    },
+    {
+      "date": "2026-02-16",
+      "drawdown": -0.011641496432559595
+    },
+    {
+      "date": "2026-02-17",
+      "drawdown": -0.013629876537935773
+    },
+    {
+      "date": "2026-02-18",
+      "drawdown": -0.01130195129989745
+    },
+    {
+      "date": "2026-02-19",
+      "drawdown": -0.009297707149867988
+    },
+    {
+      "date": "2026-02-20",
+      "drawdown": -0.007129932388815813
+    },
+    {
+      "date": "2026-02-21",
+      "drawdown": -0.0014332442071398285
+    },
+    {
+      "date": "2026-02-23",
+      "drawdown": -0.00020207678777725687
+    },
+    {
+      "date": "2026-02-24",
+      "drawdown": -0.0028233219662102617
+    },
+    {
+      "date": "2026-02-25",
+      "drawdown": -0.00021637385225313776
+    },
+    {
+      "date": "2026-02-26",
+      "drawdown": -0.0014430311427677666
+    },
+    {
+      "date": "2026-02-27",
+      "drawdown": -0.0005686979432109885
+    },
+    {
+      "date": "2026-02-28",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-03-02",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-03-03",
+      "drawdown": -0.006074978087614704
+    },
+    {
+      "date": "2026-03-04",
+      "drawdown": -0.0023515230887619313
+    },
+    {
+      "date": "2026-03-05",
+      "drawdown": -0.002821979798653998
+    },
+    {
+      "date": "2026-03-06",
+      "drawdown": -0.00441090405960598
+    },
+    {
+      "date": "2026-03-07",
+      "drawdown": -0.0036039275483548796
+    },
+    {
+      "date": "2026-03-09",
+      "drawdown": -0.004235036965689177
+    },
+    {
+      "date": "2026-03-10",
+      "drawdown": -0.0010432338867061835
+    },
+    {
+      "date": "2026-03-11",
+      "drawdown": -0.0033663401219261387
+    },
+    {
+      "date": "2026-03-12",
+      "drawdown": -0.008551773194601571
+    },
+    {
+      "date": "2026-03-13",
+      "drawdown": -0.007642933069547146
+    },
+    {
+      "date": "2026-03-14",
+      "drawdown": -0.007642933069547146
+    },
+    {
+      "date": "2026-03-16",
+      "drawdown": -0.007642933069547146
+    },
+    {
+      "date": "2026-03-17",
+      "drawdown": -0.007954231368900623
+    },
+    {
+      "date": "2026-03-18",
+      "drawdown": -0.009817958228857846
+    },
+    {
+      "date": "2026-03-19",
+      "drawdown": -0.012643633593715868
+    },
+    {
+      "date": "2026-03-20",
+      "drawdown": -0.012762619581349421
+    },
+    {
+      "date": "2026-03-21",
+      "drawdown": -0.012762619581349421
+    },
+    {
+      "date": "2026-03-23",
+      "drawdown": -0.012762619581349421
+    },
+    {
+      "date": "2026-03-24",
+      "drawdown": -0.0131289609920552
+    },
+    {
+      "date": "2026-03-25",
+      "drawdown": -0.01102726215683087
+    },
+    {
+      "date": "2026-03-26",
+      "drawdown": -0.010674754076394613
+    },
+    {
+      "date": "2026-03-27",
+      "drawdown": -0.0099617087797712
+    },
+    {
+      "date": "2026-03-28",
+      "drawdown": -0.0099617087797712
+    },
+    {
+      "date": "2026-03-30",
+      "drawdown": -0.0099617087797712
+    },
+    {
+      "date": "2026-03-31",
+      "drawdown": -0.0099617087797712
+    },
+    {
+      "date": "2026-04-01",
+      "drawdown": -0.009189363962481744
+    },
+    {
+      "date": "2026-04-02",
+      "drawdown": -0.009288228742450425
+    },
+    {
+      "date": "2026-04-03",
+      "drawdown": -0.009288228742450425
+    },
+    {
+      "date": "2026-04-04",
+      "drawdown": -0.009288228742450425
+    },
+    {
+      "date": "2026-04-06",
+      "drawdown": -0.009288228742450425
+    },
+    {
+      "date": "2026-04-07",
+      "drawdown": -0.005076898672826128
+    },
+    {
+      "date": "2026-04-08",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-09",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-10",
+      "drawdown": -0.0032778734485733717
+    },
+    {
+      "date": "2026-04-11",
+      "drawdown": -0.0032778734485733717
+    },
+    {
+      "date": "2026-04-13",
+      "drawdown": -0.0032778734485733717
+    },
+    {
+      "date": "2026-04-14",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-15",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-16",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-17",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-18",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-20",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-21",
+      "drawdown": -0.003262149215865286
+    },
+    {
+      "date": "2026-04-22",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-23",
+      "drawdown": -0.010430762066809117
+    },
+    {
+      "date": "2026-04-24",
+      "drawdown": -0.0050748871975716345
+    },
+    {
+      "date": "2026-04-25",
+      "drawdown": -0.0050748871975716345
+    },
+    {
+      "date": "2026-04-27",
+      "drawdown": -0.0050748871975716345
+    },
+    {
+      "date": "2026-04-28",
+      "drawdown": -0.007115216170405988
+    },
+    {
+      "date": "2026-04-29",
+      "drawdown": -0.0028844688047559284
+    },
+    {
+      "date": "2026-04-30",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-05-01",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-05-02",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-05-04",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-05-05",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-05-06",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-05-07",
+      "drawdown": -0.001064746410745611
+    },
+    {
+      "date": "2026-05-08",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-09",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-11",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-12",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-13",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-14",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-15",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-18",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-19",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-20",
+      "drawdown": -0.0005737397436618464
+    },
+    {
+      "date": "2026-05-21",
+      "drawdown": -0.00015397544807560967
+    },
+    {
+      "date": "2026-05-22",
+      "drawdown": -0.00042595159832174126
+    },
+    {
+      "date": "2026-05-23",
+      "drawdown": -0.00042595159832174126
+    },
+    {
+      "date": "2026-05-25",
+      "drawdown": -0.00042595159832174126
+    },
+    {
+      "date": "2026-05-26",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-05-27",
+      "drawdown": -1.1131144226052983e-05
+    },
+    {
+      "date": "2026-05-28",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-05-29",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-05-30",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-06-01",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-06-02",
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-06-03",
+      "drawdown": -0.0015464538609827186
+    },
+    {
+      "date": "2026-06-04",
+      "drawdown": -0.0017385155858663129
+    },
+    {
+      "date": "2026-06-05",
+      "drawdown": -0.008514001951995871
+    },
+    {
+      "date": "2026-06-06",
+      "drawdown": -0.008514001951995871
+    }
+  ],
+  "monthly_returns": [
+    {
+      "year": 2025,
+      "month": 8,
+      "return_pct": 0.0,
+      "observations": 19
+    },
+    {
+      "year": 2025,
+      "month": 9,
+      "return_pct": 0.0,
+      "observations": 21
+    },
+    {
+      "year": 2025,
+      "month": 10,
+      "return_pct": 0.0,
+      "observations": 23
+    },
+    {
+      "year": 2025,
+      "month": 11,
+      "return_pct": 0.0,
+      "observations": 19
+    },
+    {
+      "year": 2025,
+      "month": 12,
+      "return_pct": 0.0,
+      "observations": 22
+    },
+    {
+      "year": 2026,
+      "month": 1,
+      "return_pct": 2.220446049250313e-16,
+      "observations": 21
+    },
+    {
+      "year": 2026,
+      "month": 2,
+      "return_pct": 0.03350002427367427,
+      "observations": 23
+    },
+    {
+      "year": 2026,
+      "month": 3,
+      "return_pct": -0.009736452866313638,
+      "observations": 26
+    },
+    {
+      "year": 2026,
+      "month": 4,
+      "return_pct": 0.08421961128252664,
+      "observations": 26
+    },
+    {
+      "year": 2026,
+      "month": 5,
+      "return_pct": 0.02203002818324551,
+      "observations": 25
+    },
+    {
+      "year": 2026,
+      "month": 6,
+      "return_pct": -0.008116210190833084,
+      "observations": 6
+    }
+  ],
+  "chart_markers": [
+    {
+      "date": "2026-01-29",
+      "label": "First live trade",
+      "category": "milestone",
+      "description": "Bot exits cash-only posture; first 5 fills (VLUE, XLB, VEA, SCHD)."
+    },
+    {
+      "date": "2026-03-12",
+      "label": "Alpaca paper cutover",
+      "category": "infrastructure",
+      "description": "Simulated paper portfolio bridged into Alpaca paper. First continuity-bridge cashflow event (-$3,025.53)."
+    },
+    {
+      "date": "2026-04-02",
+      "label": "vol_uncertainty re-armed",
+      "category": "data_plane",
+      "description": "F-1 self-healed: VIX-driven vol_uncertainty exits the 0.10 floor (where it was held for 168 days) and starts producing real percentile values. Coincides with start of SPY-relative lag."
+    },
+    {
+      "date": "2026-04-06",
+      "label": "Hybrid live (params)",
+      "category": "model",
+      "description": "Decision-params bundle updated to hybrid ranking blend 0.35 (commit c4e8831). New buy basket entered Apr 6-8."
+    },
+    {
+      "date": "2026-04-22",
+      "label": "Second continuity cashflow",
+      "category": "infrastructure",
+      "description": "Cumulative external cashflow stepped from -$3,025.53 to -$10,077.83. continuity-adjusted equity diverges from broker_total_value by this amount thereafter."
+    },
+    {
+      "date": "2026-04-29",
+      "label": "Phase-4 bug fixes shipped",
+      "category": "code_fix",
+      "description": "F-1/3/6/8/9 vol_uncertainty degraded surfacing, F-4/5 unified cost basis, F-7 fragility-relax knob (default off), F-6 per-signal status flags. Branch ai/diagnostic-fix-batch."
+    },
+    {
+      "date": "2026-05-07",
+      "label": "Reconciliation + 3-line dashboard",
+      "category": "milestone",
+      "description": "Canonical hybrid line promoted as dashboard truth. Three-line equity comparison shipped: hybrid (current canon, bold blue), pre-hybrid (gray dashed), optimized in-sample champion (green dashed, extend_relax_choppy + topup_psm_1.2). Live broker line removed from chart. v2 portfolio_value invariant (cash + sum(shares \u00d7 close)) verified."
+    }
+  ],
+  "weather": {
+    "headline": "Market Choppy Amid Heightened Cross-Asset Fragility",
+    "summary": "The market is in a choppy regime, with the S&P 500 down 2.58% today despite a drop in the VIX proxy. While the macro/credit signals are neutral, the high fragility reading indicates elevated cross-asset correlation and risk-off conditions. With the entropy shift flagging a sustained regime shift, the portfolio remained in cash (87.1%) given the uncertain risk outlook.",
+    "regime": {
+      "regime": "choppy",
+      "description": "",
+      "risk_level": "medium",
+      "probs": {
+        "calm_uptrend": 0.03253032639622688,
+        "risk_on_trend": 0.18626677989959717,
+        "risk_off_trend": 0.10302344709634781,
+        "choppy": 0.5119601488113403,
+        "high_vol_panic": 0.1662193238735199
+      },
+      "ensemble": {
+        "confidence": 0.5119601488113403,
+        "disagreement": 0.1320476531982422,
+        "agreement": 0.8679523468017578,
+        "position_size_multiplier": 0.7559800744056702,
+        "is_ensemble": true,
+        "gru_prediction": {
+          "label": "choppy",
+          "confidence": 0.6461918354034424,
+          "probs": {
+            "calm_uptrend": 0.00835512112826109,
+            "risk_on_trend": 0.19278310239315033,
+            "risk_off_trend": 0.09409229457378387,
+            "choppy": 0.6461918354034424,
+            "high_vol_panic": 0.05857762321829796
+          }
+        },
+        "transformer_prediction": {
+          "label": "choppy",
+          "confidence": 0.3777284324169159,
+          "probs": {
+            "calm_uptrend": 0.0567055344581604,
+            "risk_on_trend": 0.1797504425048828,
+            "risk_off_trend": 0.11195459961891174,
+            "choppy": 0.3777284324169159,
+            "high_vol_panic": 0.27386102080345154
+          }
+        }
+      }
+    },
+    "outlook": "",
+    "risks": [],
+    "timestamp": "2026-06-06T03:01:01.723246"
+  },
+  "trades": [
+    {
+      "timestamp": "2026-06-05T16:00:00",
+      "symbol": "XLE",
+      "action": "REDUCE",
+      "shares": 30.0,
+      "price": 58.665,
+      "market_price": 58.665,
+      "dollars": 1759.95,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-04T16:00:00",
+      "symbol": "XLE",
+      "action": "REDUCE",
+      "shares": 61.0,
+      "price": 58.43,
+      "market_price": 58.43,
+      "dollars": 3564.23,
+      "reason": "REGIME_SHIFT",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-04T16:00:00",
+      "symbol": "DBC",
+      "action": "REDUCE",
+      "shares": 105.0,
+      "price": 29.95,
+      "market_price": 29.95,
+      "dollars": 3144.75,
+      "reason": "REGIME_SHIFT",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-04T16:00:00",
+      "symbol": "USO",
+      "action": "REDUCE",
+      "shares": 23.0,
+      "price": 136.75,
+      "market_price": 136.75,
+      "dollars": 3145.25,
+      "reason": "REGIME_SHIFT",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-04T16:00:00",
+      "symbol": "EWZ",
+      "action": "REDUCE",
+      "shares": 97.0,
+      "price": 34.925,
+      "market_price": 34.925,
+      "dollars": 3387.72,
+      "reason": "REGIME_SHIFT",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-04T16:00:00",
+      "symbol": "FXI",
+      "action": "REDUCE",
+      "shares": 96.0,
+      "price": 35.68,
+      "market_price": 35.68,
+      "dollars": 3425.28,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-02T16:00:00",
+      "symbol": "XLE",
+      "action": "BUY",
+      "shares": 122.0,
+      "price": 57.11,
+      "market_price": 57.11,
+      "dollars": 6967.42,
+      "reason": "SCORE_0.78_HEALTH_0.86",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-02T16:00:00",
+      "symbol": "DBC",
+      "action": "BUY",
+      "shares": 210.0,
+      "price": 30.02,
+      "market_price": 30.02,
+      "dollars": 6304.2,
+      "reason": "SCORE_0.74_HEALTH_0.85",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-02T16:00:00",
+      "symbol": "USO",
+      "action": "BUY",
+      "shares": 46.0,
+      "price": 135.06,
+      "market_price": 135.06,
+      "dollars": 6212.76,
+      "reason": "SCORE_0.72_HEALTH_0.98",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-02T16:00:00",
+      "symbol": "EWZ",
+      "action": "BUY",
+      "shares": 194.0,
+      "price": 35.54,
+      "market_price": 35.54,
+      "dollars": 6894.76,
+      "reason": "SCORE_0.70_HEALTH_0.73",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-06-02T16:00:00",
+      "symbol": "FXI",
+      "action": "BUY",
+      "shares": 193.0,
+      "price": 36.42,
+      "market_price": 36.42,
+      "dollars": 7029.06,
+      "reason": "SCORE_0.66_HEALTH_0.66",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-26T16:00:00",
+      "symbol": "FXI",
+      "action": "SELL",
+      "shares": 51.0,
+      "price": 35.62,
+      "market_price": 35.62,
+      "dollars": 1816.62,
+      "reason": "HEALTH_COLLAPSE",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-21T16:00:00",
+      "symbol": "DBC",
+      "action": "SELL",
+      "shares": 73.0,
+      "price": 31.28,
+      "market_price": 31.28,
+      "dollars": 2283.44,
+      "reason": "HEALTH_COLLAPSE",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-08T16:00:00",
+      "symbol": "DBC",
+      "action": "SELL",
+      "shares": 73.0,
+      "price": 30.16,
+      "market_price": 30.16,
+      "dollars": 2201.68,
+      "reason": "HEALTH_COLLAPSE",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-08T16:00:00",
+      "symbol": "DBC",
+      "action": "SELL",
+      "shares": 367.0,
+      "price": 30.16,
+      "market_price": 30.16,
+      "dollars": 11068.72,
+      "reason": "HEALTH_COLLAPSE",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-07T16:00:00",
+      "symbol": "DBC",
+      "action": "SELL",
+      "shares": 21.0,
+      "price": 29.74,
+      "market_price": 29.74,
+      "dollars": 624.54,
+      "reason": "HEALTH_COLLAPSE",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-07T16:00:00",
+      "symbol": "ARKK",
+      "action": "SELL",
+      "shares": 84.0,
+      "price": 79.435,
+      "market_price": 79.435,
+      "dollars": 6672.54,
+      "reason": "HEALTH_COLLAPSE",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-07T16:00:00",
+      "symbol": "XLK",
+      "action": "SELL",
+      "shares": 102.0,
+      "price": 170.34,
+      "market_price": 170.34,
+      "dollars": 17374.68,
+      "reason": "HEALTH_COLLAPSE",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-07T16:00:00",
+      "symbol": "XBI",
+      "action": "REDUCE",
+      "shares": 28.0,
+      "price": 136.9,
+      "market_price": 136.9,
+      "dollars": 3833.2,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-05T16:00:00",
+      "symbol": "DBC",
+      "action": "REDUCE",
+      "shares": 36.0,
+      "price": 31.205,
+      "market_price": 31.205,
+      "dollars": 1123.38,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-05T16:00:00",
+      "symbol": "ARKK",
+      "action": "REDUCE",
+      "shares": 84.0,
+      "price": 78.065,
+      "market_price": 78.065,
+      "dollars": 6557.46,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-05T16:00:00",
+      "symbol": "VUG",
+      "action": "REDUCE",
+      "shares": 96.0,
+      "price": 84.22,
+      "market_price": 84.22,
+      "dollars": 8085.12,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-05T16:00:00",
+      "symbol": "FXI",
+      "action": "REDUCE",
+      "shares": 51.0,
+      "price": 36.645,
+      "market_price": 36.645,
+      "dollars": 1868.9,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-05T16:00:00",
+      "symbol": "XBI",
+      "action": "REDUCE",
+      "shares": 56.0,
+      "price": 135.155,
+      "market_price": 135.155,
+      "dollars": 7568.68,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-05T16:00:00",
+      "symbol": "XLF",
+      "action": "REDUCE",
+      "shares": 72.0,
+      "price": 51.57,
+      "market_price": 51.57,
+      "dollars": 3713.04,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-05T16:00:00",
+      "symbol": "XLK",
+      "action": "REDUCE",
+      "shares": 17.0,
+      "price": 163.88,
+      "market_price": 163.88,
+      "dollars": 2785.96,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-05T16:00:00",
+      "symbol": "DBC",
+      "action": "REDUCE",
+      "shares": 220.0,
+      "price": 31.205,
+      "market_price": 31.205,
+      "dollars": 6865.1,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-05-05T16:00:00",
+      "symbol": "DBC",
+      "action": "REDUCE",
+      "shares": 277.0,
+      "price": 31.205,
+      "market_price": 31.205,
+      "dollars": 8643.78,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-30T16:00:00",
+      "symbol": "DBC",
+      "action": "REDUCE",
+      "shares": 36.0,
+      "price": 30.805,
+      "market_price": 30.805,
+      "dollars": 1108.98,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-30T16:00:00",
+      "symbol": "DBC",
+      "action": "REDUCE",
+      "shares": 92.0,
+      "price": 30.805,
+      "market_price": 30.805,
+      "dollars": 2834.06,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-24T16:00:00",
+      "symbol": "DBC",
+      "action": "BUY",
+      "shares": 555.0,
+      "price": 29.78,
+      "market_price": 29.78,
+      "dollars": 16527.9,
+      "reason": "TOPUP_PSM_1.21_RATIO_risk_on_trend",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-24T16:00:00",
+      "symbol": "XLK",
+      "action": "BUY",
+      "shares": 17.0,
+      "price": 158.48,
+      "market_price": 158.48,
+      "dollars": 2694.16,
+      "reason": "TOPUP_PSM_1.21_RATIO_risk_on_trend",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-24T16:00:00",
+      "symbol": "DBC",
+      "action": "BUY",
+      "shares": 129.0,
+      "price": 29.78,
+      "market_price": 29.78,
+      "dollars": 3841.62,
+      "reason": "TOPUP_PSM_1.21_RATIO_risk_on_trend",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-23T16:00:00",
+      "symbol": "FXI",
+      "action": "REDUCE",
+      "shares": 102.0,
+      "price": 36.755,
+      "market_price": 36.755,
+      "dollars": 3749.01,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-22T16:00:00",
+      "symbol": "XLF",
+      "action": "REDUCE",
+      "shares": 145.0,
+      "price": 52.485,
+      "market_price": 52.485,
+      "dollars": 7610.32,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-10T16:00:00",
+      "symbol": "FXI",
+      "action": "REDUCE",
+      "shares": 204.0,
+      "price": 36.43,
+      "market_price": 36.43,
+      "dollars": 7431.72,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-09T16:00:00",
+      "symbol": "XLK",
+      "action": "BUY",
+      "shares": 102.0,
+      "price": 141.83,
+      "market_price": 141.83,
+      "dollars": 14466.66,
+      "reason": "SCORE_0.92_HEALTH_0.89",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-09T16:00:00",
+      "symbol": "DBC",
+      "action": "BUY",
+      "shares": 440.0,
+      "price": 28.79,
+      "market_price": 28.79,
+      "dollars": 12667.6,
+      "reason": "TOPUP_PSM_2.36_RATIO_risk_on_trend",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-07T16:00:00",
+      "symbol": "ARKK",
+      "action": "BUY",
+      "shares": 169.0,
+      "price": 68.1,
+      "market_price": 68.1,
+      "dollars": 11508.9,
+      "reason": "SCORE_0.80_HEALTH_0.86",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-07T16:00:00",
+      "symbol": "VUG",
+      "action": "BUY",
+      "shares": 32.0,
+      "price": 442.46,
+      "market_price": 442.46,
+      "dollars": 14158.72,
+      "reason": "SCORE_0.71_HEALTH_0.81",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-07T16:00:00",
+      "symbol": "FXI",
+      "action": "BUY",
+      "shares": 409.0,
+      "price": 35.355,
+      "market_price": 35.355,
+      "dollars": 14460.19,
+      "reason": "SCORE_0.71_HEALTH_0.79",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-07T16:00:00",
+      "symbol": "XBI",
+      "action": "BUY",
+      "shares": 112.0,
+      "price": 128.13,
+      "market_price": 128.13,
+      "dollars": 14350.56,
+      "reason": "SCORE_0.70_HEALTH_0.89",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-07T16:00:00",
+      "symbol": "XLF",
+      "action": "BUY",
+      "shares": 291.0,
+      "price": 49.61,
+      "market_price": 49.61,
+      "dollars": 14436.51,
+      "reason": "SCORE_0.70_HEALTH_0.82",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-02T16:00:00",
+      "symbol": "DBC",
+      "action": "BUY",
+      "shares": 73.0,
+      "price": 29.47,
+      "market_price": 29.47,
+      "dollars": 2151.31,
+      "reason": "SCORE_0.75_HEALTH_0.70",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-01T16:00:00",
+      "symbol": "GLD",
+      "action": "SELL",
+      "shares": 1.0,
+      "price": 435.0,
+      "market_price": 435.0,
+      "dollars": 435.0,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-01T16:00:00",
+      "symbol": "DBC",
+      "action": "SELL",
+      "shares": 38.0,
+      "price": 28.67,
+      "market_price": 28.67,
+      "dollars": 1089.46,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-01T16:00:00",
+      "symbol": "SLV",
+      "action": "SELL",
+      "shares": 16.0,
+      "price": 67.935,
+      "market_price": 67.935,
+      "dollars": 1086.96,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-04-01T16:00:00",
+      "symbol": "USO",
+      "action": "SELL",
+      "shares": 7.0,
+      "price": 124.765,
+      "market_price": 124.765,
+      "dollars": 873.36,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-27T16:00:00",
+      "symbol": "GLD",
+      "action": "BUY",
+      "shares": 1.0,
+      "price": 406.2,
+      "market_price": 406.2,
+      "dollars": 406.2,
+      "reason": "SCORE_0.89_HEALTH_0.95",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-27T16:00:00",
+      "symbol": "DBC",
+      "action": "BUY",
+      "shares": 38.0,
+      "price": 28.85,
+      "market_price": 28.85,
+      "dollars": 1096.3,
+      "reason": "SCORE_0.86_HEALTH_0.82",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-27T16:00:00",
+      "symbol": "SLV",
+      "action": "BUY",
+      "shares": 16.0,
+      "price": 61.45,
+      "market_price": 61.45,
+      "dollars": 983.2,
+      "reason": "SCORE_0.79_HEALTH_0.85",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-27T16:00:00",
+      "symbol": "USO",
+      "action": "BUY",
+      "shares": 7.0,
+      "price": 120.79,
+      "market_price": 120.79,
+      "dollars": 845.53,
+      "reason": "SCORE_0.69_HEALTH_0.91",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-26T16:00:00",
+      "symbol": "DBC",
+      "action": "SELL",
+      "shares": 36.0,
+      "price": 28.44,
+      "market_price": 28.44,
+      "dollars": 1023.84,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-26T16:00:00",
+      "symbol": "USO",
+      "action": "SELL",
+      "shares": 8.0,
+      "price": 116.73,
+      "market_price": 116.73,
+      "dollars": 933.84,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-25T16:00:00",
+      "symbol": "GLD",
+      "action": "SELL",
+      "shares": 11.0,
+      "price": 419.705,
+      "market_price": 419.705,
+      "dollars": 4616.76,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-25T16:00:00",
+      "symbol": "DBC",
+      "action": "BUY",
+      "shares": 36.0,
+      "price": 27.805,
+      "market_price": 27.805,
+      "dollars": 1000.98,
+      "reason": "SCORE_0.85_HEALTH_0.82",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-25T16:00:00",
+      "symbol": "USO",
+      "action": "BUY",
+      "shares": 8.0,
+      "price": 109.29,
+      "market_price": 109.29,
+      "dollars": 874.32,
+      "reason": "SCORE_0.81_HEALTH_0.98",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-24T16:00:00",
+      "symbol": "USO",
+      "action": "SELL",
+      "shares": 8.0,
+      "price": 115.225,
+      "market_price": 115.225,
+      "dollars": 921.8,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-24T16:00:00",
+      "symbol": "SLV",
+      "action": "SELL",
+      "shares": 16.0,
+      "price": 61.57,
+      "market_price": 61.57,
+      "dollars": 985.12,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-24T16:00:00",
+      "symbol": "DBC",
+      "action": "SELL",
+      "shares": 43.0,
+      "price": 28.2,
+      "market_price": 28.2,
+      "dollars": 1212.6,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-24T16:00:00",
+      "symbol": "GLD",
+      "action": "BUY",
+      "shares": 11.0,
+      "price": 400.24,
+      "market_price": 400.24,
+      "dollars": 4402.64,
+      "reason": "SCORE_0.88_HEALTH_0.94",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-20T16:00:00",
+      "symbol": "GLD",
+      "action": "SELL",
+      "shares": 10.0,
+      "price": 428.09,
+      "market_price": 428.09,
+      "dollars": 4280.9,
+      "reason": "STOP_HIT",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-20T16:00:00",
+      "symbol": "USO",
+      "action": "BUY",
+      "shares": 8.0,
+      "price": 118.97,
+      "market_price": 118.97,
+      "dollars": 951.76,
+      "reason": "SCORE_0.83_HEALTH_0.97",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-20T16:00:00",
+      "symbol": "SLV",
+      "action": "BUY",
+      "shares": 16.0,
+      "price": 64.73,
+      "market_price": 64.73,
+      "dollars": 1035.68,
+      "reason": "SCORE_0.82_HEALTH_0.97",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-20T16:00:00",
+      "symbol": "DBC",
+      "action": "BUY",
+      "shares": 43.0,
+      "price": 28.88,
+      "market_price": 28.88,
+      "dollars": 1241.84,
+      "reason": "SCORE_0.82_HEALTH_0.78",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-19T16:00:00",
+      "symbol": "SLV",
+      "action": "SELL",
+      "shares": 16.0,
+      "price": 61.9,
+      "market_price": 61.9,
+      "dollars": 990.4,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-13T16:00:00",
+      "symbol": "XLE",
+      "action": "SELL",
+      "shares": 39.0,
+      "price": 57.5,
+      "market_price": 57.5,
+      "dollars": 2242.5,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-13T16:00:00",
+      "symbol": "ITA",
+      "action": "SELL",
+      "shares": 18.0,
+      "price": 232.34,
+      "market_price": 232.34,
+      "dollars": 4182.12,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-13T16:00:00",
+      "symbol": "SCHD",
+      "action": "SELL",
+      "shares": 160.0,
+      "price": 30.925,
+      "market_price": 30.925,
+      "dollars": 4948.0,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-13T16:00:00",
+      "symbol": "XLU",
+      "action": "SELL",
+      "shares": 106.0,
+      "price": 46.97,
+      "market_price": 46.97,
+      "dollars": 4978.82,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-13T16:00:00",
+      "symbol": "IYT",
+      "action": "SELL",
+      "shares": 46.0,
+      "price": 73.75,
+      "market_price": 73.75,
+      "dollars": 3392.5,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-13T16:00:00",
+      "symbol": "XLV",
+      "action": "SELL",
+      "shares": 57.0,
+      "price": 151.055,
+      "market_price": 151.055,
+      "dollars": 8610.14,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-13T16:00:00",
+      "symbol": "XLI",
+      "action": "SELL",
+      "shares": 46.0,
+      "price": 166.33,
+      "market_price": 166.33,
+      "dollars": 7651.18,
+      "reason": "REGIME_PANIC",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-13T16:00:00",
+      "symbol": "SLV",
+      "action": "BUY",
+      "shares": 16.0,
+      "price": 76.03,
+      "market_price": 76.03,
+      "dollars": 1216.48,
+      "reason": "SCORE_0.68_HEALTH_0.83",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-12T16:00:00",
+      "symbol": "XLE",
+      "action": "REDUCE",
+      "shares": 39.0,
+      "price": 57.13,
+      "market_price": 57.13,
+      "dollars": 2228.07,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    },
+    {
+      "timestamp": "2026-03-12T16:00:00",
+      "symbol": "IYT",
+      "action": "REDUCE",
+      "shares": 46.0,
+      "price": 74.98,
+      "market_price": 74.98,
+      "dollars": 3449.08,
+      "reason": "HEALTH_DROP",
+      "regime": "",
+      "broker_order_id": null,
+      "broker_client_order_id": null,
+      "broker_status": "replay",
+      "execution_mode": "optimized_champion_replay"
+    }
+  ],
+  "trade_summary": {
+    "fills_total": 76,
+    "realized_round_trips": 45,
+    "wins": 35,
+    "losses": 10,
+    "breakeven": 0,
+    "win_rate": 0.7777777777777778,
+    "unmatched_closing_shares": 459,
+    "cumulative_transaction_costs": 0.0
+  },
+  "round_trips": [
+    {
+      "round_trip_id": "2026-03-13:9:SLV->2026-03-19:10:SLV:16",
+      "symbol": "SLV",
+      "entry_fill_id": "2026-03-13:9:SLV",
+      "exit_fill_id": "2026-03-19:10:SLV",
+      "entry_date": "2026-03-13",
+      "exit_date": "2026-03-19",
+      "entry_price": 76.03,
+      "exit_price": 61.9,
+      "shares": 16,
+      "realized_pnl": -226.08,
+      "realized_pnl_pct": -0.18584769170064452,
+      "days_held": 6
+    },
+    {
+      "round_trip_id": "2026-03-20:12:USO->2026-03-24:15:USO:8",
+      "symbol": "USO",
+      "entry_fill_id": "2026-03-20:12:USO",
+      "exit_fill_id": "2026-03-24:15:USO",
+      "entry_date": "2026-03-20",
+      "exit_date": "2026-03-24",
+      "entry_price": 118.97,
+      "exit_price": 115.225,
+      "shares": 8,
+      "realized_pnl": -29.96,
+      "realized_pnl_pct": -0.0314785239976465,
+      "days_held": 4
+    },
+    {
+      "round_trip_id": "2026-03-20:13:SLV->2026-03-24:16:SLV:16",
+      "symbol": "SLV",
+      "entry_fill_id": "2026-03-20:13:SLV",
+      "exit_fill_id": "2026-03-24:16:SLV",
+      "entry_date": "2026-03-20",
+      "exit_date": "2026-03-24",
+      "entry_price": 64.73,
+      "exit_price": 61.57,
+      "shares": 16,
+      "realized_pnl": -50.56,
+      "realized_pnl_pct": -0.04881816777382986,
+      "days_held": 4
+    },
+    {
+      "round_trip_id": "2026-03-20:14:DBC->2026-03-24:17:DBC:43",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-03-20:14:DBC",
+      "exit_fill_id": "2026-03-24:17:DBC",
+      "entry_date": "2026-03-20",
+      "exit_date": "2026-03-24",
+      "entry_price": 28.88,
+      "exit_price": 28.2,
+      "shares": 43,
+      "realized_pnl": -29.24,
+      "realized_pnl_pct": -0.023545706371191133,
+      "days_held": 4
+    },
+    {
+      "round_trip_id": "2026-03-24:18:GLD->2026-03-25:19:GLD:11",
+      "symbol": "GLD",
+      "entry_fill_id": "2026-03-24:18:GLD",
+      "exit_fill_id": "2026-03-25:19:GLD",
+      "entry_date": "2026-03-24",
+      "exit_date": "2026-03-25",
+      "entry_price": 400.24,
+      "exit_price": 419.705,
+      "shares": 11,
+      "realized_pnl": 214.11,
+      "realized_pnl_pct": 0.04863332000799514,
+      "days_held": 1
+    },
+    {
+      "round_trip_id": "2026-03-25:20:DBC->2026-03-26:22:DBC:36",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-03-25:20:DBC",
+      "exit_fill_id": "2026-03-26:22:DBC",
+      "entry_date": "2026-03-25",
+      "exit_date": "2026-03-26",
+      "entry_price": 27.805,
+      "exit_price": 28.44,
+      "shares": 36,
+      "realized_pnl": 22.86,
+      "realized_pnl_pct": 0.022837619133249554,
+      "days_held": 1
+    },
+    {
+      "round_trip_id": "2026-03-25:21:USO->2026-03-26:23:USO:8",
+      "symbol": "USO",
+      "entry_fill_id": "2026-03-25:21:USO",
+      "exit_fill_id": "2026-03-26:23:USO",
+      "entry_date": "2026-03-25",
+      "exit_date": "2026-03-26",
+      "entry_price": 109.29,
+      "exit_price": 116.73,
+      "shares": 8,
+      "realized_pnl": 59.52,
+      "realized_pnl_pct": 0.06807576173483398,
+      "days_held": 1
+    },
+    {
+      "round_trip_id": "2026-03-27:24:GLD->2026-04-01:28:GLD:1",
+      "symbol": "GLD",
+      "entry_fill_id": "2026-03-27:24:GLD",
+      "exit_fill_id": "2026-04-01:28:GLD",
+      "entry_date": "2026-03-27",
+      "exit_date": "2026-04-01",
+      "entry_price": 406.2,
+      "exit_price": 435.0,
+      "shares": 1,
+      "realized_pnl": 28.8,
+      "realized_pnl_pct": 0.07090103397341219,
+      "days_held": 5
+    },
+    {
+      "round_trip_id": "2026-03-27:25:DBC->2026-04-01:29:DBC:38",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-03-27:25:DBC",
+      "exit_fill_id": "2026-04-01:29:DBC",
+      "entry_date": "2026-03-27",
+      "exit_date": "2026-04-01",
+      "entry_price": 28.85,
+      "exit_price": 28.67,
+      "shares": 38,
+      "realized_pnl": -6.84,
+      "realized_pnl_pct": -0.006239168110918514,
+      "days_held": 5
+    },
+    {
+      "round_trip_id": "2026-03-27:26:SLV->2026-04-01:30:SLV:16",
+      "symbol": "SLV",
+      "entry_fill_id": "2026-03-27:26:SLV",
+      "exit_fill_id": "2026-04-01:30:SLV",
+      "entry_date": "2026-03-27",
+      "exit_date": "2026-04-01",
+      "entry_price": 61.45,
+      "exit_price": 67.935,
+      "shares": 16,
+      "realized_pnl": 103.76,
+      "realized_pnl_pct": 0.10553295362083004,
+      "days_held": 5
+    },
+    {
+      "round_trip_id": "2026-03-27:27:USO->2026-04-01:31:USO:7",
+      "symbol": "USO",
+      "entry_fill_id": "2026-03-27:27:USO",
+      "exit_fill_id": "2026-04-01:31:USO",
+      "entry_date": "2026-03-27",
+      "exit_date": "2026-04-01",
+      "entry_price": 120.79,
+      "exit_price": 124.765,
+      "shares": 7,
+      "realized_pnl": 27.82,
+      "realized_pnl_pct": 0.032908353340508345,
+      "days_held": 5
+    },
+    {
+      "round_trip_id": "2026-04-07:35:FXI->2026-04-10:40:FXI:204",
+      "symbol": "FXI",
+      "entry_fill_id": "2026-04-07:35:FXI",
+      "exit_fill_id": "2026-04-10:40:FXI",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-04-10",
+      "entry_price": 35.355,
+      "exit_price": 36.43,
+      "shares": 204,
+      "realized_pnl": 219.3,
+      "realized_pnl_pct": 0.0304058831848395,
+      "days_held": 3
+    },
+    {
+      "round_trip_id": "2026-04-07:37:XLF->2026-04-22:41:XLF:145",
+      "symbol": "XLF",
+      "entry_fill_id": "2026-04-07:37:XLF",
+      "exit_fill_id": "2026-04-22:41:XLF",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-04-22",
+      "entry_price": 49.61,
+      "exit_price": 52.485,
+      "shares": 145,
+      "realized_pnl": 416.88,
+      "realized_pnl_pct": 0.05795202580124981,
+      "days_held": 15
+    },
+    {
+      "round_trip_id": "2026-04-07:35:FXI->2026-04-23:42:FXI:102",
+      "symbol": "FXI",
+      "entry_fill_id": "2026-04-07:35:FXI",
+      "exit_fill_id": "2026-04-23:42:FXI",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-04-23",
+      "entry_price": 35.355,
+      "exit_price": 36.755,
+      "shares": 102,
+      "realized_pnl": 142.8,
+      "realized_pnl_pct": 0.03959835949653523,
+      "days_held": 16
+    },
+    {
+      "round_trip_id": "2026-04-02:32:DBC->2026-04-30:46:DBC:36",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-02:32:DBC",
+      "exit_fill_id": "2026-04-30:46:DBC",
+      "entry_date": "2026-04-02",
+      "exit_date": "2026-04-30",
+      "entry_price": 29.47,
+      "exit_price": 30.805,
+      "shares": 36,
+      "realized_pnl": 48.06,
+      "realized_pnl_pct": 0.045300305395317375,
+      "days_held": 28
+    },
+    {
+      "round_trip_id": "2026-04-02:32:DBC->2026-04-30:47:DBC:37",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-02:32:DBC",
+      "exit_fill_id": "2026-04-30:47:DBC",
+      "entry_date": "2026-04-02",
+      "exit_date": "2026-04-30",
+      "entry_price": 29.47,
+      "exit_price": 30.805,
+      "shares": 37,
+      "realized_pnl": 49.4,
+      "realized_pnl_pct": 0.045300305395317375,
+      "days_held": 28
+    },
+    {
+      "round_trip_id": "2026-04-09:39:DBC->2026-04-30:47:DBC:55",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-09:39:DBC",
+      "exit_fill_id": "2026-04-30:47:DBC",
+      "entry_date": "2026-04-09",
+      "exit_date": "2026-04-30",
+      "entry_price": 28.79,
+      "exit_price": 30.805,
+      "shares": 55,
+      "realized_pnl": 110.83,
+      "realized_pnl_pct": 0.06998957971517883,
+      "days_held": 21
+    },
+    {
+      "round_trip_id": "2026-04-09:39:DBC->2026-05-05:48:DBC:36",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-09:39:DBC",
+      "exit_fill_id": "2026-05-05:48:DBC",
+      "entry_date": "2026-04-09",
+      "exit_date": "2026-05-05",
+      "entry_price": 28.79,
+      "exit_price": 31.205,
+      "shares": 36,
+      "realized_pnl": 86.94,
+      "realized_pnl_pct": 0.0838832928100035,
+      "days_held": 26
+    },
+    {
+      "round_trip_id": "2026-04-07:33:ARKK->2026-05-05:49:ARKK:84",
+      "symbol": "ARKK",
+      "entry_fill_id": "2026-04-07:33:ARKK",
+      "exit_fill_id": "2026-05-05:49:ARKK",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-05-05",
+      "entry_price": 68.1,
+      "exit_price": 78.065,
+      "shares": 84,
+      "realized_pnl": 837.06,
+      "realized_pnl_pct": 0.14632892804698971,
+      "days_held": 28
+    },
+    {
+      "round_trip_id": "2026-04-07:34:VUG->2026-05-05:50:VUG:32",
+      "symbol": "VUG",
+      "entry_fill_id": "2026-04-07:34:VUG",
+      "exit_fill_id": "2026-05-05:50:VUG",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-05-05",
+      "entry_price": 442.46,
+      "exit_price": 84.22,
+      "shares": 32,
+      "realized_pnl": -11463.68,
+      "realized_pnl_pct": -0.8096551100664466,
+      "days_held": 28
+    },
+    {
+      "round_trip_id": "2026-04-07:35:FXI->2026-05-05:51:FXI:51",
+      "symbol": "FXI",
+      "entry_fill_id": "2026-04-07:35:FXI",
+      "exit_fill_id": "2026-05-05:51:FXI",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-05-05",
+      "entry_price": 35.355,
+      "exit_price": 36.645,
+      "shares": 51,
+      "realized_pnl": 65.79,
+      "realized_pnl_pct": 0.036487059821807666,
+      "days_held": 28
+    },
+    {
+      "round_trip_id": "2026-04-07:36:XBI->2026-05-05:52:XBI:56",
+      "symbol": "XBI",
+      "entry_fill_id": "2026-04-07:36:XBI",
+      "exit_fill_id": "2026-05-05:52:XBI",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-05-05",
+      "entry_price": 128.13,
+      "exit_price": 135.155,
+      "shares": 56,
+      "realized_pnl": 393.4,
+      "realized_pnl_pct": 0.05482712869741668,
+      "days_held": 28
+    },
+    {
+      "round_trip_id": "2026-04-07:37:XLF->2026-05-05:53:XLF:72",
+      "symbol": "XLF",
+      "entry_fill_id": "2026-04-07:37:XLF",
+      "exit_fill_id": "2026-05-05:53:XLF",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-05-05",
+      "entry_price": 49.61,
+      "exit_price": 51.57,
+      "shares": 72,
+      "realized_pnl": 141.12,
+      "realized_pnl_pct": 0.03950816367667809,
+      "days_held": 28
+    },
+    {
+      "round_trip_id": "2026-04-09:38:XLK->2026-05-05:54:XLK:17",
+      "symbol": "XLK",
+      "entry_fill_id": "2026-04-09:38:XLK",
+      "exit_fill_id": "2026-05-05:54:XLK",
+      "entry_date": "2026-04-09",
+      "exit_date": "2026-05-05",
+      "entry_price": 141.83,
+      "exit_price": 163.88,
+      "shares": 17,
+      "realized_pnl": 374.85,
+      "realized_pnl_pct": 0.15546781357963746,
+      "days_held": 26
+    },
+    {
+      "round_trip_id": "2026-04-09:39:DBC->2026-05-05:55:DBC:220",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-09:39:DBC",
+      "exit_fill_id": "2026-05-05:55:DBC",
+      "entry_date": "2026-04-09",
+      "exit_date": "2026-05-05",
+      "entry_price": 28.79,
+      "exit_price": 31.205,
+      "shares": 220,
+      "realized_pnl": 531.3,
+      "realized_pnl_pct": 0.0838832928100035,
+      "days_held": 26
+    },
+    {
+      "round_trip_id": "2026-04-09:39:DBC->2026-05-05:56:DBC:129",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-09:39:DBC",
+      "exit_fill_id": "2026-05-05:56:DBC",
+      "entry_date": "2026-04-09",
+      "exit_date": "2026-05-05",
+      "entry_price": 28.79,
+      "exit_price": 31.205,
+      "shares": 129,
+      "realized_pnl": 311.53,
+      "realized_pnl_pct": 0.0838832928100035,
+      "days_held": 26
+    },
+    {
+      "round_trip_id": "2026-04-24:43:DBC->2026-05-05:56:DBC:148",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-24:43:DBC",
+      "exit_fill_id": "2026-05-05:56:DBC",
+      "entry_date": "2026-04-24",
+      "exit_date": "2026-05-05",
+      "entry_price": 29.78,
+      "exit_price": 31.205,
+      "shares": 148,
+      "realized_pnl": 210.9,
+      "realized_pnl_pct": 0.04785090664875735,
+      "days_held": 11
+    },
+    {
+      "round_trip_id": "2026-04-24:43:DBC->2026-05-07:57:DBC:21",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-24:43:DBC",
+      "exit_fill_id": "2026-05-07:57:DBC",
+      "entry_date": "2026-04-24",
+      "exit_date": "2026-05-07",
+      "entry_price": 29.78,
+      "exit_price": 29.74,
+      "shares": 21,
+      "realized_pnl": -0.84,
+      "realized_pnl_pct": -0.001343183344526655,
+      "days_held": 13
+    },
+    {
+      "round_trip_id": "2026-04-07:33:ARKK->2026-05-07:58:ARKK:84",
+      "symbol": "ARKK",
+      "entry_fill_id": "2026-04-07:33:ARKK",
+      "exit_fill_id": "2026-05-07:58:ARKK",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-05-07",
+      "entry_price": 68.1,
+      "exit_price": 79.435,
+      "shares": 84,
+      "realized_pnl": 952.14,
+      "realized_pnl_pct": 0.16644640234948627,
+      "days_held": 30
+    },
+    {
+      "round_trip_id": "2026-04-09:38:XLK->2026-05-07:59:XLK:85",
+      "symbol": "XLK",
+      "entry_fill_id": "2026-04-09:38:XLK",
+      "exit_fill_id": "2026-05-07:59:XLK",
+      "entry_date": "2026-04-09",
+      "exit_date": "2026-05-07",
+      "entry_price": 141.83,
+      "exit_price": 170.34,
+      "shares": 85,
+      "realized_pnl": 2423.35,
+      "realized_pnl_pct": 0.2010153000070507,
+      "days_held": 28
+    },
+    {
+      "round_trip_id": "2026-04-24:44:XLK->2026-05-07:59:XLK:17",
+      "symbol": "XLK",
+      "entry_fill_id": "2026-04-24:44:XLK",
+      "exit_fill_id": "2026-05-07:59:XLK",
+      "entry_date": "2026-04-24",
+      "exit_date": "2026-05-07",
+      "entry_price": 158.48,
+      "exit_price": 170.34,
+      "shares": 17,
+      "realized_pnl": 201.62,
+      "realized_pnl_pct": 0.07483594144371541,
+      "days_held": 13
+    },
+    {
+      "round_trip_id": "2026-04-07:36:XBI->2026-05-07:60:XBI:28",
+      "symbol": "XBI",
+      "entry_fill_id": "2026-04-07:36:XBI",
+      "exit_fill_id": "2026-05-07:60:XBI",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-05-07",
+      "entry_price": 128.13,
+      "exit_price": 136.9,
+      "shares": 28,
+      "realized_pnl": 245.56,
+      "realized_pnl_pct": 0.0684461094201203,
+      "days_held": 30
+    },
+    {
+      "round_trip_id": "2026-04-24:43:DBC->2026-05-08:61:DBC:73",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-24:43:DBC",
+      "exit_fill_id": "2026-05-08:61:DBC",
+      "entry_date": "2026-04-24",
+      "exit_date": "2026-05-08",
+      "entry_price": 29.78,
+      "exit_price": 30.16,
+      "shares": 73,
+      "realized_pnl": 27.74,
+      "realized_pnl_pct": 0.012760241773001946,
+      "days_held": 14
+    },
+    {
+      "round_trip_id": "2026-04-24:43:DBC->2026-05-08:62:DBC:313",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-24:43:DBC",
+      "exit_fill_id": "2026-05-08:62:DBC",
+      "entry_date": "2026-04-24",
+      "exit_date": "2026-05-08",
+      "entry_price": 29.78,
+      "exit_price": 30.16,
+      "shares": 313,
+      "realized_pnl": 118.94,
+      "realized_pnl_pct": 0.012760241773001946,
+      "days_held": 14
+    },
+    {
+      "round_trip_id": "2026-04-24:45:DBC->2026-05-08:62:DBC:54",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-24:45:DBC",
+      "exit_fill_id": "2026-05-08:62:DBC",
+      "entry_date": "2026-04-24",
+      "exit_date": "2026-05-08",
+      "entry_price": 29.78,
+      "exit_price": 30.16,
+      "shares": 54,
+      "realized_pnl": 20.52,
+      "realized_pnl_pct": 0.012760241773001946,
+      "days_held": 14
+    },
+    {
+      "round_trip_id": "2026-04-24:45:DBC->2026-05-21:63:DBC:73",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-24:45:DBC",
+      "exit_fill_id": "2026-05-21:63:DBC",
+      "entry_date": "2026-04-24",
+      "exit_date": "2026-05-21",
+      "entry_price": 29.78,
+      "exit_price": 31.28,
+      "shares": 73,
+      "realized_pnl": 109.5,
+      "realized_pnl_pct": 0.05036937541974473,
+      "days_held": 27
+    },
+    {
+      "round_trip_id": "2026-04-07:35:FXI->2026-05-26:64:FXI:51",
+      "symbol": "FXI",
+      "entry_fill_id": "2026-04-07:35:FXI",
+      "exit_fill_id": "2026-05-26:64:FXI",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-05-26",
+      "entry_price": 35.355,
+      "exit_price": 35.62,
+      "shares": 51,
+      "realized_pnl": 13.52,
+      "realized_pnl_pct": 0.00749540376184421,
+      "days_held": 49
+    },
+    {
+      "round_trip_id": "2026-06-02:65:XLE->2026-06-04:70:XLE:61",
+      "symbol": "XLE",
+      "entry_fill_id": "2026-06-02:65:XLE",
+      "exit_fill_id": "2026-06-04:70:XLE",
+      "entry_date": "2026-06-02",
+      "exit_date": "2026-06-04",
+      "entry_price": 57.11,
+      "exit_price": 58.43,
+      "shares": 61,
+      "realized_pnl": 80.52,
+      "realized_pnl_pct": 0.02311329014183161,
+      "days_held": 2
+    },
+    {
+      "round_trip_id": "2026-04-24:45:DBC->2026-06-04:71:DBC:2",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-04-24:45:DBC",
+      "exit_fill_id": "2026-06-04:71:DBC",
+      "entry_date": "2026-04-24",
+      "exit_date": "2026-06-04",
+      "entry_price": 29.78,
+      "exit_price": 29.95,
+      "shares": 2,
+      "realized_pnl": 0.34,
+      "realized_pnl_pct": 0.00570852921423759,
+      "days_held": 41
+    },
+    {
+      "round_trip_id": "2026-06-02:66:DBC->2026-06-04:71:DBC:103",
+      "symbol": "DBC",
+      "entry_fill_id": "2026-06-02:66:DBC",
+      "exit_fill_id": "2026-06-04:71:DBC",
+      "entry_date": "2026-06-02",
+      "exit_date": "2026-06-04",
+      "entry_price": 30.02,
+      "exit_price": 29.95,
+      "shares": 103,
+      "realized_pnl": -7.21,
+      "realized_pnl_pct": -0.0023317788141239415,
+      "days_held": 2
+    },
+    {
+      "round_trip_id": "2026-06-02:67:USO->2026-06-04:72:USO:23",
+      "symbol": "USO",
+      "entry_fill_id": "2026-06-02:67:USO",
+      "exit_fill_id": "2026-06-04:72:USO",
+      "entry_date": "2026-06-02",
+      "exit_date": "2026-06-04",
+      "entry_price": 135.06,
+      "exit_price": 136.75,
+      "shares": 23,
+      "realized_pnl": 38.87,
+      "realized_pnl_pct": 0.012512957204205533,
+      "days_held": 2
+    },
+    {
+      "round_trip_id": "2026-06-02:68:EWZ->2026-06-04:73:EWZ:97",
+      "symbol": "EWZ",
+      "entry_fill_id": "2026-06-02:68:EWZ",
+      "exit_fill_id": "2026-06-04:73:EWZ",
+      "entry_date": "2026-06-02",
+      "exit_date": "2026-06-04",
+      "entry_price": 35.54,
+      "exit_price": 34.925,
+      "shares": 97,
+      "realized_pnl": -59.66,
+      "realized_pnl_pct": -0.017304445694991566,
+      "days_held": 2
+    },
+    {
+      "round_trip_id": "2026-04-07:35:FXI->2026-06-04:74:FXI:1",
+      "symbol": "FXI",
+      "entry_fill_id": "2026-04-07:35:FXI",
+      "exit_fill_id": "2026-06-04:74:FXI",
+      "entry_date": "2026-04-07",
+      "exit_date": "2026-06-04",
+      "entry_price": 35.355,
+      "exit_price": 35.68,
+      "shares": 1,
+      "realized_pnl": 0.33,
+      "realized_pnl_pct": 0.00919247631169573,
+      "days_held": 58
+    },
+    {
+      "round_trip_id": "2026-06-02:69:FXI->2026-06-04:74:FXI:95",
+      "symbol": "FXI",
+      "entry_fill_id": "2026-06-02:69:FXI",
+      "exit_fill_id": "2026-06-04:74:FXI",
+      "entry_date": "2026-06-02",
+      "exit_date": "2026-06-04",
+      "entry_price": 36.42,
+      "exit_price": 35.68,
+      "shares": 95,
+      "realized_pnl": -70.3,
+      "realized_pnl_pct": -0.020318506315211482,
+      "days_held": 2
+    },
+    {
+      "round_trip_id": "2026-06-02:65:XLE->2026-06-05:75:XLE:30",
+      "symbol": "XLE",
+      "entry_fill_id": "2026-06-02:65:XLE",
+      "exit_fill_id": "2026-06-05:75:XLE",
+      "entry_date": "2026-06-02",
+      "exit_date": "2026-06-05",
+      "entry_price": 57.11,
+      "exit_price": 58.665,
+      "shares": 30,
+      "realized_pnl": 46.65,
+      "realized_pnl_pct": 0.027228156189809116,
+      "days_held": 3
+    }
+  ],
+  "reset_boundary": null,
+  "expert_signals": {
+    "macro_credit_score": -0.25466835780584496,
+    "yield_slope_10y_3m": 0.69,
+    "hy_spread_proxy": 0.00771555333158791,
+    "vol_uncertainty_score": 0.18681318681318682,
+    "vol_regime_label": "calm",
+    "vix_percentile": 0.18681318681318682,
+    "vvix_percentile": 0.5,
+    "fragility_score": 0.9952119672269135,
+    "avg_correlation": 0.7362934165170308,
+    "pc1_explained": 0.7779363260975669,
+    "entropy_score": 0.8174400956550462,
+    "entropy_z_score": -0.41345471667956396,
+    "entropy_shift_flag": false,
+    "final_regime_label": "choppy",
+    "regime_confidence": 0.8679523468017578,
+    "position_size_modifier": 0.4535880446434021,
+    "risk_throttle_factor": 0.2,
+    "override_reason": null,
+    "target_gross_exposure": 0.40822924017906187,
+    "effective_exposure_multiplier": 0.40822924017906187,
+    "throttle_mapping": "effective_exposure_multiplier = position_size_modifier * (1 - 0.50 * risk_throttle_factor)",
+    "fusion_rules": [
+      {
+        "order": 1,
+        "code": "panic_override",
+        "label": "Panic Override",
+        "fired": false,
+        "inputs": "panic_prob=0.17, vol_regime=calm",
+        "threshold": "panic_prob>0.70 OR vol_regime='panic'",
+        "effect": "no change"
+      },
+      {
+        "order": 2,
+        "code": "unstable_calm_override",
+        "label": "Unstable Calm Override",
+        "fired": false,
+        "inputs": "vol_regime=calm, panic_prob=0.17",
+        "threshold": "vol_regime='unstable_calm' AND panic_prob>0.30",
+        "effect": "no change"
+      },
+      {
+        "order": 3,
+        "code": "macro_modulation",
+        "label": "Macro Modulation",
+        "fired": false,
+        "inputs": "macro_credit_score=-0.25, regime=choppy",
+        "threshold": "score<-0.50 (downgrade) OR score>0.50 (upgrade)",
+        "effect": "no change"
+      },
+      {
+        "order": 4,
+        "code": "fragility_gate",
+        "label": "Fragility Gate",
+        "fired": true,
+        "inputs": "fragility_score=1.00, ens_label=choppy, ens_conf=0.87, relax=False",
+        "threshold": "fragility_score>0.75 AND NOT (relax_in_risk_on=True AND ens_label\u2208('risk_on_trend', 'calm_uptrend') AND ens_conf\u22650.80)",
+        "effect": "size=0.60, throttle=0.20"
+      },
+      {
+        "order": 5,
+        "code": "entropy_shift",
+        "label": "Entropy Shift Gate",
+        "fired": false,
+        "inputs": "entropy_shift_flag=False, entropy_score=0.82",
+        "threshold": "entropy_shift_flag=True",
+        "effect": "no change"
+      },
+      {
+        "order": 6,
+        "code": "ensemble_disagreement",
+        "label": "Ensemble Disagreement Sizing",
+        "fired": true,
+        "inputs": "disagreement=0.13, ensemble_multiplier=0.76",
+        "threshold": "multiplier<1.00 when disagreement is elevated",
+        "effect": "size=0.45"
+      }
+    ],
+    "ensemble_regime_label": "choppy",
+    "panic_prob": 0.1662193238735199,
+    "ensemble_disagreement": 0.1320476531982422,
+    "ensemble_multiplier": 0.7559800744056702
+  },
+  "timeseries_url": "timeseries.json",
+  "timeline_correction": {
+    "version": "lambda-three-line-replay-v2-optimized-canon",
+    "main_line_field": "value",
+    "main_line_label": "Portfolio (optimized champion)",
+    "canon_source": "optimized_champion",
+    "canon_promotion": {
+      "primary": "optimized_value (extend_relax_choppy_conf0.50 + topup_psm_1.2_full)",
+      "comparison_solid": "hybrid_value (live config: hybrid-ranking-035-v1)",
+      "comparison_dashed": "pre_hybrid_value (older opt-bootstrap config)",
+      "note": "value field carries optimized; hybrid preserved in hybrid_value field for comparison"
+    },
+    "comparison_line_field": "hybrid_value",
+    "comparison_line_label": "Hybrid (comparison)",
+    "comparison_line_present": true,
+    "pre_hybrid_line_field": "pre_hybrid_value",
+    "pre_hybrid_line_label": "Original (pre-hybrid)",
+    "pre_hybrid_line_present": true,
+    "optimized_line_field": "optimized_value",
+    "optimized_line_label": "Optimized strategy (in-sample champion)",
+    "last_simulation_date": "2026-06-06",
+    "three_line_finals": {
+      "canonical_hybrid": 107348.56,
+      "pre_hybrid": 107733.24,
+      "optimized_champion": 112487.17
+    },
+    "optimized_strategy": "extend_relax_choppy_conf0.50 + topup_psm_1.2_full",
+    "note": "Three lines re-run from 2026-03-11 EOD forward to the latest trading day each Lambda invocation. Source-faithful, no look-ahead. Optimized is canon; hybrid preserved as `hybrid_value`."
+  }
+}

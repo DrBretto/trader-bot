@@ -135,7 +135,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
       </div>
       {point.hybridValue !== null && point.hybridValue !== undefined && point.hybridValue !== point.value && (
         <div style={{ color: '#94a3b8' }}>
-          Hybrid (comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.hybridValue)}</span>
+          Previous champion: <span style={{ fontWeight: 500 }}>{formatCurrency(point.hybridValue)}</span>
         </div>
       )}
       {point.preHybridValue !== null && point.preHybridValue !== undefined && (
@@ -582,7 +582,7 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
           <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio
         </span>
         <span className="legend-item">
-          <span className="legend-swatch legend-swatch-dashed" style={{ background: '#94a3b8' }} /> Hybrid (comparison)
+          <span className="legend-swatch legend-swatch-dashed" style={{ background: '#94a3b8' }} /> Previous champion
         </span>
         <span className="legend-item">
           <span className="legend-swatch legend-swatch-dashed" style={{ background: '#64748b' }} /> SPY
