@@ -565,137 +565,130 @@ class TestChartMarkers:
         assert isinstance(out['chart_markers'], list)
 
 
-class TestBrokerReturnExtendInteriorGap:
-    """Regression for the 2026-05-08 -> 2026-05-20 flat-segment incident.
-    When the replay timeline has interior holes (e.g. the Stooq outage that
-    left night artifacts absent for 2026-05-11 -> 2026-05-20 but kept broker
-    portfolio_state.json present), _broker_return_extend must broker-return-
-    scale the gap dates from the most recent prior champ_map anchor instead
-    of leaving them for the downstream per-row patch loop to forward-fill."""
+class TestMarketReturnExtendInteriorGap:
+    """Regression for the displayed-line cap-decontamination fix (2026-06-06).
+    Interior replay gaps and the 1-2 day tail past the final simulated date
+    must be scaled by the BENCHMARK (fully-invested SPY) daily return, NOT the
+    broker raw_value daily return. The broker book is $5,000-capped and
+    chronically cash-heavy; scaling by its returns leaked the cap into the
+    fantasy line (value-return == raw_value-return on 2026-06-01 / 2026-06-06).
+    `_market_return_extend` keeps the champion line on its own ~100%-equity
+    exposure proxy and never touches raw_value."""
 
-    def test_interior_gap_filled_by_broker_return_not_flat(self):
-        from src.utils.three_line_replay.extender import _broker_return_extend
+    def test_interior_gap_filled_by_benchmark_return_not_flat(self):
+        from src.utils.three_line_replay.extender import _market_return_extend
 
-        # Two replay-instrumented anchors (5/08 and 5/21) with three
-        # outage gap-dates between them, each having broker raw_value.
+        # Two replay-instrumented anchors (5/08 and 5/21) with three gap-dates
+        # between them. Each row carries a benchmark (SPY) value AND a divergent
+        # broker raw_value — the fill must follow benchmark, ignore raw_value.
         equity_curve = [
-            {'date': '2026-05-08', 'value': 0.0, 'raw_value': 96983.96},
-            {'date': '2026-05-11', 'value': 0.0, 'raw_value': 97030.06},
-            {'date': '2026-05-12', 'value': 0.0, 'raw_value': 97040.84},
-            {'date': '2026-05-13', 'value': 0.0, 'raw_value': 97166.58},
-            {'date': '2026-05-21', 'value': 0.0, 'raw_value': 96702.94},
+            {'date': '2026-05-08', 'value': 0.0, 'benchmark': 110000.00, 'raw_value': 96983.96},
+            {'date': '2026-05-11', 'value': 0.0, 'benchmark': 110550.00, 'raw_value': 97030.06},
+            {'date': '2026-05-12', 'value': 0.0, 'benchmark': 110770.00, 'raw_value': 97040.84},
+            {'date': '2026-05-13', 'value': 0.0, 'benchmark': 111000.00, 'raw_value': 97166.58},
+            {'date': '2026-05-21', 'value': 0.0, 'benchmark': 109900.00, 'raw_value': 96702.94},
         ]
         champ_map = {'2026-05-08': 113000.79, '2026-05-21': 112641.72}
         hybrid_map = {'2026-05-08': 108420.63, '2026-05-21': 107900.0}
         pre_map: dict = {}
 
-        _broker_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
+        _market_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
 
         for gap_date in ('2026-05-11', '2026-05-12', '2026-05-13'):
             assert gap_date in champ_map, f'gap {gap_date} not filled'
             assert gap_date in hybrid_map, f'hybrid gap {gap_date} not filled'
 
-        # Each gap value must scale by its broker daily return relative to
-        # the prior row's raw_value, NOT carry forward as a constant.
         assert champ_map['2026-05-11'] != champ_map['2026-05-08']
         assert champ_map['2026-05-12'] != champ_map['2026-05-11']
 
-        # Concrete math: 5/11 broker_return = 97030.06/96983.96 - 1 = +0.0475...%
-        # so champ_map[5/11] ~= 113000.79 * (97030.06/96983.96).
-        expected_5_11 = 113000.79 * (97030.06 / 96983.96)
+        # 5/11 market_return = 110550/110000 - 1, applied to the 5/08 anchor.
+        expected_5_11 = 113000.79 * (110550.00 / 110000.00)
         assert abs(champ_map['2026-05-11'] - expected_5_11) < 0.01
-
-        expected_5_12 = expected_5_11 * (97040.84 / 97030.06)
+        expected_5_12 = expected_5_11 * (110770.00 / 110550.00)
         assert abs(champ_map['2026-05-12'] - expected_5_12) < 0.01
+
+        # The broker raw_value must NOT drive the fill (cap-leak guard):
+        leaked_5_11 = 113000.79 * (97030.06 / 96983.96)
+        assert abs(champ_map['2026-05-11'] - leaked_5_11) > 1.0
 
         # Anchors must NOT be overwritten by the gap-fill walk.
         assert champ_map['2026-05-08'] == 113000.79
         assert champ_map['2026-05-21'] == 112641.72
 
-    def test_post_final_tail_extension_still_works(self):
-        """Regression on the original tail-extension behavior. After the
-        unified rewrite, dates past the replay's final_date must still
-        broker-return-scale from the final anchor — same math, just no
-        longer specially gated."""
-        from src.utils.three_line_replay.extender import _broker_return_extend
+    def test_post_final_tail_extension_uses_benchmark(self):
+        """Dates past the replay's final simulated date scale by benchmark
+        return from the final anchor."""
+        from src.utils.three_line_replay.extender import _market_return_extend
 
         equity_curve = [
-            {'date': '2026-05-08', 'value': 0.0, 'raw_value': 96983.96},
-            {'date': '2026-05-09', 'value': 0.0, 'raw_value': 97050.00},
-            {'date': '2026-05-12', 'value': 0.0, 'raw_value': 97100.00},
+            {'date': '2026-05-08', 'value': 0.0, 'benchmark': 110000.00, 'raw_value': 96983.96},
+            {'date': '2026-05-09', 'value': 0.0, 'benchmark': 110330.00, 'raw_value': 97050.00},
+            {'date': '2026-05-12', 'value': 0.0, 'benchmark': 110500.00, 'raw_value': 97100.00},
         ]
-        # Only one anchor at 5/08 — everything after is "tail."
         champ_map = {'2026-05-08': 113000.79}
         hybrid_map = {'2026-05-08': 108420.63}
         pre_map = {'2026-05-08': 108240.54}
 
-        _broker_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
+        _market_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
 
         assert '2026-05-09' in champ_map
         assert '2026-05-12' in champ_map
-        # 5/09 broker_return = 97050/96983.96 - 1
-        expected_5_09 = 113000.79 * (97050.00 / 96983.96)
+        expected_5_09 = 113000.79 * (110330.00 / 110000.00)
         assert abs(champ_map['2026-05-09'] - expected_5_09) < 0.01
 
     def test_dates_before_replay_start_are_ignored(self):
-        """REPLAY_START gates the walk so pre-segment dashboard rows
-        (which carry their own canonical values from HYBRID_SEGMENT)
-        are not disturbed."""
         from src.utils.three_line_replay.extender import (
-            _broker_return_extend, REPLAY_START,
+            _market_return_extend, REPLAY_START,
         )
 
         equity_curve = [
-            {'date': '2026-01-15', 'value': 0.0, 'raw_value': 100000.00},
-            {'date': REPLAY_START, 'value': 0.0, 'raw_value': 101000.00},
-            {'date': '2026-03-13', 'value': 0.0, 'raw_value': 102000.00},
+            {'date': '2026-01-15', 'value': 0.0, 'benchmark': 100000.00},
+            {'date': REPLAY_START, 'value': 0.0, 'benchmark': 101000.00},
+            {'date': '2026-03-13', 'value': 0.0, 'benchmark': 102000.00},
         ]
         champ_map = {REPLAY_START: 102000.0}
         hybrid_map: dict = {}
         pre_map: dict = {}
 
-        _broker_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
+        _market_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
 
-        # Pre-REPLAY_START dates must not be added to champ_map.
         assert '2026-01-15' not in champ_map
-        # Post-anchor date should be filled.
         assert '2026-03-13' in champ_map
 
-    def test_missing_raw_value_does_not_inject_phantom_entry(self):
-        """If a gap row has raw_value None or 0, broker_return is
-        undefined and the walk must skip that row (leaving champ_map
-        unchanged for that date). Prevents NaN propagation."""
-        from src.utils.three_line_replay.extender import _broker_return_extend
+    def test_missing_benchmark_flat_holds_not_phantom(self):
+        """If a gap row has benchmark None or 0, market_return is undefined
+        and the walk must skip that row (leaving champ_map unchanged so the
+        per-row patch loop flat-holds). Crucially it must NOT fall back to the
+        broker raw_value."""
+        from src.utils.three_line_replay.extender import _market_return_extend
 
         equity_curve = [
-            {'date': '2026-05-08', 'value': 0.0, 'raw_value': 96983.96},
-            {'date': '2026-05-11', 'value': 0.0, 'raw_value': None},
-            {'date': '2026-05-12', 'value': 0.0, 'raw_value': 0.0},
-            {'date': '2026-05-13', 'value': 0.0, 'raw_value': 97200.00},
+            {'date': '2026-05-08', 'value': 0.0, 'benchmark': 110000.00, 'raw_value': 96983.96},
+            {'date': '2026-05-11', 'value': 0.0, 'benchmark': None, 'raw_value': 97030.06},
+            {'date': '2026-05-12', 'value': 0.0, 'benchmark': 0.0, 'raw_value': 97040.84},
+            {'date': '2026-05-13', 'value': 0.0, 'benchmark': 111000.00, 'raw_value': 97200.00},
         ]
         champ_map = {'2026-05-08': 113000.79}
         hybrid_map: dict = {}
         pre_map: dict = {}
 
-        _broker_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
+        _market_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
 
         assert '2026-05-11' not in champ_map
         assert '2026-05-12' not in champ_map
-        # 5/13 has a valid raw_value AND a valid prior_raw from 5/08 (the
-        # walk only refreshes prior_raw on rows whose raw_value is valid).
-        # broker_return = 97200/96983.96 - 1
-        expected_5_13 = 113000.79 * (97200.00 / 96983.96)
+        # 5/13 scales from the 5/08 benchmark anchor (last valid prior_mkt).
+        expected_5_13 = 113000.79 * (111000.00 / 110000.00)
         assert abs(champ_map['2026-05-13'] - expected_5_13) < 0.01
 
     def test_empty_champ_map_is_noop(self):
-        from src.utils.three_line_replay.extender import _broker_return_extend
+        from src.utils.three_line_replay.extender import _market_return_extend
         equity_curve = [
-            {'date': '2026-05-08', 'value': 0.0, 'raw_value': 96983.96},
+            {'date': '2026-05-08', 'value': 0.0, 'benchmark': 110000.00},
         ]
         champ_map: dict = {}
         hybrid_map: dict = {}
         pre_map: dict = {}
-        _broker_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
+        _market_return_extend(equity_curve, champ_map, hybrid_map, pre_map)
         assert champ_map == {}
         assert hybrid_map == {}
         assert pre_map == {}

@@ -36,66 +36,77 @@ logger = logging.getLogger(__name__)
 REPLAY_START = '2026-03-12'
 
 
-def _broker_return_extend(
+def _market_return_extend(
     equity_curve: List[Dict[str, Any]],
     champ_map: Dict[str, float],
     hybrid_map: Dict[str, float],
     pre_map: Dict[str, float],
 ) -> None:
-    """Walk equity_curve in date order; for any row whose date has a
-    raw_value but no champ_map entry, broker-return-scale forward from
-    the most-recent prior champ_map anchor and inject the result into
-    champ_map / hybrid_map / pre_map. Mutates the three maps in place.
+    """Walk equity_curve in date order; for any row >= REPLAY_START whose
+    date has a `benchmark` value but no champ_map entry, scale the most-recent
+    prior champ/hybrid/pre anchor forward by the **benchmark (fully-invested
+    SPY) daily return** and inject the result into champ_map / hybrid_map /
+    pre_map. Mutates the three maps in place.
 
     Handles two cases under a single mechanism:
-      (a) Interior gaps inside the replay span (e.g. the 2026-05-11 →
-          2026-05-20 Stooq outage: the replay simulates 2026-05-08 and
-          resumes on 2026-05-21+, leaving gap dates with raw broker
-          values present in equity_curve but absent from champ_map).
-      (b) Tail extension past the replay's final_date (the original
-          motivation; same math but happens to be the suffix).
+      (a) Interior gaps inside the replay span (e.g. a Stooq-outage window
+          where the replay cannot simulate but the row still carries a
+          benchmark value).
+      (b) Tail extension past the replay's final simulated date (the last
+          1-2 trading days, which the replay cannot decide because the
+          next-session fill prices do not exist yet).
 
-    Earlier implementation gated with `if d <= last_replay_date:
-    continue`, which only covered case (b) and left case (a) flat-
-    filled by the downstream per-row patch loop. That dead zone was
-    the cause of the visible 2026-05-08 → 2026-05-20 flat segment.
+    Why benchmark and NOT the broker `raw_value` (the prior implementation):
+    the displayed champion line is a fully-deployed, uncapped reconstruction.
+    The live broker's raw_value is a chronically cash-heavy, $5,000-per-order-
+    capped book whose daily returns are dampened by idle cash and do not
+    represent the reconstructed algorithm's ~100%-equity exposure. Scaling
+    gap/tail dates by raw broker returns leaked the capped account's behavior
+    into the fantasy line (visible on 2026-06-01 and 2026-06-06, where the
+    `value` daily return equalled the `raw_value` daily return to 1e-9). The
+    `benchmark` field is the source-faithful, fully-invested market proxy
+    already present on every row; using it keeps the champion line on its own
+    exposure during dates the replay cannot simulate. Where benchmark is
+    absent/<=0 the row is skipped and the downstream per-row patch loop
+    flat-holds the last champion value (honest "no new data" rather than
+    borrowing the capped broker's move).
     """
     if not champ_map:
         return
     anchor_c: Optional[float] = None
     anchor_h: Optional[float] = None
     anchor_p: Optional[float] = None
-    prior_raw: Optional[float] = None
+    prior_mkt: Optional[float] = None
     for row in equity_curve:
         d = row['date']
         if d < REPLAY_START:
             continue
-        raw = row.get('raw_value')
+        mkt = row.get('benchmark')
         if d in champ_map:
             anchor_c = champ_map[d]
             if d in hybrid_map:
                 anchor_h = hybrid_map[d]
             if d in pre_map:
                 anchor_p = pre_map[d]
-            if raw is not None and raw > 0:
-                prior_raw = float(raw)
+            if mkt is not None and mkt > 0:
+                prior_mkt = float(mkt)
             continue
         if anchor_c is None:
-            if raw is not None and raw > 0:
-                prior_raw = float(raw)
+            if mkt is not None and mkt > 0:
+                prior_mkt = float(mkt)
             continue
-        if raw is None or raw <= 0 or prior_raw is None or prior_raw <= 0:
+        if mkt is None or mkt <= 0 or prior_mkt is None or prior_mkt <= 0:
             continue
-        broker_return = float(raw) / prior_raw - 1.0
-        anchor_c = anchor_c * (1 + broker_return)
+        market_return = float(mkt) / prior_mkt - 1.0
+        anchor_c = anchor_c * (1 + market_return)
         champ_map[d] = anchor_c
         if anchor_h is not None:
-            anchor_h = anchor_h * (1 + broker_return)
+            anchor_h = anchor_h * (1 + market_return)
             hybrid_map[d] = anchor_h
         if anchor_p is not None:
-            anchor_p = anchor_p * (1 + broker_return)
+            anchor_p = anchor_p * (1 + market_return)
             pre_map[d] = anchor_p
-        prior_raw = float(raw)
+        prior_mkt = float(mkt)
 
 
 def _build_champion_strategy():
@@ -140,17 +151,16 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
         pre_map = dict(pre_hybrid['date_value_map']) if pre_hybrid is not None else {}
         champ_map = dict(champion['date_value_map'])
 
-        # Gap-fill + tail extension via broker-return scaling. Covers both
-        # interior holes in the replay timeline (e.g. the 2026-05-11 →
-        # 2026-05-20 Stooq outage that left night artifacts absent but
-        # broker portfolio_state.json written) and dates past the
-        # replay's final_date. The broker daily return on raw_value is a
-        # reasonable canon-line continuation when the replay cannot
-        # simulate, given the replay is ~100% equity and broker is also
-        # long-equity. Without this, the per-row patch loop below
-        # forward-fills the last replay value across the gap, producing
-        # the visible flat chart segment.
-        _broker_return_extend(dash['equity_curve'], champ_map, hybrid_map, pre_map)
+        # Gap-fill + tail extension via BENCHMARK (fully-invested SPY) return
+        # scaling. Covers both interior holes in the replay timeline (e.g. a
+        # Stooq-outage window where the replay cannot simulate) and the last
+        # 1-2 dates past the replay's final simulated date. We scale by the
+        # benchmark daily return — NOT the broker raw_value return — because the
+        # champion line is a fully-deployed, uncapped reconstruction and the
+        # live broker is a $5,000-capped, cash-heavy book whose returns leaked
+        # the cap into the fantasy line. Where benchmark is unavailable the
+        # per-row patch loop below flat-holds the last champion value.
+        _market_return_extend(dash['equity_curve'], champ_map, hybrid_map, pre_map)
 
         # Patch equity_curve. After the 2026-05-16 canon promotion the
         # OPTIMIZED champion line is the primary canon (`value`); the live

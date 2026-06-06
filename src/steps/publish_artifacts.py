@@ -726,6 +726,14 @@ def run(
             expert_signals=expert_signals,
             snapshot_meta=snapshot_meta,
         )
+        # Apply the three-line replay extension (optimized-champion canon line).
+        # MUST be wired here: without a committed call site the corrected line
+        # is produced only by working-tree code baked into the Lambda image,
+        # and a fresh checkout + rebuild would silently drop it. extend_dashboard
+        # is internally defensive (returns dashboard_data unchanged on any
+        # failure), so this degrades gracefully to the raw canonical line.
+        from src.utils.three_line_replay.extender import extend_dashboard
+        dashboard_data = extend_dashboard(s3.s3, dashboard_data)
         # Publish guard: do not overwrite a valid dashboard with broken data.
         # When expert_signals is None the frontend shows "unknown" posture and
         # hides Today's Story.  Preserving the last known good dashboard.json
@@ -875,6 +883,11 @@ def publish_morning_artifacts(
             expert_signals=expert_signals,
             snapshot_meta=snapshot_meta,
         )
+        # Apply the three-line replay extension (optimized-champion canon line).
+        # See the night-path note above: committed call site required for
+        # durability; extend_dashboard degrades gracefully on failure.
+        from src.utils.three_line_replay.extender import extend_dashboard
+        dashboard_data = extend_dashboard(s3.s3, dashboard_data)
         # Publish guard: do not overwrite a valid dashboard with broken data.
         if not dashboard_publishable:
             print("  WARNING: Skipping morning dashboard.json publish — expert_signals is null. "
