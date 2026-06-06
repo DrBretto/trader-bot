@@ -1,0 +1,72 @@
+{
+ "incumbent": {
+  "ins": 0.0178,
+  "hold": 0.0939,
+  "hold_dd": -0.0104
+ },
+ "rows": [
+  {
+   "name": "floor_global_0.6",
+   "ins": 0.0179,
+   "ins_dd": -0.0178,
+   "hold": 0.094,
+   "hold_dd": -0.0104
+  },
+  {
+   "name": "floor_global_0.7",
+   "ins": 0.0186,
+   "ins_dd": -0.0171,
+   "hold": 0.094,
+   "hold_dd": -0.0105
+  },
+  {
+   "name": "floor_global_0.8",
+   "ins": 0.0187,
+   "ins_dd": -0.0197,
+   "hold": 0.0875,
+   "hold_dd": -0.0117
+  },
+  {
+   "name": "floor_global_0.9",
+   "ins": 0.0184,
+   "ins_dd": -0.0194,
+   "hold": 0.0913,
+   "hold_dd": -0.0131
+  },
+  {
+   "name": "floor_global_1.0",
+   "ins": 0.0202,
+   "ins_dd": -0.0224,
+   "hold": 0.0626,
+   "hold_dd": -0.0249
+  },
+  {
+   "name": "floor_benign_0.7",
+   "ins": 0.017,
+   "ins_dd": -0.0165,
+   "hold": 0.0926,
+   "hold_dd": -0.0105
+  },
+  {
+   "name": "floor_benign_0.85",
+   "ins": 0.016,
+   "ins_dd": -0.0196,
+   "hold": 0.0863,
+   "hold_dd": -0.0121
+  },
+  {
+   "name": "floor_benign_1.0",
+   "ins": 0.0132,
+   "ins_dd": -0.0224,
+   "hold": 0.0888,
+   "hold_dd": -0.0138
+  }
+ ],
+ "winner": {
+  "name": "floor_global_1.0",
+  "ins": 0.0202,
+  "ins_dd": -0.0224,
+  "hold": 0.0626,
+  "hold_dd": -0.0249
+ }
+}

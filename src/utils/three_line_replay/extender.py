@@ -110,10 +110,17 @@ def _market_return_extend(
 
 
 def _build_champion_strategy():
-    """The in-sample champion: extend_relax_choppy_conf0.50 + topup_psm_1.2_full."""
+    """The champion overlays: extend_relax_choppy_conf0.50 + topup_psm.
+
+    topup trigger lowered 1.2 -> 1.1 by PKT-TRADER-BOT-OPTIMIZE-BEAT-CHAMPION-20260606
+    (more aggressive top-ups in benign regimes). Validated out-of-sample on the
+    real three_line_replay together with max_position_weight 0.30: holdout
+    +11.85% vs prior champion +9.39%, drawdown preserved. See book-factory run
+    20260606_trader-bot-beat-champion / RESULT.md.
+    """
     return compose(
-        [extend_fragility_relax(('choppy',), 0.50), topup_on_psm_rise(1.2, 1.0)],
-        'extend_relax_choppy + topup_1.2_full',
+        [extend_fragility_relax(('choppy',), 0.50), topup_on_psm_rise(1.1, 1.0)],
+        'extend_relax_choppy + topup_1.1_full',
     )
 
 

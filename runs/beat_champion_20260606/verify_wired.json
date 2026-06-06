@@ -1,0 +1,7 @@
+{
+ "wired_holdout": 0.11847834949151159,
+ "wired_hold_dd": -0.01028921619203138,
+ "wired_insample": 0.05590340000000005,
+ "overlay": "extend_relax_choppy + topup_1.1_full",
+ "mpw": 0.3
+}

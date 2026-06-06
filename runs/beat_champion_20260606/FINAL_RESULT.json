@@ -1,0 +1,24 @@
+{
+ "winning_decision_params": {
+  "max_position_weight": 0.3,
+  "buy_score_threshold_by_regime": {
+   "calm_uptrend": 0.62,
+   "risk_on_trend": 0.62,
+   "choppy": 0.65,
+   "risk_off_trend": 0.68,
+   "high_vol_panic": 0.72
+  }
+ },
+ "winning_topup_trigger": 1.1,
+ "incumbent": {
+  "ins": 0.0178,
+  "hold": 0.0939
+ },
+ "new": {
+  "ins": 0.0559,
+  "hold": 0.1185,
+  "hold_dd": -0.0103,
+  "dw_dd": -0.0126
+ },
+ "beats_champion_holdout": true
+}
