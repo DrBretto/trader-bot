@@ -249,6 +249,14 @@ class Position:
     leverage_flag: int
     consecutive_below_health_days: int = 0
     entry_psm: Optional[float] = None
+    # Persisted per-holding risk state so multi-day gates (HEALTH_COLLAPSE,
+    # HEALTH_DROP) and the REGIME_SHIFT trim fire correctly across iterations.
+    # Before 2026-06-06 these were rebuilt-from-scratch each replay day, so the
+    # day counters never accumulated and the entire health/regime sell+trim
+    # layer was inert in the replay — the replay simulated a de-risk-less book.
+    peak_health: Optional[float] = None
+    consecutive_health_drop_days: int = 0
+    entry_regime: Optional[str] = None
 
 
 @dataclass
@@ -275,7 +283,10 @@ class Portfolio:
                      'entry_date': p.entry_date, 'peak_price': p.peak_price,
                      'asset_class': p.asset_class, 'sector': p.sector,
                      'leverage_flag': p.leverage_flag,
-                     'consecutive_below_health_days': p.consecutive_below_health_days}
+                     'consecutive_below_health_days': p.consecutive_below_health_days,
+                     'peak_health': p.peak_health,
+                     'consecutive_health_drop_days': p.consecutive_health_drop_days,
+                     'entry_regime': p.entry_regime}
                     for p in self.positions]
         value, missing = self.value_at_marks(marks)
         return {'cash': self.cash, 'holdings': holdings, 'portfolio_value': value}, missing
@@ -297,6 +308,9 @@ def seed_portfolio(cache: S3Cache) -> Portfolio:
             sector=h.get('sector', 'broad'),
             leverage_flag=int(h.get('leverage_flag', 0) or 0),
             consecutive_below_health_days=int(h.get('consecutive_below_health_days', 0) or 0),
+            peak_health=h.get('peak_health'),
+            consecutive_health_drop_days=int(h.get('consecutive_health_drop_days', 0) or 0),
+            entry_regime=h.get('entry_regime'),
         ))
     return Portfolio(
         cash=float(state['cash']),
@@ -338,9 +352,57 @@ def _latest_close_per_symbol(features_df: pd.DataFrame) -> Dict[str, float]:
             if pd.notna(row['close'])}
 
 
+def _apply_cluster_cap(intents, portfolio, marks, sector_by_symbol, cluster_map,
+                       max_sector_weight, portfolio_value, min_order):
+    """Clamp BUY intents so no correlated cluster exceeds max_sector_weight of
+    portfolio value. Applies to ALL buys — decision-engine AND topup-strategy
+    intents — which is essential because the champion's concentration came from
+    topups that bypass the engine's own buy-loop cap. Seeds cluster $ from
+    current holdings, clamps each BUY to remaining cluster headroom, drops
+    sub-min orders. SELL/REDUCE pass through untouched."""
+    if not max_sector_weight or portfolio_value <= 0:
+        return intents
+    from src.steps.decision_engine import _cluster_of
+    cap = portfolio_value * float(max_sector_weight)
+    cluster_dollars: Dict[str, float] = {}
+    for p in portfolio.positions:
+        mv = p.shares * marks.get(p.symbol, p.entry_price)
+        cl = _cluster_of(p.symbol, sector_by_symbol, cluster_map)
+        cluster_dollars[cl] = cluster_dollars.get(cl, 0.0) + mv
+    out = []
+    for it in intents:
+        if it.get('action') != 'BUY':
+            out.append(it)
+            continue
+        sym = it['symbol']
+        price = float(it.get('price', 0) or marks.get(sym, 0) or 0)
+        dollars = float(it.get('dollars', 0) or (it.get('shares', 0) * price))
+        if price <= 0 or dollars <= 0:
+            out.append(it)
+            continue
+        cl = _cluster_of(sym, sector_by_symbol, cluster_map)
+        head = cap - cluster_dollars.get(cl, 0.0)
+        if head <= 0:
+            continue  # cluster already at cap -> drop this buy
+        if dollars > head:
+            dollars = head
+        if dollars < min_order:
+            continue
+        shares = int(dollars / price)
+        if shares <= 0:
+            continue
+        dollars = shares * price
+        it = dict(it)
+        it['shares'] = shares
+        it['dollars'] = round(dollars, 2)
+        cluster_dollars[cl] = cluster_dollars.get(cl, 0.0) + dollars
+        out.append(it)
+    return out
+
+
 def _execute_intents(portfolio: Portfolio, intents: List[Dict[str, Any]],
                      ohlc: Dict[str, Dict[str, float]], decision_params: Dict[str, Any],
-                     date: str) -> List[Dict[str, Any]]:
+                     date: str, entry_regime: Optional[str] = None) -> List[Dict[str, Any]]:
     executed = []
     pos_map = portfolio.position_map()
     min_order = float(decision_params.get('min_order_dollars', 250))
@@ -374,6 +436,7 @@ def _execute_intents(portfolio: Portfolio, intents: List[Dict[str, Any]],
                 asset_class=intent.get('asset_class', 'equity'),
                 sector=intent.get('sector', 'broad'),
                 leverage_flag=int(intent.get('leverage_flag', 0) or 0),
+                entry_regime=entry_regime,
             )
             portfolio.positions.append(new_pos)
             pos_map[sym] = new_pos
@@ -438,6 +501,14 @@ def run_variant(cache: S3Cache, variant: VariantConfig, strategy: Optional[Strat
     actions: List[Dict[str, Any]] = []
     panic_streak = 0
     last_regime: Optional[str] = None
+
+    # Sector-cluster cap setup (spec 9.1). sector_by_symbol from the universe;
+    # the cap value is read per-iteration from each variant's decision_params.
+    from src.steps.decision_engine import DEFAULT_SECTOR_CLUSTERS
+    cluster_map = DEFAULT_SECTOR_CLUSTERS
+    sector_by_symbol = {}
+    if universe_df is not None and len(universe_df) > 0 and 'sector' in universe_df.columns:
+        sector_by_symbol = dict(zip(universe_df['symbol'], universe_df['sector']))
 
     for i in range(len(trading_dates) - 2):
         inputs_date = trading_dates[i + 1]
@@ -527,12 +598,39 @@ def run_variant(cache: S3Cache, variant: VariantConfig, strategy: Optional[Strat
         ctx.expert_metrics = decisions.get('expert_metrics', {})
         last_regime = decisions.get('regime')
 
+        # Persist per-holding risk state mutated by evaluate_holdings (peak_health
+        # + consecutive day counters) back onto the Position objects so multi-day
+        # gates (HEALTH_COLLAPSE 3-day, HEALTH_DROP) accumulate across iterations.
+        # state_dict['holdings'] is 1:1 with portfolio.positions here (built
+        # pre-execution, same order). Without this the counters reset every day.
+        for pos, hd in zip(portfolio.positions, state_dict['holdings']):
+            if pos.symbol != hd.get('symbol'):
+                continue
+            pos.peak_health = hd.get('peak_health', pos.peak_health)
+            pos.consecutive_below_health_days = int(hd.get('consecutive_below_health_days', 0) or 0)
+            pos.consecutive_health_drop_days = int(hd.get('consecutive_health_drop_days', 0) or 0)
+            if hd.get('entry_regime') is not None:
+                pos.entry_regime = hd.get('entry_regime')
+            if hd.get('peak_price') is not None:
+                pos.peak_price = float(hd['peak_price'])
+
         intents = list(decisions.get('actions', []))
         if strategy and strategy.post_decision:
             intents = strategy.post_decision(ctx, intents)
 
+        # Enforce the correlated-cluster concentration cap on ALL intents
+        # (decision-engine AND topup) before execution. No-op when the variant's
+        # decision_params omit max_sector_weight (lets us simulate cap on/off).
+        intents = _apply_cluster_cap(
+            intents, portfolio, current_marks, sector_by_symbol, cluster_map,
+            ctx.variant_config['decision_params'].get('max_sector_weight'),
+            state_dict['portfolio_value'],
+            float(ctx.variant_config['decision_params'].get('min_order_dollars', 250)),
+        )
+
         executed = _execute_intents(portfolio, intents, ohlc,
-                                    ctx.variant_config['decision_params'], inputs_date)
+                                    ctx.variant_config['decision_params'], inputs_date,
+                                    entry_regime=decisions.get('regime'))
         current_psm = ctx.expert_metrics.get('position_size_modifier')
         for tr in executed:
             if tr.get('action') == 'BUY':

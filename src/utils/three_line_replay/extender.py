@@ -151,16 +151,17 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
         pre_map = dict(pre_hybrid['date_value_map']) if pre_hybrid is not None else {}
         champ_map = dict(champion['date_value_map'])
 
-        # Gap-fill + tail extension via BENCHMARK (fully-invested SPY) return
-        # scaling. Covers both interior holes in the replay timeline (e.g. a
-        # Stooq-outage window where the replay cannot simulate) and the last
-        # 1-2 dates past the replay's final simulated date. We scale by the
-        # benchmark daily return — NOT the broker raw_value return — because the
-        # champion line is a fully-deployed, uncapped reconstruction and the
-        # live broker is a $5,000-capped, cash-heavy book whose returns leaked
-        # the cap into the fantasy line. Where benchmark is unavailable the
-        # per-row patch loop below flat-holds the last champion value.
-        _market_return_extend(dash['equity_curve'], champ_map, hybrid_map, pre_map)
+        # Gap/tail dates (weekends, missing-artifact days, and the latest 1-2
+        # days that have no forward prices yet) are FLAT-HELD at the last
+        # simulated champion value by the per-row patch loop below — we do NOT
+        # scale them by any external return series. Earlier versions scaled gap
+        # dates by the broker raw_value return (leaked the $5,000 cap) and then
+        # by the fully-invested SPY benchmark return; both are wrong once the
+        # corrected algorithm de-risks to cash, because a cash-heavy book does
+        # not move with the market. The replay cannot price these dates (no
+        # decision artifacts / no forward closes), so the honest value is "last
+        # known", not an injected market move. _market_return_extend is retained
+        # (unit-tested) but intentionally not called.
 
         # Patch equity_curve. After the 2026-05-16 canon promotion the
         # OPTIMIZED champion line is the primary canon (`value`); the live

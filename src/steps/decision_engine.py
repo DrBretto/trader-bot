@@ -252,6 +252,54 @@ def filter_buy_candidates(
     return candidates
 
 
+# --- Correlated-cluster groupings for max_sector_weight enforcement (spec 9.1) ---
+# universe.csv `sector` labels are granular (52 labels / 64 symbols), so a 35%
+# cap on raw labels never binds on a correlated bet spread across several labels
+# (the 2026-06-05 growth book was sector_tech + style_growth + theme_innovation +
+# industry_biotech — four labels, none individually >35%, ~65% aggregate). The
+# spec intends max_sector_weight to cap aggregate CORRELATED exposure, so raw
+# labels are coarsened into economic risk clusters. Empirically (Apr-2025..Jun-
+# 2026 daily returns) within-cluster avg pairwise correlation ~0.6 for equity
+# clusters / ~0.94 rates, vs growth-vs-defensive cross-correlation ~0.32 — the
+# clusters are real, not arbitrary. Override per-deployment via config['sector_clusters'].
+DEFAULT_SECTOR_CLUSTERS = {
+    'sector_tech': 'growth_tech', 'industry_semis': 'growth_tech',
+    'style_growth': 'growth_tech', 'theme_innovation': 'growth_tech',
+    'industry_biotech': 'growth_tech', 'factor_momentum': 'growth_tech',
+    'broad': 'broad_equity', 'global': 'broad_equity',
+    'sector_utilities': 'defensive_equity', 'sector_cons_staples': 'defensive_equity',
+    'sector_healthcare': 'defensive_equity', 'factor_minvol': 'defensive_equity',
+    'factor_dividend': 'defensive_equity', 'factor_dividend_growth': 'defensive_equity',
+    'factor_quality': 'defensive_equity', 'sector_reit': 'defensive_equity',
+    'sector_financials': 'cyclical_equity', 'sector_energy': 'cyclical_equity',
+    'sector_industrials': 'cyclical_equity', 'sector_materials': 'cyclical_equity',
+    'sector_cons_disc': 'cyclical_equity', 'sector_comm': 'cyclical_equity',
+    'industry_regional_banks': 'cyclical_equity', 'industry_transport': 'cyclical_equity',
+    'industry_retail': 'cyclical_equity', 'industry_aerospace_defense': 'cyclical_equity',
+    'factor_value': 'cyclical_equity', 'style_value': 'cyclical_equity',
+    'country_brazil': 'intl_equity', 'country_china': 'intl_equity',
+    'country_india': 'intl_equity', 'country_japan': 'intl_equity',
+    'international_dev': 'intl_equity', 'international_em': 'intl_equity',
+    'region_europe': 'intl_equity',
+    'treas_long': 'rates', 'treas_intermediate': 'rates', 'treas_short': 'rates',
+    'treas_tips': 'rates', 'aggregate': 'rates', 'muni': 'rates',
+    'credit_high_yield': 'credit', 'credit_investment_grade': 'credit',
+    'gold': 'commodity', 'silver': 'commodity', 'oil': 'commodity',
+    'natural_gas': 'commodity', 'broad_commodities': 'commodity',
+    'usd': 'fx', 'eur': 'fx', 'volatility': 'vol',
+}
+
+
+def _cluster_of(symbol: str, sector_by_symbol: Dict[str, str],
+                cluster_map: Dict[str, str]) -> str:
+    """Map a symbol to its correlated risk cluster. Unknown labels self-cluster
+    (cap at the raw level) so an unmapped symbol is never silently un-capped."""
+    raw = sector_by_symbol.get(symbol)
+    if raw is None:
+        return f"_sym_{symbol}"
+    return cluster_map.get(raw, raw)
+
+
 def evaluate_holdings(
     portfolio_state: Dict[str, Any],
     asset_health: List[Dict],
@@ -297,6 +345,14 @@ def evaluate_holdings(
         # Get current health
         current_health = health_map.get(symbol, {}).get('health_score', 0.5)
         sell_health_threshold = params.get('sell_health_threshold', 0.35)
+
+        # Track peak health per holding (mirrors peak_price). Persisted on the
+        # holding dict so the night-phase publish round-trips it for the REDUCE
+        # HEALTH_DROP trigger below.
+        peak_health = holding.get('peak_health')
+        if peak_health is None or current_health > peak_health:
+            peak_health = current_health
+        holding['peak_health'] = peak_health
 
         # Persistence gate: track consecutive days at/below the sell-health
         # threshold per holding. Required because a single-day health dip is
@@ -394,6 +450,65 @@ def evaluate_holdings(
                     'details': f'Held {days_held} days >= max {max_days}'
                 })
                 continue
+
+        # CHECK REDUCE TRIGGERS (spec 9.5 — half-size trims, never coded until
+        # 2026-06-06). Evaluated only if no SELL trigger fired above.
+
+        # 6. Health deterioration: trim when health has fallen reduce_health_drop
+        #    below its peak — a slow-deterioration signal that price-based stops
+        #    miss. Persistence gate (default 1 = spec-faithful) is configurable;
+        #    set reduce_health_drop_days higher to match the HEALTH_COLLAPSE
+        #    noise-hardening if single-day proves too trim-happy.
+        reduce_drop = params.get('reduce_health_drop')
+        if reduce_drop:
+            below_drop = int(holding.get('consecutive_health_drop_days', 0) or 0)
+            if (peak_health - current_health) >= float(reduce_drop):
+                below_drop += 1
+            else:
+                below_drop = 0
+            holding['consecutive_health_drop_days'] = below_drop
+            drop_days_required = max(int(params.get('reduce_health_drop_days', 1) or 0), 1)
+            if below_drop >= drop_days_required:
+                # Re-arm: reset the trailing health peak to the current level so
+                # the trigger fires once per fresh reduce_health_drop decline
+                # rather than every day a position sits below its peak.
+                holding['peak_health'] = current_health
+                holding['consecutive_health_drop_days'] = 0
+                actions.append({
+                    'symbol': symbol,
+                    'action': 'REDUCE',
+                    'reason': 'HEALTH_DROP',
+                    'shares': shares,
+                    'price': current_price,
+                    'details': (
+                        f'Health {current_health:.2f} <= peak {peak_health:.2f} '
+                        f'- {reduce_drop} for {below_drop} day(s)'
+                    ),
+                })
+                continue
+        else:
+            holding['consecutive_health_drop_days'] = 0
+
+        # 7. Regime shift: trim positions opened in a benign regime once the
+        #    regime degrades to choppy/risk_off. Requires entry_regime captured
+        #    at buy time; positions without it (legacy/seed) skip this trigger.
+        entry_regime = holding.get('entry_regime')
+        if (regime_label in ('choppy', 'risk_off_trend')
+                and entry_regime in ('calm_uptrend', 'risk_on_trend')):
+            # Fire ONCE per degradation (spec: "once the regime degrades"), not
+            # every day the regime stays bad. Stamp the holding's regime to the
+            # current (degraded) label so it won't re-trim until the position is
+            # re-established in a benign regime and degrades again.
+            holding['entry_regime'] = regime_label
+            actions.append({
+                'symbol': symbol,
+                'action': 'REDUCE',
+                'reason': 'REGIME_SHIFT',
+                'shares': shares,
+                'price': current_price,
+                'details': f'Regime {entry_regime} -> {regime_label}',
+            })
+            continue
 
     return actions
 
@@ -791,6 +906,50 @@ def run(
         if action['action'] == 'SELL':
             available_cash += action.get('shares', 0) * action.get('price', 0)
 
+    # --- Intended portfolio risk controls (spec 9.1) ---
+    # (a) max_sector_weight: cap aggregate weight per CORRELATED cluster. Seeded
+    #     from current holdings (minus pending sells) so the cap accounts for
+    #     existing exposure, not just new buys. Orders are CLAMPED to the
+    #     remaining cluster headroom rather than rejected, preserving the
+    #     diversification intent without starving the book.
+    # (b) gross-exposure ceiling: cap total deployed capital at
+    #     portfolio_value * effective_exposure_multiplier (the published
+    #     target_gross_exposure that the engine previously ignored). Off unless
+    #     decision_engine.enforce_gross_exposure_cap is set, because the
+    #     per-position throttle is already applied in compute_position_size and
+    #     this is the additional BOOK-LEVEL ceiling.
+    sector_by_symbol = {}
+    if len(universe_df) > 0 and 'sector' in universe_df.columns:
+        sector_by_symbol = dict(zip(universe_df['symbol'], universe_df['sector']))
+    cluster_map = config.get('sector_clusters', DEFAULT_SECTOR_CLUSTERS)
+    max_sector_weight = params.get('max_sector_weight')  # None -> cap disabled
+    min_order = params.get('min_order_dollars', 250)
+
+    def _cur_price(sym):
+        sp = features_df[features_df['symbol'] == sym]
+        if len(sp) == 0:
+            return None
+        return float(sp.sort_values('date')['close'].iloc[-1])
+
+    sold_syms = {a['symbol'] for a in sell_actions if a['action'] == 'SELL'}
+    cluster_dollars: Dict[str, float] = {}
+    deployed_dollars = 0.0
+    for h in portfolio_state.get('holdings', []):
+        if h['symbol'] in sold_syms:
+            continue
+        p = _cur_price(h['symbol'])
+        if p is None:
+            continue
+        mv = h.get('shares', 0) * p
+        deployed_dollars += mv
+        cl = _cluster_of(h['symbol'], sector_by_symbol, cluster_map)
+        cluster_dollars[cl] = cluster_dollars.get(cl, 0.0) + mv
+
+    enforce_gross = bool(_get_nested(
+        decision_engine_overrides, 'enforce_gross_exposure_cap', False))
+    eff_exp_mult = float(expert_metrics.get('effective_exposure_multiplier', 1.0) or 1.0)
+    gross_cap = portfolio_value * eff_exp_mult if enforce_gross else float('inf')
+
     buy_count = 0
     for _, candidate in buy_candidates.iterrows():
         if buy_count >= available_slots:
@@ -823,22 +982,52 @@ def run(
             decision_engine_overrides=decision_engine_overrides,
         )
 
-        if position['shares'] > 0 and position['dollars'] <= available_cash:
-            actions.append({
-                'action': 'BUY',
-                'symbol': symbol,
-                'shares': position['shares'],
-                'price': current_price,
-                'dollars': position['dollars'],
-                'weight': position['final_weight'],
-                'reason': f"SCORE_{candidate['final_score']:.2f}_HEALTH_{candidate['health_score']:.2f}",
-                'score': candidate['final_score'],
-                'health': candidate['health_score'],
-                'vol_bucket': candidate['vol_bucket']
-            })
+        dollars = position['dollars']
+        if position['shares'] <= 0 or dollars <= 0:
+            continue
 
-            available_cash -= position['dollars']
-            buy_count += 1
+        # Clamp by gross-exposure ceiling
+        if enforce_gross:
+            gross_head = gross_cap - deployed_dollars
+            if gross_head <= 0:
+                continue
+            dollars = min(dollars, gross_head)
+
+        # Clamp by correlated-cluster concentration cap
+        cluster = _cluster_of(symbol, sector_by_symbol, cluster_map)
+        if max_sector_weight:
+            cluster_head = portfolio_value * float(max_sector_weight) - cluster_dollars.get(cluster, 0.0)
+            if cluster_head <= 0:
+                continue
+            dollars = min(dollars, cluster_head)
+
+        # Re-derive shares after any clamp; drop sub-min / unaffordable orders
+        if dollars < min_order or dollars > available_cash:
+            continue
+        shares = int(dollars / current_price) if current_price > 0 else 0
+        if shares <= 0:
+            continue
+        dollars = shares * current_price
+        if dollars < min_order or dollars > available_cash:
+            continue
+
+        actions.append({
+            'action': 'BUY',
+            'symbol': symbol,
+            'shares': shares,
+            'price': current_price,
+            'dollars': dollars,
+            'weight': dollars / portfolio_value if portfolio_value > 0 else 0,
+            'reason': f"SCORE_{candidate['final_score']:.2f}_HEALTH_{candidate['health_score']:.2f}",
+            'score': candidate['final_score'],
+            'health': candidate['health_score'],
+            'vol_bucket': candidate['vol_bucket']
+        })
+
+        available_cash -= dollars
+        deployed_dollars += dollars
+        cluster_dollars[cluster] = cluster_dollars.get(cluster, 0.0) + dollars
+        buy_count += 1
 
     print(f"  Generated {len(actions)} actions: "
           f"{len([a for a in actions if a['action'] == 'BUY'])} buys, "
