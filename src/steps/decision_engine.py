@@ -921,7 +921,13 @@ def run(
     sector_by_symbol = {}
     if len(universe_df) > 0 and 'sector' in universe_df.columns:
         sector_by_symbol = dict(zip(universe_df['symbol'], universe_df['sector']))
-    cluster_map = config.get('sector_clusters', DEFAULT_SECTOR_CLUSTERS)
+    # Default: cap per spec-literal raw `sector` label. The correlated-cluster
+    # grouping (DEFAULT_SECTOR_CLUSTERS) is a STRICTER preventative option that
+    # over-constrains returns and double-counts with the REDUCE layer (which
+    # already trims correlated concentration dynamically). Opt in via
+    # config['sector_clusters'] = decision_engine.DEFAULT_SECTOR_CLUSTERS only if
+    # a hard preventative cap on correlated exposure is explicitly wanted.
+    cluster_map = config.get('sector_clusters', {})
     max_sector_weight = params.get('max_sector_weight')  # None -> cap disabled
     min_order = params.get('min_order_dollars', 250)
 

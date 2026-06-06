@@ -99,23 +99,25 @@ def metrics(res):
                 cash0604=cash0604, reduces=reduces, sells=sells)
 
 
+def peakval(res):
+    return max((r['ending_value'] for r in res['timeline']), default=0)
+
 configs = [
     ('baseline (nothing)', make_cfg(None, reduce=False)),
     ('reduce only', make_cfg(None, reduce=True)),
-    ('sector_0.35 only', make_cfg(0.35, reduce=False)),
-    ('sector+reduce', make_cfg(0.35, reduce=True)),
-    ('sector+reduce+gross', make_cfg(0.35, reduce=True, gross=True)),
+    ('reduce + sector0.50', make_cfg(0.50, reduce=True)),
+    ('reduce + sector0.35', make_cfg(0.35, reduce=True)),
 ]
 strat = _build_champion_strategy()
-print(f"{'config':22} {'final':>9} {'maxDD':>7} {'wDay':>7} {'r0605':>7} {'cash0604':>8} {'REDUCE':>6} {'SELL':>5} {'growth0604':>10}")
+print(f"{'config':20} {'final':>9} {'peak':>9} {'maxDD':>7} {'wDay':>7} {'maxGrowth%':>10} {'REDUCE':>6}")
 results = {}
 for name, cfg in configs:
     res = run_variant(cache, cfg, strat, trading_dates, universe_df)
     m = metrics(res)
+    m['peak'] = peakval(res)
     results[name] = m
-    g = m['cl0604'].get('growth_tech', 0)
-    print(f"{name:22} {m['final']:>9.0f} {m['mdd']*100:>6.2f}% {m['worst_day']*100:>6.2f}% "
-          f"{(m['r0605'] or 0)*100:>6.2f}% {(m['cash0604'] or 0)*100:>7.1f}% {m['reduces']:>6} {m['sells']:>5} {g*100:>9.1f}%")
-print("\n06-04 cluster mix (pre-drop):")
+    print(f"{name:20} {m['final']:>9.0f} {m['peak']:>9.0f} {m['mdd']*100:>6.2f}% {m['worst_day']*100:>6.2f}% "
+          f"{m['max_cl_w']*100:>9.1f}% {m['reduces']:>6}")
+print("\nmax cluster reached over the whole run (concentration risk):")
 for name, _ in configs:
-    print(f"  {name:22}: {results[name]['cl0604']}")
+    print(f"  {name:20}: {results[name]['max_cl']} = {results[name]['max_cl_w']*100:.0f}%")

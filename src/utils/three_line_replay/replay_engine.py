@@ -502,10 +502,11 @@ def run_variant(cache: S3Cache, variant: VariantConfig, strategy: Optional[Strat
     panic_streak = 0
     last_regime: Optional[str] = None
 
-    # Sector-cluster cap setup (spec 9.1). sector_by_symbol from the universe;
-    # the cap value is read per-iteration from each variant's decision_params.
-    from src.steps.decision_engine import DEFAULT_SECTOR_CLUSTERS
-    cluster_map = DEFAULT_SECTOR_CLUSTERS
+    # Sector cap setup (spec 9.1). Default caps per spec-literal raw `sector`
+    # label ({} -> _cluster_of returns the raw label); the REDUCE layer handles
+    # correlated concentration dynamically. DEFAULT_SECTOR_CLUSTERS is available
+    # as a stricter opt-in preventative grouping.
+    cluster_map = {}
     sector_by_symbol = {}
     if universe_df is not None and len(universe_df) > 0 and 'sector' in universe_df.columns:
         sector_by_symbol = dict(zip(universe_df['symbol'], universe_df['sector']))
