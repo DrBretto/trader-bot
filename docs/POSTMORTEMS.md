@@ -42,6 +42,14 @@ Each entry follows this structure:
 
 **DELETE AFTER FIRST REAL ENTRY**
 
+## 2026-06-07 — DEPLOY — Blank dashboard from stale CloudFront index.html after rebuild
+
+**Task**: Dashboard at https://trader-bot.infotrope.io stopped rendering (blank white page) after a model-promotion redeploy.
+**Struggle**: Browser console showed `Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html"`. `#root` was empty. Confusingly, `curl` of the site returned a *healthy* `index.html` (referencing `index-X6mCuWAC.js`, which existed in S3 and served as `text/javascript`), while the browser received a *different, stale* `index.html` referencing `index-CD8sRK5V.js` — a hash from a previous build that no longer existed in the bucket. S3 origin was fully self-consistent; the inconsistency was at the CloudFront edge.
+**Resolution**: Ran `aws cloudfront create-invalidation --distribution-id E10EHVNQ0CELM2 --paths "/*" --profile personal`. After it completed (~30s), `#root` rendered (219K chars), no console errors. Root cause: Vite content-hashes asset filenames and the deploy `s3 sync … --delete` removes the prior build's bundle, but `index.html` is served under CloudFront's default `Managed-CachingOptimized` behavior (24h edge TTL). The edge kept serving old HTML pointing at a now-deleted JS hash → SPA fallback returns `index.html` (text/html) for the missing `.js` → strict-MIME refusal → blank page. Intermittent/per-edge-node, so it looked fine from some machines.
+**Retry Count**: 1 (diagnosed via `frontend/diag-runtime.mjs` browser harness + direct S3/CloudFront inspection).
+**Prevention**: Frontend redeploys MUST run a CloudFront invalidation after the S3 sync. Added as mandatory step 3 + a caution block in `docs/DEPLOY.md`. Any tooling/agent that triggers a frontend rebuild (incl. model-promotion pipelines that regenerate dashboard assets) must include the invalidation. Verify post-deploy with the diag harness: `#root` non-empty, no MIME console errors.
+
 ## 2025-01-23 - DEPENDENCY - Pandas Lambda size
 
 **Task**: Deploy Python Lambda function with pandas dependency

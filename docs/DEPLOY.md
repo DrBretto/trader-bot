@@ -151,7 +151,35 @@ aws s3 sync dist/ s3://investment-system-data/dashboard/ \
   --exclude "timeseries.parquet" \
   --exclude "data/*" \
   --delete --region us-east-1
+
+# 3. MANDATORY: invalidate the CloudFront edge cache for index.html.
+# Without this the deploy is silently broken — see the caution below.
+aws cloudfront create-invalidation --distribution-id E10EHVNQ0CELM2 \
+  --paths "/*" --profile personal
 ```
+
+> ⚠️ **CAUTION — you MUST run the CloudFront invalidation (step 3) on every
+> frontend redeploy.** This is not optional housekeeping; skipping it produces a
+> blank white page for users.
+>
+> **Why:** Vite emits content-hashed asset filenames (`assets/index-<hash>.js`),
+> and the S3 sync above runs with `--delete`, so the *previous* build's bundle is
+> removed from the bucket. But `index.html` has a fixed name and is served under
+> CloudFront's default cache behavior (`Managed-CachingOptimized`, 24h edge TTL).
+> After a new build, the edge keeps serving the **old** `index.html` for up to 24h
+> — and that old HTML points at a JS hash that no longer exists in S3. The browser
+> requests the missing bundle, S3/CloudFront returns the SPA fallback `index.html`
+> with `Content-Type: text/html`, the browser refuses it ("Expected a
+> JavaScript-or-Wasm module script…"), `#root` stays empty, and the page is blank.
+> Because it's an *edge-cache* effect it is intermittent and per-edge-node, so it
+> can look fine from one machine and broken from another.
+>
+> **Fix / prevention:** always invalidate after `s3 sync` (step 3). `/*` is safe
+> because asset names are content-hashed; the only thing that actually needs
+> dropping is the stale `index.html`. To verify a deploy is healthy, load the site
+> and confirm `#root` is non-empty with no console MIME errors (see
+> `frontend/diag-runtime.mjs`). Incident: 2026-06-07 (model-promotion redeploy left
+> stale HTML cached → blank page). See `docs/POSTMORTEMS.md`.
 
 **First-time only** (enables public read for the dashboard prefix only):
 
