@@ -257,6 +257,10 @@ class Position:
     peak_health: Optional[float] = None
     consecutive_health_drop_days: int = 0
     entry_regime: Optional[str] = None
+    # Most recent marked close, used as the accurate last-known value when a
+    # holding is absent from a partial-coverage price set (the provisional
+    # morning_prices.parquet). Updated every day in _mark_to_close.
+    last_close: Optional[float] = None
 
 
 @dataclass
@@ -476,6 +480,7 @@ def _mark_to_close(portfolio: Portfolio, ohlc: Dict[str, Dict[str, float]]) -> N
         q = ohlc.get(p.symbol)
         if q is None:
             continue
+        p.last_close = q['close']
         if q['close'] > p.peak_price:
             p.peak_price = q['close']
     spy = ohlc.get('SPY')
@@ -682,10 +687,24 @@ def run_variant(cache: S3Cache, variant: VariantConfig, strategy: Optional[Strat
             actions.append(tr)
         _mark_to_close(portfolio, ohlc)
 
-        ending_value = portfolio.cash + sum(
-            p.shares * ohlc.get(p.symbol, {}).get('close', p.peak_price)
-            for p in portfolio.positions if p.symbol in ohlc
-        )
+        if is_provisional:
+            # PROVISIONAL day: morning_prices.parquet may not cover every champion
+            # holding (it carries only the live account's held + intent symbols +
+            # SPY). Value EVERY position — symbols present at today's intraday
+            # close, symbols absent at their last-known mark (peak_price) — so
+            # uncovered holdings are NOT dropped from the valuation. Without this
+            # the provisional dot craters (e.g. 14 holdings, 6 covered -> the
+            # other 8 fall out and the line collapses). Normal days carry full
+            # price coverage and keep the exact original path below (byte-identical).
+            ending_value = portfolio.cash + sum(
+                p.shares * (ohlc.get(p.symbol, {}).get('close') or p.last_close or p.peak_price)
+                for p in portfolio.positions
+            )
+        else:
+            ending_value = portfolio.cash + sum(
+                p.shares * ohlc.get(p.symbol, {}).get('close', p.peak_price)
+                for p in portfolio.positions if p.symbol in ohlc
+            )
         timeline.append({
             'date': inputs_date,
             'ending_value': round(ending_value, 2),

@@ -186,6 +186,25 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
     transaction_cost_config = config.get('transaction_cost_overrides')
     validation_log: List[str] = []
 
+    # Symbols the displayed CHAMPION replay line may hold — a DIFFERENT set than
+    # the live paper account. Quote these too so the single-date provisional
+    # morning_prices.parquet covers the champion's holdings and today's dot moves
+    # on real prices instead of flat-holding at last close. Union of the trading
+    # universe and the champion's current holdings (from the last-published
+    # dashboard). Best-effort; failures degrade to the live-account symbols only.
+    coverage_symbols = set()
+    try:
+        coverage_symbols.update(s3.read_csv('config/universe.csv')['symbol'].tolist())
+    except Exception as exc:
+        validation_log.append(f"coverage: universe load failed (non-fatal): {exc}")
+    try:
+        _dash = s3.read_json('dashboard/dashboard.json') or {}
+        coverage_symbols.update(
+            h['symbol'] for h in _dash.get('holdings', []) if h.get('symbol')
+        )
+    except Exception as exc:
+        validation_log.append(f"coverage: dashboard holdings load failed (non-fatal): {exc}")
+
     # Load trade intents
     intents = load_trade_intents(s3)
 
@@ -194,10 +213,9 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
         portfolio = paper_trader.load_portfolio_state(s3)
         held_symbols = [h['symbol'] for h in portfolio.get('holdings', [])]
         morning_quotes = pd.DataFrame()
-        if held_symbols:
-            morning_quotes = ingest_prices.fetch_morning_quotes(
-                list(set(held_symbols + ['SPY']))
-            )
+        fetch_set = set(held_symbols) | {'SPY'} | coverage_symbols
+        if fetch_set:
+            morning_quotes = ingest_prices.fetch_morning_quotes(list(fetch_set))
             portfolio = _update_valuations_from_quotes(portfolio, morning_quotes)
         return {
             'portfolio_state': portfolio,
@@ -217,10 +235,9 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
         portfolio = paper_trader.load_portfolio_state(s3)
         held_symbols = [h['symbol'] for h in portfolio.get('holdings', [])]
         morning_quotes = pd.DataFrame()
-        if held_symbols:
-            morning_quotes = ingest_prices.fetch_morning_quotes(
-                list(set(held_symbols + ['SPY']))
-            )
+        fetch_set = set(held_symbols) | {'SPY'} | coverage_symbols
+        if fetch_set:
+            morning_quotes = ingest_prices.fetch_morning_quotes(list(fetch_set))
             portfolio = _update_valuations_from_quotes(portfolio, morning_quotes)
         return {
             'portfolio_state': portfolio,
@@ -243,7 +260,7 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
 
     portfolio = paper_trader.load_portfolio_state(s3)
     held_symbols = [h['symbol'] for h in portfolio.get('holdings', [])]
-    all_symbols = list(set(intent_symbols + held_symbols + ['SPY']))
+    all_symbols = list(set(intent_symbols + held_symbols + ['SPY']) | coverage_symbols)
 
     # Fetch morning prices (yfinance/Stooq)
     print(f"Fetching morning quotes for {len(all_symbols)} symbols...")
