@@ -123,4 +123,12 @@ Branch: `ai/alpaca-removal-continuous-line` (trader-bot is its own git repo).
 2. **Remove** `BROKER_MODE`/`BROKER_TRADING_ENABLED` from the `investment-system-daily-pipeline` Lambda env (values recorded for restore). **Preserve** the two `investment-system/alpaca-paper-*` secrets (operator decision).
 3. **Merge** `ai/alpaca-removal-continuous-line` → main after the deploy verifies.
 
-The §8 completion line remains absent until the deployed Lambda is Alpaca-free and running the continuous simulated cycle (post-deploy).
+### DEPLOYED + VERIFIED IN PRODUCTION (2026-06-09)
+- Branch pushed; Lambda container rebuilt + deployed (image `sha256:fa573d48…`).
+- Live Lambda env cleaned to `{S3_BUCKET, DASHBOARD_CLOUDFRONT_DISTRIBUTION_ID, AWS_REGION_NAME}` — `BROKER_MODE`/`BROKER_TRADING_ENABLED` removed. The two `investment-system/alpaca-paper-*` secrets PRESERVED (operator decision); restore steps in `docs/DEPLOY.md`. **The deployed Lambda is Alpaca-free.**
+- Production smoke: synchronous night invoke → `StatusCode 200`, `status: success`, 140s, no `FunctionError`; logs show `Published: 14 artifacts` with **no ALARM / no HELD / no broker reference / no traceback**. Live `dashboard.json` after the run: stamps present, `champion_frontier=2026-06-05`, `provisional_frontier=None`, past values byte-identical (06-04=115507.61, 06-05=115015.27), new 06-09 row correctly flat-held — the advance guard passed without false-alarming. The morning provisional dot is exercised by the natural morning cron (and proven in isolation by Gate 2).
+- Merged to `main`.
+
+```
+TRADER-BOT ALPACA REMOVAL + CONTINUOUS LINE COMPLETE — PAST VERIFIED UNCHANGED — AWAITING OPERATOR REVIEW
+```
