@@ -511,10 +511,37 @@ def run_variant(cache: S3Cache, variant: VariantConfig, strategy: Optional[Strat
     if universe_df is not None and len(universe_df) > 0 and 'sector' in universe_df.columns:
         sector_by_symbol = dict(zip(universe_df['symbol'], universe_df['sector']))
 
-    for i in range(len(trading_dates) - 2):
-        inputs_date = trading_dates[i + 1]
-        prices_file_date = trading_dates[i + 2]
+    # Build the iteration plan: (inputs_date, prices_key, is_provisional).
+    # REAL entries price decision-date trading_dates[i+1] by reading that date's
+    # OHLC row out of its successor's prices.parquet (the 2-day look-ahead:
+    # daily/{D}/prices.parquet, written the night before D, covers only through
+    # D-1, so D's own bar exists only in the NEXT day's file). Unchanged math.
+    #
+    # One optional PROVISIONAL entry prices the NEWEST day (trading_dates[-1])
+    # from the morning-written single-date daily/{T}/morning_prices.parquet, so
+    # today's dot appears in the morning (open-fill + intraday-close mark) on the
+    # weekdays that carry their own night analysis. It SETTLES to the real close
+    # on the next night's cycle: once daily/{T+1}/prices.parquet lands, T becomes
+    # an ordinary real entry priced from its successor and the provisional file
+    # is no longer consulted. This adds NO new pricing logic — only an extra
+    # (date, price-file) pair appended last — so every date < T is byte-identical
+    # whether or not the provisional ran (proven by the cross-epoch byte-diff).
+    plan: List[tuple] = [
+        (trading_dates[i + 1], f'daily/{trading_dates[i + 2]}/prices.parquet', False)
+        for i in range(len(trading_dates) - 2)
+    ]
+    provisional_date: Optional[str] = None
+    if len(trading_dates) >= 2:
+        newest = trading_dates[-1]
+        prov_key = f'daily/{newest}/morning_prices.parquet'
+        try:
+            cache.get(prov_key)  # existence probe (cached for the read below)
+            plan.append((newest, prov_key, True))
+            provisional_date = newest
+        except Exception:
+            pass  # no provisional file -> newest day flat-holds (e.g. Mondays)
 
+    for inputs_date, prices_key, is_provisional in plan:
         # Load day inputs
         try:
             inference = cache.get_json(f'daily/{inputs_date}/inference.json')
@@ -522,6 +549,8 @@ def run_variant(cache: S3Cache, variant: VariantConfig, strategy: Optional[Strat
             signals = cache.get_parquet(f'daily/{inputs_date}/signals.parquet')
         except Exception as e:
             logger.warning("missing daily artifacts for %s: %s", inputs_date, e)
+            if is_provisional:
+                provisional_date = None  # newest day lacks analysis -> flat-hold
             continue
         try:
             llm_raw = cache.get_json(f'daily/{inputs_date}/llm_risk.json')
@@ -531,12 +560,16 @@ def run_variant(cache: S3Cache, variant: VariantConfig, strategy: Optional[Strat
 
         # Load prices for execution
         try:
-            prices_df = cache.get_parquet(f'daily/{prices_file_date}/prices.parquet')
+            prices_df = cache.get_parquet(prices_key)
         except Exception as e:
-            logger.warning("missing prices file %s: %s", prices_file_date, e)
+            logger.warning("missing prices file %s: %s", prices_key, e)
+            if is_provisional:
+                provisional_date = None
             continue
         ohlc = _ohlc_for_date(prices_df, inputs_date)
         if not ohlc or 'SPY' not in ohlc:
+            if is_provisional:
+                provisional_date = None
             continue
 
         if last_regime == 'high_vol_panic':
@@ -677,4 +710,10 @@ def run_variant(cache: S3Cache, variant: VariantConfig, strategy: Optional[Strat
         'final_cash': last.get('ending_cash', portfolio.cash),
         'final_value': last.get('ending_value'),
         'final_date': last.get('date'),
+        # The newest date priced from a provisional morning_prices.parquet (open
+        # fill + intraday-close mark), or None if the newest day was real-priced
+        # or flat-held. The extender flags this row provisional; the publish-time
+        # guard uses it to require settlement-or-alarm (never freeze a provisional
+        # into history).
+        'provisional_date': provisional_date if provisional_date in date_value_map else None,
     }

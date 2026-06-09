@@ -458,6 +458,19 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
             'optimized_line_field': 'optimized_value',
             'optimized_line_label': 'Optimized strategy (in-sample champion)',
             'last_simulation_date': last_canon_date,
+            # The newest equity_curve date whose champion value is a PROVISIONAL
+            # morning mark (open fill + intraday close), awaiting tonight's real
+            # session-close settlement; None when the frontier is fully settled.
+            # Metadata only (not rendered); the publish-time guard requires this
+            # date to settle on the next cycle or it alarms, so a provisional can
+            # never freeze into history.
+            'provisional_frontier': champion.get('provisional_date'),
+            # The newest date the champion replay actually priced this run (real
+            # or provisional). The publish-time guard compares this against the
+            # newest date the live corpus makes priceable; if the corpus offered
+            # a newer day and the replay did not reach it, the run failed to
+            # advance and the guard alarms instead of publishing a stale line.
+            'champion_frontier': max(champ_map) if champ_map else None,
             'three_line_finals': {
                 'canonical_hybrid': hybrid.get('final_value'),
                 'pre_hybrid': pre_hybrid.get('final_value') if pre_hybrid is not None else None,

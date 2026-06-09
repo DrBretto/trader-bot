@@ -327,6 +327,110 @@ def _can_publish_dashboard(expert_signals: Optional[Dict[str, Any]]) -> bool:
     return expert_signals is not None
 
 
+# The newest possible-but-structurally-unpriceable day. The replay can only
+# price a decision date D from either D's own morning_prices.parquet (provisional)
+# or D+1's prices.parquet (real, next-session OPEN). The structural-latest day
+# never has a successor prices file yet, so it is only priceable provisionally.
+_PRICEABLE_WINDOW = 6  # walk back at most this many newest prefixes (cost cap)
+_REPLAY_START = '2026-03-11'
+
+
+def _newest_priceable_date(s3: S3Client) -> Optional[str]:
+    """Newest date the live corpus makes priceable, mirroring the replay's own
+    pricing precondition. Returns None if none in the recent window.
+
+    A date X is PRICEABLE iff:
+      - (analysis) daily/X/inference.json AND daily/X/features.parquet AND
+        daily/X/signals.parquet all exist, AND
+      - (price source) daily/X/morning_prices.parquet exists (provisional)  OR
+        the immediate successor date Y (next in trading_dates) has
+        daily/Y/prices.parquet.
+
+    Weekends/holidays/Mondays (no analysis) and the structural-latest day with
+    no successor prices and no provisional file are naturally NOT priceable, so
+    this does not false-alarm.
+    """
+    from src.utils.three_line_replay.replay_engine import S3Cache
+    cache = S3Cache(s3.s3)
+    try:
+        trading_dates = cache.list_daily_dates()
+    except Exception as e:
+        print(f"  _newest_priceable_date: list failed (non-fatal): {e}")
+        return None
+    trading_dates = [d for d in trading_dates if d >= _REPLAY_START]
+    if not trading_dates:
+        return None
+
+    def _exists(key: str) -> bool:
+        try:
+            cache.get(key)
+            return True
+        except Exception:
+            return False
+
+    n = len(trading_dates)
+    # Walk from newest backward, only the last ~_PRICEABLE_WINDOW prefixes.
+    for i in range(n - 1, max(-1, n - 1 - _PRICEABLE_WINDOW), -1):
+        x = trading_dates[i]
+        has_analysis = (
+            _exists(f'daily/{x}/inference.json')
+            and _exists(f'daily/{x}/features.parquet')
+            and _exists(f'daily/{x}/signals.parquet')
+        )
+        if not has_analysis:
+            continue
+        has_provisional = _exists(f'daily/{x}/morning_prices.parquet')
+        has_successor_prices = False
+        if i + 1 < n:
+            y = trading_dates[i + 1]
+            has_successor_prices = _exists(f'daily/{y}/prices.parquet')
+        if has_provisional or has_successor_prices:
+            return x
+    return None
+
+
+def _verify_extension_or_alarm(dashboard_data, s3, phase, run_date) -> tuple:
+    """Returns (ok, reason). ok=False means: DO NOT publish (preserve last-known-good),
+    send an alert, mark the run failed. Never raises."""
+    try:
+        tc = dashboard_data.get('timeline_correction', {}) or {}
+        metrics = dashboard_data.get('metrics', {}) or {}
+
+        # 1. STAMP: extender actually ran and stamped optimized canon.
+        stamp_ok = (
+            tc.get('version') == 'lambda-three-line-replay-v2-optimized-canon'
+            and metrics.get('canon_source') == 'optimized_champion'
+        )
+        if not stamp_ok:
+            return False, (
+                "STAMP check failed: timeline_correction.version="
+                f"{tc.get('version')!r}, metrics.canon_source="
+                f"{metrics.get('canon_source')!r} (expected optimized-canon stamp; "
+                "extender likely silently no-op'd)"
+            )
+
+        # 2. FRONTIER PRESENT: the champion replay priced at least one date.
+        f_new = tc.get('champion_frontier')
+        if f_new is None:
+            return False, "FRONTIER check failed: champion_frontier is None (replay priced no dates)"
+
+        # 3. FORWARD-ADVANCE: the corpus must not offer a newer priceable day
+        #    than the replay reached.
+        f_expected = _newest_priceable_date(s3)
+        if f_expected is not None and f_new < f_expected:
+            return False, (
+                f"FORWARD-ADVANCE check failed: champion_frontier={f_new} < "
+                f"newest priceable={f_expected} (corpus offered a newer priceable "
+                "day; replay stalled / stuck provisional)"
+            )
+
+        return True, f"ok (frontier={f_new}, expected={f_expected})"
+    except Exception as e:
+        # Never raise from the guard. A guard crash should not crash the run,
+        # but it also must not silently pass — treat it as a hold.
+        return False, f"guard raised (held as precaution): {e}"
+
+
 def load_recent_trades(s3: S3Client, max_days: int = 90) -> List[Dict]:
     """Load recent trades from daily trades.jsonl files."""
     dates = s3.list_daily_dates(max_days=max_days)
@@ -710,6 +814,7 @@ def run(
 
     # 13. Generate dashboard.json for frontend
     dashboard_publishable = _can_publish_dashboard(expert_signals)
+    dashboard_held = False
     try:
         dashboard_data = build_dashboard_data(
             portfolio_state, inference_output, decisions, weather, s3,
@@ -733,17 +838,37 @@ def run(
                   "Preserving last known good dashboard state.")
             failed.append("dashboard.json (skipped: null signals)")
         else:
-            # Write to both locations for compatibility
-            s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
-            s3.write_json(dashboard_data, "dashboard/dashboard.json")
-            published.append("dashboard.json")
+            # Fail-loud advance guard: never overwrite a good dashboard with a
+            # silently-stale or unstamped one. Holds last-known-good on alarm.
+            guard_ok, guard_reason = _verify_extension_or_alarm(
+                dashboard_data, s3, 'night', run_date
+            )
+            if not guard_ok:
+                print(f"  ALARM: dashboard advance guard FAILED — {guard_reason}")
+                from src.utils.sns_alerts import send_alert
+                send_alert(
+                    subject="[TraderBot] night dashboard did NOT advance — holding last-known-good",
+                    body=(
+                        f"{guard_reason}\n"
+                        f"run_date={run_date}\n"
+                        "Preserving last-known-good dashboard.json; check CloudWatch."
+                    ),
+                )
+                failed.append("dashboard.json (HELD: failed advance guard)")
+                dashboard_held = True
+            else:
+                # Write to both locations for compatibility
+                s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
+                s3.write_json(dashboard_data, "dashboard/dashboard.json")
+                published.append("dashboard.json")
     except Exception as e:
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")
 
-    # 14. Update latest.json pointer only when the dashboard snapshot is valid.
+    # 14. Update latest.json pointer only when the dashboard snapshot is valid
+    #     AND the advance guard did not hold the dashboard.
     try:
-        if dashboard_publishable:
+        if dashboard_publishable and not dashboard_held:
             fused_regime = decisions.get('expert_metrics', {}).get(
                 'final_regime_label',
                 inference_output.get('regime', {}).get('label', 'unknown')
@@ -761,6 +886,9 @@ def run(
             }
             s3.write_json(latest, "daily/latest.json")
             published.append("latest.json")
+        elif dashboard_held:
+            print("  WARNING: Skipping latest.json update — dashboard held by advance guard.")
+            failed.append("latest.json (skipped: dashboard held by advance guard)")
         else:
             print("  WARNING: Skipping latest.json update — dashboard snapshot was not publishable.")
             failed.append("latest.json (skipped: invalid dashboard snapshot)")
@@ -792,12 +920,22 @@ def publish_morning_artifacts(
     night_decisions: Dict[str, Any],
     night_weather: Dict[str, Any],
     expert_signals: Optional[Dict[str, Any]] = None,
+    morning_prices: Optional[pd.DataFrame] = None,
 ) -> Dict[str, Any]:
     """Publish morning execution artifacts (lightweight subset).
 
-    Only publishes portfolio state, trades, execution report, dashboard.json,
-    and latest.json. All analysis artifacts (prices, features, signals, etc.)
-    were already published by the night run.
+    Only publishes portfolio state, trades, execution report, the single-date
+    provisional morning_prices.parquet, dashboard.json, and latest.json. All
+    analysis artifacts (prices, features, signals, etc.) were already published
+    by the night run.
+
+    morning_prices is the fetched morning quotes DataFrame (columns:
+    symbol/price/open/high/low/volume/timestamp, includes SPY + held + intent
+    symbols). When present and non-empty we write a self-contained, single-date
+    daily/{run_date}/morning_prices.parquet so the three-line replay can draw
+    today's provisional dot in the morning (open fill + intraday-close mark),
+    settling to the real close on tonight's cycle. A held symbol lacking a quote
+    row is simply absent; the replay marks only symbols present in the file.
     """
     print("Publishing morning artifacts to S3...")
 
@@ -835,32 +973,38 @@ def publish_morning_artifacts(
         print(f"Failed to publish morning_execution.json: {e}")
         failed.append("morning_execution.json")
 
-    # 4. Update latest.json only if the dashboard snapshot is publishable.
-    try:
-        if _can_publish_dashboard(expert_signals):
-            latest = s3.read_json('daily/latest.json') or {}
-            latest.update({
-                'date': run_date,
-                'portfolio_value': portfolio_state.get('portfolio_value', 0),
-                'positions_count': len(portfolio_state.get('holdings', [])),
-                'morning_executed': True,
-                'trades_count': len(trades),
-                'phase': 'morning',
-                'timestamp': snapshot_meta['timestamp'],
-                'snapshot_id': snapshot_meta['id'],
-            })
-            s3.write_json(latest, 'daily/latest.json')
-            published.append("latest.json")
-        else:
-            print("  WARNING: Skipping morning latest.json update — dashboard snapshot was not publishable.")
-            failed.append("latest.json (skipped: invalid dashboard snapshot)")
-    except Exception as e:
-        print(f"Failed to update latest.json: {e}")
-        failed.append("latest.json")
+    # 4. Single-date PROVISIONAL morning_prices.parquet. Self-contained: one row
+    #    per quoted symbol, every row dated run_date. Schema matches what the
+    #    replay's _ohlc_for_date / mark / fill read (date/symbol/open/close) plus
+    #    high/low/volume. close = intraday last (quote 'price') -> provisional
+    #    close. Non-fatal: a write failure must never crash the morning run.
+    if morning_prices is not None and len(morning_prices) > 0:
+        try:
+            rows = []
+            for _, q in morning_prices.iterrows():
+                close = float(q['price'])
+                rows.append({
+                    'date': run_date,
+                    'symbol': q['symbol'],
+                    'open': float(q.get('open', close)),
+                    'high': float(q.get('high', close)) if q.get('high') is not None else close,
+                    'low': float(q.get('low', close)) if q.get('low') is not None else close,
+                    'close': close,
+                    'volume': int(q.get('volume', 0)) if q.get('volume') is not None else 0,
+                })
+            provisional_df = pd.DataFrame(
+                rows, columns=['date', 'symbol', 'open', 'high', 'low', 'close', 'volume']
+            )
+            s3.write_parquet(provisional_df, f"{base_path}/morning_prices.parquet")
+            published.append("morning_prices.parquet")
+        except Exception as e:
+            print(f"Failed to publish morning_prices.parquet: {e}")
+            failed.append("morning_prices.parquet")
 
-    # 5. Rebuild and publish dashboard.json with post-trade portfolio
+    # 5. Rebuild and publish dashboard.json with post-trade portfolio.
+    dashboard_publishable = _can_publish_dashboard(expert_signals)
+    dashboard_held = False
     try:
-        dashboard_publishable = _can_publish_dashboard(expert_signals)
         dashboard_data = build_dashboard_data(
             portfolio_state, night_inference, night_decisions, night_weather, s3,
             expert_signals=expert_signals,
@@ -877,12 +1021,57 @@ def publish_morning_artifacts(
                   "Preserving last known good dashboard state.")
             failed.append("dashboard.json (skipped: null signals)")
         else:
-            s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
-            s3.write_json(dashboard_data, "dashboard/dashboard.json")
-            published.append("dashboard.json")
+            # Fail-loud advance guard (same as night path).
+            guard_ok, guard_reason = _verify_extension_or_alarm(
+                dashboard_data, s3, 'morning', run_date
+            )
+            if not guard_ok:
+                print(f"  ALARM: morning dashboard advance guard FAILED — {guard_reason}")
+                from src.utils.sns_alerts import send_alert
+                send_alert(
+                    subject="[TraderBot] morning dashboard did NOT advance — holding last-known-good",
+                    body=(
+                        f"{guard_reason}\n"
+                        f"run_date={run_date}\n"
+                        "Preserving last-known-good dashboard.json; check CloudWatch."
+                    ),
+                )
+                failed.append("dashboard.json (HELD: failed advance guard)")
+                dashboard_held = True
+            else:
+                s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
+                s3.write_json(dashboard_data, "dashboard/dashboard.json")
+                published.append("dashboard.json")
     except Exception as e:
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")
+
+    # 6. Update latest.json only if the dashboard snapshot is publishable AND
+    #    the advance guard did not hold the dashboard.
+    try:
+        if dashboard_publishable and not dashboard_held:
+            latest = s3.read_json('daily/latest.json') or {}
+            latest.update({
+                'date': run_date,
+                'portfolio_value': portfolio_state.get('portfolio_value', 0),
+                'positions_count': len(portfolio_state.get('holdings', [])),
+                'morning_executed': True,
+                'trades_count': len(trades),
+                'phase': 'morning',
+                'timestamp': snapshot_meta['timestamp'],
+                'snapshot_id': snapshot_meta['id'],
+            })
+            s3.write_json(latest, 'daily/latest.json')
+            published.append("latest.json")
+        elif dashboard_held:
+            print("  WARNING: Skipping morning latest.json update — dashboard held by advance guard.")
+            failed.append("latest.json (skipped: dashboard held by advance guard)")
+        else:
+            print("  WARNING: Skipping morning latest.json update — dashboard snapshot was not publishable.")
+            failed.append("latest.json (skipped: invalid dashboard snapshot)")
+    except Exception as e:
+        print(f"Failed to update latest.json: {e}")
+        failed.append("latest.json")
 
     print(f"  Published: {len(published)} morning artifacts")
     if failed:

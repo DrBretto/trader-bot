@@ -555,6 +555,7 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
         portfolio_state = result['portfolio_state']
         trades = result['trades']
         validation_log = result.get('validation_log', [])
+        morning_prices = result.get('morning_prices')
 
         # Load night artifacts for dashboard rebuild.
         # Use intents_date (when the night phase last ran), not date (which
@@ -615,6 +616,7 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
                 bucket, run_date, portfolio_state, trades,
                 morning_execution_report, night_inference, night_decisions,
                 night_weather, expert_signals=expert_signals,
+                morning_prices=morning_prices,
             )
 
         end_time = datetime.now()

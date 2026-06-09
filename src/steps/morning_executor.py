@@ -193,6 +193,7 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
         validation_log.append("No trade intents found")
         portfolio = paper_trader.load_portfolio_state(s3)
         held_symbols = [h['symbol'] for h in portfolio.get('holdings', [])]
+        morning_quotes = pd.DataFrame()
         if held_symbols:
             morning_quotes = ingest_prices.fetch_morning_quotes(
                 list(set(held_symbols + ['SPY']))
@@ -201,7 +202,7 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
         return {
             'portfolio_state': portfolio,
             'trades': [],
-            'morning_prices': pd.DataFrame(),
+            'morning_prices': morning_quotes,
             'validation_log': validation_log,
             'intents_found': False,
             'intents_executed': 0
@@ -215,6 +216,7 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
         )
         portfolio = paper_trader.load_portfolio_state(s3)
         held_symbols = [h['symbol'] for h in portfolio.get('holdings', [])]
+        morning_quotes = pd.DataFrame()
         if held_symbols:
             morning_quotes = ingest_prices.fetch_morning_quotes(
                 list(set(held_symbols + ['SPY']))
@@ -223,7 +225,7 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
         return {
             'portfolio_state': portfolio,
             'trades': [],
-            'morning_prices': pd.DataFrame(),
+            'morning_prices': morning_quotes,
             'validation_log': validation_log,
             'intents_found': True,
             'intents_stale': True,
