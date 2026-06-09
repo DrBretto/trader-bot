@@ -10,10 +10,6 @@ from typing import Any, Deque, Dict, List, Optional, Tuple
 
 from src.utils.cutover_bridge import extract_cutover_date_from_marker
 from src.utils.historical_corrections import apply_split_corrections_to_fills
-from src.utils.alpaca_truth import (
-    apply_alpaca_truth_to_fills,
-    load_alpaca_orders_cache,
-)
 
 
 def _parse_date(value: str) -> datetime:
@@ -432,9 +428,6 @@ def _load_fills(s3, dates: List[str]) -> List[Dict[str, Any]]:
             normalized["_trade_date"] = date_str
             normalized["_trade_index"] = idx
             fills.append(normalized)
-
-    alpaca_orders = load_alpaca_orders_cache(s3)
-    fills = apply_alpaca_truth_to_fills(fills, alpaca_orders)
 
     def _sort_key(fill: Dict[str, Any]) -> Tuple[datetime, int]:
         ts = _parse_timestamp(str(fill.get("timestamp", "")))

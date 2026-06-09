@@ -103,17 +103,16 @@ class TestIngestPrices:
 
         with patch('src.steps.ingest_prices.fetch_stooq_daily', return_value=pd.DataFrame()):
             with patch('src.steps.ingest_prices.fetch_alphavantage_daily', return_value=pd.DataFrame()):
-                with patch('src.steps.ingest_prices.fetch_alpaca_daily', return_value=pd.DataFrame()):
-                    with patch('src.steps.ingest_prices.fetch_yfinance_daily', return_value=yf_df):
-                        result = run_price_ingestion(['SPY'], alphavantage_key='test-key', lookback_days=30)
+                with patch('src.steps.ingest_prices.fetch_yfinance_daily', return_value=yf_df):
+                    result = run_price_ingestion(['SPY'], alphavantage_key='test-key', lookback_days=30)
 
         assert len(result) == 1
         assert result.iloc[0]['symbol'] == 'SPY'
         assert result.iloc[0]['close'] == pytest.approx(602.5)
 
-    def test_run_prefers_alpaca_fallback_before_yfinance(self):
-        """Authenticated Alpaca history should be used before the weaker yfinance fallback."""
-        alpaca_df = pd.DataFrame({
+    def test_run_prefers_stooq_then_yfinance(self):
+        """Stooq is the primary source; yfinance is only used if Stooq returns nothing."""
+        stooq_df = pd.DataFrame({
             'date': [pd.Timestamp('2026-03-31')],
             'symbol': ['SPY'],
             'open': [600.0],
@@ -122,24 +121,22 @@ class TestIngestPrices:
             'close': [602.5],
             'volume': [123456789],
         })
-        yf_df = pd.DataFrame()
 
-        with patch('src.steps.ingest_prices.fetch_stooq_daily', return_value=pd.DataFrame()):
+        with patch('src.steps.ingest_prices.fetch_stooq_daily', return_value=stooq_df) as mock_stooq:
             with patch('src.steps.ingest_prices.fetch_alphavantage_daily', return_value=pd.DataFrame()):
-                with patch('src.steps.ingest_prices.fetch_alpaca_daily', return_value=alpaca_df) as mock_alpaca:
-                    with patch('src.steps.ingest_prices.fetch_yfinance_daily', return_value=yf_df):
-                        result = run_price_ingestion(
-                            ['SPY'],
-                            alphavantage_key='test-key',
-                            alpaca_key_id='alpaca-key',
-                            alpaca_secret_key='alpaca-secret',
-                            lookback_days=30,
-                        )
+                with patch('src.steps.ingest_prices.fetch_yfinance_daily', return_value=pd.DataFrame()) as mock_yf:
+                    result = run_price_ingestion(
+                        ['SPY'],
+                        alphavantage_key='test-key',
+                        lookback_days=30,
+                    )
 
         assert len(result) == 1
         assert result.iloc[0]['symbol'] == 'SPY'
         assert result.iloc[0]['close'] == pytest.approx(602.5)
-        mock_alpaca.assert_called_once()
+        mock_stooq.assert_called_once()
+        # Stooq succeeded, so yfinance fallback must not be hit.
+        mock_yf.assert_not_called()
 
 
 class TestIngestFred:

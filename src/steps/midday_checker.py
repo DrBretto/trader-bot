@@ -10,8 +10,6 @@ import pandas as pd
 from datetime import datetime
 from typing import Dict, Any, List, Tuple, Optional
 
-from src.brokers.base import BaseBroker
-from src.brokers.router import SimulatedBroker
 from src.steps import ingest_prices, paper_trader, morning_executor
 from src.utils.s3_client import S3Client
 
@@ -144,14 +142,12 @@ def find_skipped_buys(s3: S3Client) -> List[Dict[str, Any]]:
 def run(
     bucket: str,
     config: Dict[str, Any],
-    broker: Optional[BaseBroker] = None,
 ) -> Dict[str, Any]:
     """Execute the midday check: trailing stops, VIX breaker, skipped-buy re-check.
 
     Args:
         bucket: S3 bucket name
         config: Pipeline config (decision_params, portfolio_state)
-        broker: Optional broker adapter
 
     Returns:
         Dict with actions_taken, check_log, circuit_breaker_active
@@ -235,21 +231,6 @@ def run(
                 f"TRAILING STOPS TRIGGERED: {len(triggered)} positions"
             )
 
-            # Determine execution mode
-            use_broker = broker is not None and not isinstance(broker, SimulatedBroker)
-
-            if use_broker:
-                try:
-                    acct = broker.check_account()
-                    if not acct['tradable']:
-                        check_log.append(
-                            "Broker account not tradable — logging stops only"
-                        )
-                        use_broker = False
-                except Exception as exc:
-                    check_log.append(f"Broker check failed: {exc} — logging stops only")
-                    use_broker = False
-
             universe_df = config.get('universe', pd.DataFrame())
             if len(universe_df) == 0:
                 universe_df = s3.read_csv('config/universe.csv')
@@ -275,33 +256,18 @@ def run(
                     'regime': portfolio.get('current_regime', 'unknown'),
                 }
 
-                if use_broker:
-                    try:
-                        trade = morning_executor._execute_via_broker(
-                            broker, sell_intent, midday_price, run_date
-                        )
-                        actions_taken.append(trade)
-                        check_log.append(
-                            f"  EXECUTED SELL {symbol} via broker "
-                            f"@ ${midday_price:.2f}"
-                        )
-                    except Exception as exc:
-                        check_log.append(
-                            f"  FAIL SELL {symbol}: broker error: {exc}"
-                        )
-                else:
-                    trade = paper_trader.execute_trade(
-                        portfolio,
-                        sell_intent,
-                        sell_intent['regime'],
-                        universe_df,
-                        transaction_cost_config=transaction_cost_config,
-                    )
-                    actions_taken.append(trade)
-                    check_log.append(
-                        f"  EXECUTED SELL {symbol} (simulated) "
-                        f"@ ${midday_price:.2f}"
-                    )
+                trade = paper_trader.execute_trade(
+                    portfolio,
+                    sell_intent,
+                    sell_intent['regime'],
+                    universe_df,
+                    transaction_cost_config=transaction_cost_config,
+                )
+                actions_taken.append(trade)
+                check_log.append(
+                    f"  EXECUTED SELL {symbol} (simulated) "
+                    f"@ ${midday_price:.2f}"
+                )
         else:
             check_log.append(
                 f"Trailing stops OK: {len(holdings)} positions checked, "
@@ -315,8 +281,6 @@ def run(
         check_log.append(
             f"Re-checking {len(skipped_buys)} morning-skipped buy intents"
         )
-
-        use_broker = broker is not None and not isinstance(broker, SimulatedBroker)
 
         universe_df = config.get('universe', pd.DataFrame())
         if len(universe_df) == 0:
@@ -356,48 +320,31 @@ def run(
                     'reason': 'MIDDAY_REATTEMPT',
                 }
 
-                if use_broker:
-                    try:
-                        trade = morning_executor._execute_via_broker(
-                            broker, buy_intent, midday_price, run_date
-                        )
-                        actions_taken.append(trade)
-                        gap_pct = (midday_price / intent_price - 1) * 100
-                        check_log.append(
-                            f"  RE-EXECUTED BUY {symbol} "
-                            f"@ ${midday_price:.2f} "
-                            f"(gap now {gap_pct:+.1f}%) via broker"
-                        )
-                    except Exception as exc:
-                        check_log.append(
-                            f"  FAIL re-check BUY {symbol}: broker error: {exc}"
-                        )
-                else:
-                    buy_intent['shares'] = int(target_dollars / midday_price)
-                    if buy_intent['shares'] <= 0:
-                        check_log.append(
-                            f"  SKIP re-check {symbol}: 0 shares at midday price"
-                        )
-                        continue
-                    if buy_intent['shares'] * midday_price > portfolio['cash']:
-                        buy_intent['shares'] = int(
-                            portfolio['cash'] / midday_price
-                        )
-                    if buy_intent['shares'] > 0:
-                        trade = paper_trader.execute_trade(
-                            portfolio,
-                            buy_intent,
-                            portfolio.get('current_regime', 'unknown'),
-                            universe_df,
-                            transaction_cost_config=transaction_cost_config,
-                        )
-                        actions_taken.append(trade)
-                        gap_pct = (midday_price / intent_price - 1) * 100
-                        check_log.append(
-                            f"  RE-EXECUTED BUY {symbol} "
-                            f"@ ${midday_price:.2f} "
-                            f"(gap now {gap_pct:+.1f}%) simulated"
-                        )
+                buy_intent['shares'] = int(target_dollars / midday_price)
+                if buy_intent['shares'] <= 0:
+                    check_log.append(
+                        f"  SKIP re-check {symbol}: 0 shares at midday price"
+                    )
+                    continue
+                if buy_intent['shares'] * midday_price > portfolio['cash']:
+                    buy_intent['shares'] = int(
+                        portfolio['cash'] / midday_price
+                    )
+                if buy_intent['shares'] > 0:
+                    trade = paper_trader.execute_trade(
+                        portfolio,
+                        buy_intent,
+                        portfolio.get('current_regime', 'unknown'),
+                        universe_df,
+                        transaction_cost_config=transaction_cost_config,
+                    )
+                    actions_taken.append(trade)
+                    gap_pct = (midday_price / intent_price - 1) * 100
+                    check_log.append(
+                        f"  RE-EXECUTED BUY {symbol} "
+                        f"@ ${midday_price:.2f} "
+                        f"(gap now {gap_pct:+.1f}%) simulated"
+                    )
             else:
                 check_log.append(f"  Gap still too wide for {symbol}: {msg}")
     elif skipped_buys and circuit_breaker_active:
@@ -409,22 +356,10 @@ def run(
         check_log.append("No skipped buys to re-check")
 
     # --- Post-check: update portfolio state ---
-    if actions_taken:
-        # Reconcile with broker if applicable
-        use_broker = broker is not None and not isinstance(broker, SimulatedBroker)
-        if use_broker:
-            portfolio = morning_executor._reconcile_portfolio_from_broker(
-                broker, portfolio
-            )
-        else:
-            portfolio = morning_executor._update_valuations_from_quotes(
-                portfolio, midday_quotes
-            )
-    else:
-        # Even if no trades, update valuations with midday prices
-        portfolio = morning_executor._update_valuations_from_quotes(
-            portfolio, midday_quotes
-        )
+    # Update valuations with midday prices (whether or not trades occurred).
+    portfolio = morning_executor._update_valuations_from_quotes(
+        portfolio, midday_quotes
+    )
 
     # Update peak prices for all holdings
     for holding in portfolio.get('holdings', []):

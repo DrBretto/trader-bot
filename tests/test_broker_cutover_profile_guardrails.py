@@ -8,7 +8,6 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 FILES_TO_SCAN = [
     "scripts/bridge_cutover_continuity.py",
-    "scripts/bootstrap_alpaca_from_sim_state.py",
     "docs/OPERATIONS.md",
     "docs/DEPLOY.md",
     "docs/plans/2026-03-12-claude-code-prompt-cutover-continuity-bridge.md",

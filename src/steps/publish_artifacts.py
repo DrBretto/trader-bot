@@ -9,7 +9,6 @@ import pandas as pd
 
 from src.utils.s3_client import S3Client
 from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
-from src.utils.alpaca_truth import refresh_alpaca_orders_cache
 
 
 def _invalidate_dashboard_cache() -> None:
@@ -516,7 +515,6 @@ def run(
     weather: Dict[str, Any],
     validation: Dict[str, Any],
     expert_signals: Optional[Dict[str, Any]] = None,
-    broker: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
     Publish all pipeline artifacts to S3.
@@ -550,14 +548,6 @@ def run(
     snapshot_meta = _build_snapshot_meta(run_date, 'night', portfolio_state)
     portfolio_state = dict(portfolio_state)
     portfolio_state['date'] = run_date
-
-    # Refresh Alpaca orders cache so dashboard_metrics reconciles fills against
-    # broker truth (fixes partial_filled stale snapshots and orphan bot fills).
-    if broker is not None:
-        try:
-            refresh_alpaca_orders_cache(s3, broker)
-        except Exception as exc:
-            print(f"  alpaca orders cache refresh failed (non-fatal): {exc}")
 
     published = []
     failed = []
@@ -802,7 +792,6 @@ def publish_morning_artifacts(
     night_decisions: Dict[str, Any],
     night_weather: Dict[str, Any],
     expert_signals: Optional[Dict[str, Any]] = None,
-    broker: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """Publish morning execution artifacts (lightweight subset).
 
@@ -819,12 +808,6 @@ def publish_morning_artifacts(
     portfolio_state['date'] = run_date
     published = []
     failed = []
-
-    if broker is not None:
-        try:
-            refresh_alpaca_orders_cache(s3, broker)
-        except Exception as exc:
-            print(f"  alpaca orders cache refresh failed (non-fatal): {exc}")
 
     # 1. Portfolio state (overwrite night's valuation-only snapshot)
     try:

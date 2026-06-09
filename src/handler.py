@@ -36,7 +36,6 @@ from src.steps import (
 from src.signals.compute_signals import run as compute_signals
 from src.utils.s3_client import S3Client
 from src.utils.logging_utils import setup_logger, log_step, StepTimer
-from src.brokers.router import get_broker, resolve_broker_mode, BrokerMode
 from src.utils.sns_alerts import (
     send_alert, format_night_summary, format_morning_summary,
     format_midday_summary, format_error_alert
@@ -101,7 +100,6 @@ def load_config_from_s3(s3_client: S3Client) -> dict:
     config['decision_engine_overrides'] = active_bundle.get('decision_engine', {})
     config['ensemble_overrides'] = active_bundle.get('ensemble', {})
     config['transaction_cost_overrides'] = active_bundle.get('transaction_costs', {})
-    config['broker'] = active_bundle.get('broker', {})
     config['active_params_metadata'] = {
         'version_id': active_bundle.get('version_id'),
         'source_run_id': active_bundle.get('source_run_id'),
@@ -172,47 +170,7 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
             openai_key = get_secret('investment-system/openai-key', region)
             fred_key = get_secret('investment-system/fred-key', region)
             alphavantage_key = get_secret('investment-system/alphavantage-key', region)
-            alpaca_key_id = ''
-            alpaca_secret_key = ''
-            broker_mode = resolve_broker_mode(config)
-            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
-                prefix = 'paper' if broker_mode == BrokerMode.ALPACA_PAPER else 'live'
-                alpaca_key_id = get_secret(
-                    f'investment-system/alpaca-{prefix}-key-id', region
-                )
-                alpaca_secret_key = get_secret(
-                    f'investment-system/alpaca-{prefix}-secret-key', region
-                )
             logger.info("Using Claude Haiku via Bedrock for LLM calls")
-
-        # Reconcile portfolio_state against broker truth before the decision
-        # engine runs. Without this, the night phase evaluates phantom holdings
-        # (e.g. partial-fill leftovers the broker has since cleared to dust),
-        # which is what produced the May 4-5 sell-down + dashboard divergence.
-        if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
-            with StepTimer("Night-phase broker reconcile", logger):
-                try:
-                    from src.steps.morning_executor import _reconcile_portfolio_from_broker
-                    pre_broker = get_broker(
-                        config, alpaca_key_id, alpaca_secret_key
-                    )
-                    if pre_broker is not None:
-                        reconciled = _reconcile_portfolio_from_broker(
-                            pre_broker, config['portfolio_state']
-                        )
-                        if reconciled.get('broker_reconciled'):
-                            config['portfolio_state'] = reconciled
-                            logger.info(
-                                "Night reconcile OK: cash=$%.2f, holdings=%d, equity=$%.2f",
-                                reconciled.get('cash', 0.0),
-                                len(reconciled.get('holdings', [])),
-                                reconciled.get('portfolio_value', 0.0),
-                            )
-                except Exception as exc:
-                    logger.warning(
-                        "Night-phase broker reconcile failed (non-fatal, continuing on stored state): %s",
-                        exc,
-                    )
 
         # Extract universe symbols
         universe = config['universe']
@@ -228,8 +186,6 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
             prices_df = ingest_prices.run(
                 symbols,
                 alphavantage_key=alphavantage_key,
-                alpaca_key_id=alpaca_key_id,
-                alpaca_secret_key=alpaca_secret_key,
             )
 
         # Step 2: Ingest FRED
@@ -501,23 +457,12 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
         # Publish all artifacts to S3
         logger.info("Publishing artifacts to S3...")
         with StepTimer("Publish artifacts", logger):
-            publish_broker = None
-            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
-                try:
-                    publish_broker = get_broker(
-                        config, alpaca_key_id, alpaca_secret_key
-                    )
-                except Exception as exc:
-                    logger.warning(
-                        "publish broker construction failed (non-fatal): %s", exc
-                    )
             publish_result = publish_artifacts.run(
                 bucket, run_date,
                 prices_df, context_df, features_df,
                 inference_output, llm_risks, decisions,
                 portfolio_state, trades, weather, validation,
                 expert_signals=expert_signals,
-                broker=publish_broker,
             )
 
         end_time = datetime.now()
@@ -603,25 +548,9 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
         with StepTimer("Load configuration", logger):
             config = load_config_from_s3(s3_client)
 
-        # Set up broker adapter
-        with StepTimer("Broker setup", logger):
-            broker_mode = resolve_broker_mode(config)
-            alpaca_key_id = ''
-            alpaca_secret_key = ''
-            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
-                prefix = 'paper' if broker_mode == BrokerMode.ALPACA_PAPER else 'live'
-                alpaca_key_id = get_secret(
-                    f'investment-system/alpaca-{prefix}-key-id', region
-                )
-                alpaca_secret_key = get_secret(
-                    f'investment-system/alpaca-{prefix}-secret-key', region
-                )
-            broker = get_broker(config, alpaca_key_id, alpaca_secret_key)
-            logger.info("Broker mode: %s", broker.mode_label)
-
         # Execute morning phase
         with StepTimer("Morning execution", logger):
-            result = morning_executor.run(bucket, config, broker=broker)
+            result = morning_executor.run(bucket, config)
 
         portfolio_state = result['portfolio_state']
         trades = result['trades']
@@ -686,7 +615,6 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
                 bucket, run_date, portfolio_state, trades,
                 morning_execution_report, night_inference, night_decisions,
                 night_weather, expert_signals=expert_signals,
-                broker=broker,
             )
 
         end_time = datetime.now()
@@ -759,25 +687,9 @@ def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
         with StepTimer("Load configuration", logger):
             config = load_config_from_s3(s3_client)
 
-        # Set up broker adapter
-        with StepTimer("Broker setup", logger):
-            broker_mode = resolve_broker_mode(config)
-            alpaca_key_id = ''
-            alpaca_secret_key = ''
-            if broker_mode in (BrokerMode.ALPACA_PAPER, BrokerMode.ALPACA_LIVE):
-                prefix = 'paper' if broker_mode == BrokerMode.ALPACA_PAPER else 'live'
-                alpaca_key_id = get_secret(
-                    f'investment-system/alpaca-{prefix}-key-id', region
-                )
-                alpaca_secret_key = get_secret(
-                    f'investment-system/alpaca-{prefix}-secret-key', region
-                )
-            broker = get_broker(config, alpaca_key_id, alpaca_secret_key)
-            logger.info("Midday check broker mode: %s", broker.mode_label)
-
         # Run midday check
         with StepTimer("Midday check", logger):
-            result = midday_checker.run(bucket, config, broker=broker)
+            result = midday_checker.run(bucket, config)
 
         actions = result['actions_taken']
         check_log = result['check_log']
