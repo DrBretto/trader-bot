@@ -289,7 +289,6 @@ class TestCanonicalDashboardMetrics:
             snapshot_meta=snapshot,
         )
 
-        assert dashboard["metrics"]["broker_total_value"] == pytest.approx(100007.02, abs=1e-6)
         assert dashboard["metrics"]["total_value"] == pytest.approx(103032.55, abs=0.01)
         assert dashboard["equity_curve"][-1]["value"] == pytest.approx(103032.55, abs=0.01)
         assert dashboard["equity_curve"][-1]["raw_value"] == pytest.approx(100007.02, abs=1e-6)

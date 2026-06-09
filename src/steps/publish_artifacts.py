@@ -115,8 +115,6 @@ def build_dashboard_data(
         if continuity_curve
         else portfolio_state.get('portfolio_value', 100000)
     )
-    broker_total_value = portfolio_state.get('portfolio_value', continuity_total_value)
-
     # Keep invested aligned with current holdings if upstream field is missing.
     invested = portfolio_state.get('invested')
     if invested is None:
@@ -124,10 +122,8 @@ def build_dashboard_data(
 
     # Build metrics
     metrics = {
-        # Continuity-adjusted value for dashboard presentation.
+        # Champion line value for dashboard presentation.
         'total_value': continuity_total_value,
-        # Raw broker/account-reconciled value for auditability.
-        'broker_total_value': broker_total_value,
         'cash': portfolio_state.get('cash', 100000),
         'invested': invested,
         'ytd_return': canonical_metrics['ytd_return'],
