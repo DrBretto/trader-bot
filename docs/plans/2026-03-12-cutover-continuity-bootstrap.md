@@ -1,3 +1,5 @@
+> SUPERSEDED by docs/plans/2026-06-08-alpaca-removal-and-continuous-line-committee-packet.md (Alpaca removed 2026-06-08; this system is a pure simulation).
+
 ## Context
 
 After switching from simulated to Alpaca paper execution (Phase 8), the portfolio shows a discontinuity:

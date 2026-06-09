@@ -98,3 +98,29 @@ Second committee round (continuity engineer → architect → adversarial verifi
 **Verification additions:** plus a **cross-epoch stability check** (build the dashboard at the morning epoch and again at the night epoch; assert only the newest day differs) and a **stuck-provisional fail-loud test** (no settlement night → alarm, no frozen-provisional history). Byte-diff baseline is always the **live S3** `dashboard.json`.
 
 **Phase 0 is now RATIFIED** (Phase 1 past-safe; Phase 2 ratified-with-amendment). Proceeding to implementation. The §8 completion line stays absent until all §6 gates pass.
+
+---
+
+## G. IMPLEMENTATION + VERIFICATION (executed 2026-06-08)
+
+Branch: `ai/alpaca-removal-continuous-line` (trader-bot is its own git repo).
+
+### Commits
+- **`b4290f8` — Phase 1: excise Alpaca.** Broker mode machinery removed entirely (not stubbed). Deleted `src/brokers/alpaca.py`, `src/utils/alpaca_truth.py`, the two Alpaca scripts, four Alpaca tests, `docs/ALPACA_SETUP_GUIDE.md`. Collapsed every execution path (`morning_executor`, `midday_checker`) to the simulated `paper_trader` keep-path; `ingest_prices` falls back to Stooq/yfinance; `handler` constructs no broker; `dashboard_metrics` lost only the 2-line alpaca_truth reconcile (sacred curve logic untouched); `publish_artifacts` lost the broker params/refresh. Tests retargeted (incl. the guardrail `FILES_TO_SCAN` landmine). Verified: 0 new test failures (the 6 pre-existing failures are identical on the base commit), sacred `dashboard_metrics.py` diff = the exact 3-line removal, no live broker symbol remains.
+- **`cd4e961` — Phase 2: continuous line + fail-loud guard.** `run_variant` plan-refactor adds one optional provisional newest-day entry (priced from `daily/{T}/morning_prices.parquet`, settles next night); extender stamps `provisional_frontier`/`champion_frontier` (metadata only); morning writes the single-date provisional parquet (quotes it already fetched, now returned on all paths + threaded through handler); `_verify_extension_or_alarm` at both publish sites (stamp + forward-advance checks; holds last-known-good + SNS-alerts on failure; no false alarm on weekends/Mondays). 12 new guard unit tests.
+- **Phase 3 (docs)** — strip "paper-live"/Alpaca framing to pure-simulation; superseded banners on the 2026-03-12 plan docs; "How to restore Alpaca" note in DEPLOY.md; stale-comment cleanups. (Separate commit.)
+
+### §6 verification gates (all run against the LIVE S3 dashboard.json baseline, not the working tree)
+1. **PAST-UNCHANGED BYTE-DIFF — PASS.** New `extend_dashboard` over the live corpus vs live `dashboard.json`: `equity_curve` value/optimized_value/hybrid_value/pre_hybrid_value/cashflow diffs = **0**; `drawdowns` = **0**; `monthly_returns` = **0**; sacred metrics = **0**. `champion_frontier=2026-06-05`, `provisional_frontier=None` (no morning_prices file exists yet → provisional correctly inert; Monday flat-held, unchanged). The replay refactor moves nothing in the past.
+2. **CROSS-EPOCH ISOLATION (the round-1 veto's required gate) — PASS.** Staged real weekday 2026-06-04 as "today": morning epoch priced it provisionally (perturbed close → `115749.39`); night epoch settled it to the real close (`115507.61`, = the live historical value). **40 prior dates compared, 0 diffs — only the newest dot moved.** A provisional that later settles to a different value cannot move any prior day.
+3. **ALPACA-GONE — PASS (code).** No live code path constructs or calls a broker; remaining tokens are the `SimulatedBroker` keep-path, the `BaseBroker` interface, and frozen-history comments (the 2026-03-12 cutover seam in `dashboard_metrics`/`historical_corrections`/`canonical_replay_anchor`, which stay). **Lambda-env removal + secret-preserve is operator-gated (pending — see §E/§3).**
+4. **FAIL-LOUD — PASS (unit).** 12 guard tests: alarm on missing stamp; alarm on `champion_frontier < newest_priceable` (silent-stall / stuck-provisional regression); silent pass on weekend/no-new-day; `_newest_priceable_date` correctly skips bare prefixes / Mondays / structural-latest-day.
+5. **TESTS GREEN — PASS (no regression).** `pytest tests/`: **291 passed, 6 failed**. The 6 are pre-existing stale-test-double / canonical-anchor-fixture-collision failures, proven identical on the base commit; **zero introduced by this work**. Not fixed here (unrelated; the 3 dashboard_metrics ones touch the canonical anchor — out of scope per No-Drift).
+6. **DISPLAY UNCHANGED — PASS.** `frontend/` diff empty. `dashboard.json` schema preserved: no new `equity_curve` row fields (provisional info is `timeline_correction` metadata only); the newest dot simply now exists/settles like any live equity tip.
+
+### REMAINING (operator-gated — NOT done unattended)
+1. **Deploy** the rebuilt Lambda image (Phase 2 code) following `docs/DEPLOY.md`.
+2. **Remove** `BROKER_MODE`/`BROKER_TRADING_ENABLED` from the `investment-system-daily-pipeline` Lambda env (values recorded for restore). **Preserve** the two `investment-system/alpaca-paper-*` secrets (operator decision).
+3. **Merge** `ai/alpaca-removal-continuous-line` → main after the deploy verifies.
+
+The §8 completion line remains absent until the deployed Lambda is Alpaca-free and running the continuous simulated cycle (post-deploy).

@@ -19,7 +19,7 @@ The system runs automatically at 10 PM ET on weeknights via AWS EventBridge.
 3. **Inference** - Runs regime classification and health scoring models
 4. **LLM Risk** - GPT-4 reviews top candidates for qualitative risks
 5. **Decisions** - Generates buy/sell signals based on scores and regime
-6. **Trading** - Executes simulated or broker-routed trades, updates portfolio state
+6. **Trading** - Simulates fills and updates portfolio state (no broker)
 7. **Weather** - Generates market weather report
 8. **Publish** - Uploads all artifacts to S3
 
@@ -122,59 +122,21 @@ export INVESTMENT_ALERT_EMAIL="your@email.com"
 
 ---
 
-## Broker Execution Modes
+## Continuous Simulation Cycle
 
-The system supports three execution modes, controlled by `BROKER_MODE` env var or `broker_mode` in config:
+This system is a pure trading simulation. There is no broker. The champion line advances one trading day per trading day, automatically, through a two-step daily cycle:
 
-| Mode | Description | Default |
-|------|-------------|---------|
-| `simulated` | Paper trading via `paper_trader` (no broker) | Yes |
-| `alpaca_paper` | Alpaca paper trading (fractional/notional) | No |
-| `alpaca_live` | Alpaca live trading (fractional/notional) | No |
+- **Night (analysis + intents)** — The night run writes the day's analysis and the queued `trade_intents.json`. No fills happen here.
+- **Morning (provisional fill at the open)** — The morning run *simulates* each validated intent's fill at the real market OPEN via `paper_trader`, and writes a single-date `daily/{date}/morning_prices.parquet`. That file lets the replay draw TODAY's provisional dot at the open price — the new forward point on the line.
+- **Tonight (settle to close)** — Tonight's night run settles this morning's provisional point to the real CLOSE, finalizing the day.
 
-### Safety Controls
+### Fail-loud advance guard
 
-- **Kill switch**: `BROKER_TRADING_ENABLED` must be explicitly set to `true` for non-simulated modes. Default is `false`.
-- **Max order cap**: Per-order notional cap (default $5,000). Set via `broker.max_order_notional` in config.
-- **Symbol allowlist**: Optional. Set via `broker.symbol_allowlist` in config.
-- **Idempotent orders**: Deterministic `client_order_id` prevents duplicate submissions.
+If the line cannot honestly advance (missing fill, missing morning prices, or a gap that would force a dishonest forward point), the pipeline does **not** invent a point. It holds the last-known-good line and fires an alert via the `investment-system-alerts` SNS topic so the operator can investigate. The line never silently jumps.
 
-### Enabling Paper Mode
+### Manual override
 
-```bash
-# Set env vars (for Lambda, use environment configuration)
-export BROKER_MODE=alpaca_paper
-export BROKER_TRADING_ENABLED=true
-
-# Ensure Alpaca paper secrets are in Secrets Manager:
-#   investment-system/alpaca-paper-key-id
-#   investment-system/alpaca-paper-secret-key
-
-# Smoke test first
-python scripts/alpaca_paper_smoke_test.py --account-check
-python scripts/alpaca_paper_smoke_test.py --place-order --close-after
-```
-
-### Rollback to Simulated Mode
-
-```bash
-# Option 1: Remove env var (defaults to simulated)
-unset BROKER_MODE
-
-# Option 2: Explicitly set
-export BROKER_MODE=simulated
-```
-
-### Live Mode (After Paper Validation)
-
-1. Complete paper trading validation for multiple sessions
-2. Set up live API keys in Secrets Manager
-3. Switch mode and enable:
-   ```bash
-   export BROKER_MODE=alpaca_live
-   export BROKER_TRADING_ENABLED=true
-   ```
-4. Start with very small `max_order_notional` and narrow `symbol_allowlist`
+`scripts/reextend_dashboard_now.py` remains available as an **optional** operator override to re-extend the dashboard line on demand (e.g. after a manual data fix). It is not part of the automatic cycle.
 
 ---
 
@@ -238,71 +200,9 @@ Common issues:
 
 ---
 
-## Cutover Continuity Bridge
+## Dashboard Value Field
 
-When switching from simulated to broker execution, the portfolio value may jump (e.g. fresh Alpaca paper account at $100k vs $103k simulated). This causes a false loss in dashboard metrics.
-
-The bridge script patches `external_cashflow` on the cutover-day `portfolio_state.json` to neutralize the discontinuity in return calculations.
-
-### When to Use
-
-- After switching `BROKER_MODE` from `simulated` to `alpaca_paper` (or `alpaca_live`)
-- When the dashboard shows a sudden drop/jump on the cutover day
-
-### Commands
-
-```bash
-# Dry-run (prints plan, writes artifact, no S3 mutation)
-python scripts/bridge_cutover_continuity.py --cutover-date 2026-03-12
-
-# Apply (patches portfolio_state.json in S3)
-python scripts/bridge_cutover_continuity.py --cutover-date 2026-03-12 --apply
-
-# With specific AWS profile
-python scripts/bridge_cutover_continuity.py --cutover-date 2026-03-12 --apply --profile your-aws-profile
-```
-
-`--profile` is optional. Omit it when using IAM role credentials (Lambda/EC2) or pre-set AWS env credentials.
-
-### Cautions
-
-- Only run once per cutover. The script is idempotent (safe to re-run), but review the output.
-- This does NOT change broker cash or positions — it only adjusts the accounting math.
-- Dashboard equity/value are continuity-adjusted after bridge so historical performance remains comparable; raw broker value is still emitted as `metrics.broker_total_value`.
-- After applying, re-run the morning execution or dashboard rebuild to see updated metrics.
-
----
-
-## Bootstrapping Alpaca to Simulated Portfolio
-
-After cutover, the broker account has no positions. This script places notional buy orders on Alpaca to recreate the simulated portfolio's allocation.
-
-### Commands
-
-```bash
-# Dry-run (default)
-python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11
-
-# Apply (submits orders)
-python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11 --apply
-
-# With custom caps
-python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11 --apply \
-  --max-per-order 3000 --max-total 80000
-
-# With symbol filter
-python scripts/bootstrap_alpaca_from_sim_state.py --source-date 2026-03-11 --apply \
-  --symbol-allowlist SPY GLD XLE
-```
-
-`--profile` is optional for this script as well; use it only when you intentionally need a specific local profile.
-
-### Warnings
-
-- **Market drift/slippage**: Prices may have moved since the source date. Weights are approximate.
-- **Partial fills**: Some orders may partially fill or be rejected. Check the result artifact.
-- **Idempotent**: Re-running skips symbols where existing position already meets target weight.
-- After bootstrap, run the morning execution to reconcile and rebuild dashboard artifacts.
+The dashboard's portfolio value is emitted as `metrics.broker_total_value` (the field name is historical — it now carries the simulated `portfolio_value`, not a broker balance). Treat it as the simulated portfolio's total value.
 
 ---
 

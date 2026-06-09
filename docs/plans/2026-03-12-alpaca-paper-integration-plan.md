@@ -1,3 +1,5 @@
+> SUPERSEDED by docs/plans/2026-06-08-alpaca-removal-and-continuous-line-committee-packet.md (Alpaca removed 2026-06-08; this system is a pure simulation).
+
 ## Context
 Move this repo from simulated paper execution (`paper_trader`) to broker-connected execution, with Alpaca paper trading first and live trading later. User requirements:
 - Fully automated (no manual order entry)

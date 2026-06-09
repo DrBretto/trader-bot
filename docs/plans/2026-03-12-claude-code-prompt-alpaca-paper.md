@@ -1,3 +1,5 @@
+> SUPERSEDED by docs/plans/2026-06-08-alpaca-removal-and-continuous-line-committee-packet.md (Alpaca removed 2026-06-08; this system is a pure simulation).
+
 # Claude Code Prompt: Alpaca Paper Integration (Fractional-Ready)
 
 Use this prompt with Claude Code to implement broker connectivity and paper-first rollout in this repo.
@@ -119,4 +121,3 @@ At the end, provide:
 1. A concise change summary by file.
 2. Test results.
 3. Any follow-up actions required before enabling live mode.
-

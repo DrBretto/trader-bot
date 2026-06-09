@@ -1,23 +1,22 @@
 # Investment System
 
-Autonomous daily trading system with ML-powered market regime detection and asset health scoring.
+Autonomous daily trading **simulation** with ML-powered market regime detection and asset health scoring.
 
-## Current Status (March 2026)
+## Current Status
 
-- **Paper-live active** — Alpaca paper trading is running daily via the morning execution Lambda. The system places real orders against the Alpaca paper account.
-- **Evaluation phase** — The system is accumulating live paper results for honest performance evaluation. Results are visible on the dashboard.
+- **Pure simulation** — There is no broker. Each night the pipeline decides trade intents; the next morning it *simulates* the fill at the real market OPEN, and that simulated fill becomes the new forward point on the champion line.
+- **Continuous forward line** — The displayed champion line advances one trading day per trading day, automatically. Tonight's analysis settles this morning's provisional point to the real close.
 - **Staged challenger** — The optimizer identified `macro_downgrade_threshold = -0.75` (from default -0.50) as a candidate improvement. This is staged only — not promoted to active parameters.
 - **Active params** — `opt-bootstrap` bundle. No parameter changes have been made since the initial deployment.
-- **Known limitation** — Historical replay data before the Alpaca cutover lacks full ensemble-derived signals, limiting honest multi-fold back-evaluation to the post-cutover window.
 
 ## Features
 
-- **Daily Pipeline** - Automated data ingestion, feature engineering, and trade execution
+- **Daily Pipeline** - Automated data ingestion, feature engineering, and simulated trade execution
 - **ML Models** - GRU/Transformer for regime classification, Autoencoder/VAE for health scoring
 - **LLM Integration** - Claude Haiku (Bedrock) risk assessment and market weather reports
 - **React Dashboard** - Portfolio metrics, charts, evidence surfaces, and market analysis
 - **Evolutionary Optimization** - Genetic algorithm for policy parameter tuning
-- **Execution Modes** - Simulated trading (default) plus Alpaca paper/live broker routing (paper currently active)
+- **Simulated Execution** - Trade intents decided overnight are filled in simulation at the next market open; no broker is involved
 
 ## Architecture
 
@@ -38,7 +37,7 @@ Dashboard:
 
 - Python 3.11+
 - AWS CLI configured
-- API keys: OpenAI, FRED (free tiers available), optional Alpaca keys for broker mode
+- API keys: OpenAI, FRED (free tiers available)
 
 ### Local Development
 
@@ -145,10 +144,6 @@ Stored in Secrets Manager:
 - `investment-system/openai-key`
 - `investment-system/fred-key`
 - `investment-system/alphavantage-key`
-- `investment-system/alpaca-paper-key-id` (optional)
-- `investment-system/alpaca-paper-secret-key` (optional)
-- `investment-system/alpaca-live-key-id` (optional)
-- `investment-system/alpaca-live-secret-key` (optional)
 
 ## Cost Estimate
 

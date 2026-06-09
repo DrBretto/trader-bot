@@ -1,3 +1,5 @@
+> SUPERSEDED by docs/plans/2026-06-08-alpaca-removal-and-continuous-line-committee-packet.md (Alpaca removed 2026-06-08; this system is a pure simulation).
+
 # Claude Code Prompt: Alpaca Paper Cutover Operations
 
 You are working in `/Users/drbretto/Desktop/Projects/trader-bot`.
@@ -46,4 +48,3 @@ Return a concise report with:
 3. CloudWatch proof lines for broker mode + execution.
 4. S3 artifact checks.
 5. Final status: "paper cutover operational" or "blocked" with concrete blocker.
-

@@ -6,7 +6,7 @@ Build a fully autonomous daily investment decision system that:
 
 - Ingests market data from free APIs (Stooq, FRED, GDELT)
 - Generates buy/sell signals using AI models + qualitative risk assessment
-- Executes trades with full transparency (simulated by default; broker mode optional)
+- Executes trades in pure simulation with full transparency (no broker)
 - Displays performance in an impressive React dashboard
 - Runs completely hands-off with monthly model retraining
 - Expands into a multi-expert market intelligence engine (see `docs/PHASE3_PROPOSAL.md`)
@@ -14,7 +14,7 @@ Build a fully autonomous daily investment decision system that:
 ## Constraints
 
 - Daily resolution only (no intraday)
-- Simulated trading by default; broker-connected execution is opt-in
+- Pure trading simulation — no broker; the simulated fill at the open is the forward point
 - AWS cost < $20/month
 - Local training (MacBook, monthly, automated)
 - Prefer free/cheap data sources; paid sources require explicit approval
@@ -35,7 +35,8 @@ Morning (9:45 AM ET, Mon-Fri):
     → Load trade_intents.json
     → Fetch morning prices via yfinance
     → Validate: freshness check, price gap check, re-evaluate stops
-    → Execute validated trades at morning prices
+    → Simulate validated fills at the morning OPEN (paper_trader) — the new forward point
+    → Write daily/<date>/morning_prices.parquet so the replay draws today's provisional dot
     → Update portfolio + re-publish dashboard
     → SNS email alert
 
@@ -289,19 +290,9 @@ Goal: decouple night analysis from morning trade execution for realistic P&L, an
 
 ---
 
-### Phase 8: Alpaca Broker Integration ✅ COMPLETE
+### Phase 8: Alpaca Broker Integration ⛔ SUPERSEDED (removed 2026-06-08)
 
-Goal: Add broker-connected execution (paper first, live later) with fractional/notional trading support.
-
-- [x] Broker abstraction layer (`src/brokers/`) with simulated, alpaca_paper, and alpaca_live modes
-- [x] Alpaca client adapter with notional buys, qty sells, account/position queries
-- [x] Safety rails: kill switch, per-order notional cap, symbol allowlist, idempotent order IDs
-- [x] Morning executor routes through broker adapter when enabled
-- [x] Post-execution portfolio reconciliation from broker positions
-- [x] Fractional-aware sizing (dollars as canonical, no whole-share floor for broker mode)
-- [x] Smoke test script (`scripts/alpaca_paper_smoke_test.py`)
-- [x] 40 new tests (broker router, Alpaca adapter, morning execution integration)
-- [x] Updated secrets setup, deployment docs, operations guide
+Originally added broker-connected execution (Alpaca paper/live). **Removed 2026-06-08** — see Phase 13. This system is now a pure simulation with no broker. The Alpaca paper Secrets Manager secrets are preserved as a saved copy; the broker code can be restored from git history if Alpaca is ever revisited (see `docs/DEPLOY.md` → "How to restore Alpaca").
 
 ### Phase 9: Diagnostic + Recalibration (2026-04-29) — IN PROGRESS
 
@@ -460,6 +451,18 @@ Branch: `ai/optimizer-empirical-mutation-20260430`
 #### 12.6 RETURN doc ✅
 - Output: `docs/plans/2026-04-30-optimizer-empirical-mutation-RETURN.md` ending with the literal stop-condition line.
 - Operator action gated: flip `enable_empirical_mutation: true` in `config/optimizer.yaml` after reviewing the dry-run output. The next weekly run will then propose the empirical candidate and (under the calibration-only guardrail path) promote it if it dominates.
+
+### Phase 13: Alpaca Removal + Continuous Self-Advancing Line (2026-06-08)
+
+Goal: turn the repo into a pure trading simulation. Remove the broker entirely; make the champion line advance one trading day per trading day on its own.
+
+Packet: `docs/plans/2026-06-08-alpaca-removal-and-continuous-line-committee-packet.md`
+Branch: `ai/alpaca-removal-continuous-line`
+
+- Phase 1: removed the Alpaca/broker integration (broker adapters, smoke test, bootstrap/bridge scripts, reconcile path). Secrets preserved as a saved copy; restore path documented in `docs/DEPLOY.md`.
+- Phase 2: added the continuous self-advancing forward line — morning simulates the fill at the real OPEN (the new forward point) and writes `daily/<date>/morning_prices.parquet` so the replay draws today's provisional dot; tonight settles it to the real close. Added a **fail-loud advance guard**: if the line can't honestly advance, it holds last-known-good and alerts via the `investment-system-alerts` SNS topic rather than inventing a point.
+- The manual `scripts/reextend_dashboard_now.py` remains an **optional** operator override (not part of the automatic cycle).
+- Phase 3: docs + comments swept to read as a pure simulation (this update).
 
 ## Non-Goals
 

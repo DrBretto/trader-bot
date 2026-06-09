@@ -1,3 +1,5 @@
+> SUPERSEDED by docs/plans/2026-06-08-alpaca-removal-and-continuous-line-committee-packet.md (Alpaca removed 2026-06-08; this system is a pure simulation).
+
 # Claude Code Prompt: Cutover Continuity Bridge (Simulated -> Alpaca Paper)
 
 You are working in `/Users/drbretto/Desktop/Projects/trader-bot`.
@@ -78,4 +80,3 @@ At completion provide:
 2. Dry-run and apply summaries.
 3. Verification evidence from resulting `portfolio_state.json` and `daily/latest.json`.
 4. Any residual caveats (especially chart-level raw value discontinuity vs cashflow-adjusted metrics).
-

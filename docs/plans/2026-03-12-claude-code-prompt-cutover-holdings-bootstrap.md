@@ -1,3 +1,5 @@
+> SUPERSEDED by docs/plans/2026-06-08-alpaca-removal-and-continuous-line-committee-packet.md (Alpaca removed 2026-06-08; this system is a pure simulation).
+
 # Claude Code Prompt: Simulated -> Alpaca Holdings Bootstrap
 
 You are working in `/Users/drbretto/Desktop/Projects/trader-bot`.

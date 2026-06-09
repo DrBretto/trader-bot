@@ -26,7 +26,7 @@ Run these once when setting up a new environment:
 # 1. Create S3 bucket (no versioning!)
 ./infrastructure/s3_setup.sh investment-system-data us-east-1
 
-# 2. Store API keys in Secrets Manager (includes optional Alpaca keys)
+# 2. Store API keys in Secrets Manager (OpenAI, FRED, Alpha Vantage)
 ./infrastructure/secrets_setup.sh us-east-1
 # Then update secrets with actual keys via AWS Console or CLI
 ```
@@ -228,7 +228,7 @@ If a new live data path is introduced that does not match `*.json` (e.g. `/data/
 Use this sequence for a full first-time go-live:
 
 1. **S3 bucket** – From repo root: `./infrastructure/s3_setup.sh investment-system-data us-east-1`
-2. **Secrets** – `./infrastructure/secrets_setup.sh us-east-1` (enter OpenAI, FRED, Alpha Vantage; add Alpaca keys if using broker mode)
+2. **Secrets** – `./infrastructure/secrets_setup.sh us-east-1` (enter OpenAI, FRED, Alpha Vantage)
 3. **Lambda** – `./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1`
 4. **EventBridge** – `./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline investment-system-data us-east-1` (creates both night + morning rules)
 5. **SNS Alerts** – `./infrastructure/sns_setup.sh us-east-1 drbretto82@gmail.com` (confirm subscription via email)
@@ -239,53 +239,36 @@ Use this sequence for a full first-time go-live:
 
 ---
 
-## Alpaca Broker Setup (Optional)
+## Remove Broker Env Vars (Alpaca removal, 2026-06-08)
 
-To enable broker-connected execution (paper or live):
+This system is now a pure simulation. The live Lambda `investment-system-daily-pipeline` must have its broker environment variables **removed**. As of this removal, the live function still carried:
 
-### 1. Store Alpaca Secrets
-
-```bash
-# Run the secrets setup script (it now prompts for Alpaca keys)
-./infrastructure/secrets_setup.sh us-east-1
-```
-
-Or manually:
-```bash
-aws secretsmanager create-secret \
-    --name "investment-system/alpaca-paper-key-id" \
-    --secret-string '{"key": "YOUR_PAPER_KEY_ID"}' \
-    --region us-east-1
-
-aws secretsmanager create-secret \
-    --name "investment-system/alpaca-paper-secret-key" \
-    --secret-string '{"key": "YOUR_PAPER_SECRET_KEY"}' \
-    --region us-east-1
-```
-
-### 2. Smoke Test
-
-```bash
-# Set credentials locally for testing
-export ALPACA_PAPER_KEY_ID=your_key_id
-export ALPACA_PAPER_SECRET_KEY=your_secret_key
-
-# Account connectivity check
-python scripts/alpaca_paper_smoke_test.py --account-check
-
-# Optional: place and close a $1 test order
-python scripts/alpaca_paper_smoke_test.py --place-order --close-after
-```
-
-### 3. Enable Broker Mode on Lambda
-
-Add these environment variables to the Lambda function:
 - `BROKER_MODE=alpaca_paper`
 - `BROKER_TRADING_ENABLED=true`
 
-### 4. Rollback
+Remove both from the Lambda environment configuration. With them gone, the pipeline runs simulated-only (the simulated fill at the open is the new forward point on the line).
 
-To revert to simulated mode, remove `BROKER_MODE` from the Lambda environment or set it to `simulated`.
+```bash
+# Inspect current env vars
+aws lambda get-function-configuration \
+  --function-name investment-system-daily-pipeline --region us-east-1 \
+  --query 'Environment.Variables'
+
+# Update the environment to drop BROKER_MODE and BROKER_TRADING_ENABLED,
+# preserving the remaining keys (S3_BUCKET, AWS_REGION, alert vars, etc.).
+```
+
+### How to restore Alpaca
+
+The two Secrets Manager secrets are **PRESERVED, not deleted** — they are the saved copy:
+
+- `investment-system/alpaca-paper-key-id`
+- `investment-system/alpaca-paper-secret-key`
+
+To revisit Alpaca later:
+
+1. Re-add the Lambda env vars `BROKER_MODE=alpaca_paper` and `BROKER_TRADING_ENABLED=true` (exact values recorded above).
+2. Re-add the broker code from git history — restore from this packet's removal commit on branch `ai/alpaca-removal-continuous-line`.
 
 ---
 

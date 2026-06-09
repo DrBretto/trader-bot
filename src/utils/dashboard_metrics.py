@@ -409,15 +409,11 @@ def _drawdown_series(active_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def _load_fills(s3, dates: List[str]) -> List[Dict[str, Any]]:
-    """Load fills from trades.jsonl for the specified dates and reconcile
-    post-cutoff entries against Alpaca-truth orders cached in S3.
+    """Load fills from the local trades.jsonl for the specified dates.
 
-    Pre-cutoff fills (paper_trader simulated trades, no broker_order_id) pass
-    through untouched. Post-cutoff entries with broker_order_id are patched
-    when local shares/price drifted from Alpaca's filled_qty/filled_avg_price
-    (e.g. partially_filled stale snapshot). Bot-decided Alpaca orders not
-    represented in any local trades.jsonl row are injected so FIFO accounting
-    closes correctly.
+    Fills flow straight from each day's `daily/<date>/trades.jsonl`
+    (paper_trader simulated fills). This is a pure simulation — there is no
+    broker reconcile; the simulated fill is authoritative.
     """
     fills: List[Dict[str, Any]] = []
     for date_str in dates:

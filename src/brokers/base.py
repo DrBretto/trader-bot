@@ -65,7 +65,7 @@ class BaseBroker(ABC):
     @property
     @abstractmethod
     def mode_label(self) -> str:
-        """Human-readable mode label (e.g. 'simulated', 'alpaca_paper')."""
+        """Human-readable mode label (e.g. 'simulated')."""
 
     def get_snapshots(self, symbols: List[str]) -> List[Dict[str, Any]]:
         """Fetch latest price snapshots for the given symbols.
