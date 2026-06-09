@@ -730,7 +730,6 @@ def compute_canonical_dashboard_metrics(
             {
                 "date": row["date"],
                 "value": row["continuity_value"],
-                "raw_value": row["value"],
                 "benchmark": row["benchmark"],
                 "cumulative_external_cashflow": row["cumulative_external_cashflow"],
             }

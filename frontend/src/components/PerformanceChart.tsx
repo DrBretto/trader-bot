@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   ComposedChart,
   Line,
@@ -44,11 +43,8 @@ interface MergedPoint {
   benchmark: number;
   drawdownPct: number;
   peak: number;
-  isLive: boolean;
   regimeLabel?: string | null;
 }
-
-type EraView = 'all' | 'backtest' | 'live';
 
 const REGIME_SHADER_COLORS: Record<string, string> = {
   calm_uptrend: 'rgba(34, 197, 94, 0.03)',
@@ -111,7 +107,6 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
   const dd = point.drawdownPct;
   const ddColor = dd <= -10 ? '#ef4444' : dd <= -5 ? '#f97316' : dd < 0 ? '#eab308' : '#22c55e';
   const spread = point.value && point.benchmark ? point.value - point.benchmark : null;
-  const era = point.isLive ? 'Live (Alpaca)' : 'Backtest';
   const regime = point.regimeLabel ? (REGIME_LABELS[point.regimeLabel] ?? point.regimeLabel.replace(/_/g, ' ')) : null;
 
   return (
@@ -126,9 +121,8 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
         minWidth: 200,
       }}
     >
-      <div style={{ color: '#94a3b8', marginBottom: 4, fontWeight: 600, display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ color: '#94a3b8', marginBottom: 4, fontWeight: 600 }}>
         <span>{dateStr}</span>
-        <span style={{ fontSize: 10, color: point.isLive ? '#22c55e' : '#64748b', fontWeight: 500 }}>{era}</span>
       </div>
       <div style={{ color: '#60a5fa' }}>
         Portfolio: <span style={{ fontWeight: 600 }}>{formatCurrency(point.value)}</span>
@@ -163,12 +157,9 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
   );
 }
 
-const ALPACA_CUTOVER_DATE = '2026-03-12';
 const HYBRID_PROMOTION_DATE = '2026-03-28';
 
 export function PerformanceChart({ equityData, drawdownData, monthlyReturns, timeseries = [], chartMarkers }: Props) {
-  const [eraView, setEraView] = useState<EraView>('all');
-
   // Build drawdown lookup
   const ddMap = new Map(drawdownData.map((d) => [d.date, d.drawdown]));
   const regimeByDate = new Map(timeseries.map((pt) => [pt.date, pt.final_regime_label]));
@@ -208,26 +199,14 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
       benchmark: point.benchmark,
       drawdownPct: (ddMap.get(point.date) ?? 0) * 100,
       peak,
-      isLive: point.date >= ALPACA_CUTOVER_DATE,
       regimeLabel: regimeByDate.get(point.date) ?? null,
     };
   });
 
-  // Filter by era view
-  const merged = eraView === 'all'
-    ? allMerged
-    : eraView === 'live'
-      ? allMerged.filter(p => p.isLive)
-      : allMerged.filter(p => !p.isLive);
-
-  const cutoverIdx = merged.findIndex((p) => p.date >= ALPACA_CUTOVER_DATE);
-  const cutoverDate = cutoverIdx >= 0 ? merged[cutoverIdx]?.date : undefined;
+  const merged = allMerged;
 
   const hybridIdx = merged.findIndex((p) => p.date >= HYBRID_PROMOTION_DATE);
   const hybridDate = hybridIdx >= 0 ? merged[hybridIdx]?.date : undefined;
-
-  const backtestStartDate = merged[0]?.date;
-  const backtestEndDate = cutoverDate;
 
   // Compute Y domains
   const allValues = merged.flatMap((p) => [p.value, p.benchmark]);
@@ -236,10 +215,6 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
 
   const ddMin = Math.min(...merged.map((p) => p.drawdownPct));
   const ddFloor = Math.floor(ddMin / 5) * 5;
-
-  // Counts
-  const liveDays = allMerged.filter(p => p.isLive).length;
-  const backtestDays = allMerged.length - liveDays;
 
   const regimeSegments: Array<{ regime: string; x1: string; x2: string }> = [];
   if (merged.length > 1) {
@@ -296,32 +271,9 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
           <InfoTooltip
             content={`Portfolio equity (blue) vs SPY benchmark (gray dashed), both starting from the same dollar amount.
 Drawdown strip shows how far below the peak the portfolio has fallen.
-Background color bands show the detected market regime at each point in time.
-Switch between All / Backtest / Live to isolate historical vs broker-connected periods.`}
+Background color bands show the detected market regime at each point in time.`}
             label="Performance chart"
           />
-        </div>
-        <div className="performance-chart-controls">
-          <button
-            className={`signal-toggle ${eraView === 'all' ? 'active' : ''}`}
-            onClick={() => setEraView('all')}
-          >
-            All
-          </button>
-          <button
-            className={`signal-toggle ${eraView === 'backtest' ? 'active' : ''}`}
-            style={{ borderColor: eraView === 'backtest' ? '#64748b' : undefined }}
-            onClick={() => setEraView('backtest')}
-          >
-            Backtest ({backtestDays}d)
-          </button>
-          <button
-            className={`signal-toggle ${eraView === 'live' ? 'active' : ''}`}
-            style={{ borderColor: eraView === 'live' ? '#22c55e' : undefined }}
-            onClick={() => setEraView('live')}
-          >
-            Live ({liveDays}d)
-          </button>
         </div>
       </div>
 
@@ -370,36 +322,6 @@ Switch between All / Backtest / Live to isolate historical vs broker-connected p
               ifOverflow="extendDomain"
             />
           ))}
-
-          {/* Backtest region tint */}
-          {eraView === 'all' && backtestStartDate && backtestEndDate && (
-            <ReferenceArea
-              yAxisId="equity"
-              x1={backtestStartDate}
-              x2={backtestEndDate}
-              fill="#64748b"
-              fillOpacity={0.12}
-              strokeOpacity={0}
-            />
-          )}
-
-          {/* Cutover reference */}
-          {eraView === 'all' && cutoverDate && (
-            <ReferenceLine
-              yAxisId="equity"
-              x={cutoverDate}
-              stroke="#22c55e"
-              strokeDasharray="4 4"
-              strokeOpacity={0.6}
-              label={{
-                value: 'Live',
-                position: 'insideTopRight',
-                fill: '#22c55e',
-                fontSize: 10,
-                fontWeight: 600,
-              }}
-            />
-          )}
 
           {/* Hybrid promotion reference */}
           {hybridDate && (

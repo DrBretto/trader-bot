@@ -68,7 +68,7 @@ export function HeroMetrics({ metrics, holdings, equityCurve }: Props) {
       value: formatCurrency(metrics.total_value),
       colorBySign: false,
       tooltip:
-        'Current marked-to-market account equity: cash + market value of all open positions at this snapshot. The displayed dashboard history remains continuous across the pre-Alpaca simulated period and the live paper-trading period.',
+        'Current marked-to-market account equity: cash + market value of all open positions at this snapshot.',
     },
     {
       label: 'YTD Return',
@@ -76,7 +76,7 @@ export function HeroMetrics({ metrics, holdings, equityCurve }: Props) {
       colorBySign: true,
       rawValue: metrics.ytd_return,
       tooltip:
-        'Time-weighted return from the first trading day of the calendar year through this snapshot. External deposits/withdrawals are excluded from performance. The displayed series includes both the simulated pre-cutover period and the Alpaca paper-trading period, bridged by a continuity adjustment on 2026-03-12.',
+        'Time-weighted return from the first trading day of the calendar year through this snapshot. External deposits/withdrawals are excluded from performance.',
     },
     {
       label: 'Sharpe Ratio',
@@ -107,7 +107,7 @@ export function HeroMetrics({ metrics, holdings, equityCurve }: Props) {
       colorBySign: true,
       rawValue: metrics.mtd_return,
       tooltip:
-        'Time-weighted return from the first trading day of the current month through this snapshot, using the same canonical return series as Sharpe and drawdown. Post-cutover months reflect Alpaca broker truth only.',
+        'Time-weighted return from the first trading day of the current month through this snapshot, using the same canonical return series as Sharpe and drawdown.',
     },
     {
       label: 'Realized Win Rate',

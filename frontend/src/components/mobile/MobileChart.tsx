@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceArea, TooltipProps,
@@ -15,7 +14,6 @@ interface MergedPoint {
   date: string;
   value: number;
   benchmark: number;
-  isLive: boolean;
   regimeLabel?: string | null;
 }
 
@@ -26,10 +24,6 @@ const REGIME_SHADER_COLORS: Record<string, string> = {
   risk_off_trend: 'rgba(249, 115, 22, 0.035)',
   high_vol_panic: 'rgba(239, 68, 68, 0.035)',
 };
-
-const ALPACA_CUTOVER_DATE = '2026-03-12';
-
-type EraView = 'all' | 'backtest' | 'live';
 
 function formatCurrency(v: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
@@ -51,27 +45,18 @@ function MobileTooltip({ active, payload }: TooltipProps<number, string>) {
 }
 
 export function MobileChart({ equityData, timeseries }: Props) {
-  const [eraView, setEraView] = useState<EraView>('all');
   const regimeByDate = new Map(timeseries.map(pt => [pt.date, pt.final_regime_label]));
 
   const startVal = equityData[0]?.value ?? 0;
   const firstMoveIdx = equityData.findIndex(p => Math.abs(p.value - startVal) / (startVal || 1) > 0.001);
   const trimmed = firstMoveIdx > 1 ? equityData.slice(firstMoveIdx - 1) : equityData;
 
-  const allMerged: MergedPoint[] = trimmed.map(p => ({
+  const merged: MergedPoint[] = trimmed.map(p => ({
     date: p.date,
     value: p.value,
     benchmark: p.benchmark,
-    isLive: p.date >= ALPACA_CUTOVER_DATE,
     regimeLabel: regimeByDate.get(p.date) ?? null,
   }));
-
-  const merged = eraView === 'all' ? allMerged
-    : eraView === 'live' ? allMerged.filter(p => p.isLive)
-    : allMerged.filter(p => !p.isLive);
-
-  const liveDays = allMerged.filter(p => p.isLive).length;
-  const backtestDays = allMerged.length - liveDays;
 
   const allValues = merged.flatMap(p => [p.value, p.benchmark]);
   const yMin = Math.floor(Math.min(...allValues) / 1000) * 1000;
@@ -104,17 +89,6 @@ export function MobileChart({ equityData, timeseries }: Props) {
 
   return (
     <div className="mobile-chart">
-      <div className="mobile-chart-controls">
-        {(['all', 'backtest', 'live'] as EraView[]).map(era => (
-          <button
-            key={era}
-            className={`mobile-chart-pill ${eraView === era ? 'mobile-chart-pill--active' : ''}`}
-            onClick={() => setEraView(era)}
-          >
-            {era === 'all' ? 'All' : era === 'backtest' ? `BT (${backtestDays}d)` : `Live (${liveDays}d)`}
-          </button>
-        ))}
-      </div>
       <ResponsiveContainer width="100%" height={180}>
         <ComposedChart data={merged} margin={{ top: 4, right: 4, bottom: 0, left: -12 }}>
           <defs>

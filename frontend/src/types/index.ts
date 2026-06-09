@@ -54,19 +54,17 @@ export interface EquityCurvePoint {
   date: string;
   value: number;
   benchmark: number;
-  raw_value?: number;
   cumulative_external_cashflow?: number;
   regimeLabel?: string | null;
   // Day-by-day timeline correction (2026-05-06).
   // `corrected_value` is the counterfactual: what the portfolio would be
   // worth if the post-cutoff calibration bugs (saturated fragility,
   // ensemble-staleness panic-pinning) had been fixed.
-  // `actual_value` mirrors the existing `value` field (the broken-system
-  // continuity-adjusted broker equity) so the chart can render both as
+  // `actual_value` mirrors the existing `value` field (the
+  // continuity-adjusted equity) so the chart can render both as
   // distinct series.
   corrected_value?: number;
   actual_value?: number;
-  corrected_raw_value?: number;
   // Original (pre-hybrid) replay line, lighter overlay for comparison.
   // Populated by the 2026-05-06 known-bugs-fixed algorithm comparison run.
   pre_hybrid_value?: number;

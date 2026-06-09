@@ -2,8 +2,6 @@ import { BuyCandidate } from '../types';
 import { format, parseISO } from 'date-fns';
 import { InfoTooltip } from './InfoTooltip';
 
-const ALPACA_CUTOVER_DATE = '2026-03-12';
-
 interface Props {
   candidates: BuyCandidate[];
   snapshotTimestamp?: string;
@@ -24,8 +22,6 @@ function formatCurrency(value: number): string {
 }
 
 export function CandidatesTable({ candidates, snapshotTimestamp }: Props) {
-  const isLive = snapshotTimestamp ? snapshotTimestamp >= ALPACA_CUTOVER_DATE : false;
-  const eraLabel = isLive ? 'Live' : 'Backtest';
   let dateLabel = '';
   try { if (snapshotTimestamp) dateLabel = format(parseISO(snapshotTimestamp), 'MMM d'); } catch { /* */ }
 
@@ -35,7 +31,7 @@ export function CandidatesTable({ candidates, snapshotTimestamp }: Props) {
   const titleRow = (
     <div className="card-title" style={{ marginBottom: 0 }}>
       <span>Buy Candidates</span>
-      {dateLabel && <span style={{ fontSize: 10, fontWeight: 400, color: '#64748b', textTransform: 'none', letterSpacing: 0 }}>{dateLabel} · {eraLabel}</span>}
+      {dateLabel && <span style={{ fontSize: 10, fontWeight: 400, color: '#64748b', textTransform: 'none', letterSpacing: 0 }}>{dateLabel}</span>}
       <InfoTooltip
         content={`Assets the system would buy right now, ranked by a blended score (65% health model + 35% ranking MLP when hybrid is active). Size is the dollar amount after regime-based position sizing and any active throttles.`}
         label="Buy candidates"

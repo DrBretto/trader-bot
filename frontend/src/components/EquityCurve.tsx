@@ -7,17 +7,13 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  ReferenceLine,
 } from 'recharts';
 import { EquityCurvePoint } from '../types';
 import { format, parseISO } from 'date-fns';
 import { InfoTooltip } from './InfoTooltip';
 
-const ALPACA_CUTOVER_DATE = '2026-03-12';
-
 interface Props {
   data: EquityCurvePoint[];
-  brokerOnly?: boolean;
 }
 
 function formatCurrency(value: number): string {
@@ -29,14 +25,11 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-export function EquityCurve({ data, brokerOnly = false }: Props) {
-  const filtered = brokerOnly ? data.filter((p) => p.date >= ALPACA_CUTOVER_DATE) : data;
-  const formattedData = filtered.map((point) => ({
+export function EquityCurve({ data }: Props) {
+  const formattedData = data.map((point) => ({
     ...point,
     dateLabel: format(parseISO(point.date), 'MMM yyyy'),
   }));
-
-  const cutoverLabel = formattedData.find((p) => p.date && p.date >= ALPACA_CUTOVER_DATE)?.dateLabel;
 
   return (
     <div className="card">
@@ -76,14 +69,6 @@ Use this chart to inspect absolute growth and benchmark-relative drift.`}
             ]}
           />
           <Legend />
-          {!brokerOnly && cutoverLabel && (
-            <ReferenceLine
-              x={cutoverLabel}
-              stroke="#eab308"
-              strokeDasharray="4 4"
-              label={{ value: 'Alpaca Paper Start', position: 'top', fill: '#eab308', fontSize: 10 }}
-            />
-          )}
           <Line
             type="monotone"
             dataKey="value"

@@ -9,12 +9,6 @@
             "description": "Bot exits cash-only posture; first 5 fills (VLUE, XLB, VEA, SCHD)."
         },
         {
-            "date": "2026-03-12",
-            "label": "Alpaca paper cutover",
-            "category": "infrastructure",
-            "description": "Simulated paper portfolio bridged into Alpaca paper. First continuity-bridge cashflow event (-$3,025.53)."
-        },
-        {
             "date": "2026-04-02",
             "label": "vol_uncertainty re-armed",
             "category": "data_plane",
@@ -27,12 +21,6 @@
             "description": "Decision-params bundle updated to hybrid ranking blend 0.35 (commit c4e8831). New buy basket entered Apr 6-8."
         },
         {
-            "date": "2026-04-22",
-            "label": "Second continuity cashflow",
-            "category": "infrastructure",
-            "description": "Cumulative external cashflow stepped from -$3,025.53 to -$10,077.83. continuity-adjusted equity diverges from broker_total_value by this amount thereafter."
-        },
-        {
             "date": "2026-04-29",
             "label": "Phase-4 bug fixes shipped",
             "category": "code_fix",
@@ -40,9 +28,9 @@
         },
         {
             "date": "2026-05-07",
-            "label": "Reconciliation + 3-line dashboard",
+            "label": "Optimized champion promoted",
             "category": "milestone",
-            "description": "Canonical hybrid line promoted as dashboard truth. Three-line equity comparison shipped: hybrid (current canon, bold blue), pre-hybrid (gray dashed), optimized in-sample champion (green dashed, extend_relax_choppy + topup_psm_1.2). Live broker line removed from chart. v2 portfolio_value invariant (cash + sum(shares \u00d7 close)) verified."
+            "description": "Optimized champion line (extend_relax_choppy + topup_psm) promoted as the dashboard's canonical line, with the previous champion shown as a dashed comparison. portfolio_value invariant (cash + sum(shares \u00d7 close)) verified."
         },
         {
             "date": "2026-06-06",

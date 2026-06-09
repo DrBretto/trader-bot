@@ -2,8 +2,6 @@ import { Holding, PortfolioMetrics } from '../types';
 import { format, parseISO } from 'date-fns';
 import { InfoTooltip } from './InfoTooltip';
 
-const ALPACA_CUTOVER_DATE = '2026-03-12';
-
 interface Props {
   holdings: Holding[];
   snapshotTimestamp?: string;
@@ -33,8 +31,6 @@ function formatShares(shares: number): string {
 const DUST_THRESHOLD = 0.01;
 
 export function PortfolioTable({ holdings, snapshotTimestamp, metrics }: Props) {
-  const isLive = snapshotTimestamp ? snapshotTimestamp >= ALPACA_CUTOVER_DATE : false;
-  const eraLabel = isLive ? 'Live' : 'Backtest';
   let dateLabel = '';
   try { if (snapshotTimestamp) dateLabel = format(parseISO(snapshotTimestamp), 'MMM d'); } catch { /* */ }
 
@@ -46,7 +42,7 @@ export function PortfolioTable({ holdings, snapshotTimestamp, metrics }: Props) 
     <div className="lower-deck-header-row">
       <div className="card-title" style={{ marginBottom: 0 }}>
         <span>Current Holdings</span>
-        {dateLabel && <span style={{ fontSize: 10, fontWeight: 400, color: '#64748b', textTransform: 'none', letterSpacing: 0 }}>{dateLabel} · {eraLabel}</span>}
+        {dateLabel && <span style={{ fontSize: 10, fontWeight: 400, color: '#64748b', textTransform: 'none', letterSpacing: 0 }}>{dateLabel}</span>}
         <InfoTooltip
           content={`Current open positions in the portfolio. P&L is unrealized (mark-to-market vs entry price). Health is the model's quality score (0-100) — lower scores may trigger sell signals. Vol bucket determines position sizing limits.`}
           label="Current holdings"
