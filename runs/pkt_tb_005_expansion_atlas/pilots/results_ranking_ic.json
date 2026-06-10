@@ -1,0 +1,61 @@
+{
+  "model": "models/ranking_expanded_unconditioned (active, blend=0.35)",
+  "training_date": "2026-04-29",
+  "holdout_replay_read": "NOT RUN \u2014 contaminated (model trained 2026-04-29 > holdout start 2026-03-11)",
+  "holdout_looks": 0,
+  "horizon_days": 21,
+  "note": "IC dates limited by forward-window: last evaluable date is ~21 snapshots before cache end; post-training segment is small and stated as such.",
+  "segments": [
+    {
+      "label": "post_training_CLEAN",
+      "n_dates": 0,
+      "note": "insufficient"
+    },
+    {
+      "label": "holdout_pre_training_CONTAMINATED",
+      "n_dates": 24,
+      "mean_ic": -0.0014,
+      "sd_ic": 0.1636,
+      "t_stat": -0.04,
+      "pct_positive": 45.8
+    },
+    {
+      "label": "pre_holdout_in_training_window",
+      "n_dates": 149,
+      "mean_ic": 0.2039,
+      "sd_ic": 0.2689,
+      "t_stat": 9.26,
+      "pct_positive": 75.8
+    },
+    {
+      "label": "all_dates",
+      "n_dates": 173,
+      "mean_ic": 0.1746,
+      "sd_ic": 0.2661,
+      "t_stat": 8.63,
+      "pct_positive": 71.7
+    }
+  ],
+  "exploratory_short_horizons": {
+    "5d": {
+      "post_training": {
+        "n_dates": 12,
+        "mean_ic": 0.1403,
+        "sd_ic": 0.2407,
+        "t_stat": 2.02,
+        "pct_positive": 75.0
+      },
+      "caveat": "horizon differs from the 21d training target \u2014 exploratory only"
+    },
+    "10d": {
+      "post_training": {
+        "n_dates": 7,
+        "mean_ic": 0.1384,
+        "sd_ic": 0.202,
+        "t_stat": 1.81,
+        "pct_positive": 57.1
+      },
+      "caveat": "horizon differs from the 21d training target \u2014 exploratory only"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "pilot": "cash_sleeve",
+  "packet": "PKT-TB-005-EXPANSION-ATLAS-V1-20260609",
+  "code_sha": "83111700e41b9ce6c44f5f392623ddf9d8fadaf0",
+  "params_hash": "6846e7a7f1af5d27",
+  "seed": 20260217,
+  "data_snapshot": {
+    "source": "s3://investment-system-data/daily/",
+    "range": [
+      "2025-08-04",
+      "2026-06-09"
+    ],
+    "cache_built_at": "2026-06-09T23:56:20",
+    "n_snapshots": 194
+  },
+  "holdout_start": "2026-03-11",
+  "holdout_looks_this_pilot": 2,
+  "fill_cost_model": "paper_trader.execute_trade (production, unmodified)",
+  "command": ".venv/bin/python runs/pkt_tb_005_expansion_atlas/pilots/pilot_cash_sleeve.py",
+  "wall_clock_seconds": 167.2,
+  "variants_logged": [
+    "control/full",
+    "control/holdout",
+    "sleeve_shy/full",
+    "sleeve_shy/holdout",
+    "sleeve_ladder/full",
+    "sleeve_ladder/holdout"
+  ],
+  "notes": "Harm check per Skeptic rule 5: carry is arithmetic; replay verifies clean liquidation into buys and absence of decision distortion. Pilot wiring (view/intent hooks) approximates ship semantics; known divergence: none material \u2014 sleeve excluded from holdings count and scoring via view+universe override.",
+  "written_at": "2026-06-10T00:45:33"
+}

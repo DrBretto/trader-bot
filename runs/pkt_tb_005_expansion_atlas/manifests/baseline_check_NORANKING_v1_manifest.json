@@ -1,0 +1,36 @@
+{
+  "pilot": "baseline_check",
+  "packet": "PKT-TB-005-EXPANSION-ATLAS-V1-20260609",
+  "code_sha": "af91c88f04eb9da1e36e63451594daaa48a8d3e9",
+  "params_hash": "27c77839eb9dc4a6",
+  "seed": 20260217,
+  "data_snapshot": {
+    "source": "s3://investment-system-data/daily/",
+    "range": [
+      "2025-08-04",
+      "2026-06-09"
+    ],
+    "cache_built_at": "2026-06-09T23:56:20",
+    "n_snapshots": 194
+  },
+  "holdout_start": "2026-03-11",
+  "holdout_looks_this_pilot": 20,
+  "fill_cost_model": "paper_trader.execute_trade (production, unmodified)",
+  "command": ".venv/bin/python runs/pkt_tb_005_expansion_atlas/pilots/pilot_baseline_check.py",
+  "wall_clock_seconds": 359.5,
+  "variants_logged": [
+    "ens_stored/full",
+    "ens_stored/holdout",
+    "ens_nodis/full",
+    "ens_nodis/holdout",
+    "rules_raw/full",
+    "rules_raw/holdout",
+    "rules_ema/full",
+    "rules_ema/holdout",
+    "rules_ema_hl2/pre_holdout(sweep)",
+    "rules_ema_hl3/pre_holdout(sweep)",
+    "rules_ema_hl5/pre_holdout(sweep)"
+  ],
+  "notes": "EMA halflife selected on pre-holdout only; one holdout read per arm-seed. Pre-2026-03-11 segment is in-sample for the ACTIVE bundle (tuned on it); holdout segment is the verdict segment.",
+  "written_at": "2026-06-10T00:16:30"
+}

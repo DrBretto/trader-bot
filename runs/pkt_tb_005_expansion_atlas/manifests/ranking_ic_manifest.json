@@ -1,0 +1,26 @@
+{
+  "pilot": "ranking_ic",
+  "packet": "PKT-TB-005-EXPANSION-ATLAS-V1-20260609",
+  "code_sha": "847c66166da3d4ec5a313011c7d513540e00caad",
+  "params_hash": "046ea33a7b0a506b",
+  "seed": 20260217,
+  "data_snapshot": {
+    "source": "s3://investment-system-data/daily/",
+    "range": [
+      "2025-08-04",
+      "2026-06-09"
+    ],
+    "cache_built_at": "2026-06-09T23:56:20",
+    "n_snapshots": 194
+  },
+  "holdout_start": "2026-03-11",
+  "holdout_looks_this_pilot": 0,
+  "fill_cost_model": "paper_trader.execute_trade (production, unmodified)",
+  "command": ".venv/bin/python runs/pkt_tb_005_expansion_atlas/pilots/pilot_ranking_ic.py",
+  "wall_clock_seconds": 1.2,
+  "variants_logged": [
+    "rank_ic_by_segment"
+  ],
+  "notes": "M-14 downgraded per Skeptic precondition: RankingMLP training date (2026-04-29) postdates the holdout boundary; replay comparison would be contaminated. Clean evidence = IC on post-2026-04-29 dates only.",
+  "written_at": "2026-06-10T00:28:04"
+}

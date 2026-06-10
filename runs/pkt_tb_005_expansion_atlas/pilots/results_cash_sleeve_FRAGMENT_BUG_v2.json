@@ -1,0 +1,295 @@
+{
+  "preregistered_holdout_arm_reads": [
+    "sleeve_shy",
+    "sleeve_ladder"
+  ],
+  "skeptic_framing": "harm check only; carry is arithmetic, not a replay win",
+  "arms": {
+    "control": {
+      "full": [
+        {
+          "seed": 20260217,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104584.77587527865,
+          "total_return": 0.045848,
+          "cagr": 0.059959,
+          "sharpe": 0.453,
+          "max_drawdown": -0.122901,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 518.31,
+          "avg_gross_exposure": 0.5065,
+          "n_fills": 145
+        },
+        {
+          "seed": 20260218,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104528.44742472745,
+          "total_return": 0.045284,
+          "cagr": 0.059217,
+          "sharpe": 0.4484,
+          "max_drawdown": -0.122947,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 572.51,
+          "avg_gross_exposure": 0.5066,
+          "n_fills": 145
+        }
+      ],
+      "holdout": [
+        {
+          "seed": 20260217,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94129.75509251792,
+          "total_return": -0.058702,
+          "cagr": -0.287359,
+          "sharpe": -1.0682,
+          "max_drawdown": -0.122123,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 146.33,
+          "avg_gross_exposure": 0.3622,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260218,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94140.69146581192,
+          "total_return": -0.058593,
+          "cagr": -0.286895,
+          "sharpe": -1.0665,
+          "max_drawdown": -0.12206,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 133.98,
+          "avg_gross_exposure": 0.3622,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260219,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94151.8906951929,
+          "total_return": -0.058481,
+          "cagr": -0.28642,
+          "sharpe": -1.0636,
+          "max_drawdown": -0.122098,
+          "win_rate": 0.75,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 118.73,
+          "avg_gross_exposure": 0.3622,
+          "n_fills": 55
+        }
+      ],
+      "sleeve_mechanics_full": {
+        "sleeve_buys": 0,
+        "sleeve_liquidations": 0,
+        "engine_fills": 145
+      }
+    },
+    "sleeve_shy": {
+      "full": [
+        {
+          "seed": 20260217,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 20099.488963857337,
+          "total_return": -0.799005,
+          "cagr": -0.875589,
+          "sharpe": -0.4929,
+          "max_drawdown": -0.845137,
+          "win_rate": 0.6277,
+          "round_trips": 137,
+          "cumulative_transaction_costs": 467.29,
+          "avg_gross_exposure": 0.9607,
+          "n_fills": 234
+        },
+        {
+          "seed": 20260218,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 14826.549159260121,
+          "total_return": -0.851735,
+          "cagr": -0.916207,
+          "sharpe": -0.7341,
+          "max_drawdown": -0.885661,
+          "win_rate": 0.6187,
+          "round_trips": 139,
+          "cumulative_transaction_costs": 468.64,
+          "avg_gross_exposure": 0.9609,
+          "n_fills": 235
+        }
+      ],
+      "holdout": [
+        {
+          "seed": 20260217,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 16596.966241523514,
+          "total_return": -0.83403,
+          "cagr": -0.999957,
+          "sharpe": -4.625,
+          "max_drawdown": -0.851538,
+          "win_rate": 0.549,
+          "round_trips": 51,
+          "cumulative_transaction_costs": 142.13,
+          "avg_gross_exposure": 0.9424,
+          "n_fills": 90
+        },
+        {
+          "seed": 20260218,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 16547.28239069554,
+          "total_return": -0.834527,
+          "cagr": -0.999958,
+          "sharpe": -4.6174,
+          "max_drawdown": -0.853373,
+          "win_rate": 0.566,
+          "round_trips": 53,
+          "cumulative_transaction_costs": 154.21,
+          "avg_gross_exposure": 0.9417,
+          "n_fills": 94
+        },
+        {
+          "seed": 20260219,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 16549.137134972138,
+          "total_return": -0.834509,
+          "cagr": -0.999958,
+          "sharpe": -4.6175,
+          "max_drawdown": -0.853352,
+          "win_rate": 0.566,
+          "round_trips": 53,
+          "cumulative_transaction_costs": 151.38,
+          "avg_gross_exposure": 0.9416,
+          "n_fills": 94
+        }
+      ],
+      "sleeve_mechanics_full": {
+        "sleeve_buys": 47,
+        "sleeve_liquidations": 38,
+        "engine_fills": 149
+      },
+      "paired_vs_control": {
+        "paired_full": {
+          "n": 194,
+          "mean_daily_delta": -0.00314347,
+          "sd_daily_delta": 0.09222918,
+          "t_stat": -0.475
+        },
+        "paired_holdout": {
+          "n": 45,
+          "mean_daily_delta": -0.03034362,
+          "sd_daily_delta": 0.11022584,
+          "t_stat": -1.847
+        }
+      }
+    },
+    "sleeve_ladder": {
+      "full": [
+        {
+          "seed": 20260217,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 10661.311268138883,
+          "total_return": -0.893387,
+          "cagr": -0.945405,
+          "sharpe": -1.1826,
+          "max_drawdown": -0.893887,
+          "win_rate": 0.5515,
+          "round_trips": 165,
+          "cumulative_transaction_costs": 346.7,
+          "avg_gross_exposure": 0.9547,
+          "n_fills": 290
+        },
+        {
+          "seed": 20260218,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 11217.973129471799,
+          "total_return": -0.88782,
+          "cagr": -0.941673,
+          "sharpe": -1.2007,
+          "max_drawdown": -0.888288,
+          "win_rate": 0.5466,
+          "round_trips": 161,
+          "cumulative_transaction_costs": 355.04,
+          "avg_gross_exposure": 0.9539,
+          "n_fills": 283
+        }
+      ],
+      "holdout": [
+        {
+          "seed": 20260217,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 23064.567178966776,
+          "total_return": -0.769354,
+          "cagr": -0.999729,
+          "sharpe": -5.6104,
+          "max_drawdown": -0.79049,
+          "win_rate": 0.4754,
+          "round_trips": 61,
+          "cumulative_transaction_costs": 109.72,
+          "avg_gross_exposure": 0.9497,
+          "n_fills": 116
+        },
+        {
+          "seed": 20260218,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 21512.906805054365,
+          "total_return": -0.784871,
+          "cagr": -0.999817,
+          "sharpe": -5.8933,
+          "max_drawdown": -0.794069,
+          "win_rate": 0.4754,
+          "round_trips": 61,
+          "cumulative_transaction_costs": 121.68,
+          "avg_gross_exposure": 0.9478,
+          "n_fills": 114
+        },
+        {
+          "seed": 20260219,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 21527.381847292636,
+          "total_return": -0.784726,
+          "cagr": -0.999816,
+          "sharpe": -5.8934,
+          "max_drawdown": -0.793927,
+          "win_rate": 0.4754,
+          "round_trips": 61,
+          "cumulative_transaction_costs": 117.29,
+          "avg_gross_exposure": 0.9475,
+          "n_fills": 114
+        }
+      ],
+      "sleeve_mechanics_full": {
+        "sleeve_buys": 76,
+        "sleeve_liquidations": 67,
+        "engine_fills": 147
+      },
+      "paired_vs_control": {
+        "paired_full": {
+          "n": 194,
+          "mean_daily_delta": -0.00688016,
+          "sd_daily_delta": 0.088543,
+          "t_stat": -1.082
+        },
+        "paired_holdout": {
+          "n": 45,
+          "mean_daily_delta": -0.02714528,
+          "sd_daily_delta": 0.08162053,
+          "t_stat": -2.231
+        }
+      }
+    }
+  }
+}

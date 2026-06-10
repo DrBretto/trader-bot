@@ -1,0 +1,41 @@
+{
+  "pilot": "baseline_check",
+  "packet": "PKT-TB-005-EXPANSION-ATLAS-V1-20260609",
+  "code_sha": "847c66166da3d4ec5a313011c7d513540e00caad",
+  "params_hash": "c680eed2509ef761",
+  "seed": 20260217,
+  "data_snapshot": {
+    "source": "s3://investment-system-data/daily/",
+    "range": [
+      "2025-08-04",
+      "2026-06-09"
+    ],
+    "cache_built_at": "2026-06-09T23:56:20",
+    "n_snapshots": 194
+  },
+  "holdout_start": "2026-03-11",
+  "holdout_looks_this_pilot": 5,
+  "fill_cost_model": "paper_trader.execute_trade (production, unmodified)",
+  "command": ".venv/bin/python runs/pkt_tb_005_expansion_atlas/pilots/pilot_baseline_check.py",
+  "wall_clock_seconds": 350.7,
+  "variants_logged": [
+    "ens_stored/full",
+    "ens_stored/holdout",
+    "ens_nodis/full",
+    "ens_nodis/holdout",
+    "rules_raw/full",
+    "rules_raw/holdout",
+    "rules_storedsizing/full",
+    "rules_storedsizing/holdout",
+    "rules_ema/full",
+    "rules_ema/holdout",
+    "health_rules/full",
+    "health_rules/holdout",
+    "rules_ema_hl2/pre_holdout(sweep)",
+    "rules_ema_hl3/pre_holdout(sweep)",
+    "rules_ema_hl5/pre_holdout(sweep)",
+    "v1 no-ranking battery preserved as results_baseline_check_NORANKING_v1.json"
+  ],
+  "notes": "v2 with Skeptic repairs R1-R4. Stored-inference fallback era: 128/194 days are rule one-hots; deep-vs-rule verdicts conditioned on deep-era dates. rules_storedsizing is the admissible label-path verdict. Verdict noise model = paired daily t (>=3.0 shows something; 2-3 suggestive; <2 noise), NOT seed-std. Monthly-retrain process noted: deep arm reflects production process, not a fixed model.",
+  "written_at": "2026-06-10T00:28:28"
+}

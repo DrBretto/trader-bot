@@ -1,0 +1,25 @@
+{
+  "n_deep_era_dates": 66,
+  "caveat": "underpowered by construction (se(rho)~0.13 at n~66); direction only",
+  "m16_disagreement_vs_fwd_vol_5d": {
+    "n": 63,
+    "spearman_rho": -0.082,
+    "p": 0.522
+  },
+  "m16_disagreement_vs_label_flip_5d": {
+    "n": 65,
+    "spearman_rho": 0.367,
+    "p": 0.003
+  },
+  "m05_member_prob_correlation": {
+    "n": 66,
+    "mean": 0.456,
+    "median": 0.867,
+    "p10": -0.313,
+    "share_above_0.9": 0.379
+  },
+  "m16_disagreement_summary": {
+    "mean": 0.391,
+    "p90": 0.985
+  }
+}

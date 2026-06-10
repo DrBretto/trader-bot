@@ -1,0 +1,393 @@
+{
+  "preregistered_holdout_arm_reads": [
+    "vixy_off",
+    "dedup",
+    "both"
+  ],
+  "skeptic_standard": "tie favors removal (harmlessness bound)",
+  "dedup_dropped": [
+    "VOO",
+    "IVV",
+    "VTI",
+    "BND",
+    "IYR",
+    "SOXX",
+    "IBB",
+    "VEA",
+    "VWO"
+  ],
+  "arms": {
+    "control": {
+      "full": [
+        {
+          "seed": 20260217,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104584.77587527865,
+          "total_return": 0.045848,
+          "cagr": 0.059959,
+          "sharpe": 0.453,
+          "max_drawdown": -0.122901,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 518.31,
+          "avg_gross_exposure": 0.5065,
+          "n_fills": 145
+        },
+        {
+          "seed": 20260218,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104528.44742472745,
+          "total_return": 0.045284,
+          "cagr": 0.059217,
+          "sharpe": 0.4484,
+          "max_drawdown": -0.122947,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 572.51,
+          "avg_gross_exposure": 0.5066,
+          "n_fills": 145
+        }
+      ],
+      "holdout": [
+        {
+          "seed": 20260217,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94129.75509251792,
+          "total_return": -0.058702,
+          "cagr": -0.287359,
+          "sharpe": -1.0682,
+          "max_drawdown": -0.122123,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 146.33,
+          "avg_gross_exposure": 0.3622,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260218,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94140.69146581192,
+          "total_return": -0.058593,
+          "cagr": -0.286895,
+          "sharpe": -1.0665,
+          "max_drawdown": -0.12206,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 133.98,
+          "avg_gross_exposure": 0.3622,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260219,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94151.8906951929,
+          "total_return": -0.058481,
+          "cagr": -0.28642,
+          "sharpe": -1.0636,
+          "max_drawdown": -0.122098,
+          "win_rate": 0.75,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 118.73,
+          "avg_gross_exposure": 0.3622,
+          "n_fills": 55
+        }
+      ]
+    },
+    "vixy_off": {
+      "full": [
+        {
+          "seed": 20260217,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104606.04378027341,
+          "total_return": 0.04606,
+          "cagr": 0.060239,
+          "sharpe": 0.4545,
+          "max_drawdown": -0.122901,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 518.4,
+          "avg_gross_exposure": 0.506,
+          "n_fills": 145
+        },
+        {
+          "seed": 20260218,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104549.70186377171,
+          "total_return": 0.045497,
+          "cagr": 0.059497,
+          "sharpe": 0.4499,
+          "max_drawdown": -0.122947,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 572.59,
+          "avg_gross_exposure": 0.5062,
+          "n_fills": 145
+        }
+      ],
+      "holdout": [
+        {
+          "seed": 20260217,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94147.1064564647,
+          "total_return": -0.058529,
+          "cagr": -0.286623,
+          "sharpe": -1.0633,
+          "max_drawdown": -0.122123,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 146.35,
+          "avg_gross_exposure": 0.3602,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260218,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94160.10418095383,
+          "total_return": -0.058399,
+          "cagr": -0.286071,
+          "sharpe": -1.0612,
+          "max_drawdown": -0.12206,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 134.08,
+          "avg_gross_exposure": 0.3603,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260219,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94171.32017571786,
+          "total_return": -0.058287,
+          "cagr": -0.285595,
+          "sharpe": -1.0583,
+          "max_drawdown": -0.122098,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 118.79,
+          "avg_gross_exposure": 0.3602,
+          "n_fills": 55
+        }
+      ],
+      "paired_vs_control": {
+        "paired_full": {
+          "n": 194,
+          "mean_daily_delta": 1.11e-06,
+          "sd_daily_delta": 0.00035793,
+          "t_stat": 0.043
+        },
+        "paired_holdout": {
+          "n": 45,
+          "mean_daily_delta": 4.36e-06,
+          "sd_daily_delta": 0.00075035,
+          "t_stat": 0.039
+        }
+      }
+    },
+    "dedup": {
+      "full": [
+        {
+          "seed": 20260217,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104683.62032099366,
+          "total_return": 0.046836,
+          "cagr": 0.06126,
+          "sharpe": 0.4622,
+          "max_drawdown": -0.122797,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 517.47,
+          "avg_gross_exposure": 0.5037,
+          "n_fills": 145
+        },
+        {
+          "seed": 20260218,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104634.0393353958,
+          "total_return": 0.04634,
+          "cagr": 0.060607,
+          "sharpe": 0.4581,
+          "max_drawdown": -0.122835,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 573.12,
+          "avg_gross_exposure": 0.5038,
+          "n_fills": 145
+        }
+      ],
+      "holdout": [
+        {
+          "seed": 20260217,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94129.75509251792,
+          "total_return": -0.058702,
+          "cagr": -0.287359,
+          "sharpe": -1.0682,
+          "max_drawdown": -0.122123,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 146.33,
+          "avg_gross_exposure": 0.3622,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260218,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94140.69146581192,
+          "total_return": -0.058593,
+          "cagr": -0.286895,
+          "sharpe": -1.0665,
+          "max_drawdown": -0.12206,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 133.98,
+          "avg_gross_exposure": 0.3622,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260219,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94151.8906951929,
+          "total_return": -0.058481,
+          "cagr": -0.28642,
+          "sharpe": -1.0636,
+          "max_drawdown": -0.122098,
+          "win_rate": 0.75,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 118.73,
+          "avg_gross_exposure": 0.3622,
+          "n_fills": 55
+        }
+      ],
+      "paired_vs_control": {
+        "paired_full": {
+          "n": 194,
+          "mean_daily_delta": 4.45e-06,
+          "sd_daily_delta": 0.00032378,
+          "t_stat": 0.191
+        },
+        "paired_holdout": {
+          "n": 45,
+          "mean_daily_delta": 0.0,
+          "sd_daily_delta": 0.0,
+          "t_stat": 0.0
+        }
+      }
+    },
+    "both": {
+      "full": [
+        {
+          "seed": 20260217,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104704.88822598843,
+          "total_return": 0.047049,
+          "cagr": 0.06154,
+          "sharpe": 0.4637,
+          "max_drawdown": -0.122797,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 517.56,
+          "avg_gross_exposure": 0.5033,
+          "n_fills": 145
+        },
+        {
+          "seed": 20260218,
+          "n_days": 194,
+          "start_value": 100000.0,
+          "end_value": 104655.29377444007,
+          "total_return": 0.046553,
+          "cagr": 0.060887,
+          "sharpe": 0.4596,
+          "max_drawdown": -0.122835,
+          "win_rate": 0.6979,
+          "round_trips": 96,
+          "cumulative_transaction_costs": 573.2,
+          "avg_gross_exposure": 0.5034,
+          "n_fills": 145
+        }
+      ],
+      "holdout": [
+        {
+          "seed": 20260217,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94147.1064564647,
+          "total_return": -0.058529,
+          "cagr": -0.286623,
+          "sharpe": -1.0633,
+          "max_drawdown": -0.122123,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 146.35,
+          "avg_gross_exposure": 0.3602,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260218,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94160.10418095383,
+          "total_return": -0.058399,
+          "cagr": -0.286071,
+          "sharpe": -1.0612,
+          "max_drawdown": -0.12206,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 134.08,
+          "avg_gross_exposure": 0.3603,
+          "n_fills": 55
+        },
+        {
+          "seed": 20260219,
+          "n_days": 45,
+          "start_value": 100000.0,
+          "end_value": 94171.32017571786,
+          "total_return": -0.058287,
+          "cagr": -0.285595,
+          "sharpe": -1.0583,
+          "max_drawdown": -0.122098,
+          "win_rate": 0.7222,
+          "round_trips": 36,
+          "cumulative_transaction_costs": 118.79,
+          "avg_gross_exposure": 0.3602,
+          "n_fills": 55
+        }
+      ],
+      "paired_vs_control": {
+        "paired_full": {
+          "n": 194,
+          "mean_daily_delta": 5.55e-06,
+          "sd_daily_delta": 0.00048239,
+          "t_stat": 0.16
+        },
+        "paired_holdout": {
+          "n": 45,
+          "mean_daily_delta": 4.36e-06,
+          "sd_daily_delta": 0.00075035,
+          "t_stat": 0.039
+        }
+      }
+    }
+  },
+  "precheck": {
+    "vixy_fills_control": 3,
+    "duplicate_cohold_days_control": {
+      "SMH+SOXX": 2
+    }
+  }
+}

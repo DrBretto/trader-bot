@@ -1,0 +1,80 @@
+{
+  "arms": {
+    "blend_035": {
+      "full": {
+        "n_days": 194,
+        "start_value": 100000.0,
+        "end_value": 104584.77587527865,
+        "total_return": 0.045848,
+        "cagr": 0.059959,
+        "sharpe": 0.453,
+        "max_drawdown": -0.122901,
+        "win_rate": 0.6979,
+        "round_trips": 96,
+        "cumulative_transaction_costs": 518.31,
+        "avg_gross_exposure": 0.5065,
+        "n_fills": 145
+      },
+      "holdout": {
+        "n_days": 45,
+        "start_value": 100000.0,
+        "end_value": 94129.75509251792,
+        "total_return": -0.058702,
+        "cagr": -0.287359,
+        "sharpe": -1.0682,
+        "max_drawdown": -0.122123,
+        "win_rate": 0.7222,
+        "round_trips": 36,
+        "cumulative_transaction_costs": 146.33,
+        "avg_gross_exposure": 0.3622,
+        "n_fills": 55
+      }
+    },
+    "blend_0": {
+      "full": {
+        "n_days": 194,
+        "start_value": 100000.0,
+        "end_value": 109077.07785200916,
+        "total_return": 0.090771,
+        "cagr": 0.119476,
+        "sharpe": 1.3171,
+        "max_drawdown": -0.040218,
+        "win_rate": 0.65,
+        "round_trips": 100,
+        "cumulative_transaction_costs": 540.56,
+        "avg_gross_exposure": 0.5826,
+        "n_fills": 158
+      },
+      "holdout": {
+        "n_days": 45,
+        "start_value": 100000.0,
+        "end_value": 101637.37164236522,
+        "total_return": 0.016374,
+        "cagr": 0.095214,
+        "sharpe": 1.4709,
+        "max_drawdown": -0.015503,
+        "win_rate": 0.6154,
+        "round_trips": 39,
+        "cumulative_transaction_costs": 169.05,
+        "avg_gross_exposure": 0.3543,
+        "n_fills": 61
+      }
+    }
+  },
+  "preregistered_holdout_arm_reads": [
+    "blend_0"
+  ],
+  "note": "blend_0.35 control re-uses the battery control read; contamination favors the ranking arm (model trained 2026-04-29, inside the holdout window)",
+  "paired_blend035_minus_blend0_full": {
+    "n": 194,
+    "mean_daily_delta": -0.00018139,
+    "sd_daily_delta": 0.00854033,
+    "t_stat": -0.296
+  },
+  "paired_blend035_minus_blend0_holdout": {
+    "n": 45,
+    "mean_daily_delta": -0.00155115,
+    "sd_daily_delta": 0.01593184,
+    "t_stat": -0.653
+  }
+}
