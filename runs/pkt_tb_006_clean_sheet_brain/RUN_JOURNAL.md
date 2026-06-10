@@ -89,3 +89,12 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   retrain diagnostics: beta_to dominance signature confirmed (val_util peaks epoch ~1 then collapses);
   early-stop checkpoint selects best-val epoch; smoke replay f~0.43, non-degenerate. Watch trust
   variability per-fold at battery time (std(tau)<0.02 kill criterion).
+- 2026-06-10 :: FINAL training complete (fa499fa): LLM merge bit-identical on non-LLM cols; GBM/Event/
+  Risk final (EventHead abstain 8-13%, was 100% pre-LLM); executive ladder verdict = LINEAR TWIN (MLP
+  1.688e-4 < twin 1.701e-4); static-trust + calibration kills fire (per-fold std(tau) 0.001-0.003,
+  corr -0.281); fine-tune delta exactly 0, de-claimed. EA: CHAMPION SHIPS (gate +0.876 > 1.0x sd 0.638;
+  beats B1 0.838) -- evolution measurably not ceremonial on E1; champion gated OFF G1_themes+G3_tone.
+  Transfer-B ships on CAST only. Step-10: SYN-1 beats all 3 floors every fold (pooled Sharpe 1.19 vs
+  0.51-0.61); DIVERSITY FLOOR TRIGGERED (0.941 >= 0.90, pre-registered equal-trust-tie statement
+  applies); break-even IC passed (0.085 >> 0.02).
+- 2026-06-10 :: SYN-1 CONFIGURATION FREEZE COMMIT FOLLOWS (FREEZE_SYN1.md). Holdout looks: 0.
