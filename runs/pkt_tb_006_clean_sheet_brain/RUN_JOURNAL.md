@@ -22,3 +22,14 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   CRITICAL: GDELT local history ends 2026-02-04 — top-up backfill is a Phase C prerequisite.
   Seal intact: no incumbent reads by any role.
 - 2026-06-10 :: Dispatching Architects Alpha/Beta/Gamma (independent complete designs, sealed rule absolute).
+- 2026-06-10 :: Architects returned three independent complete designs (no cross-reading):
+  DESIGN_ALPHA "FORECAST FIRST" (cross-sectional rank forecasting, 5-organ ensemble, CAST transformer
+  45k params, meta-labeling gate), DESIGN_BETA "BOOKWRIGHT" (direct-allocation policy brain, 4 policy
+  families emitting books, differentiable replay, evolution evolves reward-shaping library), DESIGN_GAMMA
+  (information-funnel brain, event-theme transformer over GDELT/LLM event tokens, info-health-aware
+  executive). All three adopted the specialist proposals with stated adaptations.
+- 2026-06-10 :: REGISTRATION COMMIT FOLLOWS THIS ENTRY. Until this point, NO panel role and not the
+  orchestrator has read: decision_engine.py, src/signals/, regime fusion, optimizer/fitness.py,
+  summary.md strategy sections, prior committee returns under runs/, strategies.py, or parameter
+  bundles. Seal incidents across all Phase 0/A subagents: none. After this commit the incumbent
+  becomes readable as the bake-off opponent only.
