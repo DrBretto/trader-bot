@@ -109,3 +109,26 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   printed with the verdict. R13/R14 raw byte-identical to R01 (seed sensitivity confined to cost
   overlay, spread <= $2.81). Evidence: prototype/evidence/ (15 comparisons + scorecard), BAKEOFF.md,
   ATTRIBUTION.md, COST_WORKSHEET.md.
+- 2026-06-10 :: SUPERSESSION RECORD + PHASE-D EVIDENCE REPAIRS (Skeptic Phase-D review F3/F5/F6/F11).
+  SUPERSESSION (F6): the wiring adjudication journaled earlier today (E2 verdict pair = native
+  03-11-seeded holdout-window runs, with the full-period context pair via seed-date override) was
+  SUPERSEDED by the REGISTERED text, which governs: TOURNAMENT §4.1 "Both runs replay the full
+  window... The VERDICT is read holdout-only". The battery implemented the registered text — R01/R02
+  ran the full window (seed-date override 2026-02-03, identical for both arms) and the verdict was
+  read on the holdout slice of those runs; no native 03-11-seeded pair ran and the 2 contingency
+  slots it would have consumed were not consumed. Effect (stated, not adjudicated away): each arm
+  enters the holdout with its own replayed book rather than the common live book; symmetric across
+  arms. (F5): the post-hoc cost overlay STANDS as the §4.1 "same cost model, same seeded rng"
+  implementation — identical overlay on both arms' executed fills, seed 4242, raw + cost-adjusted
+  both reported; adjudicated and journaled earlier today BEFORE any replay; it is additionally
+  listed in COMMITTEE_REPORT.md as an executed post-registration deviation per §4's preamble. (F7):
+  the required plain statement — in the shipped configuration RiskNet+ outputs are not consumed by
+  the replay — is handled in COMMITTEE_REPORT.md. REPAIRS EXECUTED: (F3) BAKEOFF.md §3.1 +
+  SCORECARD.md now disclose the structural Monday exclusion (Tue-Sat snapshot cadence; Monday dirs
+  carry no prices/inference — verified in cache/s3/daily/) and print the n-boundary sensitivity
+  side by side (hypothetical n=62 same-distribution t ~ -1.10 -> LOSES; actual registered read n=44
+  t=-0.92 -> TIES). (F11) §4.6.6 train-vs-harness gap diagnostic DELIVERED (gap_diagnostic.py ->
+  evidence/gap_diagnostic.json, pre-holdout dates 2026-02-04->2026-03-06 only, zero holdout looks):
+  training-convention 3.45 bp/day vs harness 14.29 bp/day mean |daily utility| on 18 identical
+  steps -> gap 122.1% > 25% => reported as relaxation-gaming per the pre-registered sentence;
+  SCORECARD gate 6 updated from NOT PROVIDED. Holdout flag stayed UNSET throughout the repairs.

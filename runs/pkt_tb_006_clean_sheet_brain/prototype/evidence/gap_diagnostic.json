@@ -1,0 +1,129 @@
+{
+ "generated": "2026-06-10T19:28:47",
+ "gate": "TOURNAMENT \u00a74.6 item 6 (Skeptic B-K2) \u2014 train-vs-harness gap",
+ "window": {
+  "slice": "pre-holdout replay dates only",
+  "first_decision_date": "2026-02-04",
+  "last_decision_date": "2026-03-06",
+  "n_decision_dates": 19,
+  "n_paired_steps": 18,
+  "holdout_start_never_touched": "2026-03-11",
+  "training_window_caveat": "the executive/EA training window ends FITNESS_END = 2026-02-06; every step from 2026-02-06 onward reads the simulator OUT-OF-SAMPLE (16 of 18 steps), so this compares conventions (training utility math vs harness fills), not in-sample fit"
+ },
+ "simulator_side": {
+  "what": "deployed FROZEN config (linear twin, champion genome, trailing-21 sigma) walked over store/nightly inputs with ea.fold_utility/e1_reads training math: smooth rails, cost=|traded|@half_spread/1e4 at scenario 1.0, w_prev/equity/dd threading; seeded from the same 2026-02-03 live book the harness seeds from",
+  "mean_abs_daily_utility": 0.0003452917324373568,
+  "mean_daily_utility": -5.861299618922403e-05,
+  "sd_daily_utility": 0.00047221526247881164
+ },
+ "harness_side": {
+  "what": "R01 cost-adjusted daily returns (runs_battery/R01/daily_series.csv), identical dates, pre-holdout rows only",
+  "mean_abs_daily_utility": 0.0014286746906630949,
+  "mean_daily_utility": 1.7514967392797921e-06,
+  "sd_daily_utility": 0.001881444139424084
+ },
+ "gap": {
+  "abs_diff_of_mean_abs_daily_utility": 0.001083382958225738,
+  "pct_of_mean_abs_daily_utility": 122.14244239552792,
+  "denominator": "pooled mean |daily utility| across both sides = 0.000886983",
+  "per_date_mean_abs_diff": 0.0011890050418601975,
+  "per_date_mean_abs_diff_pct_of_mean_abs": 134.05045624055418,
+  "daily_series_correlation": 0.7497475358540819,
+  "threshold_pct": 25.0
+ },
+ "verdict_sentence": "Train-vs-harness gap = 122.1% of mean |daily utility| (> 25%): reported as relaxation-gaming per TOURNAMENT \u00a74.6.6.",
+ "per_step": [
+  {
+   "step": "2026-02-04->2026-02-05",
+   "sim": -0.0007856624348150029,
+   "harness": -0.0007543004909893458
+  },
+  {
+   "step": "2026-02-05->2026-02-06",
+   "sim": 0.0006996765265260857,
+   "harness": 0.004194217907957709
+  },
+  {
+   "step": "2026-02-06->2026-02-10",
+   "sim": 0.00045842275293086007,
+   "harness": -0.000677164178550127
+  },
+  {
+   "step": "2026-02-10->2026-02-11",
+   "sim": 0.0003276371260997711,
+   "harness": 0.0027614856426791956
+  },
+  {
+   "step": "2026-02-11->2026-02-12",
+   "sim": -0.00036328622216719284,
+   "harness": -0.0025072387215012704
+  },
+  {
+   "step": "2026-02-12->2026-02-13",
+   "sim": 0.0002125899576389141,
+   "harness": 0.002035752296767779
+  },
+  {
+   "step": "2026-02-13->2026-02-17",
+   "sim": -0.00017452888543209534,
+   "harness": -0.0014969703643505916
+  },
+  {
+   "step": "2026-02-17->2026-02-18",
+   "sim": 0.0001586350370759075,
+   "harness": 0.0010853014563154684
+  },
+  {
+   "step": "2026-02-18->2026-02-19",
+   "sim": -5.349721854780201e-05,
+   "harness": 0.00016129073552195727
+  },
+  {
+   "step": "2026-02-19->2026-02-20",
+   "sim": 0.0002337377667050843,
+   "harness": 0.0005227101535993928
+  },
+  {
+   "step": "2026-02-20->2026-02-24",
+   "sim": 1.4956947670125914e-05,
+   "harness": 0.00022989933526362805
+  },
+  {
+   "step": "2026-02-24->2026-02-25",
+   "sim": 0.00016104623424335142,
+   "harness": -0.0007614268185758277
+  },
+  {
+   "step": "2026-02-25->2026-02-26",
+   "sim": -1.7658146015898377e-05,
+   "harness": -1.7478554383720812e-05
+  },
+  {
+   "step": "2026-02-26->2026-02-27",
+   "sim": 6.731526581280525e-05,
+   "harness": 0.001883178158516241
+  },
+  {
+   "step": "2026-02-27->2026-03-03",
+   "sim": -0.0012202510677611603,
+   "harness": -0.0025147309131103857
+  },
+  {
+   "step": "2026-03-03->2026-03-04",
+   "sim": 0.00024609101153028984,
+   "harness": -0.0001033938550607516
+  },
+  {
+   "step": "2026-03-04->2026-03-05",
+   "sim": -0.0006461067534285997,
+   "harness": -0.002789506760221161
+  },
+  {
+   "step": "2026-03-05->2026-03-06",
+   "sim": -0.00037415182947147607,
+   "harness": -0.0012200980885711532
+  }
+ ],
+ "warnings": [],
+ "mechanism_note": "The gap is dominated by realized-book divergence, not by the \u00b12 bps cost-noise term: under the frozen genome's no-trade band (0.026/symbol) the training-convention walk trims the inherited 2026-02-03 seed book to ~3% gross and holds, while the harness book retained an inherited ~22% SCHD position over the window \u2014 the seed portfolio held SCHD in two equal lots and the adapter's per-symbol trim reduced only one lot's worth (verifiable in runs_battery/R01/result.json final_holdings: SCHD 738.0 + 13.88 shares remain). Harness replay reality therefore differs materially from the training-utility assumptions on the same dates, which is exactly what this gate measures; the pre-registered consequence sentence is printed unmodified."
+}

@@ -67,7 +67,49 @@ t>=+1.0 AND dSharpe>0; LOSES iff t<=-1.0; TIES iff |t|<1.0), holdout
 dSharpe=-0.39, holdout dReturn=-3.68% (endpoint context).
 
 Honesty line (§4.2, printed with the verdict): at t=+-1 the per-comparison false-call probability under the null ~ 16% one-sided; holdout MDE at t=2 ~ 5 bp/day ~ dSharpe_ann ~ 4.0 — the bake-off verdict is a sign-grade read; full-period paired stats are context, never the verdict.
-This holdout's computed MDE at |t|=2 is +20.71 bp/day on n=44 days.
+This holdout's computed MDE at |t|=2 is +20.71 bp/day on n=44 days. The verbatim
+"~ 5 bp/day" was the pre-registration's power estimate at the planned n~62; on the
+realized n=44 sample the computed MDE is ~4x that estimate — no reader should anchor
+on 5 bp/day (see §3.1 for why n=44).
+
+### 3.1 Sample-construction disclosure: the verdict series structurally excludes Mondays; n-boundary sensitivity
+
+*(Phase-D evidence repair, 2026-06-10, Skeptic Phase-D review finding F3. Appended
+post-assembly; everything below is verified against the cached snapshot store and the
+harness code, not re-run.)*
+
+**Mechanism (verified):** the production night-analysis cadence is Tue–Sat 03:00 UTC
+(ASSIGNMENT_BRIEF §4 infra/cadence; docs/DEPLOY.md). Monday-dated snapshot dirs in
+`prototype/cache/s3/daily/` therefore carry NO `prices.parquet` / `inference.json` /
+feature artifacts — verified for every Monday from 2026-02-16 through 2026-06-08, each
+containing only `portfolio_state.json` (2026-02-09 has no snapshot dir at all; the
+2026-05-11→05-20 gap days likewise carry only `portfolio_state.json`). The
+harness builds its trading-date list only from dirs that carry `prices.parquet`
+(`run_replay.build_trading_dates`), and the engine additionally requires the decision
+date's own OHLC bar (`replay_engine.run_variant`), which also drops Saturday-dated dirs.
+Consequence: **no Monday-dated decision/valuation date can exist in either arm's series
+— BY HARNESS CONSTRUCTION, identically for both arms** (same trading-date list, same
+engine), and the pre-holdout smoke runs had the same property. Each calendar week
+contributes 4 paired observations, not 5: the Friday→Tuesday step enters as ONE
+observation spanning 2 trading days, and the journaled May snapshot gap enters as one
+2026-05-08→2026-05-21 step (13 calendar days). Multi-day steps treated as single
+"daily" observations mix horizons and inflate the sd.
+
+**Sample size:** holdout paired n=44 (45 holdout decision dates), not the §4.1-planned
+~62 — the plan's ~62 assumed a full Mon–Fri trading grid AND no May snapshot gap.
+
+**Verdict boundary sensitivity (both sentences stand, side by side, no softening):**
+
+- At the observed mean (−8.28 bp/day) and sd (59.50 bp/day), a hypothetical n=62
+  same-distribution read gives paired t ≈ −1.10 → **LOSES** under the pre-registered
+  §4.2 rule (t ≤ −1.0).
+- The pre-registered rule reads the actual paired sample: n=44, paired t = −0.92 →
+  **TIES** (|t| < 1.0).
+
+The TIES verdict is a boundary-sensitive read: at the pre-registered planning sample
+size, the same observed distribution crosses the LOSES line. The registered rule reads
+the actual sample and the verdict stands as TIES; the sensitivity is reported so no
+reader mistakes TIES for parity.
 
 ## 4. Turnover + cost drag, both arms (manifest summaries)
 
@@ -118,7 +160,7 @@ Comparison artifacts: `evidence/R13_seed4243/`, `evidence/R14_seed4244/`.
 - R13 raw_value column byte-identical to R01 (ASSERTED) — only the cost overlay (seed 4243) differs.
 - R14 raw_value column byte-identical to R01 (ASSERTED) — only the cost overlay (seed 4244) differs.
 - FINDING (R07): daily_series.csv byte-identical to R01 — the arm ran --sigma-source trailing21, which IS the deployed FREEZE convention; the E2 contrast is degenerate (diff ≡ 0, paired t undefined). R07 stays in the record as a consumed look (it measured the null contrast by construction); the RiskNet E2 read is sourced from contingency replay R19 (--sigma-source risknet), candidate-minus-deployed orientation.
-- Holdout paired n=44 daily diffs (45 holdout dates), not the §4.1 ~62-day estimate: the full-window snapshot store yields 65 trading dates 2026-02-04->2026-06-10 (`runs_battery/R01/manifest.json` n_decision_dates; snapshot gap 2026-05-11->05-22 journaled in RUN_JOURNAL.md). The printed MDE is computed on the actual n.
+- Holdout paired n=44 daily diffs (45 holdout dates), not the §4.1 ~62-day estimate: the full-window snapshot store yields 65 trading dates 2026-02-04->2026-06-10 (`runs_battery/R01/manifest.json` n_decision_dates; snapshot gap 2026-05-11->05-22 journaled in RUN_JOURNAL.md). The printed MDE is computed on the actual n. **See §3.1**: the larger, previously undisclosed component of the shortfall is the structural Monday exclusion (Tue–Sat snapshot cadence — no Monday dirs carry prices), plus the n-boundary sensitivity of the TIES verdict (n=62 same-distribution t≈−1.10 → LOSES).
 - Metric artifact (forced choice, stats.run_metrics docstring): cumulative_transaction_costs reads 0.00 for R01 in both slices because its only fills occur at the first daily mark — the drag is embedded in v[0] of the cost-adjusted series. The traceable dollar cost is the manifest total_cost_dollars ($28.88 R01 / $364.27 R02), printed in §4 below.
 
 ## 8. Manifests
