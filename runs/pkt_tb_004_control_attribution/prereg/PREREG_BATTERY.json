@@ -1,0 +1,269 @@
+{
+ "packet": "PKT-TB-004-CONTROL-STACK-ATTRIBUTION-V1-20260609",
+ "frozen_from": "Methodologist prescription (committee panel role 3), adopted by chair",
+ "holdout_start": "2026-03-11",
+ "llm_era_start": "2026-01-29",
+ "seeds": [
+  11,
+  17,
+  23,
+  29,
+  31
+ ],
+ "base_bundle_version": "beat-champion-participation-2026-06-06-v1",
+ "decision_rules": {
+  "meaningful_delta": [
+   "paired daily-delta |t| >= 2.0 on identical valuation dates (median seed)",
+   "Newey-West lag-5 |t| >= 1.8",
+   "sign of delta total return identical across all seeds",
+   "|delta total return| > B = 3 * 1.15bps * sqrt(sum_ON wf^2 + sum_OFF wf^2)"
+  ],
+  "keep_cut": "full-period AND holdout deltas agree in sign with full-period clearing the gate; holdout-only marginal effects are noise per the multiple-candidates rule",
+  "cut_list_extra": "delta~0 cut-list entries must also cite T2-ALLOFF or a Tier-3 cell showing the layer inert with its mechanism-group partners off"
+ },
+ "tier1b_trigger": "run T1b-C/N/R iff T1-LLM paired daily |t| >= 2.0 on the LLM-era segment (either period read); else SKIPPED-PARENT-NULL",
+ "tier3_triggers": {
+  "S1_interaction_mass": "|R| > max(0.25 * sum_i |delta_i|, 2*SE(R)) on pre-holdout -> all 6 pairs among top-4 layers by |delta|",
+  "S2_wrong_sign": "pre-holdout |t| >= 2.0 with sign opposite design claim -> pair with 3 largest-|delta| neighbors in mechanism group",
+  "S3_instability": "sign flip pre-holdout vs holdout, both |t| >= 1.5 -> pair with T1-J; DIAGNOSTIC only, never changes a verdict",
+  "cap": 10,
+  "mechanism_groups": {
+   "SIZE": [
+    "T1-A",
+    "T1-B",
+    "T1-LLM",
+    "T1-D",
+    "T1-E",
+    "T1-F"
+   ],
+   "LABEL": [
+    "T1-G",
+    "T1-H",
+    "T1-I",
+    "T1-J"
+   ],
+   "SELL": [
+    "T1-K",
+    "T1-L",
+    "T1-M",
+    "T1-O",
+    "T1-P",
+    "T1-Q"
+   ],
+   "BUYFILTER": [
+    "T1-S",
+    "T1-T"
+   ]
+  }
+ },
+ "holdout_look_budget": "<= 33 attribution reads + 3 named candidates + <= 5 panel-added candidates = K <= 41",
+ "cells": [
+  {
+   "cell_id": "C00",
+   "tier": 0,
+   "layers": [],
+   "description": "baseline: champion as deployed, stored LLM risks wired (llm_mode=full)",
+   "bundle_hash": "sha256:8f5b0694de8b98aee39d33503bb990e4c039e36a1cd99a9217a1915c2535792a"
+  },
+  {
+   "cell_id": "T1-A",
+   "tier": 1,
+   "layers": [
+    "vol_adj"
+   ],
+   "description": "vol_adj all 1.0",
+   "bundle_hash": "sha256:8e5131ce6687a0a2ff509518b821a5c78cc3b513ac9e1fef9cfe7a1aee0ee3fd"
+  },
+  {
+   "cell_id": "T1-B",
+   "tier": 1,
+   "layers": [
+    "regime_adj"
+   ],
+   "description": "regime_adj all 1.0",
+   "bundle_hash": "sha256:9ee2d5f5c2b5e51c3704b03305777c73fffc02b492e4daa1d528275d4cf912d1"
+  },
+  {
+   "cell_id": "T1-LLM",
+   "tier": 1,
+   "layers": [
+    "llm_size_adj",
+    "llm_buy_veto",
+    "llm_sell_veto"
+   ],
+   "description": "LLM layer off (llm_mode=off)",
+   "bundle_hash": "sha256:f96db6f0bdb4e3468e798640c13048ec9849aeecfd06a357e3db4f032fd06207"
+  },
+  {
+   "cell_id": "T1-D",
+   "tier": 1,
+   "layers": [
+    "ensemble_disagreement_multiplier"
+   ],
+   "description": "ensemble multiplier neutralized at fusion rule 6",
+   "bundle_hash": "sha256:49dc512a2b5f26cbb853f28420a8183a22239329bc9dfccc1c068248ab899a69"
+  },
+  {
+   "cell_id": "T1-E",
+   "tier": 1,
+   "layers": [
+    "psm_size_channel"
+   ],
+   "description": "psm size channel neutral: panic/unstable size=1.0, fragility cap=1.0, entropy mult=1.0 (label+throttle kept)",
+   "bundle_hash": "sha256:8e68f621d252490e1a9bfb0dcd386a6ab0f8dd3d5fe6a9c61941b4f25cedf3fa"
+  },
+  {
+   "cell_id": "T1-F",
+   "tier": 1,
+   "layers": [
+    "risk_throttle"
+   ],
+   "description": "throttle consumption off: position_size.throttle_scale=0.0",
+   "bundle_hash": "sha256:c3838466eb1e64d26572921be2443516db408f82cb956a21e1196ccf392e0c90"
+  },
+  {
+   "cell_id": "T1-G",
+   "tier": 1,
+   "layers": [
+    "regime_compatibility"
+   ],
+   "description": "regime_compatibility = {} (all multipliers 1.0)",
+   "bundle_hash": "sha256:81a8254612c0dec5fccc918198305e75941dbdd1a850ffd81ef148257d56cbdb"
+  },
+  {
+   "cell_id": "T1-H",
+   "tier": 1,
+   "layers": [
+    "regime_conditional_buy_thresholds"
+   ],
+   "description": "buy_score_threshold_by_regime removed -> flat champion fallbacks (NOTE: min_health_buy_by_regime absent in champion = partially DEGENERATE)",
+   "bundle_hash": "sha256:57dc1a49c19211a7bdf6bdcac7942b3f99e05196beb637f29937cfffb216756d"
+  },
+  {
+   "cell_id": "T1-I",
+   "tier": 1,
+   "layers": [
+    "regime_conditional_cash_floors"
+   ],
+   "description": "min_cash_reserve_by_regime -> flat 0.10",
+   "bundle_hash": "sha256:6cb2b956ef6f45a23dc7974404cae2a7ad842d67448d6ad07224c58fe7f0675b"
+  },
+  {
+   "cell_id": "T1-J",
+   "tier": 1,
+   "layers": [
+    "regime_label_steering"
+   ],
+   "description": "force raw ensemble label (fusion size/throttle effects kept)",
+   "bundle_hash": "sha256:74eefdfb039312e08ba58286f1482b0f5c751dc775e5773d95bcf90779a19b9f"
+  },
+  {
+   "cell_id": "T1-K",
+   "tier": 1,
+   "layers": [
+    "trailing_stop"
+   ],
+   "description": "trailing stops 9.99 (never fire)",
+   "bundle_hash": "sha256:b0d87ba3604411c11b2073295eddf191274e9a872334efc2ca07192d735d9ceb"
+  },
+  {
+   "cell_id": "T1-L",
+   "tier": 1,
+   "layers": [
+    "health_collapse_sell"
+   ],
+   "description": "sell_health_threshold=-1.0 (never fires)",
+   "bundle_hash": "sha256:87b4b7728f44253dad91cd2888b0818fe8006fbb9a2491615ccb63d927f4e2fa"
+  },
+  {
+   "cell_id": "T1-M",
+   "tier": 1,
+   "layers": [
+    "panic_force_sell"
+   ],
+   "description": "ablation.disable_panic_force_sell",
+   "bundle_hash": "sha256:da6fa27fada19adbd416e9efac6224300de5ce7bf9a4515c071c9f2e8bc11051"
+  },
+  {
+   "cell_id": "T1-O",
+   "tier": 1,
+   "layers": [
+    "leverage_hold_cap"
+   ],
+   "description": "leveraged max_hold_days=100000",
+   "bundle_hash": "sha256:84aadfe08d92535bb37335056c42a30d6f45f8e4fa59d1674ea6f777db4d1c20"
+  },
+  {
+   "cell_id": "T1-P",
+   "tier": 1,
+   "layers": [
+    "reduce_health_drop"
+   ],
+   "description": "reduce_health_drop=0 (disabled)",
+   "bundle_hash": "sha256:0b5bbd7bb7f941f3853b06f696ab5ece93d7907e96007dfe8be6cb998936d254"
+  },
+  {
+   "cell_id": "T1-Q",
+   "tier": 1,
+   "layers": [
+    "reduce_regime_shift"
+   ],
+   "description": "ablation.disable_reduce_regime_shift",
+   "bundle_hash": "sha256:62d77aeb78099313b1ecc2857c5ae12c64c0974eab83acccd31d23c43e30f3ed"
+  },
+  {
+   "cell_id": "T1-S",
+   "tier": 1,
+   "layers": [
+    "vol_bucket_buy_filter"
+   ],
+   "description": "ablation.disable_vol_bucket_filter",
+   "bundle_hash": "sha256:78a6cfde274ee36de303b8941ae6c4cbe86ea979afdcb4cfd496bced62432af2"
+  },
+  {
+   "cell_id": "T1-T",
+   "tier": 1,
+   "layers": [
+    "panic_buy_filter"
+   ],
+   "description": "ablation.disable_panic_buy_filter",
+   "bundle_hash": "sha256:5025bfab709e0e5ad1443d47ce3c0ce4d797996d925bb7c25ac769cb77b09f26"
+  },
+  {
+   "cell_id": "T1b-C",
+   "tier": 1.5,
+   "layers": [
+    "llm_size_adj"
+   ],
+   "description": "LLM size adjust off only (conditional)",
+   "bundle_hash": "sha256:7fb75f00974b6cf9858df904d265a90997eaa34c98a0ee6f009f091c44247231"
+  },
+  {
+   "cell_id": "T1b-N",
+   "tier": 1.5,
+   "layers": [
+    "llm_sell_veto"
+   ],
+   "description": "LLM sell veto off only (conditional)",
+   "bundle_hash": "sha256:393e46636a9a6731f0c5460fe60649ee6a70f56a3c46e94c1e53e4edde2cdd5c"
+  },
+  {
+   "cell_id": "T1b-R",
+   "tier": 1.5,
+   "layers": [
+    "llm_buy_veto"
+   ],
+   "description": "LLM buy veto off only (conditional)",
+   "bundle_hash": "sha256:85350690ce13c796e3ddcdc050f9157ef043a235b828e55333f36037dfd0ce7c"
+  },
+  {
+   "cell_id": "T2-ALLOFF",
+   "tier": 2,
+   "layers": [
+    "ALL"
+   ],
+   "description": "every Tier-1 toggle simultaneously (naked base strategy)",
+   "bundle_hash": "sha256:de34f64c2aa0b7202bb1b206e0574c9285d02ec838932f49c53751c9e149edb0"
+  }
+ ]
+}
