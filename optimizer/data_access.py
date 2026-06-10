@@ -20,6 +20,11 @@ class DailySnapshot:
     inference: Dict[str, Any]
     signal_row: Dict[str, Any]
     next_prices_df: pd.DataFrame
+    # Stored nightly LLM risk flags (daily/<date>/llm_risk.json 'risks' dict).
+    # Empty before 2026-01-29 (the step didn't exist) or when the file is absent.
+    # Consumed only when a candidate bundle opts in via
+    # decision_engine.use_stored_llm_risks (PKT-TB-004 replay flag).
+    llm_risks: Optional[Dict[str, Any]] = None
 
 
 @dataclass
@@ -64,6 +69,8 @@ def load_optimizer_dataset(config: OptimizerConfig) -> OptimizerDataset:
         inference = s3.read_json(f'daily/{date_str}/inference.json')
         signal_df = s3.read_parquet(f'daily/{date_str}/signals.parquet')
         next_prices_df = s3.read_parquet(f'daily/{next_date}/prices.parquet')
+        llm_raw = s3.read_json(f'daily/{date_str}/llm_risk.json')
+        llm_risks = llm_raw.get('risks', {}) if isinstance(llm_raw, dict) else {}
 
         signal_row = _latest_signal_row(signal_df, date_str)
 
@@ -103,6 +110,7 @@ def load_optimizer_dataset(config: OptimizerConfig) -> OptimizerDataset:
                 inference=inference,
                 signal_row=signal_row,
                 next_prices_df=next_prices_df,
+                llm_risks=llm_risks,
             )
         )
 

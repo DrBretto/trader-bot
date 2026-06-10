@@ -204,6 +204,7 @@ def filter_buy_candidates(
     regime_label: str,
     llm_risk_flags: Dict[str, Dict],
     high_vol_exception_score: float = 0.80,
+    ablation: Optional[Dict[str, Any]] = None,
 ) -> pd.DataFrame:
     """
     Apply buy filters.
@@ -213,6 +214,9 @@ def filter_buy_candidates(
     """
     if len(scored_df) == 0:
         return pd.DataFrame()
+
+    # Replay-ablation flags (PKT-TB-004); all default OFF = no behavior change.
+    ablation = ablation or {}
 
     candidates = scored_df.copy()
 
@@ -235,7 +239,7 @@ def filter_buy_candidates(
     candidates = candidates[candidates['health_score'] >= min_health]
 
     # Filter: vol bucket (high vol allowed only in calm_uptrend with exceptional score)
-    if len(candidates) > 0:
+    if len(candidates) > 0 and not ablation.get('disable_vol_bucket_filter'):
         def check_vol(row):
             if row['vol_bucket'] == 'high':
                 return regime_label == 'calm_uptrend' and row['final_score'] > high_vol_exception_score
@@ -243,7 +247,7 @@ def filter_buy_candidates(
         candidates = candidates[candidates.apply(check_vol, axis=1)]
 
     # Filter: LLM veto
-    if len(candidates) > 0:
+    if len(candidates) > 0 and not ablation.get('disable_llm_buy_veto'):
         def check_llm_veto(row):
             symbol = row['symbol']
             if symbol in llm_risk_flags:
@@ -252,7 +256,8 @@ def filter_buy_candidates(
         candidates = candidates[candidates.apply(check_llm_veto, axis=1)]
 
     # Filter: panic mode (only bonds/commodities/defensives)
-    if regime_label == 'high_vol_panic' and len(candidates) > 0:
+    if (regime_label == 'high_vol_panic' and len(candidates) > 0
+            and not ablation.get('disable_panic_buy_filter')):
         candidates = candidates[candidates['asset_class'].isin(['bond', 'commodity'])]
 
     # Sort by score descending
@@ -315,7 +320,8 @@ def evaluate_holdings(
     prices_df: pd.DataFrame,
     params: Dict[str, Any],
     regime_label: str,
-    llm_risk_flags: Dict[str, Dict]
+    llm_risk_flags: Dict[str, Dict],
+    ablation: Optional[Dict[str, Any]] = None,
 ) -> List[Dict]:
     """
     Evaluate each holding for SELL or REDUCE signals.
@@ -324,6 +330,9 @@ def evaluate_holdings(
         List of dicts: [{'symbol': 'SPY', 'action': 'SELL', 'reason': 'STOP_HIT'}, ...]
     """
     actions = []
+
+    # Replay-ablation flags (PKT-TB-004); all default OFF = no behavior change.
+    ablation = ablation or {}
 
     health_map = {h['symbol']: h for h in asset_health}
 
@@ -420,7 +429,7 @@ def evaluate_holdings(
             continue
 
         # 3. Panic mode (asset not allowed)
-        if regime_label == 'high_vol_panic':
+        if regime_label == 'high_vol_panic' and not ablation.get('disable_panic_force_sell'):
             asset_class = holding.get('asset_class', 'equity')
             if asset_class not in ['bond', 'commodity']:
                 actions.append({
@@ -434,7 +443,7 @@ def evaluate_holdings(
                 continue
 
         # 4. LLM structural risk veto
-        if symbol in llm_risk_flags:
+        if symbol in llm_risk_flags and not ablation.get('disable_llm_sell_veto'):
             if llm_risk_flags[symbol].get('structural_risk_veto', False):
                 actions.append({
                     'symbol': symbol,
@@ -503,7 +512,8 @@ def evaluate_holdings(
         #    at buy time; positions without it (legacy/seed) skip this trigger.
         entry_regime = holding.get('entry_regime')
         if (regime_label in ('choppy', 'risk_off_trend')
-                and entry_regime in ('calm_uptrend', 'risk_on_trend')):
+                and entry_regime in ('calm_uptrend', 'risk_on_trend')
+                and not ablation.get('disable_reduce_regime_shift')):
             # Fire ONCE per degradation (spec: "once the regime degrades"), not
             # every day the regime stays bad. Stamp the holding's regime to the
             # current (degraded) label so it won't re-trim until the position is
@@ -763,6 +773,9 @@ def run(
     params = config.get('decision_params', {})
     regime_compat = config.get('regime_compatibility', {})
     decision_engine_overrides = config.get('decision_engine_overrides', {})
+    # Replay-ablation flags (PKT-TB-004): layer toggles for counterfactual
+    # attribution replays. Absent/empty = production behavior, unchanged.
+    ablation = decision_engine_overrides.get('ablation', {}) or {}
     regime_fusion_overrides = config.get('regime_fusion_overrides')
     ensemble_overrides = config.get('ensemble_overrides')
     universe_df = config.get('universe', pd.DataFrame())
@@ -862,7 +875,8 @@ def run(
         features_df,
         params,
         regime_label,
-        llm_risks
+        llm_risks,
+        ablation=ablation,
     )
 
     for action in sell_actions:
@@ -898,6 +912,7 @@ def run(
             'high_vol_bucket_exception_score',
             0.80,
         ),
+        ablation=ablation,
     )
 
     # 3. Generate buy orders (respect max positions and cash reserve)
@@ -980,7 +995,10 @@ def run(
         current_price = symbol_prices.sort_values('date')['close'].iloc[-1]
 
         # Get LLM confidence adjustment
-        llm_conf_adj = llm_risks.get(symbol, {}).get('confidence_adjustment', 0.0)
+        if ablation.get('disable_llm_size_adj'):
+            llm_conf_adj = 0.0
+        else:
+            llm_conf_adj = llm_risks.get(symbol, {}).get('confidence_adjustment', 0.0)
 
         # Compute position size (includes ensemble + expert signal adjustments)
         position = compute_position_size(

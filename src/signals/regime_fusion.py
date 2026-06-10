@@ -79,6 +79,13 @@ def decide_regime_v3(
     final_position_size_clip_max = float(params.get('final_position_size_clip_max', 1.0))
     final_risk_throttle_clip_min = float(params.get('final_risk_throttle_clip_min', 0.0))
     final_risk_throttle_clip_max = float(params.get('final_risk_throttle_clip_max', 1.0))
+    # Replay-ablation flags (PKT-TB-004). Both default OFF = no behavior change.
+    # neutralize_ensemble_multiplier: rule 6 applies 1.0 instead of the ensemble
+    # multiplier, isolating the disagreement-sizing layer for attribution.
+    # force_raw_ensemble_label: the returned label is the raw ensemble label
+    # (suppresses fusion label STEERING only; size/throttle effects are kept).
+    neutralize_ensemble_mult = bool(params.get('neutralize_ensemble_multiplier', False))
+    force_raw_label = bool(params.get('force_raw_ensemble_label', False))
     throttle_mapping = (
         "effective_exposure_multiplier = position_size_modifier * "
         f"(1 - {throttle_to_exposure_scale:.2f} * risk_throttle_factor)"
@@ -258,8 +265,9 @@ def decide_regime_v3(
     )
 
     # --- 6. Ensemble Disagreement (preserves existing behavior) ---
-    disagreement_fired = abs(ensemble_multiplier - 1.0) > 1e-9
-    position_size_mod *= ensemble_multiplier
+    effective_ensemble_multiplier = 1.0 if neutralize_ensemble_mult else ensemble_multiplier
+    disagreement_fired = abs(effective_ensemble_multiplier - 1.0) > 1e-9
+    position_size_mod *= effective_ensemble_multiplier
     _add_rule(
         order=6,
         code='ensemble_disagreement',
@@ -268,10 +276,18 @@ def decide_regime_v3(
         inputs=(
             f"disagreement={ensemble_disagreement:.2f}, "
             f"ensemble_multiplier={ensemble_multiplier:.2f}"
+            + (", NEUTRALIZED(ablation)" if neutralize_ensemble_mult else "")
         ),
         threshold="multiplier<1.00 when disagreement is elevated",
         effect=f"size={position_size_mod:.2f}",
     )
+
+    if force_raw_label and final_regime != ensemble_regime_label:
+        override_reason = (
+            f"ablation_force_raw_label(suppressed={override_reason})"
+            if override_reason else 'ablation_force_raw_label'
+        )
+        final_regime = ensemble_regime_label
 
     # --- Final Clamps ---
     position_size_mod = float(np.clip(

@@ -23,6 +23,9 @@ class ReplayStep:
     regime: str
     actions_count: int
     traded_notional: float
+    # Cash at valuation close — needed for the exposure metric
+    # (mean daily invested fraction = 1 - end_cash/end_value). PKT-TB-004.
+    end_cash: float = 0.0
 
 
 @dataclass
@@ -326,6 +329,12 @@ def run_replay_for_dates(
     decision_params = candidate_bundle.get('decision_params', {})
     regime_compatibility = candidate_bundle.get('regime_compatibility', {})
     signal_overrides = candidate_bundle.get('signals', {})
+    # PKT-TB-004 replay flag: opt in to the stored nightly LLM risk flags
+    # (daily/<date>/llm_risk.json). Default False preserves the historical
+    # behavior of this harness (LLM layer structurally off in replays).
+    use_stored_llm_risks = bool(
+        candidate_bundle.get('decision_engine', {}).get('use_stored_llm_risks', False)
+    )
 
     tx_cost_config = _build_transaction_cost_config(candidate_bundle)
     rng = random.Random(random_seed)
@@ -367,7 +376,7 @@ def run_replay_for_dates(
 
         decisions = decision_engine.run(
             inference_output=snapshot.inference,
-            llm_risks={},
+            llm_risks=(snapshot.llm_risks or {}) if use_stored_llm_risks else {},
             features_df=snapshot.features_df,
             config=decision_config,
             validation={'price_coverage': 1.0, 'degraded_mode': False},
@@ -409,6 +418,7 @@ def run_replay_for_dates(
                 regime=str(decisions.get('regime', 'unknown')),
                 actions_count=len(decisions.get('actions', [])),
                 traded_notional=traded_notional,
+                end_cash=_safe_float(portfolio.get('cash'), 0.0),
             )
         )
 
