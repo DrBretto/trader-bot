@@ -204,6 +204,43 @@ seat to a distinct lens and the shared substrate brief.
    #1) means future packets should roll the boundary forward when the next
    quarter accrues.
 
+## Addendum (2026-06-10, operator-prompted scope correction)
+
+**The deep models evaluated by this run were the MISTRAINED ones.** Per
+`docs/BEAT_CHAMPION_20260606.md`, every regime/health retrain before
+2026-06-06 trained on the truncated corpus (the data-loader fell back to
+`daily/` accumulation — months of data — instead of the 11-year
+`training/data/historical_combined.parquet`; the regime GRU sat at 9% OOS
+accuracy until the 2026-06-06 retrain took it to 73%/67%). Verified against
+stored `model_versions`: of 194 cached days, exactly **1 day (2026-06-09)**
+carries the corrected `*_v20260606` models; all 66 deep-era days the baseline
+and health checks evaluated — including all 45 holdout days — ran the
+short-corpus models.
+
+Scope corrections that follow:
+- **Baseline check (M-01/M-02):** the tie verdict reads "the deep pair AS IT
+  ACTUALLY RAN (short-corpus-trained) does not measurably beat its rule
+  teacher." It is NOT a test of the corrected 2026-06-06 ensemble, which has
+  one stored day of history. The removal-asymmetry kill-license is
+  correspondingly weakened: the live tension is now "remove vs wait," and the
+  ROADMAP 1.2 next-quarter re-read is the FIRST genuine test of the corrected
+  models — that read, not this one, carries the keep/kill decision for the
+  torch regime path.
+- **Health check (M-13):** same rescope — the AE that lost to rank-rules by
+  +14.5pp holdout endpoint was the short-corpus AE (`trained_v20260601` and
+  earlier on every deep-era day but one). Whether the corrected AE closes the
+  gap is exactly what the next-window read answers.
+- **Unaffected:** the ranking-layer findings (separate long-history training
+  path; contamination and IC-collapse facts independent of the regime/health
+  bug), the fallback-era discovery (finding #1), all three bug/ops findings,
+  the universe-removal results, and every paired delta as a statement about
+  the stored record.
+- **Sharpened, not weakened:** finding #1 and this addendum compound — the
+  stored record is rule-fallback for 128 days, mistrained-model output for 65,
+  and corrected-model output for 1. The system's correctly-trained
+  configuration has effectively NO evaluated history yet; all
+  champion/promotion evidence to date should be read with that scope.
+
 ## Final line
 
-ATLAS: 56 candidates → 7 piloted / 40 parked / 9 killed; PILOT VERDICTS: baseline-regime=tie (Δret -1.9pp holdout, t=-0.68, sign flips across ranking variants @E2), health-rules-vs-AE=+14.5pp holdout ret / ΔSharpe +5.8, t=+1.18 noise-with-direction @E2, ranking-layer=-7.5pp holdout ret / ΔmaxDD -10.7pp vs blend-0, t=-0.65 + no clean OOS read exists @E2-contaminated-in-its-favor, cash-sleeve=evidence-incomplete (wiring confounded by production partial-SELL landmine, t=-2.32 @E1), universe-removals=Δ≈0 (|t|≤0.2) → harmless, removals win @E2; BASELINE CHECK: ensemble DOES NOT BEAT dumb baseline by any measurable margin (best |t|=1.05 < 2.0 on 45 holdout days, both directions, both harness variants).
+ATLAS: 56 candidates → 7 piloted / 40 parked / 9 killed; PILOT VERDICTS: baseline-regime=tie (Δret -1.9pp holdout, t=-0.68, sign flips across ranking variants @E2), health-rules-vs-AE=+14.5pp holdout ret / ΔSharpe +5.8, t=+1.18 noise-with-direction @E2, ranking-layer=-7.5pp holdout ret / ΔmaxDD -10.7pp vs blend-0, t=-0.65 + no clean OOS read exists @E2-contaminated-in-its-favor, cash-sleeve=evidence-incomplete (wiring confounded by production partial-SELL landmine, t=-2.32 @E1), universe-removals=Δ≈0 (|t|≤0.2) → harmless, removals win @E2; BASELINE CHECK: ensemble (as-it-ran: short-corpus-mistrained models on every evaluated day; the corrected 2026-06-06 models have 1 stored day and are UNTESTED) DOES NOT BEAT dumb baseline by any measurable margin (best |t|=1.05 < 2.0 on 45 holdout days, both directions, both harness variants).

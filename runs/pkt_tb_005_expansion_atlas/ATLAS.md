@@ -145,12 +145,17 @@ No new launchd jobs, Lambda functions, AWS services, or hosts are required by an
   traded 3× in 194 days, duplicates co-held 2 days). Production adoption is a
   future packet per the evidence-only constraint.
 - **M-01/M-02 baseline check: statistical tie** (no |t| ≥ 2 in either harness
-  variant; delta sign flips with the ranking layer). Tie = kill-license for
-  the torch regime path under the removal asymmetry; dissent recorded.
+  variant; delta sign flips with the ranking layer). **Scope correction
+  (operator-prompted):** every evaluated deep-era day ran the
+  short-corpus-MISTRAINED models (pre-2026-06-06 training-data fallback bug;
+  GRU at 9% OOS before the fix); the corrected models have exactly 1 stored
+  day and are untested. The tie verdict scopes to the ensemble as-it-ran; the
+  next-quarter re-read (ROADMAP 1.2) is the first genuine test of the
+  corrected models and carries the keep/kill decision.
 - **M-13 health check: noise-with-direction** — rule health beat the trained
   AE by +14.5pp on the holdout endpoint at a quarter of the drawdown (t=+1.18,
-  below the bar). Burden of proof now on the AE; first in line for the
-  next-window read.
+  below the bar). Same scope correction: the losing AE was the short-corpus
+  one; the corrected AE's first test is the next-window read.
 - **M-14 ranking: no clean out-of-sample evidence exists**; the active layer
   (blend 0.35) showed -7.5pp holdout endpoint and ~3× max drawdown vs blend 0
   on this harness (t=-0.65, noise at daily level; contamination favors the
