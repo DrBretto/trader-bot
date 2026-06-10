@@ -2,13 +2,20 @@
 
 Covers: Δw -> intent conversion math (never REDUCE, min_order, no_trade_band,
 full-exit exception), the preliminary same-day-row guard (+ prices fallback),
-the holdout guard refusal, and cost-overlay determinism + zero-cost == raw
-identity.
+the holdout guard refusal, cost-overlay determinism + zero-cost == raw
+identity, and the battery knobs: the R08 equal-trust executive bypass
+(tau=1/M over active members, f=0.7), the R07 sigma-source swap
+(trailing21 vs risknet, deterministic + recorded), the R13/R14 --cost-seed
+override, and the per-arm nightly audit copy.
 """
 from __future__ import annotations
 
+import json
+import os
 import sys
+import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
@@ -20,8 +27,11 @@ for p in (str(PROTO), str(REPO)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
+import ea                                   # noqa: E402
 import run_replay as RR                     # noqa: E402
-from strategy_adapter import delta_to_intents, guarded_marks  # noqa: E402
+import strategy_adapter as SA               # noqa: E402
+from strategy_adapter import delta_to_intents, guarded_marks, make_syn1_strategy  # noqa: E402
+from src.utils.three_line_replay.strategies import StrategyContext  # noqa: E402
 
 SYMS = ["SPY", "QQQ", "TLT", "GLD"]
 UNI = {s: {"symbol": s, "asset_class": "equity", "sector": "broad",
@@ -172,8 +182,13 @@ def test_cost_overlay_deterministic():
     a = RR.cost_overlay(_fake_result(), _uni_df(), seed=4242)
     b = RR.cost_overlay(_fake_result(), _uni_df(), seed=4242)
     assert a == b
+    # same seed -> byte-identical serialized overlay (R13/R14 contract)
+    assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
     c = RR.cost_overlay(_fake_result(), _uni_df(), seed=7)
     assert c["total_cost_dollars"] != a["total_cost_dollars"]
+    # different seed -> a DIFFERENT cost-adjusted series, same raw series
+    assert c["cost_adjusted"] != a["cost_adjusted"]
+    assert c["raw"] == a["raw"]
 
 
 def test_cost_overlay_zero_cost_identity():
@@ -197,3 +212,192 @@ def test_cost_overlay_subtracts_cumulative_cashflow():
     assert o["cost_adjusted"][1] == pytest.approx(o["raw"][1] - day1 - day2)
     assert o["cost_adjusted"][2] == pytest.approx(o["raw"][2] - day1 - day2)
     assert all(r["cost_bps"] >= 0 for r in o["trade_costs"])
+
+
+# ------------------------------------------------------------- runner knobs CLI
+def test_runner_cli_knob_defaults_and_overrides():
+    ap = RR.build_parser()
+    a = ap.parse_args(["--arm", "syn1", "--out", "x"])
+    assert a.cost_seed == RR.COST_SEED == 4242
+    assert a.exec_mode == "learned"
+    assert a.sigma_source == "trailing21"        # the landed/R01 behavior, named
+    b = ap.parse_args(["--arm", "syn1", "--out", "x", "--cost-seed", "4243",
+                       "--exec-mode", "equal_trust", "--sigma-source", "risknet"])
+    assert (b.cost_seed, b.exec_mode, b.sigma_source) == \
+        (4243, "equal_trust", "risknet")
+    with pytest.raises(SystemExit):
+        ap.parse_args(["--arm", "syn1", "--out", "x", "--exec-mode", "bogus"])
+    with pytest.raises(SystemExit):
+        ap.parse_args(["--arm", "syn1", "--out", "x", "--sigma-source", "bogus"])
+
+
+# ------------------------------------------------------------- nightly audit copy
+def test_copy_nightly_audit_fresh_files_only(tmp_path):
+    nightly = tmp_path / "nightly"
+    out = tmp_path / "out"
+    dates = ["2026-02-04", "2026-02-05"]
+    for d in dates:
+        dd = nightly / d
+        dd.mkdir(parents=True)
+        (dd / "meta_decision.json").write_text(json.dumps({"date": d}))
+        (dd / "trade_intents.json").write_text(json.dumps({"date": d,
+                                                           "intents": []}))
+    # date 1's files are STALE (written by an earlier arm) -> must be skipped
+    old = time.time() - 3600
+    for name in ("meta_decision.json", "trade_intents.json"):
+        os.utime(nightly / dates[0] / name, (old, old))
+    n = RR.copy_nightly_audit(nightly, out, dates, since_ts=time.time() - 60)
+    assert n == 2
+    assert (out / "nightly_audit" / dates[1] / "meta_decision.json").exists()
+    assert (out / "nightly_audit" / dates[1] / "trade_intents.json").exists()
+    assert not (out / "nightly_audit" / dates[0]).exists()
+    # copied bytes identical to the source
+    assert (out / "nightly_audit" / dates[1] / "meta_decision.json").read_bytes() \
+        == (nightly / dates[1] / "meta_decision.json").read_bytes()
+
+
+# ------------------------------------------------------------- battery knobs
+D_FIX = "2026-02-20"
+MEMBERS = ("cast", "gbm_cond", "event_head")
+
+
+def _nightly_fixture(tmp_path, books_by_member, mu_val=0.5,
+                     sigma_proxy=0.10, sigma_e4=5.0):
+    """Minimal store/nightly/<D> + ledger + universe csv for adapter tests."""
+    nd = tmp_path / "nightly"
+    day = nd / D_FIX
+    day.mkdir(parents=True, exist_ok=True)
+    dates = ["2026-02-17", "2026-02-18", "2026-02-19", D_FIX]
+    pd.DataFrame([{"date": d, "member": m, "u_realized": 0.001,
+                   "w_rec_raw": 0.5} for m in MEMBERS for d in dates]
+                 ).to_parquet(nd / "ledger.parquet", index=False)
+    (nd / "ledger_meta.json").write_text(json.dumps({"u_std": 1.0}))
+    pd.concat([pd.DataFrame({"member": m, "symbol": SYMS, "mu": mu_val,
+                             "sigma": 0.1, "c": 0.5}) for m in MEMBERS]
+              ).to_parquet(day / "expert_opinions.parquet", index=False)
+    pd.concat([pd.DataFrame({"member": m, "symbol": SYMS,
+                             "w": books_by_member[m]}) for m in MEMBERS]
+              ).to_parquet(day / "solo_books.parquet", index=False)
+    pd.DataFrame({"symbol": SYMS, "sigma_hat": sigma_e4, "beta_hat": 1.0,
+                  "book_vol_hat": 2.0, "sigma_hat_proxy": sigma_proxy,
+                  "book_vol_hat_proxy": 0.1}
+                 ).to_parquet(day / "risknet.parquet", index=False)
+    (day / "exec_inputs.json").write_text(json.dumps({
+        "date": D_FIX, "r": [[0.0] * 4] * 3, "z": [0.0] * 24, "c": [0.5] * 3,
+        "agree": [0.0] * 3, "g": [0.0] * 3,
+        "book_vol_hat_proxy": 0.1, "book_vol_hat_e4": 2.0,
+        "members": list(MEMBERS)}))
+    uni = tmp_path / "universe.csv"
+    pd.DataFrame([{"symbol": s, "asset_class": "equity", "sector": "broad",
+                   "leverage_flag": 0} for s in SYMS]).to_csv(uni, index=False)
+    return nd, uni
+
+
+def _ctx():
+    feat = pd.DataFrame([("2026-02-19", s, MARKS[s]) for s in SYMS],
+                        columns=["date", "symbol", "close"])
+    port = SimpleNamespace(cash=100_000.0, positions=[])
+    return StrategyContext(inputs_date=D_FIX, portfolio=port, variant_config={},
+                           expert_signals={}, expert_metrics={}, decisions={},
+                           panic_streak=0, last_regime=None, features_df=feat,
+                           inference={}, llm_risks={})
+
+
+def _equal_trust_strategy(tmp_path, nd, uni, genome=None, **kw):
+    return make_syn1_strategy(genome or ea.Genome.b0(),
+                              exec_weights_dir=tmp_path / "no_exec_weights",
+                              nightly_dir=nd, cache=None, universe_csv=uni,
+                              exec_mode="equal_trust", **kw)
+
+
+def test_equal_trust_forward_math_tau_and_f(tmp_path):
+    """R08 bypass: tau = 1/M, f = 0.7, w_tgt = 0.7 * mean(books) (no rails)."""
+    books = {m: np.full(4, 0.1) for m in MEMBERS}
+    nd, uni = _nightly_fixture(tmp_path, books)
+    strat = _equal_trust_strategy(tmp_path, nd, uni)
+    intents = strat.post_decision(_ctx(), [])
+    meta = json.loads((nd / D_FIX / "meta_decision.json").read_text())
+    assert meta["exec_mode"] == "equal_trust"
+    assert meta["deployment_fraction"] == pytest.approx(0.7)
+    for m in MEMBERS:
+        assert meta["trust"][m] == pytest.approx(1.0 / 3.0)
+        assert meta["blend_coef"][m] == pytest.approx(1.0 / 3.0)
+    assert meta["n_exec_seeds"] == 0                 # learned exec never loaded
+    assert meta["rails"] == []
+    assert meta["gross_target_applied"] == pytest.approx(0.7 * 0.4)
+    # w_tgt = 0.7 * 0.1 per symbol -> $7000 BUYs
+    by = {i["symbol"]: i for i in intents}
+    assert set(by) == set(SYMS)
+    for s in SYMS:
+        assert by[s]["action"] == "BUY"
+        assert by[s]["dollars"] == pytest.approx(7000.0)
+        exp = int(7000.0 / MARKS[s])
+        assert by[s]["shares"] in (exp, exp - 1)     # int-truncation float edge
+
+
+def test_equal_trust_over_active_members_only(tmp_path):
+    """tau = 1/M over ACTIVE members: gated member at exactly 0, rest 1/2."""
+    books = {"cast": np.array([0.2, 0.0, 0.0, 0.0]),
+             "gbm_cond": np.array([0.0, 0.2, 0.0, 0.0]),
+             "event_head": np.array([0.0, 0.0, 0.2, 0.0])}
+    nd, uni = _nightly_fixture(tmp_path, books)
+    g = ea.Genome.b0()
+    g.member_gate = [1, 0, 1]
+    strat = _equal_trust_strategy(tmp_path, nd, uni, genome=g)
+    intents = strat.post_decision(_ctx(), [])
+    meta = json.loads((nd / D_FIX / "meta_decision.json").read_text())
+    assert meta["trust"] == pytest.approx(
+        {"cast": 0.5, "gbm_cond": 0.0, "event_head": 0.5})
+    # blend = 0.5*cast + 0.5*event books -> SPY/TLT at 0.7*0.1, no QQQ/GLD
+    by = {i["symbol"]: i for i in intents}
+    assert set(by) == {"SPY", "TLT"}
+    assert by["SPY"]["dollars"] == pytest.approx(7000.0)
+    # all members gated off refuses at build time
+    g2 = ea.Genome.b0()
+    g2.member_gate = [0, 0, 0]
+    with pytest.raises(ValueError, match="gated off"):
+        _equal_trust_strategy(tmp_path, nd, uni, genome=g2)
+
+
+def test_sigma_source_swap_hits_vol_cap_path_and_is_recorded(tmp_path):
+    """R07: 'risknet' selects the E4 sigma_hat column (here huge -> vol cap
+    binds); 'trailing21' keeps the proxy (no rail). Both named in meta."""
+    books = {m: np.full(4, 0.1) for m in MEMBERS}
+    nd, uni = _nightly_fixture(tmp_path, books, sigma_proxy=0.10, sigma_e4=5.0)
+    g = ea.Genome.b0()
+    strat_t = _equal_trust_strategy(tmp_path, nd, uni, sigma_source="trailing21")
+    strat_t.post_decision(_ctx(), [])
+    meta_t = json.loads((nd / D_FIX / "meta_decision.json").read_text())
+    assert meta_t["sigma_source"] == "trailing21"
+    assert "vol_cap" not in meta_t["rails"]
+    assert meta_t["est_book_vol"] == pytest.approx(0.7 * 0.4 * 0.10, abs=1e-9)
+    strat_r = _equal_trust_strategy(tmp_path, nd, uni, sigma_source="risknet")
+    strat_r.post_decision(_ctx(), [])
+    meta_r = json.loads((nd / D_FIX / "meta_decision.json").read_text())
+    assert meta_r["sigma_source"] == "risknet"
+    assert "vol_cap" in meta_r["rails"]              # 0.28*5.0 >> vol_target 0.10
+    assert meta_r["est_book_vol"] == pytest.approx(g.vol_target_ann, abs=1e-9)
+
+
+def test_sigma_swap_deterministic_byte_identical(tmp_path):
+    """Two fresh strategies, same knobs -> byte-identical decision artifacts."""
+    books = {m: np.full(4, 0.1) for m in MEMBERS}
+    nd, uni = _nightly_fixture(tmp_path, books)
+    outs = []
+    for _ in range(2):
+        strat = _equal_trust_strategy(tmp_path, nd, uni, sigma_source="risknet")
+        strat.post_decision(_ctx(), [])
+        outs.append(((nd / D_FIX / "meta_decision.json").read_bytes(),
+                     (nd / D_FIX / "trade_intents.json").read_bytes()))
+    assert outs[0] == outs[1]
+
+
+def test_unknown_knob_values_refused():
+    with pytest.raises(ValueError, match="exec_mode"):
+        make_syn1_strategy(ea.Genome.b0(), "x", "y", exec_mode="bogus")
+    with pytest.raises(ValueError, match="sigma_source"):
+        make_syn1_strategy(ea.Genome.b0(), "x", "y", sigma_source="bogus")
+    # the SIGMA_SOURCES map is the manifest contract
+    assert SA.SIGMA_SOURCES["trailing21"] == ("sigma_hat_proxy",
+                                              "book_vol_hat_proxy")
+    assert SA.SIGMA_SOURCES["risknet"] == ("sigma_hat", "book_vol_hat_e4")

@@ -266,17 +266,45 @@ def test_default_cmd_maps_arm_onto_landed_runner_cli(battery_env):
     assert "--genome" not in " ".join(cmd_inc)
 
 
-@pytest.mark.parametrize("run_id,knob", [
-    ("R08", "executive bypass"),       # no runner knob for equal-trust+f=0.7
-    ("R13", "slippage seed"),          # COST_SEED hardcoded 4242 in the runner
-    ("R14", "slippage seed"),
+@pytest.mark.parametrize("run_id,fragment", [
+    ("R08", ["--exec-mode", "equal_trust"]),     # executive bypass knob landed
+    ("R13", ["--cost-seed", "4243"]),            # slippage-seed override landed
+    ("R14", ["--cost-seed", "4244"]),
+    ("R07", ["--sigma-source", "trailing21"]),   # replay-time sigma swap landed
+    ("R01", ["--cost-seed", "4242"]),            # paired seed passed explicitly
 ])
-def test_capability_gap_refused_without_explicit_cmd(battery_env, run_id, knob):
-    env = battery_env
-    with pytest.raises(battery.PreconditionFailed, match="capability"):
-        battery.execute_arm(run_id, replay_cmd=None, **env)
-    # a capability-gap refusal must NOT consume a holdout look
-    assert not env["ledger"].exists() or battery._read_jsonl(env["ledger"]) == []
+def test_former_capability_gaps_now_expressed(battery_env, run_id, fragment):
+    arm = battery.ARMS[run_id]
+    arm_dir, _ = battery.materialize_arm(arm, battery_env["out_root"],
+                                         battery_env["frozen_path"])
+    cmd = battery.default_replay_cmd(arm, arm_dir)
+    s = " ".join(cmd)
+    assert " ".join(fragment) in s, s
+
+
+def test_r07_sigma_swap_supersedes_variant_nightly_store(battery_env):
+    arm = battery.ARMS["R07"]
+    arm_dir, _ = battery.materialize_arm(arm, battery_env["out_root"],
+                                         battery_env["frozen_path"])
+    cmd = battery.default_replay_cmd(arm, arm_dir)
+    assert "--sigma-source" in cmd
+    assert "--nightly-dir" not in cmd            # never both mechanisms at once
+    # arms whose variant store carries member opinions still pass it
+    arm10 = battery.ARMS["R10"]
+    d10, _ = battery.materialize_arm(arm10, battery_env["out_root"],
+                                     battery_env["frozen_path"])
+    assert "--nightly-dir" in battery.default_replay_cmd(arm10, d10)
+
+
+def test_nonstandard_bypass_shape_still_refused(battery_env):
+    """The landed knob is exactly equal_trust+f=0.7 — anything else refuses
+    BEFORE a holdout look is consumed."""
+    arm = battery.Arm("RX", "nonstandard bypass",
+                      {"strategy": "syn1", "genome": "frozen",
+                       "executive_bypass": {"equal_trust": True, "f_fixed": 0.5},
+                       "slippage_seed": 4242}, None, e1=None, e2=None)
+    with pytest.raises(battery.PreconditionFailed, match="exec-mode"):
+        battery.default_replay_cmd(arm, battery_env["out_root"] / "RX")
 
 
 def test_load_run_accepts_landed_runner_shape(tmp_path):

@@ -15,6 +15,8 @@ REPLAY CONTRACT (parallel lane owns run_replay.py / strategy_adapter.py /
 precompute_nightly.py). The LANDED runner CLI is
     run_replay.py --arm {syn1|incumbent} --window full --out <arm_dir>
                   [--genome <arm_dir>/genome.json] [--exec-dir D] [--nightly-dir D]
+                  [--exec-mode {learned|equal_trust}] [--cost-seed N]
+                  [--sigma-source {trailing21|risknet}]
 and leaves ``daily_series.csv`` (date,raw_value,cost_adjusted_value),
 ``result.json`` (timeline split to ``timeline.json``), ``manifest.json`` in
 <arm_dir> — a DIVERGENCE from the packet-documented shape (daily_raw.csv +
@@ -24,12 +26,15 @@ opinion sources via a variant --nightly-dir (ridge-in-slot / retrained-model
 opinions are PRECOMPUTED into store/nightly_<tag>/ by precompute_nightly), or
 retrained model dirs — materialized by this module into <arm_dir>.
 
-CAPABILITY GAPS (surfaced, never worked around): the landed runner cannot
-express (a) the R08 executive bypass (equal-trust + f=0.7), (b) the R13/R14
-slippage-seed overrides (COST_SEED hardcoded 4242), (c) a replay-time sigma
-source swap for R07 beyond a variant nightly store. execute_arm REFUSES those
-arms unless an explicit --replay-cmd is supplied (i.e. the orchestrator wired
-the capability); the refusal text names the missing knob.
+CAPABILITY GAPS — CLOSED: the runner now expresses (a) the R08 executive
+bypass via ``--exec-mode equal_trust`` (tau=1/M over active members, f fixed
+0.7, same vol-cap rails), (b) the R13/R14 slippage-seed overrides via
+``--cost-seed`` (default 4242), (c) the R07 replay-time sigma swap via
+``--sigma-source trailing21|risknet`` ('trailing21' names the landed/R01
+default behavior; the swap supersedes the variant-nightly-store mechanism, so
+R07's variant --nightly-dir is NOT passed). default_replay_cmd still REFUSES
+an executive_bypass shape other than {equal_trust, f_fixed: 0.7} — that knob
+does not exist.
 
 RETRAIN-DIR NAME CONTRACT (for the retrain owner): RT-2 → exec_out_rt2 + OOF
 member names ``ridge_twin`` (exists); RT-3 → exec_out_rt3 + ``<member>_llm_neutral``;
@@ -366,27 +371,29 @@ def default_replay_cmd(arm: Arm, arm_dir: Path) -> list[str]:
     naming the missing knob) when the runner cannot express the arm — the
     orchestrator must then supply --replay-cmd explicitly."""
     cfg = arm.arm_config
-    gaps = []
-    if cfg.get("executive_bypass"):
-        gaps.append("executive bypass (equal-trust + f=0.7) — no runner knob")
-    if cfg.get("slippage_seed", SEED_PAIRED) != SEED_PAIRED:
-        gaps.append(f"slippage seed {cfg['slippage_seed']} — runner hardcodes "
-                    f"COST_SEED={SEED_PAIRED}")
-    if gaps:
+    bp = cfg.get("executive_bypass")
+    if bp and (not bp.get("equal_trust") or bp.get("f_fixed") != 0.7):
         raise PreconditionFailed(
-            f"REFUSED: {arm.run_id} cannot be expressed by the landed "
-            f"run_replay.py: {'; '.join(gaps)}. This is a runner capability "
-            f"gap (finding for the orchestrator) — supply --replay-cmd only "
-            f"once the capability exists.")
+            f"REFUSED: {arm.run_id} executive_bypass {bp} cannot be expressed "
+            f"by run_replay.py — the only landed bypass is --exec-mode "
+            f"equal_trust (tau=1/M, f=0.7). Supply --replay-cmd only once the "
+            f"capability exists.")
     cmd = [sys.executable, str(PROTO / "run_replay.py"),
            "--arm", cfg.get("strategy", "syn1"), "--window", "full",
-           "--out", str(arm_dir)]
+           "--out", str(arm_dir),
+           "--cost-seed", str(cfg.get("slippage_seed", SEED_PAIRED))]
     if cfg.get("strategy") == "syn1":
         cmd += ["--genome", str(Path(arm_dir) / "genome.json")]
         if cfg.get("exec_dir"):
             cmd += ["--exec-dir", str(PROTO / cfg["exec_dir"])]
-        if cfg.get("nightly_dir"):
+        # R07's replay-time sigma swap supersedes the variant-nightly-store
+        # expression of the same transform — never pass both.
+        if cfg.get("nightly_dir") and not cfg.get("sigma_source"):
             cmd += ["--nightly-dir", str(PROTO / cfg["nightly_dir"])]
+        if cfg.get("sigma_source"):
+            cmd += ["--sigma-source", cfg["sigma_source"]]
+        if bp:
+            cmd += ["--exec-mode", "equal_trust"]
     return cmd
 
 

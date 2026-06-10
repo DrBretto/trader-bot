@@ -30,6 +30,16 @@ src.utils.three_line_replay.strategies.Strategy whose post_decision:
 
 Missing nightly artifacts for D (e.g. the 2026-05-11..05-22 snapshot gap)
 => emits NO intents (hold) and flags it in meta_decision.json.
+
+Battery knobs (TOURNAMENT §4.3/§4.4):
+  exec_mode    'learned' (default) | 'equal_trust' — the R08 executive bypass:
+               tau = 1/M over ACTIVE members, deployment f fixed at 0.7, same
+               genome rails (vol cap etc.); learned executive never loaded.
+  sigma_source 'trailing21' (default; the trailing-vol-proxy columns the
+               executive trained on — the landed/R01 behavior, now named) |
+               'risknet' (E4 RiskNet+ heads) — selects the vol-cap sigma_hat
+               column in risknet.parquet and the exec book-vol input key (R07).
+Both are recorded in meta_decision.json per date and in the run manifest.
 """
 from __future__ import annotations
 
@@ -57,6 +67,21 @@ N_MEMBERS = 3
 LAG = bk.H + 1          # ledger / tilt lag: stats at D use u(D') with D' <= D-h-1
 MIN_ORDER_DEFAULT = 250.0
 FULL_EXIT_EPS = 1e-9
+
+# R08 executive bypass (TOURNAMENT §4.3 meta-evaluator baseline): tau = 1/M over
+# ACTIVE members, deployment f fixed, same genome rails — mirrors the
+# e1_reads.E1WalkEngine.fold_daily_returns bypass walk.
+EXEC_MODES = ("learned", "equal_trust")
+EQUAL_TRUST_F = 0.7
+
+# R07 sigma source (vol-cap sigma_hat + executive book-vol input). 'trailing21'
+# = the trailing-vol proxy columns (the executive's training convention and the
+# landed/R01 default behavior, now NAMED); 'risknet' = the E4 RiskNet+ heads.
+# Maps mode -> (risknet.parquet sigma column, exec_inputs.json book-vol key).
+SIGMA_SOURCES = {
+    "trailing21": ("sigma_hat_proxy", "book_vol_hat_proxy"),
+    "risknet": ("sigma_hat", "book_vol_hat_e4"),
+}
 
 
 # ------------------------------------------------------------------ exec weights
@@ -207,13 +232,23 @@ def make_syn1_strategy(genome: Genome | dict | str | Path,
                        nightly_dir: Path | str,
                        cache=None,
                        universe_csv: Path | str = REPO / "config" / "universe.csv",
-                       min_order: float = MIN_ORDER_DEFAULT) -> Strategy:
+                       min_order: float = MIN_ORDER_DEFAULT,
+                       exec_mode: str = "learned",
+                       sigma_source: str = "trailing21") -> Strategy:
+    if exec_mode not in EXEC_MODES:
+        raise ValueError(f"unknown exec_mode {exec_mode!r} (choices: {EXEC_MODES})")
+    if sigma_source not in SIGMA_SOURCES:
+        raise ValueError(f"unknown sigma_source {sigma_source!r} "
+                         f"(choices: {tuple(SIGMA_SOURCES)})")
+    sigma_col, bvh_key = SIGMA_SOURCES[sigma_source]
     if isinstance(genome, (str, Path)):
         genome = Genome.from_json(Path(genome))
     elif isinstance(genome, dict):
         genome = Genome.from_dict(genome)
     nightly_dir = Path(nightly_dir)
-    seeds_w = load_exec_weights(Path(exec_weights_dir))
+    # equal_trust bypasses the learned executive entirely — no weights needed
+    seeds_w = ([] if exec_mode == "equal_trust"
+               else load_exec_weights(Path(exec_weights_dir)))
 
     uni = pd.read_csv(universe_csv)
     symbols = [str(s).strip() for s in uni["symbol"]]
@@ -229,6 +264,8 @@ def make_syn1_strategy(genome: Genome | dict | str | Path,
         if not on:
             zmask[FEATURE_GATE_Z_MAP[gname]] = 0.0
     mg = np.asarray(genome.member_gate, dtype=np.float64)
+    if exec_mode == "equal_trust" and mg.sum() <= 0:
+        raise ValueError("equal_trust bypass with all members gated off")
     capf = np.ones(N_MEMBERS)
     capf[EVENT_MEMBER_IDX] = genome.event_weight_cap
 
@@ -242,7 +279,9 @@ def make_syn1_strategy(genome: Genome | dict | str | Path,
              ) -> List[Dict[str, Any]]:
         D = ctx.inputs_date
         day_dir = nightly_dir / D
-        meta: Dict[str, Any] = {"date": D, "strategy": "syn1", "flags": []}
+        meta: Dict[str, Any] = {"date": D, "strategy": "syn1",
+                                "exec_mode": exec_mode,
+                                "sigma_source": sigma_source, "flags": []}
 
         # ---- marks / NAV / w_prev (guarded; adjudication #3) ------------------
         marks, mark_src = guarded_marks(ctx.features_df, D, cache=cache)
@@ -296,51 +335,59 @@ def make_syn1_strategy(genome: Genome | dict | str | Path,
                        .loc[symbols, "mu"].to_numpy() for m in bk.MEMBERS])
         books = np.stack([sb[sb["member"] == m].set_index("symbol")
                           .loc[symbols, "w"].to_numpy() for m in bk.MEMBERS])
-        sigma_hat = rk.set_index("symbol").loc[symbols, "sigma_hat_proxy"].to_numpy()
+        sigma_hat = rk.set_index("symbol").loc[symbols, sigma_col].to_numpy()
         r = np.asarray(xin["r"], dtype=np.float64)             # [3,4]
         z = np.asarray(xin["z"], dtype=np.float64) * zmask     # [24] feature-gated
         c = np.asarray(xin["c"], dtype=np.float64)
         agree = np.asarray(xin["agree"], dtype=np.float64)
         g = np.asarray(xin["g"], dtype=np.float64)
-        bvh = float(xin["book_vol_hat_proxy"])
+        bvh = float(xin[bvh_key])
         tilt = tilt_table.get(D)
         if tilt is None:
             tilt = np.zeros(N_MEMBERS)
             meta["flags"].append("no_tilt_for_date")
 
-        # ---- executive forward (numpy, seed-averaged) + genome modulation -----
-        zz = np.tile(z, (N_MEMBERS, 1))
-        x_trust = np.concatenate([r, c[:, None], agree[:, None], zz], axis=1)  # [3,30]
-        coef_seeds, f_seeds, tau_seeds = [], [], []
-        for w in seeds_w:
-            # trust pass first (psi needs tau-dependent inputs)
-            s, T_model = exec_trust_numpy(w, x_trust)
-            T = T_model * genome.conviction_temp
-            logits = s + np.asarray(genome.trust_prior) + tilt
-            ex_l = np.exp((logits - logits.max()) / T)
-            tau = ex_l / ex_l.sum()
-            tau = (1 - EPS_TAU) * tau + EPS_TAU / N_MEMBERS
-            tau = tau * mg
-            tau = tau / tau.sum() if tau.sum() > 1e-12 else np.zeros(N_MEMBERS)
-            coef = tau * capf
-            coef = coef / coef.sum() if coef.sum() > 1e-12 else np.zeros(N_MEMBERS)
-            mu_blend = coef @ mu
-            am = np.abs(mu_blend)
-            ent = float(-(tau * np.log(tau + 1e-12)).sum())
-            x_psi = np.zeros(35)
-            x_psi[0:24] = z
-            x_psi[24:27] = g
-            x_psi[27:30] = [am.mean(), am.std(), am.max()]
-            x_psi[30] = ent
-            x_psi[31:33] = [r[:, 0].mean(), r[:, 1].mean()]
-            x_psi[33] = bvh
-            coef_seeds.append(coef)
-            tau_seeds.append(tau)
-            f_seeds.append(exec_sizing_numpy(w, x_psi, dd))
-        coef_bar = np.mean(coef_seeds, axis=0)
-        coef_bar = coef_bar / coef_bar.sum() if coef_bar.sum() > 1e-12 else coef_bar
-        tau_bar = np.mean(tau_seeds, axis=0)
-        f_bar = float(np.mean(f_seeds))
+        if exec_mode == "equal_trust":
+            # ---- R08 §4.3 bypass: tau = 1/M over ACTIVE members, fixed f -------
+            # (replaces the WHOLE learned trust/sizing stack; genome rails below
+            # unchanged — mirrors e1_reads.fold_daily_returns bypass walk)
+            tau_bar = mg / mg.sum()
+            coef_bar = tau_bar.copy()
+            f_bar = EQUAL_TRUST_F
+        else:
+            # ---- executive forward (numpy, seed-averaged) + genome modulation --
+            zz = np.tile(z, (N_MEMBERS, 1))
+            x_trust = np.concatenate([r, c[:, None], agree[:, None], zz], axis=1)  # [3,30]
+            coef_seeds, f_seeds, tau_seeds = [], [], []
+            for w in seeds_w:
+                # trust pass first (psi needs tau-dependent inputs)
+                s, T_model = exec_trust_numpy(w, x_trust)
+                T = T_model * genome.conviction_temp
+                logits = s + np.asarray(genome.trust_prior) + tilt
+                ex_l = np.exp((logits - logits.max()) / T)
+                tau = ex_l / ex_l.sum()
+                tau = (1 - EPS_TAU) * tau + EPS_TAU / N_MEMBERS
+                tau = tau * mg
+                tau = tau / tau.sum() if tau.sum() > 1e-12 else np.zeros(N_MEMBERS)
+                coef = tau * capf
+                coef = coef / coef.sum() if coef.sum() > 1e-12 else np.zeros(N_MEMBERS)
+                mu_blend = coef @ mu
+                am = np.abs(mu_blend)
+                ent = float(-(tau * np.log(tau + 1e-12)).sum())
+                x_psi = np.zeros(35)
+                x_psi[0:24] = z
+                x_psi[24:27] = g
+                x_psi[27:30] = [am.mean(), am.std(), am.max()]
+                x_psi[30] = ent
+                x_psi[31:33] = [r[:, 0].mean(), r[:, 1].mean()]
+                x_psi[33] = bvh
+                coef_seeds.append(coef)
+                tau_seeds.append(tau)
+                f_seeds.append(exec_sizing_numpy(w, x_psi, dd))
+            coef_bar = np.mean(coef_seeds, axis=0)
+            coef_bar = coef_bar / coef_bar.sum() if coef_bar.sum() > 1e-12 else coef_bar
+            tau_bar = np.mean(tau_seeds, axis=0)
+            f_bar = float(np.mean(f_seeds))
         w_unit = coef_bar @ books
         mu_blend = coef_bar @ mu
         am = np.abs(mu_blend)
@@ -402,7 +449,8 @@ def make_syn1_strategy(genome: Genome | dict | str | Path,
                     "numpy executive + genome rails; replaces incumbent intents",
         post_decision=post,
         params={"genome": genome.to_dict(), "exec_weights_dir": str(exec_weights_dir),
-                "nightly_dir": str(nightly_dir), "min_order": min_order},
+                "nightly_dir": str(nightly_dir), "min_order": min_order,
+                "exec_mode": exec_mode, "sigma_source": sigma_source},
     )
 
 

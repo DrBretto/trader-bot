@@ -20,6 +20,19 @@ HOLDOUT GUARD: --window holdout|full refuses to run unless
 PKT_TB_006_HOLDOUT_AUTHORIZED=1 (set by the orchestrator at battery time).
 --smoke runs 2026-02-04 -> 2026-03-06 decision dates ONLY and is structurally
 unable to touch >= 2026-03-11 (asserted on the trading-date list).
+
+Battery knobs (close the §4.4 runner capability gaps; all manifest-recorded):
+  --exec-mode learned|equal_trust   R08 executive bypass (tau=1/M over active
+                                    members, f fixed 0.7, same vol-cap rails)
+  --cost-seed <int>                 R13/R14 slippage-seed override for the
+                                    post-hoc cost overlay rng (default 4242)
+  --sigma-source trailing21|risknet R07 sigma swap for the vol-cap sigma_hat +
+                                    executive book-vol input ('trailing21' =
+                                    the landed/R01 proxy convention, named)
+
+Per-arm audit trail: every syn1 replay copies the store/nightly/<D>/
+meta_decision.json + trade_intents.json it wrote into <out>/nightly_audit/<D>/
+so battery arms keep their own audit artifacts instead of overwriting.
 """
 from __future__ import annotations
 
@@ -150,8 +163,29 @@ def _sha(obj) -> str:
                           .encode()).hexdigest()[:12]
 
 
+# ------------------------------------------------------------------ audit copy
+def copy_nightly_audit(nightly_dir: Path | str, out_dir: Path | str,
+                       trading_dates: List[str], since_ts: float) -> int:
+    """Copy the per-date meta_decision.json / trade_intents.json THIS run wrote
+    (mtime >= since_ts; stale files from earlier arms are skipped) into
+    <out_dir>/nightly_audit/<D>/ — every battery arm keeps its own audit trail
+    instead of the shared store/nightly/<D>/ copy being overwritten."""
+    import shutil
+    n = 0
+    for d in trading_dates:
+        src = Path(nightly_dir) / d
+        for name in ("meta_decision.json", "trade_intents.json"):
+            f = src / name
+            if f.exists() and f.stat().st_mtime >= since_ts:
+                dst = Path(out_dir) / "nightly_audit" / d
+                dst.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(f, dst / name)
+                n += 1
+    return n
+
+
 # ------------------------------------------------------------------ main
-def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser()
     ap.add_argument("--arm", required=True, choices=["incumbent", "syn1"])
     ap.add_argument("--window", default="full", choices=["holdout", "full"])
@@ -162,7 +196,22 @@ def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
                     help="genome json path (default: B0 DEFAULT_GENOME)")
     ap.add_argument("--exec-dir", default=str(PROTO / "exec_out"))
     ap.add_argument("--nightly-dir", default=str(PROTO / "store" / "nightly"))
-    args = ap.parse_args(argv)
+    ap.add_argument("--exec-mode", default="learned",
+                    choices=["learned", "equal_trust"],
+                    help="R08 bypass: equal_trust = tau 1/M over active members, "
+                         "f fixed 0.7, same vol-cap rails (syn1 only)")
+    ap.add_argument("--cost-seed", type=int, default=COST_SEED,
+                    help="slippage seed for the post-hoc cost overlay rng "
+                         f"(R13/R14 override; default {COST_SEED})")
+    ap.add_argument("--sigma-source", default="trailing21",
+                    choices=["trailing21", "risknet"],
+                    help="R07 sigma swap: trailing21 = trailing-vol proxy "
+                         "(landed/R01 convention), risknet = E4 heads (syn1 only)")
+    return ap
+
+
+def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
+    args = build_parser().parse_args(argv)
     t0 = time.time()
     command = "python " + " ".join(sys.argv if argv is None else ["run_replay.py"] + argv)
 
@@ -185,14 +234,19 @@ def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
 
     strategy = None
     genome_dict = None
+    sigma_detail = None
     if args.arm == "syn1":
         from ea import Genome
-        from strategy_adapter import make_syn1_strategy
+        from strategy_adapter import make_syn1_strategy, SIGMA_SOURCES
         genome = (Genome.from_json(Path(args.genome)) if args.genome
                   else Genome.b0())
         genome_dict = genome.to_dict()
         strategy = make_syn1_strategy(genome, args.exec_dir, args.nightly_dir,
-                                      cache=cache)
+                                      cache=cache, exec_mode=args.exec_mode,
+                                      sigma_source=args.sigma_source)
+        sigma_detail = {"mode": args.sigma_source,
+                        "sigma_col": SIGMA_SOURCES[args.sigma_source][0],
+                        "book_vol_key": SIGMA_SOURCES[args.sigma_source][1]}
 
     # adjudication #1: START_PORTFOLIO_DATE patch for full/smoke, restored after
     native_start = RE.START_PORTFOLIO_DATE
@@ -207,7 +261,7 @@ def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
     finally:
         RE.START_PORTFOLIO_DATE = native_start
 
-    overlay = cost_overlay(result, universe_df, seed=COST_SEED)
+    overlay = cost_overlay(result, universe_df, seed=args.cost_seed)
 
     # ---- write artifacts -------------------------------------------------------
     daily = pd.DataFrame({"date": overlay["dates"], "raw_value": overlay["raw"],
@@ -238,6 +292,11 @@ def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
         "cost_drag_bps_of_start_nav": overlay["cost_drag_bps_of_start_nav"],
         "cost_bps_of_traded": overlay["cost_bps_of_traded"],
     }
+    # per-arm audit trail: keep this run's nightly decision artifacts in --out
+    n_audit = 0
+    if args.arm == "syn1":
+        n_audit = copy_nightly_audit(args.nightly_dir, out_dir, trading_dates,
+                                     since_ts=t0 - 1.0)
     nightly_manifest = {}
     nm = Path(args.nightly_dir) / "manifest.json"
     if args.arm == "syn1" and nm.exists():
@@ -254,8 +313,12 @@ def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
         "n_trading_dates": len(trading_dates),
         "start_portfolio_date_used": start_used,
         "native_start_portfolio_date": native_start,
-        "cost_model": {"seed": COST_SEED,
+        "cost_model": {"seed": args.cost_seed,
                        "version_sha": _sha(get_cost_config_snapshot())},
+        "exec_mode": args.exec_mode if args.arm == "syn1" else None,
+        "sigma_source": sigma_detail,
+        "nightly_audit": ({"dir": "nightly_audit", "n_files": n_audit}
+                          if args.arm == "syn1" else None),
         "exec_weights_dir": args.exec_dir if args.arm == "syn1" else None,
         "nightly_manifest": {k: nightly_manifest.get(k) for k in
                              ("generated", "window", "code_sha", "cast_n_seeds")}
