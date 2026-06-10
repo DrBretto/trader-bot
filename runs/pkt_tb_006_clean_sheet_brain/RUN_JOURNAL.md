@@ -79,3 +79,13 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   channel expected ~0 attribution). Tier-2 launched (cum $0.726 < $3.00 gate). Pre-registration
   ambiguities logged: 4.2 BEATS rule gap (UNDEFINED branch printed, not coerced); 4.7 ensemble slot
   printed as member-tagged compound.
+- 2026-06-10 :: LLM Tier-2 WINDOW REDUCTION (logged in validation_looks.jsonl): full 2024-01->2026-01
+  window projects ~$3.9 > $3.10 cap at measured ~$0.0042/day x 758 calendar days; killed the naive run
+  at 2024-01-08 ($0.754) and relaunched as the LATEST contiguous fit 2024-08-15->2026-01-28 (~532 days,
+  projected total ~$2.99). 7-day orphan prefix 2024-01-02..08 kept (masked). This reduction goes on the
+  final line. Stage-1 + tier handling per pre-registration.
+- 2026-06-10 :: Battery runner capability gaps closed (commit 656728e): --exec-mode equal_trust (R08),
+  --cost-seed (R13/R14), --sigma-source (R07), per-arm nightly audit copies. 145 tests green. Executive
+  retrain diagnostics: beta_to dominance signature confirmed (val_util peaks epoch ~1 then collapses);
+  early-stop checkpoint selects best-val epoch; smoke replay f~0.43, non-degenerate. Watch trust
+  variability per-fold at battery time (std(tau)<0.02 kill criterion).
