@@ -1,0 +1,394 @@
+{
+ "generated": "2026-06-10T15:33:56",
+ "genome_frozen": false,
+ "frozen_genome_path": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/ea/genome_2026-02-06.json",
+ "note": "PLAN PRINTED BEFORE GENOME FREEZE \u2014 config hashes for syn1 arms use a placeholder genome doc; the plan MUST be re-printed and re-committed after the freeze commit, before any execution.",
+ "budgets": {
+  "max_replays": 20,
+  "max_retrains": 9,
+  "planned_replays": 14,
+  "planned_retrains": 5,
+  "replays_consumed": 0,
+  "retrains_consumed": 0
+ },
+ "seeds": {
+  "paired": 4242,
+  "sensitivity": [
+   4243,
+   4244
+  ]
+ },
+ "e1_only_reads": {
+  "infotropy_a": {
+   "kind": "member_swap",
+   "slot": "event_head",
+   "swap_to": "event_head_r3only",
+   "note": "Transfer A: gated EventHead vs R3-only twin, E1 only, no replay"
+  }
+ },
+ "arms": [
+  {
+   "run_id": "R01",
+   "description": "SYN-1, the ONE pre-registered config (bake-off + base of every paired arm)",
+   "retrain": "RT-1",
+   "contingency": false,
+   "config_hash": "58a36ab4775deda8",
+   "e1": "\u2014",
+   "e2": "R02",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242
+   }
+  },
+  {
+   "run_id": "R02",
+   "description": "Incumbent (bake-off opponent)",
+   "retrain": "\u2014",
+   "contingency": false,
+   "config_hash": "5bf392338d9f4c19",
+   "e1": "\u2014",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "incumbent",
+    "slippage_seed": 4242
+   }
+  },
+  {
+   "run_id": "R03",
+   "description": "Ridge-in-slot (transformer qua transformer)",
+   "retrain": "RT-2",
+   "contingency": false,
+   "config_hash": "b3f48d7a9fd65d05",
+   "e1": "member_swap",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out_rt2",
+    "slippage_seed": 4242,
+    "oof_member_map": {
+     "cast": "ridge_twin"
+    },
+    "nightly_dir": "store/nightly_rt2_ridge_slot"
+   }
+  },
+  {
+   "run_id": "R04",
+   "description": "cast OFF, trust renorm (no retrain, K17)",
+   "retrain": "\u2014",
+   "contingency": false,
+   "config_hash": "237dcd4bb5b72487",
+   "e1": "member_drop",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242,
+    "member_gate_off": "cast"
+   }
+  },
+  {
+   "run_id": "R05",
+   "description": "gbm_cond OFF, trust renorm (no retrain, K17)",
+   "retrain": "\u2014",
+   "contingency": false,
+   "config_hash": "b7c87e3eab8d53f3",
+   "e1": "member_drop",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242,
+    "member_gate_off": "gbm_cond"
+   }
+  },
+  {
+   "run_id": "R06",
+   "description": "event_head OFF, trust renorm (no retrain, K17)",
+   "retrain": "\u2014",
+   "contingency": false,
+   "config_hash": "b994b14ab1be63a8",
+   "e1": "member_drop",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242,
+    "member_gate_off": "event_head"
+   }
+  },
+  {
+   "run_id": "R07",
+   "description": "RiskNet+ -> trailing-21d realized replacement",
+   "retrain": "\u2014",
+   "contingency": false,
+   "config_hash": "7950d278df968194",
+   "e1": "sigma_swap",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242,
+    "sigma_source": "trailing21",
+    "nightly_dir": "store/nightly_trailing_sigma"
+   }
+  },
+  {
+   "run_id": "R08",
+   "description": "Executive -> equal-trust + fixed f=0.7 (same vol cap)",
+   "retrain": "\u2014",
+   "contingency": false,
+   "config_hash": "b7e38e4351961de6",
+   "e1": "executive_bypass",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242,
+    "executive_bypass": {
+     "equal_trust": true,
+     "f_fixed": 0.7
+    }
+   }
+  },
+  {
+   "run_id": "R09",
+   "description": "B0 DEFAULT_GENOME brain (evolution B2 read)",
+   "retrain": "\u2014",
+   "contingency": false,
+   "config_hash": "28d31f297fe3827d",
+   "e1": "genome_swap",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "B0",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242
+   }
+  },
+  {
+   "run_id": "R10",
+   "description": "LLM neutral-constants retrain",
+   "retrain": "RT-3",
+   "contingency": false,
+   "config_hash": "5ce8d32a7a8a8b61",
+   "e1": "retrain_ablation",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out_rt3",
+    "slippage_seed": 4242,
+    "oof_suffix": "_llm_neutral",
+    "feature_gate_off": [
+     "LLM_block"
+    ],
+    "nightly_dir": "store/nightly_rt3_llm_neutral"
+   }
+  },
+  {
+   "run_id": "R11",
+   "description": "GDELT G1-G5 ablated retrain",
+   "retrain": "RT-4",
+   "contingency": false,
+   "config_hash": "b369df7cc00f0bb8",
+   "e1": "retrain_ablation",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out_rt4",
+    "slippage_seed": 4242,
+    "oof_suffix": "_gdelt_ablated",
+    "feature_gate_off": [
+     "G1_themes",
+     "G4G5_novelty_conc"
+    ],
+    "nightly_dir": "store/nightly_rt4_gdelt_ablated"
+   }
+  },
+  {
+   "run_id": "R12",
+   "description": "Infotropy-B uniform-weights retrain (scorecard read)",
+   "retrain": "RT-5",
+   "contingency": false,
+   "config_hash": "bd42fdb15e88413b",
+   "e1": "retrain_ablation",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out_rt5",
+    "slippage_seed": 4242,
+    "oof_suffix": "_uniform",
+    "uniform_w_rec": true,
+    "nightly_dir": "store/nightly_rt5_uniform"
+   }
+  },
+  {
+   "run_id": "R13",
+   "description": "Seed-sensitivity: full brain at master seed 4243",
+   "retrain": "\u2014",
+   "contingency": false,
+   "config_hash": "0df80f09643e0a55",
+   "e1": "\u2014",
+   "e2": "R01",
+   "slippage_seed": 4243,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4243
+   }
+  },
+  {
+   "run_id": "R14",
+   "description": "Seed-sensitivity: full brain at master seed 4244",
+   "retrain": "\u2014",
+   "contingency": false,
+   "config_hash": "51a49e4bed44c1cc",
+   "e1": "\u2014",
+   "e2": "R01",
+   "slippage_seed": 4244,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4244
+   }
+  },
+  {
+   "run_id": "R15",
+   "description": "CONTINGENCY: LLM feature-neutralized, NO retrain",
+   "retrain": "\u2014",
+   "contingency": true,
+   "config_hash": "0c1a760c09db9ba1",
+   "e1": "gate_only",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242,
+    "feature_gate_off": [
+     "LLM_block"
+    ]
+   }
+  },
+  {
+   "run_id": "R16",
+   "description": "CONTINGENCY: G1 theme-dictionary alone ablated",
+   "retrain": "RT-6",
+   "contingency": true,
+   "config_hash": "f7cb734c1c395c57",
+   "e1": "retrain_ablation",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out_rt6",
+    "slippage_seed": 4242,
+    "oof_suffix": "_g1_ablated",
+    "feature_gate_off": [
+     "G1_themes"
+    ],
+    "nightly_dir": "store/nightly_rt6_g1_ablated"
+   }
+  },
+  {
+   "run_id": "R17",
+   "description": "CONTINGENCY: S1/S3/S2 data-edge block ablated",
+   "retrain": "RT-7",
+   "contingency": true,
+   "config_hash": "b9e1dfdbc3ffbcc2",
+   "e1": "retrain_ablation",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out_rt7",
+    "slippage_seed": 4242,
+    "oof_suffix": "_dataedge_ablated",
+    "feature_gate_off": [
+     "CBOE_S1",
+     "FRED_S3",
+     "COT_S2"
+    ],
+    "nightly_dir": "store/nightly_rt7_dataedge"
+   }
+  },
+  {
+   "run_id": "R18",
+   "description": "CONTINGENCY: retrained-executive member-drop arm (D6)",
+   "retrain": "RT-8",
+   "contingency": true,
+   "config_hash": "69f2dbb15d0aeb59",
+   "e1": "member_drop_retrained",
+   "e2": "R01",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out_rt8",
+    "slippage_seed": 4242,
+    "member_gate_off": "<member-TBD-from-R04-R06>"
+   }
+  },
+  {
+   "run_id": "R19",
+   "description": "CONTINGENCY: reserved",
+   "retrain": "\u2014",
+   "contingency": true,
+   "config_hash": "292a12585bed9312",
+   "e1": "\u2014",
+   "e2": "\u2014",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242,
+    "reserved": true
+   }
+  },
+  {
+   "run_id": "R20",
+   "description": "CONTINGENCY: reserved (RT-9 reserve)",
+   "retrain": "RT-9",
+   "contingency": true,
+   "config_hash": "4fa5ec2538c9f410",
+   "e1": "\u2014",
+   "e2": "\u2014",
+   "slippage_seed": 4242,
+   "arm_config": {
+    "strategy": "syn1",
+    "genome": "frozen",
+    "exec_dir": "exec_out",
+    "slippage_seed": 4242,
+    "reserved": true
+   }
+  }
+ ]
+}

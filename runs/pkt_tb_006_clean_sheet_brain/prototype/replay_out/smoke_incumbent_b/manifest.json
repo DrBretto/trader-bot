@@ -1,0 +1,44 @@
+{
+ "generated": "2026-06-10T15:27:19",
+ "command": "python run_replay.py --arm incumbent --smoke --out replay_out/smoke_incumbent_b",
+ "arm": "incumbent",
+ "window": "smoke",
+ "code_sha": {
+  "git": "7f3062380ed3",
+  "prototype_wiring": "441fbc31aa69"
+ },
+ "genome": null,
+ "genome_hash": null,
+ "variant_params_hash": "3023921c7bc7",
+ "snapshot_range": [
+  "2026-02-03",
+  "2026-03-07"
+ ],
+ "n_trading_dates": 25,
+ "start_portfolio_date_used": "2026-02-03",
+ "native_start_portfolio_date": "2026-03-11",
+ "cost_model": {
+  "seed": 4242,
+  "version_sha": "bf8b77716f74"
+ },
+ "exec_weights_dir": null,
+ "nightly_manifest": null,
+ "wall_clock_s": 1.6,
+ "summary": {
+  "arm": "incumbent",
+  "window": "smoke",
+  "n_decision_dates": 19,
+  "first_date": "2026-02-04",
+  "last_date": "2026-03-06",
+  "start_value": 102971.07,
+  "final_value_raw": 107081.01,
+  "final_value_cost_adjusted": 106862.77974366325,
+  "n_executed_actions": 52,
+  "actions_per_decision_date": 2.737,
+  "total_traded_dollars": 700538.46,
+  "total_cost_dollars": 218.2303,
+  "cost_drag_bps_of_start_nav": 21.193,
+  "cost_bps_of_traded": 3.115
+ },
+ "evidence_protocol": "committee/EVIDENCE_PROTOCOL.md V1"
+}

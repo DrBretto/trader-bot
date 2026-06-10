@@ -68,3 +68,14 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   spec inconsistency (sec2.3 vs sec4 -- sec4 tensor spec governs, COT stays member-side), q95
   self-erasure on sparse nights. LLM Tier-1 resumed after rate-limit kill (seen-cache repaired by
   re-scoring 7 pilot-thread days ~$0.03).
+- 2026-06-10 :: Phase C wave 4 done. Harness adapter + replay runners (holdout-guarded; smoke on
+  pre-holdout dates only: both arms run clean under pandas 3.0, byte-identical reruns; syn1-B0 smoke
+  turnover ~3.4%/day inside the 6% budget). Battery runner + stats + evidence reporting (134/134
+  tests). PLACEBO GATE (4.6.3): FAIL -- real G1 dictionary 28th pct of 50 permutations; pre-registered
+  consequence applies: G1 dictionary scores `0 (measured)` regardless of block arm. LLM Tier-1
+  COMPLETE (132 artifacts, cum $0.726). STAGE-1: variance PASS, tone-proxy PASS (corr 0.116 << 0.8),
+  truncation PASS (1.5%); event-flag chattiness partial fail (fires 98% of days; TOURNAMENT kill
+  condition "misses scheduled events" NOT met -- 8/8 hit; organ ships, chattiness reported, flag
+  channel expected ~0 attribution). Tier-2 launched (cum $0.726 < $3.00 gate). Pre-registration
+  ambiguities logged: 4.2 BEATS rule gap (UNDEFINED branch printed, not coerced); 4.7 ensemble slot
+  printed as member-tagged compound.

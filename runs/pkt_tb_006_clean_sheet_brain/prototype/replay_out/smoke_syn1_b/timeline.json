@@ -1,0 +1,4296 @@
+[
+ {
+  "date": "2026-02-04",
+  "ending_value": 103071.36,
+  "ending_cash": 70926.37,
+  "holdings_count": 10,
+  "regime_used": "risk_on_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 51.895,
+    "close_price": 51.89
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 8.918651852631456,
+    "entry_price": 147.18,
+    "peak_price": 149.71,
+    "close_price": 149.13
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 66.8,
+    "close_price": 66.8
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.01,
+    "close_price": 31.01
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 45.69418515420534,
+    "entry_price": 29.7899,
+    "peak_price": 31.01,
+    "close_price": 31.01
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 140.83,
+    "close_price": 138.12
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 202.09,
+    "close_price": 201.62
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 226.54,
+    "close_price": 226.54
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 472.99,
+    "close_price": 467.37
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 203.6,
+    "close_price": 203.6
+   }
+  ]
+ },
+ {
+  "date": "2026-02-05",
+  "ending_value": 102902.93,
+  "ending_cash": 63024.74,
+  "holdings_count": 15,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 51.895,
+    "close_price": 50.5
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 8.918651852631456,
+    "entry_price": 147.18,
+    "peak_price": 149.71,
+    "close_price": 148.15
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 66.8,
+    "close_price": 65.9
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.01,
+    "close_price": 30.97
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 45.69418515420534,
+    "entry_price": 29.7899,
+    "peak_price": 31.01,
+    "close_price": 30.97
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 140.83,
+    "close_price": 135.63
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 202.09,
+    "close_price": 199.24
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 226.54,
+    "close_price": 224.62
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 472.99,
+    "close_price": 458.88
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 203.6,
+    "close_price": 202.45
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 600.21,
+    "close_price": 597.03
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 258.5,
+    "close_price": 255.83
+   },
+   {
+    "symbol": "RSP",
+    "shares": 10.0,
+    "entry_price": 199.64,
+    "peak_price": 199.64,
+    "close_price": 198.56
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 144.0,
+    "close_price": 143.37
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 7.0,
+    "entry_price": 244.83,
+    "peak_price": 244.83,
+    "close_price": 244.13
+   }
+  ]
+ },
+ {
+  "date": "2026-02-06",
+  "ending_value": 103745.37,
+  "ending_cash": 59038.81,
+  "holdings_count": 20,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 51.895,
+    "close_price": 51.51
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 8.918651852631456,
+    "entry_price": 147.18,
+    "peak_price": 151.88,
+    "close_price": 151.88
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 67.35,
+    "close_price": 67.35
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.46,
+    "close_price": 31.46
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 45.69418515420534,
+    "entry_price": 29.7899,
+    "peak_price": 31.46,
+    "close_price": 31.46
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 141.13,
+    "close_price": 141.13
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 203.7,
+    "close_price": 203.7
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.48,
+    "close_price": 229.48
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 472.99,
+    "close_price": 468.51
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.39,
+    "close_price": 206.39
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 609.63,
+    "close_price": 609.63
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 265.02,
+    "close_price": 265.02
+   },
+   {
+    "symbol": "RSP",
+    "shares": 10.0,
+    "entry_price": 199.64,
+    "peak_price": 202.23,
+    "close_price": 202.23
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 146.42,
+    "close_price": 146.42
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 7.0,
+    "entry_price": 244.83,
+    "peak_price": 253.49,
+    "close_price": 253.49
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 690.65,
+    "close_price": 690.65
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 500.99,
+    "close_price": 500.99
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 340.96,
+    "close_price": 340.96
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 635.22,
+    "close_price": 635.22
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 693.83,
+    "close_price": 693.83
+   }
+  ]
+ },
+ {
+  "date": "2026-02-10",
+  "ending_value": 103700.34,
+  "ending_cash": 60297.04,
+  "holdings_count": 20,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 52.91,
+    "close_price": 52.91
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 8.918651852631456,
+    "entry_price": 147.18,
+    "peak_price": 151.88,
+    "close_price": 150.81
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 68.54,
+    "close_price": 68.54
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.46,
+    "close_price": 31.3
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 45.69418515420534,
+    "entry_price": 29.7899,
+    "peak_price": 31.46,
+    "close_price": 31.3
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 142.55
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 204.03,
+    "close_price": 203.62
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 229.08
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 471.1
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.39,
+    "close_price": 205.83
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 614.32,
+    "close_price": 611.47
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 266.16
+   },
+   {
+    "symbol": "RSP",
+    "shares": 10.0,
+    "entry_price": 199.64,
+    "peak_price": 203.1,
+    "close_price": 203.1
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 147.67,
+    "close_price": 147.58
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 255.06
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 692.12
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 501.9
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 341.8
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 636.44
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 695.15
+   }
+  ]
+ },
+ {
+  "date": "2026-02-11",
+  "ending_value": 103999.13,
+  "ending_cash": 60297.04,
+  "holdings_count": 20,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 53.62
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 8.918651852631456,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 152.9
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 69.05,
+    "close_price": 69.05
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.64
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 45.69418515420534,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.64
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 142.97
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 204.03,
+    "close_price": 203.79
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 229.36
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 469.03
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.83,
+    "close_price": 206.83
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 614.32,
+    "close_price": 613.15
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 264.96
+   },
+   {
+    "symbol": "RSP",
+    "shares": 10.0,
+    "entry_price": 199.64,
+    "peak_price": 203.46,
+    "close_price": 203.46
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 147.98,
+    "close_price": 147.98
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 255.15
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 692.01
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 501.35
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 341.47
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 636.4
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 695.05
+   }
+  ]
+ },
+ {
+  "date": "2026-02-12",
+  "ending_value": 103456.5,
+  "ending_cash": 60297.04,
+  "holdings_count": 20,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 52.85
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 8.918651852631456,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 149.87
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 69.05,
+    "close_price": 68.495
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.34
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 45.69418515420534,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.34
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 139.19
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 204.03,
+    "close_price": 200.74
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 226.52
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 460.15
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.83,
+    "close_price": 204.61
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 614.32,
+    "close_price": 600.66
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 259.56
+   },
+   {
+    "symbol": "RSP",
+    "shares": 10.0,
+    "entry_price": 199.64,
+    "peak_price": 203.46,
+    "close_price": 200.77
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 147.98,
+    "close_price": 145.96
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 250.2
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 681.28
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 494.64
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 336.12
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 626.55
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 684.33
+   }
+  ]
+ },
+ {
+  "date": "2026-02-13",
+  "ending_value": 103757.91,
+  "ending_cash": 57303.72,
+  "holdings_count": 23,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 53.31
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 8.918651852631456,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 151.58
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 69.05,
+    "close_price": 68.77
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.595
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 45.69418515420534,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.595
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 139.59
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 204.03,
+    "close_price": 201.725
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 227.29
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 457.98
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.83,
+    "close_price": 206.14
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 614.32,
+    "close_price": 601.9
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 262.935
+   },
+   {
+    "symbol": "RSP",
+    "shares": 10.0,
+    "entry_price": 199.64,
+    "peak_price": 203.46,
+    "close_price": 202.86
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 147.98,
+    "close_price": 146.32
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 251.63
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 681.74
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 495.27
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 336.685
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 626.84
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 684.66
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 601.9,
+    "close_price": 601.9
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 114.58,
+    "close_price": 114.58
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 251.63,
+    "close_price": 251.63
+   }
+  ]
+ },
+ {
+  "date": "2026-02-17",
+  "ending_value": 103641.53,
+  "ending_cash": 55382.05,
+  "holdings_count": 28,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 52.7
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 150.85
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 69.05,
+    "close_price": 68.59
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.41
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.41
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 139.48
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 204.03,
+    "close_price": 202.24
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 227.235
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 459.62
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.83,
+    "close_price": 205.85
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 614.32,
+    "close_price": 601.3
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 263.05
+   },
+   {
+    "symbol": "RSP",
+    "shares": 10.0,
+    "entry_price": 199.64,
+    "peak_price": 203.46,
+    "close_price": 202.51
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 147.98,
+    "close_price": 146.29
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 251.75
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 682.82
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 495.855
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 337.13
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 628.0
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 685.84
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 601.9,
+    "close_price": 601.3
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 114.58,
+    "close_price": 114.4
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 252.03,
+    "close_price": 251.75
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 682.82,
+    "close_price": 682.82
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 601.3,
+    "close_price": 601.3
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 628.0,
+    "close_price": 628.0
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 685.84,
+    "close_price": 685.84
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 459.62,
+    "close_price": 459.62
+   }
+  ]
+ },
+ {
+  "date": "2026-02-18",
+  "ending_value": 103872.76,
+  "ending_cash": 54921.68,
+  "holdings_count": 29,
+  "regime_used": "risk_off_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 53.02
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 152.325
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 69.05,
+    "close_price": 68.81
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.54
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.54
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 140.92
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 204.03,
+    "close_price": 203.49
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 227.86
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 462.39
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.83,
+    "close_price": 206.55
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 614.32,
+    "close_price": 605.78
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 263.97
+   },
+   {
+    "symbol": "RSP",
+    "shares": 10.0,
+    "entry_price": 199.64,
+    "peak_price": 203.57,
+    "close_price": 203.57
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 147.98,
+    "close_price": 147.01
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 253.5152
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 686.29
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 496.95
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 338.81
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 631.21
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 689.4
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 605.78,
+    "close_price": 605.78
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 114.61,
+    "close_price": 114.61
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 253.5152,
+    "close_price": 253.5152
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 686.29,
+    "close_price": 686.29
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 605.78,
+    "close_price": 605.78
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 631.21,
+    "close_price": 631.21
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 689.4,
+    "close_price": 689.4
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 462.39,
+    "close_price": 462.39
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 462.39,
+    "close_price": 462.39
+   }
+  ]
+ },
+ {
+  "date": "2026-02-19",
+  "ending_value": 103850.18,
+  "ending_cash": 50837.0,
+  "holdings_count": 34,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 52.83
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 151.38
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 69.05,
+    "close_price": 68.79
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.57
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.57
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 140.21
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 204.03,
+    "close_price": 203.03
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 227.11
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 461.22
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.83,
+    "close_price": 206.12
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 614.32,
+    "close_price": 603.47
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 264.63
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 203.57,
+    "close_price": 203.14
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 147.98,
+    "close_price": 146.68
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 253.295
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 684.48
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 494.42
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 338.19
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 629.57
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 687.67
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 605.78,
+    "close_price": 603.47
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 115.14,
+    "close_price": 115.14
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 253.5152,
+    "close_price": 253.295
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 686.29,
+    "close_price": 684.48
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 605.78,
+    "close_price": 603.47
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 631.21,
+    "close_price": 629.57
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 689.4,
+    "close_price": 687.67
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 462.39,
+    "close_price": 461.22
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 462.39,
+    "close_price": 461.22
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 684.48,
+    "close_price": 684.48
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 629.57,
+    "close_price": 629.57
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 687.67,
+    "close_price": 687.67
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 203.03,
+    "close_price": 203.03
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 461.22,
+    "close_price": 461.22
+   }
+  ]
+ },
+ {
+  "date": "2026-02-20",
+  "ending_value": 104090.97,
+  "ending_cash": 49469.36,
+  "holdings_count": 36,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 52.96
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 152.42
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 69.52,
+    "close_price": 69.52
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.61
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.61
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 140.88
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 204.39,
+    "close_price": 204.39
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 227.57
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 465.04
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.88,
+    "close_price": 206.88
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 614.32,
+    "close_price": 608.81
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 264.63
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 204.09,
+    "close_price": 204.09
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 147.98,
+    "close_price": 147.95
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 254.775
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 689.42
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 496.14
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 340.27
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 634.06
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 692.5
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 608.81,
+    "close_price": 608.81
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 116.8,
+    "close_price": 116.8
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 254.775,
+    "close_price": 254.775
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 689.42,
+    "close_price": 689.42
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 608.81,
+    "close_price": 608.81
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 634.06,
+    "close_price": 634.06
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 692.5,
+    "close_price": 692.5
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 465.04,
+    "close_price": 465.04
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 465.04,
+    "close_price": 465.04
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 689.42,
+    "close_price": 689.42
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 634.06,
+    "close_price": 634.06
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 692.5,
+    "close_price": 692.5
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 204.39,
+    "close_price": 204.39
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 465.04,
+    "close_price": 465.04
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 682.32,
+    "peak_price": 689.42,
+    "close_price": 689.42
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 685.32,
+    "peak_price": 692.5,
+    "close_price": 692.5
+   }
+  ]
+ },
+ {
+  "date": "2026-02-24",
+  "ending_value": 104007.04,
+  "ending_cash": 49469.36,
+  "holdings_count": 36,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 53.36
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 151.15
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 69.52,
+    "close_price": 69.46
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.64
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.64
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 140.31
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 204.39,
+    "close_price": 203.97
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 226.77
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 463.94
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.88,
+    "close_price": 206.16
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 614.32,
+    "close_price": 607.82
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 263.33
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 204.09,
+    "close_price": 203.46
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 147.98,
+    "close_price": 147.7
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 252.14
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 687.35
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 491.81
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 339.21
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 632.26
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 690.55
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 608.81,
+    "close_price": 607.82
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 116.8,
+    "close_price": 116.16
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 254.775,
+    "close_price": 252.14
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 689.42,
+    "close_price": 687.35
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 608.81,
+    "close_price": 607.82
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 634.06,
+    "close_price": 632.26
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 692.5,
+    "close_price": 690.55
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 465.04,
+    "close_price": 463.94
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 465.04,
+    "close_price": 463.94
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 689.42,
+    "close_price": 687.35
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 634.06,
+    "close_price": 632.26
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 692.5,
+    "close_price": 690.55
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 204.39,
+    "close_price": 203.97
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 465.04,
+    "close_price": 463.94
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 682.32,
+    "peak_price": 689.42,
+    "close_price": 687.35
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 685.32,
+    "peak_price": 692.5,
+    "close_price": 690.55
+   }
+  ]
+ },
+ {
+  "date": "2026-02-25",
+  "ending_value": 104199.48,
+  "ending_cash": 47967.8,
+  "holdings_count": 38,
+  "regime_used": "risk_off_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 53.06
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 151.99
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 70.26,
+    "close_price": 70.26
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.51
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.51
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 143.0
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 205.45,
+    "close_price": 205.45
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 227.64
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 470.32
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.88,
+    "close_price": 206.65
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 616.42,
+    "close_price": 616.42
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 264.57
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 204.09,
+    "close_price": 203.58
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 148.91,
+    "close_price": 148.91
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 256.38
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 693.02
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 494.82
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 341.83
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 637.53
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 696.25
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 616.42,
+    "close_price": 616.42
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 116.8,
+    "close_price": 116.5
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 256.38,
+    "close_price": 256.38
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 693.02,
+    "close_price": 693.02
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 616.42,
+    "close_price": 616.42
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 637.53,
+    "close_price": 637.53
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 696.25,
+    "close_price": 696.25
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 470.32,
+    "close_price": 470.32
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 470.32,
+    "close_price": 470.32
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 693.02,
+    "close_price": 693.02
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 637.53,
+    "close_price": 637.53
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 696.25,
+    "close_price": 696.25
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 205.45,
+    "close_price": 205.45
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 470.32,
+    "close_price": 470.32
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 682.32,
+    "peak_price": 693.02,
+    "close_price": 693.02
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 685.32,
+    "peak_price": 696.25,
+    "close_price": 696.25
+   },
+   {
+    "symbol": "VTI",
+    "shares": 2.0,
+    "entry_price": 340.86,
+    "peak_price": 341.83,
+    "close_price": 341.83
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 4.0,
+    "entry_price": 204.9599,
+    "peak_price": 205.45,
+    "close_price": 205.45
+   }
+  ]
+ },
+ {
+  "date": "2026-02-26",
+  "ending_value": 104038.87,
+  "ending_cash": 45922.33,
+  "holdings_count": 40,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 53.0
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 151.12
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 70.31,
+    "close_price": 70.31
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.64,
+    "close_price": 31.51
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.64,
+    "close_price": 31.51
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 141.01
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 205.45,
+    "close_price": 204.8
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 227.43
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 465.46
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 206.93,
+    "close_price": 206.93
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 616.42,
+    "close_price": 609.28
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 265.97
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 204.73,
+    "close_price": 204.73
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 148.91,
+    "close_price": 148.4
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 254.89
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 689.33
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 494.86
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 340.49
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 634.01
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 692.41
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 616.42,
+    "close_price": 609.28
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 116.8,
+    "close_price": 116.72
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 256.38,
+    "close_price": 254.89
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 693.02,
+    "close_price": 689.33
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 616.42,
+    "close_price": 609.28
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 637.53,
+    "close_price": 634.01
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 696.25,
+    "close_price": 692.41
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 470.32,
+    "close_price": 465.46
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 470.32,
+    "close_price": 465.46
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 693.02,
+    "close_price": 689.33
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 637.53,
+    "close_price": 634.01
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 696.25,
+    "close_price": 692.41
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 205.45,
+    "close_price": 204.8
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 470.32,
+    "close_price": 465.46
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 682.32,
+    "peak_price": 693.02,
+    "close_price": 689.33
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 685.32,
+    "peak_price": 696.25,
+    "close_price": 692.41
+   },
+   {
+    "symbol": "VTI",
+    "shares": 2.0,
+    "entry_price": 340.86,
+    "peak_price": 341.83,
+    "close_price": 340.49
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 4.0,
+    "entry_price": 204.9599,
+    "peak_price": 205.45,
+    "close_price": 204.8
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 340.49,
+    "peak_price": 340.49,
+    "close_price": 340.49
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 204.8,
+    "peak_price": 204.8,
+    "close_price": 204.8
+   }
+  ]
+ },
+ {
+  "date": "2026-02-27",
+  "ending_value": 104081.01,
+  "ending_cash": 43950.35,
+  "holdings_count": 43,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 53.42
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 150.78
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 70.31,
+    "close_price": 70.225
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.765,
+    "close_price": 31.765
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.765,
+    "close_price": 31.765
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 138.76
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 205.45,
+    "close_price": 204.84
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 227.74
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 460.87
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 207.275,
+    "close_price": 207.275
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 616.42,
+    "close_price": 607.38
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 261.4
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 204.94,
+    "close_price": 204.94
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 148.91,
+    "close_price": 147.84
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 253.02
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 686.16
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 489.58
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 338.74
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 631.12
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 689.17
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 616.42,
+    "close_price": 607.38
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 118.05,
+    "close_price": 118.05
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 256.38,
+    "close_price": 253.02
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 693.02,
+    "close_price": 686.16
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 616.42,
+    "close_price": 607.38
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 637.53,
+    "close_price": 631.12
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 696.25,
+    "close_price": 689.17
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 470.32,
+    "close_price": 460.87
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 470.32,
+    "close_price": 460.87
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 693.02,
+    "close_price": 686.16
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 637.53,
+    "close_price": 631.12
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 696.25,
+    "close_price": 689.17
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 205.45,
+    "close_price": 204.84
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 470.32,
+    "close_price": 460.87
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 682.32,
+    "peak_price": 693.02,
+    "close_price": 686.16
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 685.32,
+    "peak_price": 696.25,
+    "close_price": 689.17
+   },
+   {
+    "symbol": "VTI",
+    "shares": 2.0,
+    "entry_price": 340.86,
+    "peak_price": 341.83,
+    "close_price": 338.74
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 4.0,
+    "entry_price": 204.9599,
+    "peak_price": 205.45,
+    "close_price": 204.84
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 340.49,
+    "peak_price": 340.49,
+    "close_price": 338.74
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 204.8,
+    "peak_price": 204.84,
+    "close_price": 204.84
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.0,
+    "peak_price": 686.16,
+    "close_price": 686.16
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 602.94,
+    "peak_price": 607.38,
+    "close_price": 607.38
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.04,
+    "peak_price": 689.17,
+    "close_price": 689.17
+   }
+  ]
+ },
+ {
+  "date": "2026-03-03",
+  "ending_value": 103571.79,
+  "ending_cash": 42757.69,
+  "holdings_count": 44,
+  "regime_used": "risk_off_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 51.95
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 147.1
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 70.31,
+    "close_price": 66.59
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.86,
+    "close_price": 31.5889
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.86,
+    "close_price": 31.5889
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 137.54
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 205.45,
+    "close_price": 202.29
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 225.16
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 459.3
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 207.275,
+    "close_price": 204.27
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 616.42,
+    "close_price": 601.67
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 259.24
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 204.94,
+    "close_price": 202.08
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 148.91,
+    "close_price": 144.04
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 247.01
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 680.33
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 485.51
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 335.73
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 625.67
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 683.32
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 616.42,
+    "close_price": 601.67
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 118.05,
+    "close_price": 117.98
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 256.38,
+    "close_price": 247.01
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 693.02,
+    "close_price": 680.33
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 616.42,
+    "close_price": 601.67
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 637.53,
+    "close_price": 625.67
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 696.25,
+    "close_price": 683.32
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 470.32,
+    "close_price": 459.3
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 470.32,
+    "close_price": 459.3
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 693.02,
+    "close_price": 680.33
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 637.53,
+    "close_price": 625.67
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 696.25,
+    "close_price": 683.32
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 205.45,
+    "close_price": 202.29
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 470.32,
+    "close_price": 459.3
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 682.32,
+    "peak_price": 693.02,
+    "close_price": 680.33
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 685.32,
+    "peak_price": 696.25,
+    "close_price": 683.32
+   },
+   {
+    "symbol": "VTI",
+    "shares": 2.0,
+    "entry_price": 340.86,
+    "peak_price": 341.83,
+    "close_price": 335.73
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 4.0,
+    "entry_price": 204.9599,
+    "peak_price": 205.45,
+    "close_price": 202.29
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 340.49,
+    "peak_price": 340.49,
+    "close_price": 335.73
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 204.8,
+    "peak_price": 204.84,
+    "close_price": 202.29
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.0,
+    "peak_price": 686.34,
+    "close_price": 680.33
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 602.94,
+    "peak_price": 608.09,
+    "close_price": 601.67
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.04,
+    "peak_price": 689.42,
+    "close_price": 683.32
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 596.33,
+    "peak_price": 601.67,
+    "close_price": 601.67
+   }
+  ]
+ },
+ {
+  "date": "2026-03-04",
+  "ending_value": 103861.64,
+  "ending_cash": 42757.69,
+  "holdings_count": 44,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 51.92
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 149.26
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 70.31,
+    "close_price": 67.38
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.86,
+    "close_price": 31.54
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.86,
+    "close_price": 31.54
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 139.84
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 205.45,
+    "close_price": 203.44
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 225.52
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 463.92
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 207.275,
+    "close_price": 204.99
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 616.42,
+    "close_price": 610.72
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 261.74
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 204.94,
+    "close_price": 202.89
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 148.91,
+    "close_price": 145.26
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 250.7
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 685.16
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 487.75
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 338.19
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 630.18
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 688.303
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 616.42,
+    "close_price": 610.72
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 118.79,
+    "close_price": 118.79
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 256.38,
+    "close_price": 250.7
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 693.02,
+    "close_price": 685.16
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 616.42,
+    "close_price": 610.72
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 637.53,
+    "close_price": 630.18
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 696.25,
+    "close_price": 688.303
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 470.32,
+    "close_price": 463.92
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 470.32,
+    "close_price": 463.92
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 693.02,
+    "close_price": 685.16
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 637.53,
+    "close_price": 630.18
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 696.25,
+    "close_price": 688.303
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 205.45,
+    "close_price": 203.44
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 470.32,
+    "close_price": 463.92
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 682.32,
+    "peak_price": 693.02,
+    "close_price": 685.16
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 685.32,
+    "peak_price": 696.25,
+    "close_price": 688.303
+   },
+   {
+    "symbol": "VTI",
+    "shares": 2.0,
+    "entry_price": 340.86,
+    "peak_price": 341.83,
+    "close_price": 338.19
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 4.0,
+    "entry_price": 204.9599,
+    "peak_price": 205.45,
+    "close_price": 203.44
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 340.49,
+    "peak_price": 340.49,
+    "close_price": 338.19
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 204.8,
+    "peak_price": 204.84,
+    "close_price": 203.44
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.0,
+    "peak_price": 686.34,
+    "close_price": 685.16
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 602.94,
+    "peak_price": 610.72,
+    "close_price": 610.72
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.04,
+    "peak_price": 689.42,
+    "close_price": 688.303
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 596.33,
+    "peak_price": 610.72,
+    "close_price": 610.72
+   }
+  ]
+ },
+ {
+  "date": "2026-03-05",
+  "ending_value": 103382.56,
+  "ending_cash": 42757.69,
+  "holdings_count": 44,
+  "regime_used": "risk_off_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 50.83
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 147.63
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 70.31,
+    "close_price": 65.79
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.86,
+    "close_price": 31.24
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.86,
+    "close_price": 31.24
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 140.16
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 205.45,
+    "close_price": 201.68
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 223.47
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 464.29
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 207.275,
+    "close_price": 202.33
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 616.42,
+    "close_price": 608.93
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 256.78
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 204.94,
+    "close_price": 200.66
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 148.91,
+    "close_price": 143.58
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 247.03
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 681.455
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 479.85
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 336.0
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 626.75
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 684.46
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 616.42,
+    "close_price": 608.93
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 118.79,
+    "close_price": 118.46
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 256.38,
+    "close_price": 247.03
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 693.02,
+    "close_price": 681.455
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 616.42,
+    "close_price": 608.93
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 637.53,
+    "close_price": 626.75
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 696.25,
+    "close_price": 684.46
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 470.32,
+    "close_price": 464.29
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 470.32,
+    "close_price": 464.29
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 693.02,
+    "close_price": 681.455
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 637.53,
+    "close_price": 626.75
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 696.25,
+    "close_price": 684.46
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 205.45,
+    "close_price": 201.68
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 470.32,
+    "close_price": 464.29
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 682.32,
+    "peak_price": 693.02,
+    "close_price": 681.455
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 685.32,
+    "peak_price": 696.25,
+    "close_price": 684.46
+   },
+   {
+    "symbol": "VTI",
+    "shares": 2.0,
+    "entry_price": 340.86,
+    "peak_price": 341.83,
+    "close_price": 336.0
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 4.0,
+    "entry_price": 204.9599,
+    "peak_price": 205.45,
+    "close_price": 201.68
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 340.49,
+    "peak_price": 340.49,
+    "close_price": 336.0
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 204.8,
+    "peak_price": 204.84,
+    "close_price": 201.68
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.0,
+    "peak_price": 686.34,
+    "close_price": 681.455
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 602.94,
+    "peak_price": 610.72,
+    "close_price": 608.93
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.04,
+    "peak_price": 689.42,
+    "close_price": 684.46
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 596.33,
+    "peak_price": 610.72,
+    "close_price": 608.93
+   }
+  ]
+ },
+ {
+  "date": "2026-03-06",
+  "ending_value": 102767.25,
+  "ending_cash": 41810.25,
+  "holdings_count": 45,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": [
+   {
+    "symbol": "XLB",
+    "shares": 5.397923801227535,
+    "entry_price": 49.27,
+    "peak_price": 53.62,
+    "close_price": 49.86
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 1.9870858810662764,
+    "entry_price": 147.18,
+    "peak_price": 152.9,
+    "close_price": 144.62
+   },
+   {
+    "symbol": "VEA",
+    "shares": 4.454166734564467,
+    "entry_price": 66.2,
+    "peak_price": 70.31,
+    "close_price": 65.295
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 738.0,
+    "entry_price": 29.7794,
+    "peak_price": 31.86,
+    "close_price": 31.12
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 10.148703259053931,
+    "entry_price": 29.7899,
+    "peak_price": 31.86,
+    "close_price": 31.12
+   },
+   {
+    "symbol": "XLK",
+    "shares": 7.0,
+    "entry_price": 140.83,
+    "peak_price": 143.35,
+    "close_price": 137.29
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.09,
+    "peak_price": 205.45,
+    "close_price": 198.71
+   },
+   {
+    "symbol": "VIG",
+    "shares": 5.0,
+    "entry_price": 226.12,
+    "peak_price": 229.69,
+    "close_price": 221.5
+   },
+   {
+    "symbol": "VUG",
+    "shares": 3.0,
+    "entry_price": 472.99,
+    "peak_price": 473.39,
+    "close_price": 458.09
+   },
+   {
+    "symbol": "VTV",
+    "shares": 7.0,
+    "entry_price": 202.95,
+    "peak_price": 207.275,
+    "close_price": 199.99
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 600.21,
+    "peak_price": 616.42,
+    "close_price": 599.83
+   },
+   {
+    "symbol": "IWM",
+    "shares": 6.0,
+    "entry_price": 258.5,
+    "peak_price": 266.88,
+    "close_price": 250.955
+   },
+   {
+    "symbol": "RSP",
+    "shares": 3.1136943863783966,
+    "entry_price": 199.64,
+    "peak_price": 204.94,
+    "close_price": 198.1
+   },
+   {
+    "symbol": "VT",
+    "shares": 10.0,
+    "entry_price": 144.0,
+    "peak_price": 148.91,
+    "close_price": 141.895
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 2.1276556262947848,
+    "entry_price": 244.83,
+    "peak_price": 257.43,
+    "close_price": 241.6
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 681.46,
+    "peak_price": 693.95,
+    "close_price": 672.62
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 492.37,
+    "peak_price": 501.9,
+    "close_price": 475.16
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 336.175,
+    "peak_price": 342.64,
+    "close_price": 331.41
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 626.72,
+    "peak_price": 638.23,
+    "close_price": 618.49
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 684.49,
+    "peak_price": 697.09,
+    "close_price": 675.32
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 600.43,
+    "peak_price": 616.42,
+    "close_price": 599.83
+   },
+   {
+    "symbol": "XLC",
+    "shares": 10.0,
+    "entry_price": 114.37,
+    "peak_price": 118.79,
+    "close_price": 117.465
+   },
+   {
+    "symbol": "MTUM",
+    "shares": 5.0,
+    "entry_price": 249.8379,
+    "peak_price": 256.38,
+    "close_price": 241.6
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 680.14,
+    "peak_price": 693.02,
+    "close_price": 672.62
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 598.375,
+    "peak_price": 616.42,
+    "close_price": 599.83
+   },
+   {
+    "symbol": "VOO",
+    "shares": 1.0,
+    "entry_price": 625.54,
+    "peak_price": 637.53,
+    "close_price": 618.49
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 683.17,
+    "peak_price": 696.25,
+    "close_price": 675.32
+   },
+   {
+    "symbol": "VUG",
+    "shares": 2.0,
+    "entry_price": 456.41,
+    "peak_price": 470.32,
+    "close_price": 458.09
+   },
+   {
+    "symbol": "VUG",
+    "shares": 1.0,
+    "entry_price": 460.37,
+    "peak_price": 470.32,
+    "close_price": 458.09
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.84,
+    "peak_price": 693.02,
+    "close_price": 672.62
+   },
+   {
+    "symbol": "VOO",
+    "shares": 2.0,
+    "entry_price": 628.95,
+    "peak_price": 637.53,
+    "close_price": 618.49
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.93,
+    "peak_price": 696.25,
+    "close_price": 675.32
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 202.48,
+    "peak_price": 205.45,
+    "close_price": 198.71
+   },
+   {
+    "symbol": "VUG",
+    "shares": 4.0,
+    "entry_price": 460.53,
+    "peak_price": 470.32,
+    "close_price": 458.09
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 682.32,
+    "peak_price": 693.02,
+    "close_price": 672.62
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 685.32,
+    "peak_price": 696.25,
+    "close_price": 675.32
+   },
+   {
+    "symbol": "VTI",
+    "shares": 2.0,
+    "entry_price": 340.86,
+    "peak_price": 341.83,
+    "close_price": 331.41
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 4.0,
+    "entry_price": 204.9599,
+    "peak_price": 205.45,
+    "close_price": 198.71
+   },
+   {
+    "symbol": "VTI",
+    "shares": 3.0,
+    "entry_price": 340.49,
+    "peak_price": 340.49,
+    "close_price": 331.41
+   },
+   {
+    "symbol": "QUAL",
+    "shares": 5.0,
+    "entry_price": 204.8,
+    "peak_price": 204.84,
+    "close_price": 198.71
+   },
+   {
+    "symbol": "SPY",
+    "shares": 1.0,
+    "entry_price": 683.0,
+    "peak_price": 686.34,
+    "close_price": 672.62
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 1.0,
+    "entry_price": 602.94,
+    "peak_price": 610.72,
+    "close_price": 599.83
+   },
+   {
+    "symbol": "IVV",
+    "shares": 1.0,
+    "entry_price": 686.04,
+    "peak_price": 689.42,
+    "close_price": 675.32
+   },
+   {
+    "symbol": "QQQ",
+    "shares": 2.0,
+    "entry_price": 596.33,
+    "peak_price": 610.72,
+    "close_price": 599.83
+   },
+   {
+    "symbol": "DIA",
+    "shares": 2.0,
+    "entry_price": 473.72,
+    "peak_price": 475.16,
+    "close_price": 475.16
+   }
+  ]
+ }
+]
