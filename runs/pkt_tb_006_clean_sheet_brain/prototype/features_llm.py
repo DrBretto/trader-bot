@@ -78,6 +78,15 @@ def build_features(store_dir: Path = STORE_DIR, grid_start: dt.date = GRID_START
         cols[f"llm_sent_{b}_ema3"] = np.where(avail > 0, ema3.fillna(0.0), 0.0)
         cols[f"llm_sent_{b}_d1"] = np.where(avail > 0, d1.fillna(0.0), 0.0)
 
+    # n_clusters: feature_store's ih_n_clusters_z reads this column (driver-gap
+    # fix, logged as finding: the store guarded on its absence and silently
+    # zeroed the z; the artifact carries n_clusters per day). NaN on
+    # artifact-absent days so the store's trailing-observation z is unpolluted
+    # (the store nan_to_nums after the z).
+    cols["n_clusters"] = np.array(
+        [float(arts[d.date()].get("n_clusters", 0)) if d.date() in arts else np.nan
+         for d in idx])
+
     cols["llm_risk_appetite"] = per_day(lambda a: a["llm"]["global"]["risk_appetite"])
     cols["llm_rates_pressure"] = per_day(lambda a: a["llm"]["global"]["rates_pressure"])
     cols["llm_geopol_risk"] = per_day(lambda a: a["llm"]["global"]["geopolitical_risk"])

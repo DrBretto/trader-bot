@@ -304,6 +304,8 @@ class FeatureStore:
         if not p.exists():
             return None
         df = pd.read_parquet(p)
+        if "date" not in df.columns:        # features_llm writes date as the index
+            df = df.reset_index()
         df["date"] = pd.to_datetime(df["date"])
         return df.set_index("date").sort_index()
 

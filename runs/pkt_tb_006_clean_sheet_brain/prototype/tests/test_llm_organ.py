@@ -244,4 +244,4 @@ def test_feature_emission_masks(tmp_path):
     # visible_from = d+1
     assert g("2026-02-05")["visible_from"] == pd.Timestamp("2026-02-06")
     # full feature width: 27*5 + 3 axes + 12 flags + 2 masks + visible_from
-    assert df.shape[1] == 27 * 5 + 3 + 12 + 2 + 1
+    assert df.shape[1] == 27 * 5 + 3 + 12 + 2 + 1 + 1  # +n_clusters (visible_from in the +2+1 base)

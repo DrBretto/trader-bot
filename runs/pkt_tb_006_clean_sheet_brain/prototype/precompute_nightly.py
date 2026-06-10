@@ -173,9 +173,13 @@ def infer_gbm(panel: dict, idxs: np.ndarray, screen: dict) -> dict:
         blob = pickle.load(fh)
     clf, iso = blob["clf"], blob["iso"]
     bucket_ids = blob["bucket_ids"]
+    # routing variant comes from the DEPLOY manifest (registered §9.1 outcome
+    # ships r3_only; hardwired "conjunctive" broke the design width — fixed)
+    man = json.loads((MODELS / "gbm_cond" / "manifest.json").read_text())
+    variant = man.get("params", {}).get("variant", "conjunctive")
     D, y, valid, w, mono = M.gbm_design(panel, idxs, blob["sym_is_credit"],
                                         blob["sym_is_equity"], screen, 6,
-                                        "conjunctive")
+                                        variant)
     P, mu2, c2 = M.gbm_outputs(clf, D, valid, panel, idxs, iso=iso)
     return {"mu_raw": np.nan_to_num(mu2, nan=0.0), "c": np.nan_to_num(c2),
             "bucket_ids": bucket_ids,
@@ -217,8 +221,10 @@ def infer_event(panel: dict, idxs: np.ndarray, screen: dict) -> dict:
         Xk = np.nan_to_num(B[idxs][:, k, :][:, kidx].astype(np.float64), nan=0.0)
         val_mu_b[:, k] = en.predict((Xk - mu_) / sd_)
     # gated event mass percentile (c3): full-panel history so the 252d window is warm
+    ev_man = json.loads((MODELS / "event_head" / "manifest.json").read_text())
+    ev_variant = ev_man.get("params", {}).get("variant", "conjunctive")
     passing = [f for f in IT.FAMILIES if f != "LLM_event_flags"
-               and IT.screen_pass(screen, f, 6, "conjunctive")]
+               and IT.screen_pass(screen, f, 6, ev_variant)]
     if passing:
         mass = np.mean([IT.family_intensity(B, b_cols, f).mean(axis=1)
                         for f in passing], axis=0)

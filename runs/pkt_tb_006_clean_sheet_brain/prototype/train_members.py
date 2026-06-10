@@ -246,8 +246,12 @@ def run_ridge(panel, dates, fold_list, deploy, command, smoke):
 # ===========================================================================
 
 def run_gbm(panel, dates, fold_list, screen, uniform, deploy, command, smoke,
-            variant="conjunctive"):
-    member = "gbm_cond_uniform" if uniform else "gbm_cond"
+            variant="conjunctive", member: str | None = None):
+    # member name decoupled from weighting so the registered §9.2 Transfer-B
+    # rule (record-weighting ships per-learner ONLY on a purged-validation win)
+    # can ship the uniform twin under the canonical name when weighting loses.
+    if member is None:
+        member = "gbm_cond_uniform" if uniform else "gbm_cond"
     u = pd.read_csv(PROTO.parents[2] / "config" / "universe.csv")
     bucket_map = json.loads((PROTO / "dicts" / "bucket_map.json").read_text())
     symbols = [str(s) for s in panel["symbols"]]
@@ -339,7 +343,8 @@ def run_gbm(panel, dates, fold_list, screen, uniform, deploy, command, smoke,
                          "sym_is_equity": sym_is_equity}, fh)
         (out / "manifest.json").write_text(
             manifest(member, F.FINE_TUNE_CUTOFF, [seed],
-                     dict(params, variant=variant), time.time() - t0, command,
+                     dict(params, variant=variant, uniform_w=uniform),
+                     time.time() - t0, command,
                      smoke, extra={"deploy": True, "n_iter": n_iter}))
     _write_metrics(member, metrics)
     return metrics
@@ -350,8 +355,12 @@ def run_gbm(panel, dates, fold_list, screen, uniform, deploy, command, smoke,
 # ===========================================================================
 
 def run_event(panel, dates, fold_list, screen, deploy, command, smoke,
-              variant="conjunctive"):
-    member = "event_head" if variant == "conjunctive" else "event_head_r3only"
+              variant="conjunctive", member: str | None = None):
+    # member name decoupled from variant (registered §9.1 falsifier outcome:
+    # the conjunctive gate is dead, R3-only routing SHIPS under the canonical
+    # member name; the r3only suffix remains for the falsifier twin lineage)
+    if member is None:
+        member = "event_head" if variant == "conjunctive" else "event_head_r3only"
     b_cols = [str(c) for c in panel["B_cols"]]
     buckets = [str(b) for b in panel["buckets"]]
     symbols = [str(s) for s in panel["symbols"]]
@@ -487,6 +496,14 @@ def main():
     ap.add_argument("--deploy-only", action="store_true")
     ap.add_argument("--screen", action="store_true")
     ap.add_argument("--r3-only-twin", action="store_true")
+    ap.add_argument("--ship-variant", default="conjunctive",
+                    choices=["conjunctive", "r3_only"],
+                    help="screen routing for the SHIPPING gbm/event members "
+                         "(registered §9.1 outcome: r3_only for the final run)")
+    ap.add_argument("--uniform-as-primary", action="store_true",
+                    help="ship uniform sample weights under the canonical "
+                         "gbm_cond name (registered §9.2 Transfer-B rule when "
+                         "weighting loses the purged-validation A/B)")
     ap.add_argument("--days-per-step", type=int, default=8)
     ap.add_argument("--max-epochs", type=int, default=60)
     ap.add_argument("--patience", type=int, default=10)
@@ -551,13 +568,19 @@ def main():
     if "gbm" in members:
         if screen is None:
             raise SystemExit("run --screen first (Transfer-A routing needed)")
-        run_gbm(panel, dates, fold_list, screen, args.uniform_twin,
-                args.deploy, command, smoke)
+        run_gbm(panel, dates, fold_list, screen,
+                args.uniform_twin or args.uniform_as_primary,
+                args.deploy, command, smoke, variant=args.ship_variant,
+                member="gbm_cond" if args.uniform_as_primary else None)
     if "event" in members:
         if screen is None:
             raise SystemExit("run --screen first")
-        run_event(panel, dates, fold_list, screen, args.deploy, command, smoke,
-                  variant="r3_only" if args.r3_only_twin else "conjunctive")
+        if args.r3_only_twin:               # legacy falsifier-twin lineage
+            run_event(panel, dates, fold_list, screen, args.deploy, command,
+                      smoke, variant="r3_only", member="event_head_r3only")
+        else:
+            run_event(panel, dates, fold_list, screen, args.deploy, command,
+                      smoke, variant=args.ship_variant, member="event_head")
     if "risk" in members:
         run_risk(panel, dates, fold_list, args.deploy, command, smoke)
 
