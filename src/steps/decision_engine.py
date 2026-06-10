@@ -338,6 +338,25 @@ def evaluate_holdings(
 
     dust_value_threshold = params.get('dust_value_threshold', 1.00)
 
+    # As-of date for calendar-based triggers (PKT-TB-004). The legacy
+    # leveraged hold cap measures days_held against wall-clock now(), which is
+    # correct in production but wrong in historical replays (every replayed
+    # holding looks months old). New calendar triggers below use the price
+    # data's own latest date so they behave identically in both contexts.
+    asof_date = None
+    if len(prices_df) > 0 and 'date' in prices_df.columns:
+        asof_date = pd.to_datetime(prices_df['date'].max())
+
+    # Structural-decay hold cap (PKT-TB-004 Risk Architect VIXY candidate).
+    # Volatility ETPs (VIXY) bleed structurally via futures roll: median 21d
+    # buy-and-hold return ~-9% with only ~26% of windows positive, so any hold
+    # beyond the initial spike-capture window is negative-sum. The leveraged
+    # hold cap does not cover them (leverage_flag=0) and health/stop triggers
+    # lag the bleed. Default absent = OFF = production behavior unchanged.
+    vol_decay_cfg = params.get('vol_decay_constraints') or {}
+    vol_decay_max_days = int(vol_decay_cfg.get('max_hold_days', 0) or 0)
+    vol_decay_sectors = set(vol_decay_cfg.get('sectors', ['volatility']))
+
     for holding in portfolio_state.get('holdings', []):
         symbol = holding['symbol']
         entry_price = holding['entry_price']
@@ -469,6 +488,27 @@ def evaluate_holdings(
                 })
                 continue
 
+        # 5b. Structural-decay hold cap (PKT-TB-004 VIXY candidate, default OFF).
+        # Calendar days vs the price data's as-of date (replay-consistent),
+        # NOT wall-clock now().
+        if vol_decay_max_days and holding.get('sector') in vol_decay_sectors:
+            days_held_asof = days_held
+            if asof_date is not None:
+                days_held_asof = (asof_date - entry_date).days
+            if days_held_asof >= vol_decay_max_days:
+                actions.append({
+                    'symbol': symbol,
+                    'action': 'SELL',
+                    'reason': 'VOL_DECAY_HOLD_CAP',
+                    'shares': shares,
+                    'price': current_price,
+                    'details': (
+                        f'Decay-class sector {holding.get("sector")} held '
+                        f'{days_held_asof} days >= max {vol_decay_max_days}'
+                    ),
+                })
+                continue
+
         # CHECK REDUCE TRIGGERS (spec 9.5 — half-size trims, never coded until
         # 2026-06-06). Evaluated only if no SELL trigger fired above.
 
@@ -529,6 +569,136 @@ def evaluate_holdings(
             })
             continue
 
+    return actions
+
+
+def compute_exposure_trims(
+    portfolio_state: Dict[str, Any],
+    pending_actions: List[Dict[str, Any]],
+    prices_df: pd.DataFrame,
+    portfolio_value: float,
+    target_exposure: float,
+    regime_label: str,
+    params: Dict[str, Any],
+    trim_cfg: Dict[str, Any],
+) -> List[Dict[str, Any]]:
+    """PKT-TB-004 Risk Architect candidate: book-level exposure trim.
+
+    Today the throttle stack (position_size_modifier x risk_throttle ->
+    effective_exposure_multiplier published by regime fusion) gates only NEW
+    buys; an already-deployed book ignores the regime view entirely (the canon
+    book sat ~100% invested with target_gross_exposure ~0.27). This is the
+    SELL-side complement: when current gross exposure exceeds the fusion
+    target by more than `trigger_gap`, emit exact-share REDUCE intents
+    pro-rata across holdings to bring the book back to target +
+    `hysteresis_gap`.
+
+    No-churn properties:
+    - trims TO target + hysteresis_gap (never below target), so a re-fire
+      requires the gap to re-open by at least trigger_gap - hysteresis_gap;
+    - optional `persistence_days` requires the breach to persist N
+      consecutive runs (counter carried on portfolio_state, same pattern as
+      the per-holding health counters);
+    - per-order minimum `min_trim_dollars` suppresses dust trims.
+
+    Interaction with existing sells: holdings with a pending SELL are
+    excluded from both the gross calculation and the trim; pending REDUCEs
+    are counted at their post-reduce size. Config lives at
+    decision_engine_overrides['exposure_trim']; absent/enabled=False =
+    production behavior unchanged.
+    """
+    cfg = trim_cfg or {}
+    if not cfg.get('enabled') or portfolio_value <= 0:
+        return []
+    skip_regimes = set(cfg.get('skip_regimes', []) or [])
+    if regime_label in skip_regimes:
+        return []
+
+    trigger_gap = _safe_float(cfg.get('trigger_gap'), 0.10)
+    hysteresis_gap = min(_safe_float(cfg.get('hysteresis_gap'), 0.05), trigger_gap)
+    min_trim = _safe_float(
+        cfg.get('min_trim_dollars'),
+        _safe_float(params.get('min_order_dollars'), 250.0),
+    )
+    persistence_days = max(int(cfg.get('persistence_days', 1) or 1), 1)
+    target_floor = _safe_float(cfg.get('target_floor'), 0.0)
+    target = _clip(_safe_float(target_exposure, 1.0), target_floor, 1.0)
+
+    pending_sells = {
+        a.get('symbol') for a in pending_actions
+        if str(a.get('action', '')).upper() == 'SELL'
+    }
+    pending_reduces = {
+        a.get('symbol') for a in pending_actions
+        if str(a.get('action', '')).upper() == 'REDUCE'
+    }
+
+    positions = []
+    gross = 0.0
+    for holding in portfolio_state.get('holdings', []):
+        symbol = holding.get('symbol')
+        if symbol in pending_sells:
+            continue
+        symbol_prices = prices_df[prices_df['symbol'] == symbol]
+        if len(symbol_prices) == 0:
+            continue
+        price = float(symbol_prices.sort_values('date')['close'].iloc[-1])
+        shares = _safe_float(holding.get('shares'), 0.0)
+        if symbol in pending_reduces:
+            # paper_trader executes legacy REDUCE as shares // 2 of the
+            # intent's share count (= the full holding for trigger-emitted
+            # reduces); count the post-reduce remainder.
+            shares = shares - int(shares) // 2
+        market_value = shares * price
+        if market_value <= 0 or price <= 0:
+            continue
+        gross += market_value
+        positions.append((symbol, shares, price, market_value))
+
+    current_ratio = gross / portfolio_value
+
+    counter_key = 'exposure_trim_consecutive_over'
+    over = current_ratio > target + trigger_gap
+    counter = int(portfolio_state.get(counter_key, 0) or 0)
+    counter = counter + 1 if over else 0
+    portfolio_state[counter_key] = counter
+    if not over or counter < persistence_days:
+        return []
+
+    trim_to = target + hysteresis_gap
+    total_trim = (current_ratio - trim_to) * portfolio_value
+    if total_trim < min_trim or gross <= 0:
+        return []
+
+    actions: List[Dict[str, Any]] = []
+    for symbol, shares, price, market_value in positions:
+        trim_dollars = total_trim * market_value / gross
+        if trim_dollars < min_trim:
+            continue
+        trim_shares = int(trim_dollars / price)
+        if trim_shares <= 0:
+            continue
+        trim_shares = min(trim_shares, int(shares))
+        if trim_shares <= 0:
+            continue
+        actions.append({
+            'symbol': symbol,
+            'action': 'REDUCE',
+            'reason': 'EXPOSURE_TRIM',
+            'shares': trim_shares,
+            # Exact-share trim: paper_trader honors reduce_shares verbatim
+            # instead of the legacy halving.
+            'reduce_shares': trim_shares,
+            'price': price,
+            'details': (
+                f'Gross {current_ratio:.2f} > target {target:.2f} '
+                f'+ {trigger_gap:.2f}; trim to {trim_to:.2f}'
+            ),
+        })
+
+    if actions:
+        # Re-arm: a fresh breach is required before the next trim.
+        portfolio_state[counter_key] = 0
     return actions
 
 
@@ -890,6 +1060,37 @@ def run(
             'details': action.get('details', '')
         })
 
+    # 1b. Book-level exposure trim (PKT-TB-004 Risk Architect candidate).
+    # Config absent / enabled=False = production behavior unchanged. Requires
+    # the v3 fusion target (expert_metrics); the legacy path has no target.
+    trim_cfg = decision_engine_overrides.get('exposure_trim') or {}
+    trim_actions: List[Dict[str, Any]] = []
+    if trim_cfg.get('enabled') and expert_metrics:
+        trim_actions = compute_exposure_trims(
+            portfolio_state=portfolio_state,
+            pending_actions=actions,
+            prices_df=features_df,
+            portfolio_value=portfolio_value,
+            target_exposure=expert_metrics.get('effective_exposure_multiplier', 1.0),
+            regime_label=regime_label,
+            params=params,
+            trim_cfg=trim_cfg,
+        )
+        for action in trim_actions:
+            actions.append({
+                'action': action['action'],
+                'symbol': action['symbol'],
+                'shares': action['shares'],
+                'reduce_shares': action['reduce_shares'],
+                'price': action['price'],
+                'dollars': action['shares'] * action['price'],
+                'reason': action['reason'],
+                'details': action.get('details', ''),
+            })
+        if trim_actions:
+            print(f"  Exposure trim: {len(trim_actions)} pro-rata REDUCE intents "
+                  f"(target {expert_metrics.get('effective_exposure_multiplier', 1.0):.2f})")
+
     # 2. Score and filter buy candidates
     scored = score_candidates(
         asset_health,
@@ -975,10 +1176,23 @@ def run(
         cl = _cluster_of(h['symbol'], sector_by_symbol, cluster_map)
         cluster_dollars[cl] = cluster_dollars.get(cl, 0.0) + mv
 
+    # Exposure trims free up book-level and cluster headroom
+    for t in trim_actions:
+        t_dollars = t['shares'] * t['price']
+        deployed_dollars -= t_dollars
+        cl = _cluster_of(t['symbol'], sector_by_symbol, cluster_map)
+        cluster_dollars[cl] = cluster_dollars.get(cl, 0.0) - t_dollars
+
     enforce_gross = bool(_get_nested(
         decision_engine_overrides, 'enforce_gross_exposure_cap', False))
     eff_exp_mult = float(expert_metrics.get('effective_exposure_multiplier', 1.0) or 1.0)
     gross_cap = portfolio_value * eff_exp_mult if enforce_gross else float('inf')
+
+    # When the book is being trimmed back toward target, buying the same
+    # night is incoherent (and would churn the trim proceeds straight back
+    # into the market). Default True; tunable for the replay battery.
+    if trim_actions and trim_cfg.get('block_buys_when_trimming', True):
+        available_slots = 0
 
     buy_count = 0
     for _, candidate in buy_candidates.iterrows():

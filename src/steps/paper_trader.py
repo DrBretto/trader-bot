@@ -204,8 +204,13 @@ def execute_trade(
         # Find the holding
         for h in portfolio['holdings']:
             if h['symbol'] == symbol:
-                # Reduce by 50%
-                reduce_shares = shares // 2
+                # Exact-share trims (PKT-TB-004 exposure_trim candidate)
+                # carry 'reduce_shares'; legacy REDUCE intents halve the
+                # position (behavior unchanged when the field is absent).
+                reduce_shares = action.get('reduce_shares')
+                if reduce_shares is None:
+                    reduce_shares = shares // 2
+                reduce_shares = min(reduce_shares, h['shares'])
                 if reduce_shares > 0:
                     portfolio['cash'] += reduce_shares * price
                     h['shares'] -= reduce_shares
