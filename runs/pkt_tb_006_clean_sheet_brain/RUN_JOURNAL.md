@@ -33,3 +33,12 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   summary.md strategy sections, prior committee returns under runs/, strategies.py, or parameter
   bundles. Seal incidents across all Phase 0/A subagents: none. After this commit the incumbent
   becomes readable as the bake-off opponent only.
+- 2026-06-10 :: Phase B attacks complete (tournament/ATTACK_{SKEPTIC,TRAINING_REALIST,FEASIBILITY}.md).
+  Headline kills: Gamma record-gate look-ahead (G-K1), holdout multiplicity arithmetic (E1 cross-fold
+  becomes primary organ read), Gamma LLM-annotator token-budget break. All deployed-cost verdicts PASS.
+- 2026-06-10 :: Synthesis converged on SYN-1 (graft/kill tables in TOURNAMENT.md; 18 killed components).
+  Transformer slot: CAST-Small 16k params (Training Realist arithmetic governed over Feasibility cost
+  preference; dissent + vindication path recorded). Battery: planned 14 replays / 5 retrains, caps 20/9.
+  BEATS iff paired holdout t >= +1.0 and dSharpe > 0; TIES |t| < 1; LOSES t <= -1.0.
+- 2026-06-10 :: PRE-REGISTRATION COMMIT FOLLOWS. TOURNAMENT.md bake-off criteria + BUILD_SPEC.md are
+  committed BEFORE any build work or holdout read. Holdout-look ledger: 0. Validation-look ledger: 0.
