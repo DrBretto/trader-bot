@@ -1,0 +1,119 @@
+{
+  "date": "2026-03-19",
+  "status": "ok",
+  "calls_made": 12,
+  "risks": {
+    "GLD": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Moderate liquidity concerns due to recent market volatility, but no other major structural risks identified."
+    },
+    "ITA": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Recent weak performance and high volatility amid a high-volatility market regime indicate potential liquidity concerns that warrant monitoring."
+    },
+    "IYT": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "The recent high volatility and negative returns indicate potential liquidity risks, warranting a cautious approach."
+    },
+    "SCHD": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Moderate liquidity concerns due to high market volatility"
+    },
+    "SLV": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "The high volatility and low trading volume of this silver ETF pose liquidity risks that warrant monitoring and potentially reducing position size."
+    },
+    "XLE": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Recent volatility may indicate potential liquidity concerns, but no immediate risks identified."
+    },
+    "XLI": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Potential liquidity concerns given the recent high volatility and negative sentiment"
+    },
+    "XLU": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLV": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLB": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "The ETF exhibits some liquidity concerns due to the high-volatility market regime, warranting a cautious approach."
+    },
+    "SOXX": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "EEM": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    }
+  }
+}

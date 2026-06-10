@@ -1,0 +1,101 @@
+{
+  "date": "2026-02-10",
+  "status": "ok",
+  "calls_made": 10,
+  "risks": {
+    "GLD": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Potential liquidity concerns due to the commodity nature of the underlying asset, but no immediate threat."
+    },
+    "DBC": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "The ETF tracks a broad basket of commodities which may experience periodic liquidity concerns, but no other major structural risks identified."
+    },
+    "USO": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "SCHD": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "EWZ": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "KRE": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "The regional banking sector faces potential regulatory changes, and the ETF's liquidity may be impacted during periods of market volatility."
+    },
+    "XLE": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "The energy sector is facing regulatory uncertainty, and the ETF may have liquidity concerns during periods of market volatility."
+    },
+    "VLUE": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Modest liquidity concerns given the value factor tilt, but no imminent issues identified"
+    },
+    "SLV": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "High volatility and liquidity concerns warrant reduced position size"
+    },
+    "XLB": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    }
+  }
+}

@@ -1,0 +1,2713 @@
+{
+ "n_ensemble_days": 84,
+ "n_fusion_days": 80,
+ "holdout_start": "2026-03-11",
+ "V_baseline_replay_default_params": {
+  "label_match": "80/80",
+  "psm_match": "65/80",
+  "throttle_match": "65/80",
+  "mismatches": [
+   {
+    "date": "2026-04-30",
+    "replay": [
+     "risk_on_trend",
+     0.533,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8883,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-01",
+    "replay": [
+     "risk_on_trend",
+     0.5341,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8902,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-02",
+    "replay": [
+     "risk_on_trend",
+     0.5244,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.874,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-05",
+    "replay": [
+     "risk_on_trend",
+     0.5359,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8931,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-06",
+    "replay": [
+     "risk_on_trend",
+     0.5135,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8559,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-07",
+    "replay": [
+     "risk_on_trend",
+     0.5135,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8558,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-08",
+    "replay": [
+     "risk_on_trend",
+     0.5235,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8725,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-21",
+    "replay": [
+     "risk_on_trend",
+     0.507,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8449,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-22",
+    "replay": [
+     "risk_on_trend",
+     0.5339,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8898,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-23",
+    "replay": [
+     "risk_on_trend",
+     0.5282,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8803,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-26",
+    "replay": [
+     "risk_on_trend",
+     0.5361,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8935,
+     0.0
+    ]
+   },
+   {
+    "date": "2026-05-27",
+    "replay": [
+     "risk_on_trend",
+     0.5301,
+     0.2
+    ],
+    "published": [
+     "risk_on_trend",
+     0.8836,
+     0.0
+    ]
+   }
+  ]
+ },
+ "V_baseline_replay_active_params": {
+  "label_match": "80/80",
+  "psm_match": "64/80",
+  "throttle_match": "64/80",
+  "mismatches": [
+   {
+    "date": "2026-02-10",
+    "replay": [
+     "risk_on_trend",
+     0.9182,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.5509,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-02-14",
+    "replay": [
+     "choppy",
+     0.7979,
+     0.0
+    ],
+    "published": [
+     "choppy",
+     0.4787,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-03-18",
+    "replay": [
+     "risk_on_trend",
+     0.9428,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.5657,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-04-10",
+    "replay": [
+     "risk_on_trend",
+     0.7861,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.4717,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-04-14",
+    "replay": [
+     "risk_on_trend",
+     0.8261,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.4957,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-04-15",
+    "replay": [
+     "risk_on_trend",
+     0.8471,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.5082,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-04-16",
+    "replay": [
+     "risk_on_trend",
+     0.8434,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.5061,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-04-17",
+    "replay": [
+     "risk_on_trend",
+     0.8424,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.5054,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-04-18",
+    "replay": [
+     "risk_on_trend",
+     0.857,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.5142,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-04-21",
+    "replay": [
+     "risk_on_trend",
+     0.8425,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.5055,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-04-22",
+    "replay": [
+     "risk_on_trend",
+     0.8491,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.5095,
+     0.2
+    ]
+   },
+   {
+    "date": "2026-04-23",
+    "replay": [
+     "risk_on_trend",
+     0.8477,
+     0.0
+    ],
+    "published": [
+     "risk_on_trend",
+     0.5086,
+     0.2
+    ]
+   }
+  ]
+ },
+ "V_baseline_replay_era_params": {
+  "label_match": "80/80",
+  "psm_match": "80/80",
+  "throttle_match": "80/80",
+  "mismatches": []
+ },
+ "C_TEMP_fit": {
+  "fit_window": [
+   "2026-01-31",
+   "2026-03-10"
+  ],
+  "n_fit_days": 26,
+  "T_gru": 2.1583,
+  "T_transformer": 9.9512,
+  "preholdout_nll_gru_before_after": [
+   1.1492,
+   0.8946
+  ],
+  "preholdout_nll_tr_before_after": [
+   4.2118,
+   1.487
+  ]
+ },
+ "C_TEMP_holdout_ensemble_eval": {
+  "before": {
+   "nll": 0.6488,
+   "acc": 0.7931,
+   "mean_maxp": 0.6895,
+   "conf_acc_gap": -0.1036
+  },
+  "after": {
+   "nll": 1.0271,
+   "acc": 0.7759,
+   "mean_maxp": 0.4095,
+   "conf_acc_gap": -0.3664
+  }
+ },
+ "C_TEMP_preholdout_ensemble_eval": {
+  "before": {
+   "nll": 1.3697,
+   "acc": 0.3077,
+   "mean_maxp": 0.5762,
+   "conf_acc_gap": 0.2685
+  },
+  "after": {
+   "nll": 1.1037,
+   "acc": 0.6154,
+   "mean_maxp": 0.4592,
+   "conf_acc_gap": -0.1562
+  }
+ },
+ "candidates": {
+  "TEMP": {
+   "n_days_evaluated": 80,
+   "ens_label_changes": 16,
+   "final_label_diff_days": 14,
+   "psm_diff_days": 76,
+   "throttle_diff_days": 14,
+   "label_flip_kinds": {
+    "calm_uptrend->risk_on_trend": 1,
+    "high_vol_panic->risk_off_trend": 5,
+    "choppy->risk_off_trend": 3,
+    "risk_on_trend->choppy": 4,
+    "choppy->risk_on_trend": 1
+   },
+   "mean_d_psm": -0.0198,
+   "mean_d_eff_exposure": -0.0118,
+   "mean_d_eff_exposure_holdout": -0.0395,
+   "mean_d_cash_reserve_tier": 0.0112,
+   "diff_days": [
+    {
+     "date": "2026-02-07",
+     "base": [
+      "calm_uptrend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.427,
+      0.2
+     ],
+     "d_eff_exposure": 0.114
+    },
+    {
+     "date": "2026-02-10",
+     "base": [
+      "risk_on_trend",
+      0.551,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.48,
+      0.2
+     ],
+     "d_eff_exposure": -0.064
+    },
+    {
+     "date": "2026-02-11",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.383,
+      0.2
+     ],
+     "d_eff_exposure": 0.075
+    },
+    {
+     "date": "2026-02-12",
+     "base": [
+      "choppy",
+      0.525,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.459,
+      0.2
+     ],
+     "d_eff_exposure": -0.06
+    },
+    {
+     "date": "2026-02-13",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.406,
+      0.2
+     ],
+     "d_eff_exposure": 0.096
+    },
+    {
+     "date": "2026-02-14",
+     "base": [
+      "choppy",
+      0.479,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.402,
+      0.2
+     ],
+     "d_eff_exposure": -0.069
+    },
+    {
+     "date": "2026-02-17",
+     "base": [
+      "choppy",
+      0.373,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.412,
+      0.2
+     ],
+     "d_eff_exposure": 0.035
+    },
+    {
+     "date": "2026-02-18",
+     "base": [
+      "risk_off_trend",
+      0.337,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.423,
+      0.2
+     ],
+     "d_eff_exposure": 0.077
+    },
+    {
+     "date": "2026-02-19",
+     "base": [
+      "choppy",
+      0.414,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.414,
+      0.2
+     ],
+     "d_eff_exposure": -0.0
+    },
+    {
+     "date": "2026-02-20",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.376,
+      0.2
+     ],
+     "d_eff_exposure": 0.068
+    },
+    {
+     "date": "2026-02-21",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.412,
+      0.2
+     ],
+     "d_eff_exposure": 0.101
+    },
+    {
+     "date": "2026-02-24",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.387,
+      0.2
+     ],
+     "d_eff_exposure": 0.078
+    },
+    {
+     "date": "2026-02-25",
+     "base": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.425,
+      0.2
+     ],
+     "d_eff_exposure": 0.113
+    },
+    {
+     "date": "2026-02-26",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.416,
+      0.2
+     ],
+     "d_eff_exposure": 0.105
+    },
+    {
+     "date": "2026-02-27",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.388,
+      0.2
+     ],
+     "d_eff_exposure": 0.079
+    },
+    {
+     "date": "2026-02-28",
+     "base": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.407,
+      0.2
+     ],
+     "d_eff_exposure": 0.096
+    },
+    {
+     "date": "2026-03-03",
+     "base": [
+      "risk_off_trend",
+      0.99,
+      0.0
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.794,
+      0.0
+     ],
+     "d_eff_exposure": -0.196
+    },
+    {
+     "date": "2026-03-04",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.427,
+      0.2
+     ],
+     "d_eff_exposure": 0.114
+    },
+    {
+     "date": "2026-03-05",
+     "base": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.419,
+      0.2
+     ],
+     "d_eff_exposure": 0.107
+    },
+    {
+     "date": "2026-03-06",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.396,
+      0.2
+     ],
+     "d_eff_exposure": 0.087
+    },
+    {
+     "date": "2026-03-07",
+     "base": [
+      "high_vol_panic",
+      0.25,
+      1.0
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.436,
+      0.2
+     ],
+     "d_eff_exposure": 0.268
+    },
+    {
+     "date": "2026-03-10",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.437,
+      0.2
+     ],
+     "d_eff_exposure": 0.123
+    },
+    {
+     "date": "2026-03-11",
+     "base": [
+      "risk_off_trend",
+      0.541,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.425,
+      0.2
+     ],
+     "d_eff_exposure": -0.104
+    },
+    {
+     "date": "2026-03-12",
+     "base": [
+      "risk_off_trend",
+      0.523,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.418,
+      0.2
+     ],
+     "d_eff_exposure": -0.095
+    },
+    {
+     "date": "2026-03-13",
+     "base": [
+      "high_vol_panic",
+      0.25,
+      1.0
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.497,
+      0.2
+     ],
+     "d_eff_exposure": 0.322
+    },
+    {
+     "date": "2026-03-14",
+     "base": [
+      "high_vol_panic",
+      0.25,
+      1.0
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.496,
+      0.2
+     ],
+     "d_eff_exposure": 0.321
+    },
+    {
+     "date": "2026-03-17",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.395,
+      0.2
+     ],
+     "d_eff_exposure": 0.086
+    },
+    {
+     "date": "2026-03-18",
+     "base": [
+      "risk_on_trend",
+      0.566,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.433,
+      0.2
+     ],
+     "d_eff_exposure": -0.12
+    },
+    {
+     "date": "2026-03-19",
+     "base": [
+      "high_vol_panic",
+      0.25,
+      1.0
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.482,
+      0.2
+     ],
+     "d_eff_exposure": 0.309
+    },
+    {
+     "date": "2026-03-20",
+     "base": [
+      "high_vol_panic",
+      0.25,
+      1.0
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.474,
+      0.2
+     ],
+     "d_eff_exposure": 0.301
+    },
+    {
+     "date": "2026-03-21",
+     "base": [
+      "high_vol_panic",
+      0.25,
+      1.0
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.503,
+      0.2
+     ],
+     "d_eff_exposure": 0.327
+    },
+    {
+     "date": "2026-03-25",
+     "base": [
+      "high_vol_panic",
+      0.25,
+      1.0
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.488,
+      0.2
+     ],
+     "d_eff_exposure": 0.315
+    },
+    {
+     "date": "2026-03-27",
+     "base": [
+      "high_vol_panic",
+      0.25,
+      1.0
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.502,
+      0.2
+     ],
+     "d_eff_exposure": 0.327
+    },
+    {
+     "date": "2026-03-28",
+     "base": [
+      "high_vol_panic",
+      0.25,
+      1.0
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.502,
+      0.2
+     ],
+     "d_eff_exposure": 0.326
+    },
+    {
+     "date": "2026-04-03",
+     "base": [
+      "choppy",
+      0.475,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.396,
+      0.2
+     ],
+     "d_eff_exposure": -0.071
+    },
+    {
+     "date": "2026-04-04",
+     "base": [
+      "choppy",
+      0.475,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.396,
+      0.2
+     ],
+     "d_eff_exposure": -0.071
+    },
+    {
+     "date": "2026-04-07",
+     "base": [
+      "choppy",
+      0.471,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.394,
+      0.2
+     ],
+     "d_eff_exposure": -0.069
+    },
+    {
+     "date": "2026-04-08",
+     "base": [
+      "choppy",
+      0.44,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.387,
+      0.2
+     ],
+     "d_eff_exposure": -0.047
+    },
+    {
+     "date": "2026-04-09",
+     "base": [
+      "risk_on_trend",
+      0.425,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.385,
+      0.2
+     ],
+     "d_eff_exposure": -0.036
+    },
+    {
+     "date": "2026-04-10",
+     "base": [
+      "risk_on_trend",
+      0.472,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.39,
+      0.2
+     ],
+     "d_eff_exposure": -0.073
+    },
+    {
+     "date": "2026-04-11",
+     "base": [
+      "choppy",
+      0.415,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.379,
+      0.2
+     ],
+     "d_eff_exposure": -0.033
+    },
+    {
+     "date": "2026-04-14",
+     "base": [
+      "risk_on_trend",
+      0.496,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.4,
+      0.2
+     ],
+     "d_eff_exposure": -0.086
+    },
+    {
+     "date": "2026-04-15",
+     "base": [
+      "risk_on_trend",
+      0.508,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.417,
+      0.2
+     ],
+     "d_eff_exposure": -0.082
+    },
+    {
+     "date": "2026-04-16",
+     "base": [
+      "risk_on_trend",
+      0.506,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.41,
+      0.2
+     ],
+     "d_eff_exposure": -0.087
+    },
+    {
+     "date": "2026-04-17",
+     "base": [
+      "risk_on_trend",
+      0.505,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.421,
+      0.2
+     ],
+     "d_eff_exposure": -0.076
+    },
+    {
+     "date": "2026-04-18",
+     "base": [
+      "risk_on_trend",
+      0.514,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.43,
+      0.2
+     ],
+     "d_eff_exposure": -0.076
+    },
+    {
+     "date": "2026-04-21",
+     "base": [
+      "risk_on_trend",
+      0.506,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.427,
+      0.2
+     ],
+     "d_eff_exposure": -0.071
+    },
+    {
+     "date": "2026-04-22",
+     "base": [
+      "risk_on_trend",
+      0.509,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.425,
+      0.2
+     ],
+     "d_eff_exposure": -0.076
+    },
+    {
+     "date": "2026-04-23",
+     "base": [
+      "risk_on_trend",
+      0.509,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.425,
+      0.2
+     ],
+     "d_eff_exposure": -0.075
+    },
+    {
+     "date": "2026-04-24",
+     "base": [
+      "risk_on_trend",
+      0.514,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.43,
+      0.2
+     ],
+     "d_eff_exposure": -0.076
+    },
+    {
+     "date": "2026-04-25",
+     "base": [
+      "risk_on_trend",
+      0.513,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.426,
+      0.2
+     ],
+     "d_eff_exposure": -0.078
+    },
+    {
+     "date": "2026-04-28",
+     "base": [
+      "risk_on_trend",
+      0.521,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.428,
+      0.2
+     ],
+     "d_eff_exposure": -0.084
+    },
+    {
+     "date": "2026-04-29",
+     "base": [
+      "risk_on_trend",
+      0.526,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.427,
+      0.2
+     ],
+     "d_eff_exposure": -0.089
+    },
+    {
+     "date": "2026-04-30",
+     "base": [
+      "risk_on_trend",
+      0.888,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.434,
+      0.2
+     ],
+     "d_eff_exposure": -0.498
+    },
+    {
+     "date": "2026-05-01",
+     "base": [
+      "risk_on_trend",
+      0.89,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.436,
+      0.2
+     ],
+     "d_eff_exposure": -0.498
+    },
+    {
+     "date": "2026-05-02",
+     "base": [
+      "risk_on_trend",
+      0.874,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.669,
+      0.0
+     ],
+     "d_eff_exposure": -0.205
+    },
+    {
+     "date": "2026-05-05",
+     "base": [
+      "risk_on_trend",
+      0.893,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.678,
+      0.0
+     ],
+     "d_eff_exposure": -0.215
+    },
+    {
+     "date": "2026-05-06",
+     "base": [
+      "risk_on_trend",
+      0.856,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.66,
+      0.0
+     ],
+     "d_eff_exposure": -0.196
+    },
+    {
+     "date": "2026-05-07",
+     "base": [
+      "risk_on_trend",
+      0.856,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.66,
+      0.0
+     ],
+     "d_eff_exposure": -0.196
+    },
+    {
+     "date": "2026-05-08",
+     "base": [
+      "risk_on_trend",
+      0.872,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.667,
+      0.0
+     ],
+     "d_eff_exposure": -0.205
+    },
+    {
+     "date": "2026-05-09",
+     "base": [
+      "risk_on_trend",
+      0.486,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.64,
+      0.0
+     ],
+     "d_eff_exposure": 0.203
+    },
+    {
+     "date": "2026-05-21",
+     "base": [
+      "risk_on_trend",
+      0.845,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.657,
+      0.0
+     ],
+     "d_eff_exposure": -0.187
+    },
+    {
+     "date": "2026-05-22",
+     "base": [
+      "risk_on_trend",
+      0.89,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.675,
+      0.0
+     ],
+     "d_eff_exposure": -0.214
+    },
+    {
+     "date": "2026-05-23",
+     "base": [
+      "risk_on_trend",
+      0.88,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.669,
+      0.0
+     ],
+     "d_eff_exposure": -0.211
+    },
+    {
+     "date": "2026-05-26",
+     "base": [
+      "risk_on_trend",
+      0.894,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.677,
+      0.0
+     ],
+     "d_eff_exposure": -0.217
+    },
+    {
+     "date": "2026-05-27",
+     "base": [
+      "risk_on_trend",
+      0.884,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.671,
+      0.0
+     ],
+     "d_eff_exposure": -0.212
+    },
+    {
+     "date": "2026-05-28",
+     "base": [
+      "risk_on_trend",
+      0.889,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.675,
+      0.0
+     ],
+     "d_eff_exposure": -0.214
+    },
+    {
+     "date": "2026-05-29",
+     "base": [
+      "choppy",
+      0.355,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.631,
+      0.0
+     ],
+     "d_eff_exposure": 0.312
+    },
+    {
+     "date": "2026-05-30",
+     "base": [
+      "risk_on_trend",
+      0.878,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.668,
+      0.0
+     ],
+     "d_eff_exposure": -0.21
+    },
+    {
+     "date": "2026-06-02",
+     "base": [
+      "risk_on_trend",
+      0.314,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.394,
+      0.2
+     ],
+     "d_eff_exposure": 0.073
+    },
+    {
+     "date": "2026-06-03",
+     "base": [
+      "risk_on_trend",
+      0.318,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.397,
+      0.2
+     ],
+     "d_eff_exposure": 0.072
+    },
+    {
+     "date": "2026-06-04",
+     "base": [
+      "choppy",
+      0.332,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.395,
+      0.2
+     ],
+     "d_eff_exposure": 0.057
+    },
+    {
+     "date": "2026-06-05",
+     "base": [
+      "risk_on_trend",
+      0.351,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.393,
+      0.2
+     ],
+     "d_eff_exposure": 0.037
+    },
+    {
+     "date": "2026-06-06",
+     "base": [
+      "choppy",
+      0.454,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.394,
+      0.2
+     ],
+     "d_eff_exposure": -0.054
+    },
+    {
+     "date": "2026-06-09",
+     "base": [
+      "risk_on_trend",
+      0.971,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.476,
+      0.2
+     ],
+     "d_eff_exposure": -0.543
+    },
+    {
+     "date": "2026-06-10",
+     "base": [
+      "risk_on_trend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.378,
+      0.2
+     ],
+     "d_eff_exposure": 0.07
+    }
+   ]
+  },
+  "COLLAPSE": {
+   "n_days_evaluated": 80,
+   "ens_label_changes": 25,
+   "final_label_diff_days": 13,
+   "psm_diff_days": 56,
+   "throttle_diff_days": 0,
+   "label_flip_kinds": {
+    "calm_uptrend->risk_on_trend": 1,
+    "high_vol_panic->risk_off_trend": 9,
+    "choppy->risk_off_trend": 1,
+    "risk_off_trend->choppy": 1,
+    "choppy->risk_on_trend": 1
+   },
+   "mean_d_psm": 0.0458,
+   "mean_d_eff_exposure": 0.0413,
+   "mean_d_eff_exposure_holdout": 0.0148,
+   "mean_d_cash_reserve_tier": -0.0013,
+   "diff_days": [
+    {
+     "date": "2026-02-07",
+     "base": [
+      "calm_uptrend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.589,
+      0.2
+     ],
+     "d_eff_exposure": 0.26
+    },
+    {
+     "date": "2026-02-10",
+     "base": [
+      "risk_on_trend",
+      0.551,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.599,
+      0.2
+     ],
+     "d_eff_exposure": 0.043
+    },
+    {
+     "date": "2026-02-12",
+     "base": [
+      "choppy",
+      0.525,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.525,
+      0.2
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-02-13",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.585,
+      0.2
+     ],
+     "d_eff_exposure": 0.257
+    },
+    {
+     "date": "2026-02-14",
+     "base": [
+      "choppy",
+      0.479,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.479,
+      0.2
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-02-17",
+     "base": [
+      "choppy",
+      0.373,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.372,
+      0.2
+     ],
+     "d_eff_exposure": -0.001
+    },
+    {
+     "date": "2026-02-18",
+     "base": [
+      "risk_off_trend",
+      0.337,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.338,
+      0.2
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-02-19",
+     "base": [
+      "choppy",
+      0.414,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.423,
+      0.2
+     ],
+     "d_eff_exposure": 0.008
+    },
+    {
+     "date": "2026-02-20",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-02-21",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.54,
+      0.2
+     ],
+     "d_eff_exposure": 0.216
+    },
+    {
+     "date": "2026-02-24",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.599,
+      0.2
+     ],
+     "d_eff_exposure": 0.269
+    },
+    {
+     "date": "2026-02-25",
+     "base": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-02-26",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.374,
+      0.2
+     ],
+     "d_eff_exposure": 0.066
+    },
+    {
+     "date": "2026-02-27",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.599,
+      0.2
+     ],
+     "d_eff_exposure": 0.269
+    },
+    {
+     "date": "2026-02-28",
+     "base": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.6,
+      0.2
+     ],
+     "d_eff_exposure": 0.27
+    },
+    {
+     "date": "2026-03-03",
+     "base": [
+      "risk_off_trend",
+      0.99,
+      0.0
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.99,
+      0.0
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-03-04",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.6,
+      0.2
+     ],
+     "d_eff_exposure": 0.27
+    },
+    {
+     "date": "2026-03-06",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.597,
+      0.2
+     ],
+     "d_eff_exposure": 0.268
+    },
+    {
+     "date": "2026-03-10",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.582,
+      0.2
+     ],
+     "d_eff_exposure": 0.253
+    },
+    {
+     "date": "2026-03-11",
+     "base": [
+      "risk_off_trend",
+      0.541,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.586,
+      0.2
+     ],
+     "d_eff_exposure": 0.041
+    },
+    {
+     "date": "2026-03-12",
+     "base": [
+      "risk_off_trend",
+      0.523,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.578,
+      0.2
+     ],
+     "d_eff_exposure": 0.05
+    },
+    {
+     "date": "2026-03-17",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.52,
+      0.2
+     ],
+     "d_eff_exposure": 0.198
+    },
+    {
+     "date": "2026-03-18",
+     "base": [
+      "risk_on_trend",
+      0.566,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.566,
+      0.2
+     ],
+     "d_eff_exposure": 0.001
+    },
+    {
+     "date": "2026-03-24",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-03-26",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-04-01",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-04-02",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "d_eff_exposure": 0.0
+    },
+    {
+     "date": "2026-04-09",
+     "base": [
+      "risk_on_trend",
+      0.425,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.434,
+      0.2
+     ],
+     "d_eff_exposure": 0.008
+    },
+    {
+     "date": "2026-04-10",
+     "base": [
+      "risk_on_trend",
+      0.472,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.476,
+      0.2
+     ],
+     "d_eff_exposure": 0.004
+    },
+    {
+     "date": "2026-04-14",
+     "base": [
+      "risk_on_trend",
+      0.496,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.502,
+      0.2
+     ],
+     "d_eff_exposure": 0.006
+    },
+    {
+     "date": "2026-04-15",
+     "base": [
+      "risk_on_trend",
+      0.508,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.521,
+      0.2
+     ],
+     "d_eff_exposure": 0.011
+    },
+    {
+     "date": "2026-04-16",
+     "base": [
+      "risk_on_trend",
+      0.506,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.513,
+      0.2
+     ],
+     "d_eff_exposure": 0.006
+    },
+    {
+     "date": "2026-04-17",
+     "base": [
+      "risk_on_trend",
+      0.505,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.513,
+      0.2
+     ],
+     "d_eff_exposure": 0.006
+    },
+    {
+     "date": "2026-04-18",
+     "base": [
+      "risk_on_trend",
+      0.514,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.528,
+      0.2
+     ],
+     "d_eff_exposure": 0.012
+    },
+    {
+     "date": "2026-04-21",
+     "base": [
+      "risk_on_trend",
+      0.506,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.517,
+      0.2
+     ],
+     "d_eff_exposure": 0.01
+    },
+    {
+     "date": "2026-04-22",
+     "base": [
+      "risk_on_trend",
+      0.509,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.521,
+      0.2
+     ],
+     "d_eff_exposure": 0.011
+    },
+    {
+     "date": "2026-04-23",
+     "base": [
+      "risk_on_trend",
+      0.509,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.521,
+      0.2
+     ],
+     "d_eff_exposure": 0.011
+    },
+    {
+     "date": "2026-04-24",
+     "base": [
+      "risk_on_trend",
+      0.514,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.525,
+      0.2
+     ],
+     "d_eff_exposure": 0.009
+    },
+    {
+     "date": "2026-04-25",
+     "base": [
+      "risk_on_trend",
+      0.513,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.524,
+      0.2
+     ],
+     "d_eff_exposure": 0.01
+    },
+    {
+     "date": "2026-04-28",
+     "base": [
+      "risk_on_trend",
+      0.521,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.534,
+      0.2
+     ],
+     "d_eff_exposure": 0.011
+    },
+    {
+     "date": "2026-04-29",
+     "base": [
+      "risk_on_trend",
+      0.526,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.538,
+      0.2
+     ],
+     "d_eff_exposure": 0.011
+    },
+    {
+     "date": "2026-04-30",
+     "base": [
+      "risk_on_trend",
+      0.888,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.905,
+      0.0
+     ],
+     "d_eff_exposure": 0.017
+    },
+    {
+     "date": "2026-05-01",
+     "base": [
+      "risk_on_trend",
+      0.89,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.906,
+      0.0
+     ],
+     "d_eff_exposure": 0.016
+    },
+    {
+     "date": "2026-05-02",
+     "base": [
+      "risk_on_trend",
+      0.874,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.886,
+      0.0
+     ],
+     "d_eff_exposure": 0.012
+    },
+    {
+     "date": "2026-05-05",
+     "base": [
+      "risk_on_trend",
+      0.893,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.899,
+      0.0
+     ],
+     "d_eff_exposure": 0.006
+    },
+    {
+     "date": "2026-05-06",
+     "base": [
+      "risk_on_trend",
+      0.856,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.865,
+      0.0
+     ],
+     "d_eff_exposure": 0.009
+    },
+    {
+     "date": "2026-05-07",
+     "base": [
+      "risk_on_trend",
+      0.856,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.873,
+      0.0
+     ],
+     "d_eff_exposure": 0.017
+    },
+    {
+     "date": "2026-05-08",
+     "base": [
+      "risk_on_trend",
+      0.872,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.886,
+      0.0
+     ],
+     "d_eff_exposure": 0.014
+    },
+    {
+     "date": "2026-05-09",
+     "base": [
+      "risk_on_trend",
+      0.486,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.483,
+      0.2
+     ],
+     "d_eff_exposure": -0.003
+    },
+    {
+     "date": "2026-05-21",
+     "base": [
+      "risk_on_trend",
+      0.845,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.849,
+      0.0
+     ],
+     "d_eff_exposure": 0.004
+    },
+    {
+     "date": "2026-05-22",
+     "base": [
+      "risk_on_trend",
+      0.89,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.893,
+      0.0
+     ],
+     "d_eff_exposure": 0.003
+    },
+    {
+     "date": "2026-05-23",
+     "base": [
+      "risk_on_trend",
+      0.88,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.884,
+      0.0
+     ],
+     "d_eff_exposure": 0.004
+    },
+    {
+     "date": "2026-05-26",
+     "base": [
+      "risk_on_trend",
+      0.894,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.897,
+      0.0
+     ],
+     "d_eff_exposure": 0.004
+    },
+    {
+     "date": "2026-05-27",
+     "base": [
+      "risk_on_trend",
+      0.884,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.887,
+      0.0
+     ],
+     "d_eff_exposure": 0.003
+    },
+    {
+     "date": "2026-05-28",
+     "base": [
+      "risk_on_trend",
+      0.889,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.895,
+      0.0
+     ],
+     "d_eff_exposure": 0.006
+    },
+    {
+     "date": "2026-05-29",
+     "base": [
+      "choppy",
+      0.355,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.332,
+      0.2
+     ],
+     "d_eff_exposure": -0.02
+    },
+    {
+     "date": "2026-05-30",
+     "base": [
+      "risk_on_trend",
+      0.878,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.889,
+      0.0
+     ],
+     "d_eff_exposure": 0.011
+    },
+    {
+     "date": "2026-06-02",
+     "base": [
+      "risk_on_trend",
+      0.314,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.395,
+      0.2
+     ],
+     "d_eff_exposure": 0.073
+    },
+    {
+     "date": "2026-06-03",
+     "base": [
+      "risk_on_trend",
+      0.318,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.408,
+      0.2
+     ],
+     "d_eff_exposure": 0.081
+    },
+    {
+     "date": "2026-06-04",
+     "base": [
+      "choppy",
+      0.332,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.418,
+      0.2
+     ],
+     "d_eff_exposure": 0.077
+    },
+    {
+     "date": "2026-06-05",
+     "base": [
+      "risk_on_trend",
+      0.351,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.47,
+      0.2
+     ],
+     "d_eff_exposure": 0.108
+    },
+    {
+     "date": "2026-06-09",
+     "base": [
+      "risk_on_trend",
+      0.971,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.972,
+      0.0
+     ],
+     "d_eff_exposure": 0.001
+    }
+   ]
+  },
+  "MEASURE": {
+   "n_days_evaluated": 80,
+   "ens_label_changes": 0,
+   "final_label_diff_days": 0,
+   "psm_diff_days": 24,
+   "throttle_diff_days": 8,
+   "label_flip_kinds": {},
+   "mean_d_psm": -0.0258,
+   "mean_d_eff_exposure": -0.0319,
+   "mean_d_eff_exposure_holdout": -0.0498,
+   "mean_d_cash_reserve_tier": 0.0,
+   "diff_days": [
+    {
+     "date": "2026-02-07",
+     "base": [
+      "calm_uptrend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "calm_uptrend",
+      0.325,
+      0.2
+     ],
+     "d_eff_exposure": 0.023
+    },
+    {
+     "date": "2026-02-13",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.339,
+      0.2
+     ],
+     "d_eff_exposure": 0.036
+    },
+    {
+     "date": "2026-02-17",
+     "base": [
+      "choppy",
+      0.373,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.452,
+      0.2
+     ],
+     "d_eff_exposure": 0.071
+    },
+    {
+     "date": "2026-02-18",
+     "base": [
+      "risk_off_trend",
+      0.337,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.423,
+      0.2
+     ],
+     "d_eff_exposure": 0.077
+    },
+    {
+     "date": "2026-02-19",
+     "base": [
+      "choppy",
+      0.414,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.462,
+      0.2
+     ],
+     "d_eff_exposure": 0.043
+    },
+    {
+     "date": "2026-02-21",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.315,
+      0.2
+     ],
+     "d_eff_exposure": 0.013
+    },
+    {
+     "date": "2026-02-25",
+     "base": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.303,
+      0.2
+     ],
+     "d_eff_exposure": 0.003
+    },
+    {
+     "date": "2026-03-04",
+     "base": [
+      "high_vol_panic",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "high_vol_panic",
+      0.32,
+      0.2
+     ],
+     "d_eff_exposure": 0.018
+    },
+    {
+     "date": "2026-03-05",
+     "base": [
+      "risk_off_trend",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "risk_off_trend",
+      0.329,
+      0.2
+     ],
+     "d_eff_exposure": 0.026
+    },
+    {
+     "date": "2026-03-10",
+     "base": [
+      "choppy",
+      0.3,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.327,
+      0.2
+     ],
+     "d_eff_exposure": 0.024
+    },
+    {
+     "date": "2026-05-02",
+     "base": [
+      "risk_on_trend",
+      0.874,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.524,
+      0.2
+     ],
+     "d_eff_exposure": -0.402
+    },
+    {
+     "date": "2026-05-06",
+     "base": [
+      "risk_on_trend",
+      0.856,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.514,
+      0.2
+     ],
+     "d_eff_exposure": -0.394
+    },
+    {
+     "date": "2026-05-07",
+     "base": [
+      "risk_on_trend",
+      0.856,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.513,
+      0.2
+     ],
+     "d_eff_exposure": -0.394
+    },
+    {
+     "date": "2026-05-08",
+     "base": [
+      "risk_on_trend",
+      0.872,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.523,
+      0.2
+     ],
+     "d_eff_exposure": -0.401
+    },
+    {
+     "date": "2026-05-09",
+     "base": [
+      "risk_on_trend",
+      0.486,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.475,
+      0.2
+     ],
+     "d_eff_exposure": -0.011
+    },
+    {
+     "date": "2026-05-21",
+     "base": [
+      "risk_on_trend",
+      0.845,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.507,
+      0.2
+     ],
+     "d_eff_exposure": -0.389
+    },
+    {
+     "date": "2026-05-23",
+     "base": [
+      "risk_on_trend",
+      0.88,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.528,
+      0.2
+     ],
+     "d_eff_exposure": -0.405
+    },
+    {
+     "date": "2026-05-27",
+     "base": [
+      "risk_on_trend",
+      0.884,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.53,
+      0.2
+     ],
+     "d_eff_exposure": -0.406
+    },
+    {
+     "date": "2026-05-29",
+     "base": [
+      "choppy",
+      0.355,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.393,
+      0.2
+     ],
+     "d_eff_exposure": 0.034
+    },
+    {
+     "date": "2026-05-30",
+     "base": [
+      "risk_on_trend",
+      0.878,
+      0.0
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.527,
+      0.2
+     ],
+     "d_eff_exposure": -0.404
+    },
+    {
+     "date": "2026-06-02",
+     "base": [
+      "risk_on_trend",
+      0.314,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.4,
+      0.2
+     ],
+     "d_eff_exposure": 0.078
+    },
+    {
+     "date": "2026-06-03",
+     "base": [
+      "risk_on_trend",
+      0.318,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.398,
+      0.2
+     ],
+     "d_eff_exposure": 0.073
+    },
+    {
+     "date": "2026-06-04",
+     "base": [
+      "choppy",
+      0.332,
+      0.2
+     ],
+     "cand": [
+      "choppy",
+      0.41,
+      0.2
+     ],
+     "d_eff_exposure": 0.07
+    },
+    {
+     "date": "2026-06-05",
+     "base": [
+      "risk_on_trend",
+      0.351,
+      0.2
+     ],
+     "cand": [
+      "risk_on_trend",
+      0.423,
+      0.2
+     ],
+     "d_eff_exposure": 0.065
+    }
+   ]
+  }
+ },
+ "measure_divergence": {
+  "mean_abs_cosconf_minus_jsdconf": 0.0835,
+  "max_abs_cosconf_minus_jsdconf": 0.2828,
+  "corr_cos_jsd": 0.9659,
+  "corr_cos_maxp": 0.7288,
+  "corr_jsd_maxp": 0.6558
+ }
+}

@@ -1,0 +1,63 @@
+{
+  "date": "2026-05-22",
+  "status": "ok",
+  "calls_made": 6,
+  "risks": {
+    "XLF": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "QUAL": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.05,
+      "one_sentence_rationale": "Modest liquidity concerns due to the factor-based investment strategy, but overall the ETF appears structurally sound"
+    },
+    "IWM": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "The broad market ETF has adequate liquidity but investors should monitor trading volumes and spreads."
+    },
+    "VTI": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Broad-based equity ETF with low liquidity risk, but worth monitoring market conditions"
+    },
+    "VNQ": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "VT": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.05,
+      "one_sentence_rationale": "Modest liquidity concerns due to the global nature of the fund's holdings, but no critical issues identified."
+    }
+  }
+}

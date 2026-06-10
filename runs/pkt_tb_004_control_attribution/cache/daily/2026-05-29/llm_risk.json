@@ -1,0 +1,59 @@
+{
+  "date": "2026-05-29",
+  "status": "ok",
+  "calls_made": 6,
+  "risks": {
+    "XLF": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "Adequate liquidity but recent underperformance warrants monitoring"
+    },
+    "VNQ": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "The fund has moderate liquidity risk due to potential concentration in less-liquid real estate securities"
+    },
+    "VOO": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.05,
+      "one_sentence_rationale": "Modest liquidity concerns given broad equity exposure but overall low structural risk"
+    },
+    "IVV": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "Broad market ETF with good liquidity but monitoring for any regulatory changes"
+    },
+    "IYR": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "The REIT sector faces potential regulatory changes and liquidity concerns, warranting a cautious approach."
+    },
+    "SPY": {
+      "risk_flags": [],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "No significant structural risks identified for this broad market ETF."
+    }
+  }
+}

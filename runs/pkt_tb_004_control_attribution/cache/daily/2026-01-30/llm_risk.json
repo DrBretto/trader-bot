@@ -1,0 +1,70 @@
+{
+  "date": "2026-01-30",
+  "status": "ok",
+  "calls_made": 9,
+  "risks": {
+    "VLUE": {
+      "risk_flags": [],
+      "severity": 0,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "LLM check unavailable - defaulting to no risk"
+    },
+    "XLB": {
+      "risk_flags": [],
+      "severity": 0,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "LLM check unavailable - defaulting to no risk"
+    },
+    "VEA": {
+      "risk_flags": [],
+      "severity": 0,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "LLM check unavailable - defaulting to no risk"
+    },
+    "SCHD": {
+      "risk_flags": [],
+      "severity": 0,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "LLM check unavailable - defaulting to no risk"
+    },
+    "UNG": {
+      "risk_flags": [],
+      "severity": 0,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "LLM check unavailable - defaulting to no risk"
+    },
+    "EWZ": {
+      "risk_flags": [],
+      "severity": 0,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "LLM check unavailable - defaulting to no risk"
+    },
+    "GLD": {
+      "risk_flags": [],
+      "severity": 0,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "LLM check unavailable - defaulting to no risk"
+    },
+    "SLV": {
+      "risk_flags": [],
+      "severity": 0,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "LLM check unavailable - defaulting to no risk"
+    },
+    "SOXX": {
+      "risk_flags": [],
+      "severity": 0,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "LLM check unavailable - defaulting to no risk"
+    }
+  }
+}

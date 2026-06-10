@@ -1,0 +1,123 @@
+{
+  "date": "2026-04-25",
+  "status": "ok",
+  "calls_made": 12,
+  "risks": {
+    "ARKK": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "FXI": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "SLV": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Moderate liquidity concerns due to recent volatility in the silver market"
+    },
+    "VUG": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "The ETF's high volatility and recent strong performance could lead to liquidity concerns, warranting a moderate confidence adjustment."
+    },
+    "XBI": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLF": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLK": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XRT": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Modest liquidity concerns due to the retail sector exposure, but no other major structural risks identified"
+    },
+    "USO": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "VIXY": {
+      "risk_flags": [
+        "leverage_decay"
+      ],
+      "severity": 2,
+      "structural_risk_veto": true,
+      "confidence_adjustment": 0.3,
+      "one_sentence_rationale": "High volatility and negative medium-term returns suggest potential decay issues with this leveraged volatility ETF"
+    },
+    "SOXX": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "SMH": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    }
+  }
+}

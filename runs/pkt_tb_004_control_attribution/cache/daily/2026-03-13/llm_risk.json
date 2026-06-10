@@ -1,0 +1,103 @@
+{
+  "date": "2026-03-13",
+  "status": "ok",
+  "calls_made": 10,
+  "risks": {
+    "GLD": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Gold ETF has generally high liquidity but may face slight headwinds in low volatility environment"
+    },
+    "ITA": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "IYT": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "The recent high volatility and significant drawdown in the ETF's performance raises concerns about potential liquidity issues, warranting a cautious approach."
+    },
+    "SCHD": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Relatively low trading volume may pose some liquidity risk in stressed market conditions."
+    },
+    "XLE": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLI": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLU": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLV": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "The healthcare sector is facing increased regulatory uncertainty, which may impact the fund's liquidity and performance."
+    },
+    "EWZ": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "SOXX": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    }
+  }
+}

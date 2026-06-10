@@ -1,0 +1,205 @@
+{
+  "date": "2026-06-08",
+  "regime": "risk_on_trend",
+  "actions": [
+    {
+      "action": "BUY",
+      "symbol": "ARKK",
+      "shares": 326,
+      "price": 75.87999725341797,
+      "dollars": 24736.879104614258,
+      "weight": 0.256057171230396,
+      "reason": "SCORE_0.77_HEALTH_0.83",
+      "score": 0.7669029287993908,
+      "health": 0.8306052684783936,
+      "vol_bucket": "med"
+    },
+    {
+      "action": "BUY",
+      "symbol": "EEM",
+      "shares": 376,
+      "price": 65.75,
+      "dollars": 24722.0,
+      "weight": 0.255903154168589,
+      "reason": "SCORE_0.77_HEALTH_0.79",
+      "score": 0.7662106448411943,
+      "health": 0.7945151925086975,
+      "vol_bucket": "med"
+    },
+    {
+      "action": "BUY",
+      "symbol": "VWO",
+      "shares": 155,
+      "price": 58.33000183105469,
+      "dollars": 9041.150283813477,
+      "weight": 0.09358704291481686,
+      "reason": "SCORE_0.76_HEALTH_0.73",
+      "score": 0.7561294323205949,
+      "health": 0.7312735319137573,
+      "vol_bucket": "med"
+    }
+  ],
+  "buy_candidates": [
+    {
+      "symbol": "ARKK",
+      "score": 0.7669029287993908,
+      "health_score": 0.8306052684783936,
+      "vol_bucket": "med",
+      "behavior": "mean_reversion",
+      "return_21d": -0.026305697981906184,
+      "return_63d": 0.0214025618292637,
+      "suggested_size": 30959.04
+    },
+    {
+      "symbol": "EEM",
+      "score": 0.7662106448411943,
+      "health_score": 0.7945151925086975,
+      "vol_bucket": "med",
+      "behavior": "mixed",
+      "return_21d": -0.012614452381530694,
+      "return_63d": 0.12489305631778791,
+      "suggested_size": 30902.5
+    },
+    {
+      "symbol": "VWO",
+      "score": 0.7561294323205949,
+      "health_score": 0.7312735319137573,
+      "vol_bucket": "med",
+      "behavior": "mean_reversion",
+      "return_21d": -0.031224004019339002,
+      "return_63d": 0.05804463451734265,
+      "suggested_size": 30914.9
+    },
+    {
+      "symbol": "XLK",
+      "score": 0.7511923250555992,
+      "health_score": 0.5913660526275635,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.08539094835229544,
+      "return_63d": 0.317830566076422,
+      "suggested_size": 30942.24
+    },
+    {
+      "symbol": "SMH",
+      "score": 0.7261955177783966,
+      "health_score": 0.643706738948822,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.10749861170722386,
+      "return_63d": 0.5167481820385127,
+      "suggested_size": 30506.16
+    },
+    {
+      "symbol": "EWZ",
+      "score": 0.7207347948849202,
+      "health_score": 0.7759199738502502,
+      "vol_bucket": "med",
+      "behavior": "mean_reversion",
+      "return_21d": -0.13170104924823423,
+      "return_63d": -0.09191374629814975,
+      "suggested_size": 30927.42
+    },
+    {
+      "symbol": "USO",
+      "score": 0.7155255869030953,
+      "health_score": 0.9013699293136597,
+      "vol_bucket": "low",
+      "behavior": "mixed",
+      "return_21d": 0.0013335754178953607,
+      "return_63d": 0.2954087177659366,
+      "suggested_size": 33922.65
+    },
+    {
+      "symbol": "MTUM",
+      "score": 0.709093731045723,
+      "health_score": 0.5723022818565369,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.07202879332577639,
+      "return_63d": 0.27438917477688407,
+      "suggested_size": 30877.84
+    }
+  ],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  },
+  "ensemble_metrics": {
+    "disagreement": 0.005895495414733887,
+    "position_size_multiplier": 0.9711225032806396,
+    "confidence": 0.9422450065612793
+  },
+  "expert_metrics": {
+    "final_regime_label": "risk_on_trend",
+    "regime_confidence": 0.9941045045852661,
+    "position_size_modifier": 0.9711225032806396,
+    "risk_throttle_factor": 0.0,
+    "override_reason": null,
+    "effective_exposure_multiplier": 0.9711225032806396,
+    "target_gross_exposure": 0.9711225032806396,
+    "throttle_mapping": "effective_exposure_multiplier = position_size_modifier * (1 - 0.50 * risk_throttle_factor)",
+    "fusion_rules": [
+      {
+        "order": 1,
+        "code": "panic_override",
+        "label": "Panic Override",
+        "fired": false,
+        "inputs": "panic_prob=0.00, vol_regime=calm",
+        "threshold": "panic_prob>0.70 OR vol_regime='panic'",
+        "effect": "no change"
+      },
+      {
+        "order": 2,
+        "code": "unstable_calm_override",
+        "label": "Unstable Calm Override",
+        "fired": false,
+        "inputs": "vol_regime=calm, panic_prob=0.00",
+        "threshold": "vol_regime='unstable_calm' AND panic_prob>0.30",
+        "effect": "no change"
+      },
+      {
+        "order": 3,
+        "code": "macro_modulation",
+        "label": "Macro Modulation",
+        "fired": false,
+        "inputs": "macro_credit_score=-0.23, regime=risk_on_trend",
+        "threshold": "score<-0.50 (downgrade) OR score>0.50 (upgrade)",
+        "effect": "no change"
+      },
+      {
+        "order": 4,
+        "code": "fragility_gate",
+        "label": "Fragility Gate",
+        "fired": false,
+        "inputs": "fragility_score=0.99, ens_label=risk_on_trend, ens_conf=0.99, relax=True",
+        "threshold": "fragility_score>0.75 AND NOT (relax_in_risk_on=True AND ens_label\u2208('risk_on_trend', 'calm_uptrend') AND ens_conf\u22650.80)",
+        "effect": "relaxed (high-confidence risk-on)"
+      },
+      {
+        "order": 5,
+        "code": "entropy_shift",
+        "label": "Entropy Shift Gate",
+        "fired": false,
+        "inputs": "entropy_shift_flag=False, entropy_score=0.81",
+        "threshold": "entropy_shift_flag=True",
+        "effect": "no change"
+      },
+      {
+        "order": 6,
+        "code": "ensemble_disagreement",
+        "label": "Ensemble Disagreement Sizing",
+        "fired": true,
+        "inputs": "disagreement=0.01, ensemble_multiplier=0.97",
+        "threshold": "multiplier<1.00 when disagreement is elevated",
+        "effect": "size=0.97"
+      }
+    ],
+    "macro_credit_score": -0.22741330274044422,
+    "vol_uncertainty_score": 0.861878453038674,
+    "vol_regime_label": "calm",
+    "fragility_score": 0.9925470548352967,
+    "entropy_shift_flag": false
+  }
+}

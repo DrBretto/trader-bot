@@ -1,0 +1,7 @@
+{
+  "status": "failed",
+  "phase": "night",
+  "date": "2026-03-28",
+  "error": "Critical data validation failure: ['No price data available', \"Stale FRED series: [('DEXUSEU', 8)]\", 'CRITICAL: Less than 50% price coverage']",
+  "timestamp": "2026-03-28T21:09:28.082443"
+}

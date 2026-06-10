@@ -1,0 +1,118 @@
+{
+  "date": "2026-03-14",
+  "status": "ok",
+  "calls_made": 12,
+  "risks": {
+    "GLD": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Commodity ETFs like GLD can face liquidity issues during volatile market conditions, warranting a cautious approach."
+    },
+    "ITA": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.15,
+      "one_sentence_rationale": "Recent performance and market volatility indicate potential liquidity concerns that warrant monitoring, but no immediate critical risks identified."
+    },
+    "IYT": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "The transport sector is facing some liquidity concerns due to the current high volatility market regime, but there are no major regulatory or litigation risks identified."
+    },
+    "SCHD": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLE": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLI": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Recent performance and market conditions suggest potential liquidity concerns, warranting closer monitoring."
+    },
+    "XLU": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLV": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "The ETF has shown elevated volatility and recent underperformance during a high-volatility market regime, which could indicate potential liquidity concerns."
+    },
+    "SLV": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Commodity ETFs can face liquidity challenges during high volatility periods, warranting a modest confidence adjustment."
+    },
+    "EWZ": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Relatively high volatility and recent negative performance may indicate potential liquidity concerns during periods of market stress"
+    },
+    "XLB": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Potential liquidity concerns due to high market volatility"
+    },
+    "VEA": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Recent performance and market conditions indicate potential liquidity concerns that warrant monitoring."
+    }
+  }
+}

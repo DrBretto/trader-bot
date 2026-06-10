@@ -1,0 +1,7 @@
+{
+  "status": "failed",
+  "phase": "night",
+  "date": "2026-03-31",
+  "error": "Critical data validation failure: ['No price data available', \"Stale FRED series: [('DCOILWTICO', 8)]\", 'CRITICAL: Less than 50% price coverage']",
+  "timestamp": "2026-03-31T03:01:10.559182"
+}

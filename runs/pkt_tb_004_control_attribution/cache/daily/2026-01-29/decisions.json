@@ -1,0 +1,10 @@
+{
+  "date": "2026-01-28",
+  "regime": "risk_on_trend",
+  "actions": [],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  }
+}

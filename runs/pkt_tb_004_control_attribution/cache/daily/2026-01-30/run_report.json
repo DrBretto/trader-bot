@@ -1,0 +1,6 @@
+{
+  "status": "failed",
+  "date": "2026-01-30",
+  "error": "Client.__init__() got an unexpected keyword argument 'proxies'",
+  "timestamp": "2026-01-30T21:29:52.671927"
+}

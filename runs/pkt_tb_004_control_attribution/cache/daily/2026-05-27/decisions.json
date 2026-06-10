@@ -1,0 +1,168 @@
+{
+  "date": "2026-05-26",
+  "regime": "risk_on_trend",
+  "actions": [],
+  "buy_candidates": [
+    {
+      "symbol": "IVV",
+      "score": 0.5104288077354432,
+      "health_score": 0.4703536033630371,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.05109310950614865,
+      "return_63d": 0.09484286046241452,
+      "suggested_size": 20354.35
+    },
+    {
+      "symbol": "SPY",
+      "score": 0.5102947844564915,
+      "health_score": 0.46993985772132874,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.0511085899967787,
+      "return_63d": 0.09481085970210223,
+      "suggested_size": 20262.42
+    },
+    {
+      "symbol": "VOO",
+      "score": 0.5102114725112915,
+      "health_score": 0.47014325857162476,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.05107698869695021,
+      "return_63d": 0.09478778262594201,
+      "suggested_size": 20009.71
+    },
+    {
+      "symbol": "VTI",
+      "score": 0.5101998150348663,
+      "health_score": 0.4696565568447113,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.0493353783231083,
+      "return_63d": 0.09275636664793407,
+      "suggested_size": 20319.75
+    },
+    {
+      "symbol": "QUAL",
+      "score": 0.4981446550786495,
+      "health_score": 0.4442007541656494,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.04035485270719841,
+      "return_63d": 0.06034398034398025,
+      "suggested_size": 20499.1
+    },
+    {
+      "symbol": "VIG",
+      "score": 0.4976687228679657,
+      "health_score": 0.44841721653938293,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.027902671250991773,
+      "return_63d": 0.032499446535311005,
+      "suggested_size": 20520.72
+    },
+    {
+      "symbol": "QQQ",
+      "score": 0.4939810526371003,
+      "health_score": 0.36796051263809204,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.09969574647547907,
+      "return_63d": 0.20253977665777256,
+      "suggested_size": 20443.08
+    },
+    {
+      "symbol": "VUG",
+      "score": 0.49216638416051867,
+      "health_score": 0.4156014323234558,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.05946660259490644,
+      "return_63d": 0.14176592439150704,
+      "suggested_size": 18784.47
+    }
+  ],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  },
+  "ensemble_metrics": {
+    "disagreement": 0.12453079223632812,
+    "position_size_multiplier": 0.8835702836513519,
+    "confidence": 0.7671405673027039
+  },
+  "expert_metrics": {
+    "final_regime_label": "risk_on_trend",
+    "regime_confidence": 0.8754692077636719,
+    "position_size_modifier": 0.8835702836513519,
+    "risk_throttle_factor": 0.0,
+    "override_reason": null,
+    "effective_exposure_multiplier": 0.8835702836513519,
+    "target_gross_exposure": 0.8835702836513519,
+    "throttle_mapping": "effective_exposure_multiplier = position_size_modifier * (1 - 0.50 * risk_throttle_factor)",
+    "fusion_rules": [
+      {
+        "order": 1,
+        "code": "panic_override",
+        "label": "Panic Override",
+        "fired": false,
+        "inputs": "panic_prob=0.04, vol_regime=calm",
+        "threshold": "panic_prob>0.70 OR vol_regime='panic'",
+        "effect": "no change"
+      },
+      {
+        "order": 2,
+        "code": "unstable_calm_override",
+        "label": "Unstable Calm Override",
+        "fired": false,
+        "inputs": "vol_regime=calm, panic_prob=0.04",
+        "threshold": "vol_regime='unstable_calm' AND panic_prob>0.30",
+        "effect": "no change"
+      },
+      {
+        "order": 3,
+        "code": "macro_modulation",
+        "label": "Macro Modulation",
+        "fired": false,
+        "inputs": "macro_credit_score=-0.16, regime=risk_on_trend",
+        "threshold": "score<-0.50 (downgrade) OR score>0.50 (upgrade)",
+        "effect": "no change"
+      },
+      {
+        "order": 4,
+        "code": "fragility_gate",
+        "label": "Fragility Gate",
+        "fired": false,
+        "inputs": "fragility_score=0.99, ens_label=risk_on_trend, ens_conf=0.88, relax=True",
+        "threshold": "fragility_score>0.75 AND NOT (relax_in_risk_on=True AND ens_label\u2208('risk_on_trend', 'calm_uptrend') AND ens_conf\u22650.80)",
+        "effect": "relaxed (high-confidence risk-on)"
+      },
+      {
+        "order": 5,
+        "code": "entropy_shift",
+        "label": "Entropy Shift Gate",
+        "fired": false,
+        "inputs": "entropy_shift_flag=False, entropy_score=0.84",
+        "threshold": "entropy_shift_flag=True",
+        "effect": "no change"
+      },
+      {
+        "order": 6,
+        "code": "ensemble_disagreement",
+        "label": "Ensemble Disagreement Sizing",
+        "fired": true,
+        "inputs": "disagreement=0.12, ensemble_multiplier=0.88",
+        "threshold": "multiplier<1.00 when disagreement is elevated",
+        "effect": "size=0.88"
+      }
+    ],
+    "macro_credit_score": -0.15653092100846377,
+    "vol_uncertainty_score": 0.3708791208791209,
+    "vol_regime_label": "calm",
+    "fragility_score": 0.9922963387922412,
+    "entropy_shift_flag": false
+  }
+}

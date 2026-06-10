@@ -1,0 +1,80 @@
+{
+ "cell_id": "T1-J",
+ "tier": 1,
+ "layers": [
+  "regime_label_steering"
+ ],
+ "description": "force raw ensemble label (fusion size/throttle effects kept)",
+ "harness": "optimizer",
+ "baseline_cell": "C00",
+ "delta_convention": "cell_minus_baseline",
+ "code_sha": "af91c88f04eb9da1e36e63451594daaa48a8d3e9",
+ "git_dirty": true,
+ "bundle_path": "cells/T1-J/bundle.json",
+ "bundle_hash": "sha256:74eefdfb039312e08ba58286f1482b0f5c751dc775e5773d95bcf90779a19b9f",
+ "seeds": [
+  11,
+  17,
+  23,
+  29,
+  31
+ ],
+ "replays": [
+  {
+   "kind": "full",
+   "date_range": [
+    "2025-08-04",
+    "2026-06-09"
+   ],
+   "initial_capital": 100000.0
+  },
+  {
+   "kind": "holdout",
+   "date_range": [
+    "2026-03-11",
+    "2026-06-09"
+   ],
+   "initial_capital": 100000.0
+  }
+ ],
+ "data": {
+  "bucket": "investment-system-data",
+  "snapshot_prefix": "daily/",
+  "n_decision_dates": {
+   "full": 194,
+   "holdout": 45
+  },
+  "holdout_start": "2026-03-11",
+  "llm_era_start": "2026-01-29",
+  "llm_metrics_segment": null
+ },
+ "cost_model": {
+  "source": "src/utils/transaction_costs.py",
+  "config_hash": "sha256:e8d2d1b11b146f4408d5d18e133b34300c5367cd98deebceb3fa2a6303493f1e",
+  "slippage_range_bps": 2.0
+ },
+ "prereg": {
+  "path": "prereg/PREREG_BATTERY.json",
+  "hash": "sha256:a4f20f063cf479c807ea0de78cb4c3a9148a09f03fe97bc63d86d511015bd146"
+ },
+ "command": ".venv/bin/python runs/pkt_tb_004_control_attribution/scripts/battery_runner.py --cells T1-J",
+ "wall_clock_s": {
+  "full": [
+   14.8,
+   14.6,
+   14.7,
+   14.8,
+   14.7
+  ],
+  "holdout": [
+   8.5,
+   8.5,
+   8.5,
+   8.4,
+   8.4
+  ]
+ },
+ "seed_noise_bound_bps": 7.327,
+ "results_path": "cells/T1-J/results.json",
+ "status": "RUN"
+}

@@ -1,0 +1,116 @@
+{
+  "date": "2026-03-24",
+  "status": "ok",
+  "calls_made": 12,
+  "risks": {
+    "DBC": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Commodity ETFs like DBC can experience liquidity challenges during high volatility periods, warranting caution and reduced position size."
+    },
+    "GLD": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "The recent high volatility and weak performance could indicate potential liquidity concerns, warranting closer monitoring."
+    },
+    "ITA": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Potential liquidity concerns due to high volatility and sentiment, but no immediate regulatory risks identified"
+    },
+    "IYT": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "The ETF has elevated liquidity risk due to high volatility and negative sentiment in the current market regime"
+    },
+    "SCHD": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.0,
+      "one_sentence_rationale": "Moderate liquidity concerns due to market regime, but overall structure appears sound"
+    },
+    "SLV": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Potential liquidity concerns due to high volatility and poor recent performance"
+    },
+    "USO": {
+      "risk_flags": [
+        "regulatory",
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated regulatory scrutiny but no immediate threat"
+    },
+    "XLE": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Current market volatility may reduce liquidity, but no immediate concerns with the ETF structure."
+    },
+    "XLI": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Recent market volatility and low fund sentiment indicates potential liquidity concerns, meriting reduced position size."
+    },
+    "XLU": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 1,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Moderate liquidity risk due to the utilities sector, but no other major structural concerns"
+    },
+    "XLV": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.1,
+      "one_sentence_rationale": "Elevated liquidity concerns due to recent market volatility, but no imminent threat identified."
+    },
+    "SOXX": {
+      "risk_flags": [
+        "liquidity"
+      ],
+      "severity": 2,
+      "structural_risk_veto": false,
+      "confidence_adjustment": 0.2,
+      "one_sentence_rationale": "Semiconductor ETF faces potential liquidity concerns due to high volatility in the current market regime."
+    }
+  }
+}

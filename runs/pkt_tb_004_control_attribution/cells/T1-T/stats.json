@@ -1,0 +1,160 @@
+{
+ "cell_id": "T1-T",
+ "llm_era_restricted": false,
+ "full": {
+  "metrics_cell": {
+   "n_days": 194,
+   "total_return": 0.030613,
+   "cagr": 0.039946,
+   "sharpe": 0.3293,
+   "max_drawdown": -0.118085,
+   "exposure": 0.511121,
+   "trades": {
+    "BUY": 52,
+    "SELL": 44,
+    "REDUCE": 57
+   },
+   "round_trips": 44,
+   "win_rate": 0.5909,
+   "txn_costs_dollars": 437.18,
+   "txn_costs_pct_v0": 0.004372
+  },
+  "metrics_base": {
+   "n_days": 194,
+   "total_return": 0.034099,
+   "cagr": 0.044518,
+   "sharpe": 0.3534,
+   "max_drawdown": -0.124403,
+   "exposure": 0.514484,
+   "trades": {
+    "BUY": 50,
+    "SELL": 42,
+    "REDUCE": 55
+   },
+   "round_trips": 42,
+   "win_rate": 0.5952,
+   "txn_costs_dollars": 422.37,
+   "txn_costs_pct_v0": 0.004224
+  },
+  "paired": {
+   "n": 194,
+   "mean_bps_day": -0.1931,
+   "sd_bps_day": 7.3685,
+   "t": -0.365,
+   "nw5_t": -0.383
+  },
+  "seed_delta_returns": [
+   -0.003434,
+   -0.003494,
+   -0.003469,
+   -0.003486,
+   -0.003543
+  ],
+  "sign_consistent": true
+ },
+ "pre_holdout": {
+  "paired": {
+   "n": 148,
+   "mean_bps_day": 0.0,
+   "sd_bps_day": 0.0,
+   "t": null,
+   "nw5_t": null
+  },
+  "metrics_cell": {
+   "n_days": 148,
+   "total_return": 0.077387,
+   "cagr": 0.135323,
+   "sharpe": 1.3118,
+   "max_drawdown": -0.040079,
+   "exposure": 0.553718,
+   "trades": {
+    "BUY": 30,
+    "SELL": 28,
+    "REDUCE": 26
+   },
+   "round_trips": 28,
+   "win_rate": 0.5357,
+   "txn_costs_dollars": 296.44,
+   "txn_costs_pct_v0": 0.002964
+  },
+  "metrics_base": {
+   "n_days": 148,
+   "total_return": 0.077387,
+   "cagr": 0.135323,
+   "sharpe": 1.3118,
+   "max_drawdown": -0.040079,
+   "exposure": 0.553718,
+   "trades": {
+    "BUY": 30,
+    "SELL": 28,
+    "REDUCE": 26
+   },
+   "round_trips": 28,
+   "win_rate": 0.5357,
+   "txn_costs_dollars": 296.44,
+   "txn_costs_pct_v0": 0.002964
+  }
+ },
+ "holdout": {
+  "metrics_cell": {
+   "n_days": 45,
+   "total_return": -0.051437,
+   "cagr": -0.256004,
+   "sharpe": -0.9483,
+   "max_drawdown": -0.115413,
+   "exposure": 0.384096,
+   "trades": {
+    "BUY": 22,
+    "SELL": 14,
+    "REDUCE": 27
+   },
+   "round_trips": 14,
+   "win_rate": 0.7857,
+   "txn_costs_dollars": 135.14,
+   "txn_costs_pct_v0": 0.001351
+  },
+  "metrics_base": {
+   "n_days": 45,
+   "total_return": -0.04852,
+   "cagr": -0.2431,
+   "sharpe": -0.8529,
+   "max_drawdown": -0.121871,
+   "exposure": 0.398052,
+   "trades": {
+    "BUY": 20,
+    "SELL": 12,
+    "REDUCE": 25
+   },
+   "round_trips": 12,
+   "win_rate": 0.8333,
+   "txn_costs_dollars": 130.57,
+   "txn_costs_pct_v0": 0.001306
+  },
+  "paired": {
+   "n": 45,
+   "mean_bps_day": -0.7661,
+   "sd_bps_day": 15.3512,
+   "t": -0.335,
+   "nw5_t": -0.357
+  },
+  "seed_delta_returns": [
+   -0.002893,
+   -0.002852,
+   -0.002919,
+   -0.002917,
+   -0.003005
+  ],
+  "sign_consistent": true
+ },
+ "seed_noise_bound_bps": 6.741,
+ "decision_gate": {
+  "t_ok": false,
+  "nw_ok": false,
+  "sign_ok": true,
+  "magnitude_ok": true,
+  "meaningful": false,
+  "holdout_sign_agrees": true
+ },
+ "delta_total_return_full": -0.003486,
+ "delta_total_return_holdout": -0.002917
+}

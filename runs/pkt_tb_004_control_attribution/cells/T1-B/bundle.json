@@ -1,0 +1,181 @@
+{
+ "decision_engine": {
+  "position_size": {
+   "regime_adj": {
+    "calm_uptrend": 1.0,
+    "choppy": 1.0,
+    "high_vol_panic": 1.0,
+    "risk_off_trend": 1.0,
+    "risk_on_trend": 1.0
+   }
+  },
+  "ranking_blend": 0.35,
+  "ranking_model_dir": "models/ranking_expanded_unconditioned",
+  "use_stored_llm_risks": true
+ },
+ "decision_params": {
+  "buy_score_threshold": 0.65,
+  "buy_score_threshold_by_regime": {
+   "calm_uptrend": 0.62,
+   "choppy": 0.65,
+   "high_vol_panic": 0.72,
+   "risk_off_trend": 0.68,
+   "risk_on_trend": 0.62
+  },
+  "initial_portfolio_value": 100000,
+  "leveraged_constraints": {
+   "max_hold_days": 10,
+   "max_weight": 0.1,
+   "stop_multiplier": 0.6
+  },
+  "max_position_weight": 0.3,
+  "max_positions": 8,
+  "max_sector_weight": 0.35,
+  "min_cash_reserve_by_regime": {
+   "calm_uptrend": 0.1,
+   "choppy": 0.2,
+   "high_vol_panic": 0.4,
+   "risk_off_trend": 0.4,
+   "risk_on_trend": 0.1
+  },
+  "min_health_buy": 0.6,
+  "min_order_dollars": 250,
+  "reduce_health_drop": 0.2,
+  "sell_health_days": 3,
+  "sell_health_threshold": 0.35,
+  "trailing_stop_base": 0.1,
+  "trailing_stop_leveraged": 0.06
+ },
+ "ensemble": {},
+ "metadata": {
+  "cutover_date": "2026-06-06",
+  "description": "Beat-champion participation tune (PKT-TRADER-BOT-OPTIMIZE-BEAT-CHAMPION-20260606). max_position_weight 0.20->0.30 + topup_trigger 1.2->1.1 (overlay) + benign-buy-threshold map with stressed regimes PROTECTED (choppy 0.65 / risk_off 0.68 / panic 0.72). Selected on the pre-holdout in-sample window, validated out-of-sample on the real three_line_replay (overlays on).",
+  "note_topup_overlay": "topup_trigger 1.1 is set in src/utils/three_line_replay/extender.py _build_champion_strategy (overlay knob, not a decision_params field).",
+  "parent_version": "recalibrated-fragility-plus-f7-relax-2026-04-30-v1",
+  "real_system_evidence": "book-factory run 20260606_trader-bot-beat-champion / FINAL_RESULT.json: holdout (2026-03-11+) +11.85% vs incumbent +9.39% (+2.46pp), in-sample +5.59% vs +1.78%, holdout maxdd -1.03% (incumbent -1.04%), down-window (2026-03-25..04-10) maxdd -1.26% (incumbent -1.27%). Robust: beats incumbent on BOTH windows.",
+  "rollback_to": "20260430T152641Z recalibrated-fragility-plus-f7-relax-2026-04-30-v1"
+ },
+ "regime_compatibility": {
+  "calm_uptrend": {
+   "bond": 0.95,
+   "commodity": 1.0,
+   "credit_high_yield": 1.0,
+   "equity": 1.1,
+   "fx": 1.0,
+   "sector_comm": 1.0,
+   "sector_cons_disc": 1.05,
+   "sector_cons_staples": 0.95,
+   "sector_energy": 1.05,
+   "sector_financials": 1.05,
+   "sector_healthcare": 1.0,
+   "sector_industrials": 1.05,
+   "sector_materials": 1.0,
+   "sector_reit": 1.0,
+   "sector_tech": 1.1,
+   "sector_utilities": 0.95,
+   "treas_long": 0.9,
+   "vol": 0.85
+  },
+  "choppy": {
+   "bond": 1.05,
+   "commodity": 1.0,
+   "credit_high_yield": 0.9,
+   "equity": 0.95,
+   "fx": 1.0,
+   "sector_comm": 0.95,
+   "sector_cons_disc": 0.95,
+   "sector_cons_staples": 1.05,
+   "sector_energy": 0.95,
+   "sector_financials": 0.95,
+   "sector_healthcare": 1.0,
+   "sector_industrials": 0.95,
+   "sector_materials": 0.95,
+   "sector_reit": 0.95,
+   "sector_tech": 0.95,
+   "sector_utilities": 1.0,
+   "treas_long": 1.05,
+   "vol": 1.0
+  },
+  "high_vol_panic": {
+   "bond": 1.2,
+   "commodity": 1.1,
+   "credit_high_yield": 0.4,
+   "equity": 0.5,
+   "fx": 0.9,
+   "sector_comm": 0.5,
+   "sector_cons_disc": 0.45,
+   "sector_cons_staples": 0.9,
+   "sector_energy": 0.5,
+   "sector_financials": 0.4,
+   "sector_healthcare": 0.7,
+   "sector_industrials": 0.5,
+   "sector_materials": 0.5,
+   "sector_reit": 0.5,
+   "sector_tech": 0.4,
+   "sector_utilities": 1.0,
+   "treas_long": 1.25,
+   "vol": 1.3
+  },
+  "risk_off_trend": {
+   "bond": 1.1,
+   "commodity": 0.95,
+   "credit_high_yield": 0.6,
+   "equity": 0.85,
+   "fx": 1.0,
+   "sector_comm": 0.9,
+   "sector_cons_disc": 0.8,
+   "sector_cons_staples": 1.1,
+   "sector_energy": 0.85,
+   "sector_financials": 0.85,
+   "sector_healthcare": 1.05,
+   "sector_industrials": 0.9,
+   "sector_materials": 0.85,
+   "sector_reit": 0.9,
+   "sector_tech": 0.8,
+   "sector_utilities": 1.1,
+   "treas_long": 1.15,
+   "vol": 1.05
+  },
+  "risk_on_trend": {
+   "bond": 0.95,
+   "commodity": 1.0,
+   "credit_high_yield": 1.05,
+   "equity": 1.1,
+   "fx": 1.0,
+   "sector_comm": 1.05,
+   "sector_cons_disc": 1.1,
+   "sector_cons_staples": 0.95,
+   "sector_energy": 1.1,
+   "sector_financials": 1.1,
+   "sector_healthcare": 1.0,
+   "sector_industrials": 1.05,
+   "sector_materials": 1.05,
+   "sector_reit": 1.0,
+   "sector_tech": 1.15,
+   "sector_utilities": 0.9,
+   "treas_long": 0.9,
+   "vol": 0.9
+  }
+ },
+ "regime_fusion": {
+  "fragility_relax_confidence": 0.8,
+  "fragility_relax_in_risk_on": true,
+  "fragility_relax_regimes": [
+   "risk_on_trend",
+   "calm_uptrend"
+  ]
+ },
+ "schema_version": "1",
+ "signals": {
+  "fragility": {
+   "AVG_CORR_MEAN": 0.4774,
+   "AVG_CORR_STD": 0.0979,
+   "PC1_MEAN": 0.6007,
+   "PC1_STD": 0.0658
+  }
+ },
+ "source_run_id": "20260606_trader-bot-beat-champion",
+ "transaction_costs": {},
+ "updated_at": "2026-06-06T00:00:00Z",
+ "version_id": "beat-champion-participation-2026-06-06-v1"
+}

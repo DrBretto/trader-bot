@@ -1,0 +1,56 @@
+{
+ "buys_full_n": 82,
+ "buys_holdout_n": 43,
+ "full": {
+  "all_buys_pct_neg21": 0.688,
+  "all_buys_mean_f21": -0.0049,
+  "downsized": {
+   "n": 38,
+   "pct_neg21": 0.711,
+   "mean_f21": -0.0247
+  },
+  "not_downsized": {
+   "n": 42,
+   "pct_neg21": 0.667,
+   "mean_f21": 0.013
+  }
+ },
+ "holdout": {
+  "all_buys_pct_neg21": 0.537,
+  "all_buys_mean_f21": 0.0088,
+  "downsized": {
+   "n": 17,
+   "pct_neg21": 0.529,
+   "mean_f21": -0.003
+  },
+  "not_downsized": {
+   "n": 24,
+   "pct_neg21": 0.542,
+   "mean_f21": 0.0172
+  }
+ },
+ "buys_assessed": 42,
+ "unassessed_buy_dollars": 276934.55,
+ "total_buy_dollars": 543395.0,
+ "severity3_events": [
+  {
+   "day": "2026-04-22",
+   "symbol": "VIXY",
+   "veto": true,
+   "adj": 0.4,
+   "rationale": "High volatility and leveraged decay make this ETF unsuitable for most portfolios"
+  },
+  {
+   "day": "2026-04-29",
+   "symbol": "VIXY",
+   "veto": true,
+   "adj": 0.4,
+   "rationale": "This volatility ETF exhibits high leverage decay risk, making it unsuitable for long-term investment"
+  }
+ ],
+ "spy_holdout_buydates": {
+  "n": 16,
+  "pct_neg21": 0.312,
+  "mean_f21": 0.0371
+ }
+}

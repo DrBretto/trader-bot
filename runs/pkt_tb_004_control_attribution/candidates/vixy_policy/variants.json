@@ -1,0 +1,547 @@
+{
+ "candidate": "vixy_policy",
+ "manifest": {
+  "code_sha": "5c046fe405037cacc8d5167ead5fe4913fa11625",
+  "harness": "optimizer (pre-holdout slice only)",
+  "date_range": [
+   "2025-08-04",
+   "2026-03-06"
+  ],
+  "n_decision_dates": 148,
+  "holdout_start_excluded": "2026-03-11",
+  "initial_capital": 100000.0,
+  "seeds": [
+   11,
+   17,
+   23
+  ],
+  "baseline": "C00 bundle (active + use_stored_llm_risks=True)",
+  "baseline_bundle_hash": "sha256:8f5b0694de8b98aee39d33503bb990e4c039e36a1cd99a9217a1915c2535792a",
+  "cost_model": {
+   "source": "src/utils/transaction_costs.py",
+   "config_hash": "sha256:e8d2d1b11b146f4408d5d18e133b34300c5367cd98deebceb3fa2a6303493f1e",
+   "slippage_range_bps": 2.0
+  },
+  "command": ".venv/bin/python runs/pkt_tb_004_control_attribution/scripts/risk_arch_tuner.py --candidate both --seeds 11,17,23"
+ },
+ "baseline_metrics_per_seed": [
+  {
+   "seed": 11,
+   "final_value": 107755.728,
+   "total_return": 0.07755727999999995,
+   "cagr": 0.13562853822436294,
+   "sharpe": 1.3144802826118631,
+   "max_drawdown": -0.040209960866581684,
+   "avg_gross_exposure": 0.5537384707967081,
+   "n_fills": 84,
+   "n_round_trips": 28,
+   "win_rate": 0.5357142857142857,
+   "traded_notional": 980520.8171636607,
+   "cumulative_transaction_costs": 346.2085,
+   "trim_fills": 0,
+   "trim_notional": 0,
+   "decay_cap_fills": 0
+  },
+  {
+   "seed": 17,
+   "final_value": 107752.7212,
+   "total_return": 0.0775272119999999,
+   "cagr": 0.1355745828088395,
+   "sharpe": 1.3137434283341722,
+   "max_drawdown": -0.04016114671675253,
+   "avg_gross_exposure": 0.5537339212834518,
+   "n_fills": 84,
+   "n_round_trips": 28,
+   "win_rate": 0.5357142857142857,
+   "traded_notional": 980550.7127563172,
+   "cumulative_transaction_costs": 339.3747,
+   "trim_fills": 0,
+   "trim_notional": 0,
+   "decay_cap_fills": 0
+  },
+  {
+   "seed": 23,
+   "final_value": 107768.6011,
+   "total_return": 0.07768601099999994,
+   "cagr": 0.13585955106975867,
+   "sharpe": 1.3165605775137652,
+   "max_drawdown": -0.0401885381960585,
+   "avg_gross_exposure": 0.5537730217486274,
+   "n_fills": 84,
+   "n_round_trips": 28,
+   "win_rate": 0.5357142857142857,
+   "traded_notional": 980540.3174892747,
+   "cumulative_transaction_costs": 332.7689,
+   "trim_fills": 0,
+   "trim_notional": 0,
+   "decay_cap_fills": 0
+  }
+ ],
+ "n_variants_tried": 4,
+ "variants": [
+  {
+   "variant_id": "vixy_policy-V00",
+   "config": {
+    "max_hold_days": 5,
+    "sectors": [
+     "volatility"
+    ]
+   },
+   "bundle_hash": "sha256:a5794157894c852862f456ec2d4161e297a398b4c933de5fbff6eb44fb435e44",
+   "summary": {
+    "per_seed": [
+     {
+      "seed": 11,
+      "metrics": {
+       "final_value": 107755.728,
+       "total_return": 0.07755727999999995,
+       "cagr": 0.13562853822436294,
+       "sharpe": 1.3144802826118631,
+       "max_drawdown": -0.040209960866581684,
+       "avg_gross_exposure": 0.5537384707967081,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980520.8171636607,
+       "cumulative_transaction_costs": 346.2085,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     },
+     {
+      "seed": 17,
+      "metrics": {
+       "final_value": 107752.7212,
+       "total_return": 0.0775272119999999,
+       "cagr": 0.1355745828088395,
+       "sharpe": 1.3137434283341722,
+       "max_drawdown": -0.04016114671675253,
+       "avg_gross_exposure": 0.5537339212834518,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980550.7127563172,
+       "cumulative_transaction_costs": 339.3747,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     },
+     {
+      "seed": 23,
+      "metrics": {
+       "final_value": 107768.6011,
+       "total_return": 0.07768601099999994,
+       "cagr": 0.13585955106975867,
+       "sharpe": 1.3165605775137652,
+       "max_drawdown": -0.0401885381960585,
+       "avg_gross_exposure": 0.5537730217486274,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980540.3174892747,
+       "cumulative_transaction_costs": 332.7689,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     }
+    ],
+    "median_seed": 17,
+    "median_delta_total_return": 0.0,
+    "median_delta_sharpe": 0.0,
+    "median_delta_max_dd": 0.0,
+    "median_paired_t": 0.0,
+    "sign_consistent": true,
+    "mean_trim_fills": 0,
+    "mean_trim_notional": 0,
+    "mean_delta_costs": 0.0
+   }
+  },
+  {
+   "variant_id": "vixy_policy-V01",
+   "config": {
+    "max_hold_days": 10,
+    "sectors": [
+     "volatility"
+    ]
+   },
+   "bundle_hash": "sha256:5f610e501dc93ee45b7b2e44a6de329d08aeb6c8da1c9aaba1a3c165cb2f7a1b",
+   "summary": {
+    "per_seed": [
+     {
+      "seed": 11,
+      "metrics": {
+       "final_value": 107755.728,
+       "total_return": 0.07755727999999995,
+       "cagr": 0.13562853822436294,
+       "sharpe": 1.3144802826118631,
+       "max_drawdown": -0.040209960866581684,
+       "avg_gross_exposure": 0.5537384707967081,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980520.8171636607,
+       "cumulative_transaction_costs": 346.2085,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     },
+     {
+      "seed": 17,
+      "metrics": {
+       "final_value": 107752.7212,
+       "total_return": 0.0775272119999999,
+       "cagr": 0.1355745828088395,
+       "sharpe": 1.3137434283341722,
+       "max_drawdown": -0.04016114671675253,
+       "avg_gross_exposure": 0.5537339212834518,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980550.7127563172,
+       "cumulative_transaction_costs": 339.3747,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     },
+     {
+      "seed": 23,
+      "metrics": {
+       "final_value": 107768.6011,
+       "total_return": 0.07768601099999994,
+       "cagr": 0.13585955106975867,
+       "sharpe": 1.3165605775137652,
+       "max_drawdown": -0.0401885381960585,
+       "avg_gross_exposure": 0.5537730217486274,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980540.3174892747,
+       "cumulative_transaction_costs": 332.7689,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     }
+    ],
+    "median_seed": 17,
+    "median_delta_total_return": 0.0,
+    "median_delta_sharpe": 0.0,
+    "median_delta_max_dd": 0.0,
+    "median_paired_t": 0.0,
+    "sign_consistent": true,
+    "mean_trim_fills": 0,
+    "mean_trim_notional": 0,
+    "mean_delta_costs": 0.0
+   }
+  },
+  {
+   "variant_id": "vixy_policy-V02",
+   "config": {
+    "max_hold_days": 15,
+    "sectors": [
+     "volatility"
+    ]
+   },
+   "bundle_hash": "sha256:add208fbdc44997395d2af9fdd2441ad71b7119da920e2edafeba502d934cbac",
+   "summary": {
+    "per_seed": [
+     {
+      "seed": 11,
+      "metrics": {
+       "final_value": 107755.728,
+       "total_return": 0.07755727999999995,
+       "cagr": 0.13562853822436294,
+       "sharpe": 1.3144802826118631,
+       "max_drawdown": -0.040209960866581684,
+       "avg_gross_exposure": 0.5537384707967081,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980520.8171636607,
+       "cumulative_transaction_costs": 346.2085,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     },
+     {
+      "seed": 17,
+      "metrics": {
+       "final_value": 107752.7212,
+       "total_return": 0.0775272119999999,
+       "cagr": 0.1355745828088395,
+       "sharpe": 1.3137434283341722,
+       "max_drawdown": -0.04016114671675253,
+       "avg_gross_exposure": 0.5537339212834518,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980550.7127563172,
+       "cumulative_transaction_costs": 339.3747,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     },
+     {
+      "seed": 23,
+      "metrics": {
+       "final_value": 107768.6011,
+       "total_return": 0.07768601099999994,
+       "cagr": 0.13585955106975867,
+       "sharpe": 1.3165605775137652,
+       "max_drawdown": -0.0401885381960585,
+       "avg_gross_exposure": 0.5537730217486274,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980540.3174892747,
+       "cumulative_transaction_costs": 332.7689,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     }
+    ],
+    "median_seed": 17,
+    "median_delta_total_return": 0.0,
+    "median_delta_sharpe": 0.0,
+    "median_delta_max_dd": 0.0,
+    "median_paired_t": 0.0,
+    "sign_consistent": true,
+    "mean_trim_fills": 0,
+    "mean_trim_notional": 0,
+    "mean_delta_costs": 0.0
+   }
+  },
+  {
+   "variant_id": "vixy_policy-V03",
+   "config": {
+    "max_hold_days": 21,
+    "sectors": [
+     "volatility"
+    ]
+   },
+   "bundle_hash": "sha256:a503c32b8007b42c890bb8e1e1be7d37ca49afeaeff4fa743434199aeb2970b4",
+   "summary": {
+    "per_seed": [
+     {
+      "seed": 11,
+      "metrics": {
+       "final_value": 107755.728,
+       "total_return": 0.07755727999999995,
+       "cagr": 0.13562853822436294,
+       "sharpe": 1.3144802826118631,
+       "max_drawdown": -0.040209960866581684,
+       "avg_gross_exposure": 0.5537384707967081,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980520.8171636607,
+       "cumulative_transaction_costs": 346.2085,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     },
+     {
+      "seed": 17,
+      "metrics": {
+       "final_value": 107752.7212,
+       "total_return": 0.0775272119999999,
+       "cagr": 0.1355745828088395,
+       "sharpe": 1.3137434283341722,
+       "max_drawdown": -0.04016114671675253,
+       "avg_gross_exposure": 0.5537339212834518,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980550.7127563172,
+       "cumulative_transaction_costs": 339.3747,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     },
+     {
+      "seed": 23,
+      "metrics": {
+       "final_value": 107768.6011,
+       "total_return": 0.07768601099999994,
+       "cagr": 0.13585955106975867,
+       "sharpe": 1.3165605775137652,
+       "max_drawdown": -0.0401885381960585,
+       "avg_gross_exposure": 0.5537730217486274,
+       "n_fills": 84,
+       "n_round_trips": 28,
+       "win_rate": 0.5357142857142857,
+       "traded_notional": 980540.3174892747,
+       "cumulative_transaction_costs": 332.7689,
+       "trim_fills": 0,
+       "trim_notional": 0,
+       "decay_cap_fills": 0
+      },
+      "delta_total_return": 0.0,
+      "delta_sharpe": 0.0,
+      "delta_max_dd": 0.0,
+      "delta_exposure": 0.0,
+      "delta_fills": 0,
+      "delta_costs": 0.0,
+      "paired_daily_t": {
+       "t": 0.0,
+       "mean": 0.0,
+       "sd": 0.0,
+       "n": 148
+      }
+     }
+    ],
+    "median_seed": 17,
+    "median_delta_total_return": 0.0,
+    "median_delta_sharpe": 0.0,
+    "median_delta_max_dd": 0.0,
+    "median_paired_t": 0.0,
+    "sign_consistent": true,
+    "mean_trim_fills": 0,
+    "mean_trim_notional": 0,
+    "mean_delta_costs": 0.0
+   }
+  }
+ ]
+}

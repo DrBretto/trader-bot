@@ -1,0 +1,12 @@
+{
+ "cell_id": "T1b-R",
+ "tier": 1.5,
+ "status": "SKIPPED-PARENT-NULL",
+ "parent": "T1-LLM",
+ "parent_stats": {
+  "parent_t_full_llm_era": 0.413,
+  "parent_t_holdout": -1.26,
+  "fired": false
+ },
+ "rule": "run iff T1-LLM paired |t|>=2.0 on LLM-era segment (prereg)"
+}

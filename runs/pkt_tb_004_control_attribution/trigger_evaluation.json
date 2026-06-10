@@ -1,0 +1,16 @@
+{
+ "tier1b": {
+  "parent_t_full_llm_era": 0.413,
+  "parent_t_holdout": -1.26,
+  "fired": false
+ },
+ "S1": {
+  "R_bps_day": -7.5506,
+  "sum_abs": 34.7418,
+  "SE_R": 16.032,
+  "fired": false,
+  "top4": []
+ },
+ "S2": [],
+ "S3": []
+}

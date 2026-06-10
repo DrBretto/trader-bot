@@ -1,0 +1,181 @@
+{
+  "date": "2026-04-07",
+  "regime": "choppy",
+  "actions": [
+    {
+      "action": "BUY",
+      "symbol": "SLV",
+      "shares": 85,
+      "price": 65.97,
+      "dollars": 5607.45,
+      "weight": 0.0565018438612551,
+      "reason": "SCORE_0.79_HEALTH_1.00",
+      "score": 0.794825802743435,
+      "health": 0.9953106045722961,
+      "vol_bucket": "med"
+    }
+  ],
+  "buy_candidates": [
+    {
+      "symbol": "SLV",
+      "score": 0.794825802743435,
+      "health_score": 0.9953106045722961,
+      "vol_bucket": "med",
+      "behavior": "mean_reversion",
+      "return_21d": -0.13140223831468079,
+      "return_63d": -0.04467453479110861,
+      "suggested_size": 7058.79
+    },
+    {
+      "symbol": "VIXY",
+      "score": 0.7852085202932358,
+      "health_score": 0.9999723434448242,
+      "vol_bucket": "high",
+      "behavior": "mixed",
+      "return_21d": -0.019124891335844607,
+      "return_63d": 0.3253719655442444,
+      "suggested_size": 5652.95
+    },
+    {
+      "symbol": "DBC",
+      "score": 0.7649505019187928,
+      "health_score": 0.8507141470909119,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.0672482733551436,
+      "return_63d": 0.28743696557772425,
+      "suggested_size": 5637.12
+    },
+    {
+      "symbol": "USO",
+      "score": 0.7640587642788887,
+      "health_score": 0.9984757304191589,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.26803033785336705,
+      "return_63d": 0.9642551979493024,
+      "suggested_size": 5517.2
+    },
+    {
+      "symbol": "UNG",
+      "score": 0.7591975659132004,
+      "health_score": 0.9957276582717896,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.0945098039215686,
+      "return_63d": -0.0064543889845094515,
+      "suggested_size": 5645.51
+    },
+    {
+      "symbol": "XLE",
+      "score": 0.756945152580738,
+      "health_score": 0.9005544781684875,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.07083110873820964,
+      "return_63d": 0.2914788581240608,
+      "suggested_size": 5595.81
+    },
+    {
+      "symbol": "INDA",
+      "score": 0.7356576180458068,
+      "health_score": 0.8071553111076355,
+      "vol_bucket": "med",
+      "behavior": "mean_reversion",
+      "return_21d": -0.0524,
+      "return_63d": -0.12744014732965003,
+      "suggested_size": 7059.62
+    },
+    {
+      "symbol": "SOXX",
+      "score": 0.6964661350846291,
+      "health_score": 0.9499250650405884,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.07603551211061976,
+      "return_63d": 0.09397112935182572,
+      "suggested_size": 6957.0
+    }
+  ],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  },
+  "ensemble_metrics": {
+    "disagreement": 0.02422308921813965,
+    "position_size_multiplier": 0.7327941060066223,
+    "confidence": 0.46558821201324463
+  },
+  "expert_metrics": {
+    "final_regime_label": "choppy",
+    "regime_confidence": 0.9757769107818604,
+    "position_size_modifier": 0.4396764636039734,
+    "risk_throttle_factor": 0.2,
+    "override_reason": null,
+    "effective_exposure_multiplier": 0.39570881724357604,
+    "target_gross_exposure": 0.39570881724357604,
+    "throttle_mapping": "effective_exposure_multiplier = position_size_modifier * (1 - 0.50 * risk_throttle_factor)",
+    "fusion_rules": [
+      {
+        "order": 1,
+        "code": "panic_override",
+        "label": "Panic Override",
+        "fired": false,
+        "inputs": "panic_prob=0.08, vol_regime=calm",
+        "threshold": "panic_prob>0.70 OR vol_regime='panic'",
+        "effect": "no change"
+      },
+      {
+        "order": 2,
+        "code": "unstable_calm_override",
+        "label": "Unstable Calm Override",
+        "fired": false,
+        "inputs": "vol_regime=calm, panic_prob=0.08",
+        "threshold": "vol_regime='unstable_calm' AND panic_prob>0.30",
+        "effect": "no change"
+      },
+      {
+        "order": 3,
+        "code": "macro_modulation",
+        "label": "Macro Modulation",
+        "fired": false,
+        "inputs": "macro_credit_score=-0.22, regime=choppy",
+        "threshold": "score<-0.50 (downgrade) OR score>0.50 (upgrade)",
+        "effect": "no change"
+      },
+      {
+        "order": 4,
+        "code": "fragility_gate",
+        "label": "Fragility Gate",
+        "fired": true,
+        "inputs": "fragility_score=0.97",
+        "threshold": "fragility_score>0.75",
+        "effect": "size=0.60, throttle=0.20"
+      },
+      {
+        "order": 5,
+        "code": "entropy_shift",
+        "label": "Entropy Shift Gate",
+        "fired": false,
+        "inputs": "entropy_shift_flag=False, entropy_score=0.82",
+        "threshold": "entropy_shift_flag=True",
+        "effect": "no change"
+      },
+      {
+        "order": 6,
+        "code": "ensemble_disagreement",
+        "label": "Ensemble Disagreement Sizing",
+        "fired": true,
+        "inputs": "disagreement=0.02, ensemble_multiplier=0.73",
+        "threshold": "multiplier<1.00 when disagreement is elevated",
+        "effect": "size=0.44"
+      }
+    ],
+    "macro_credit_score": -0.2153752583503955,
+    "vol_uncertainty_score": 0.8543956043956044,
+    "vol_regime_label": "calm",
+    "fragility_score": 0.9708739527215043,
+    "entropy_shift_flag": false
+  }
+}

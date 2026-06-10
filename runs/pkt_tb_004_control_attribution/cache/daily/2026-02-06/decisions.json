@@ -1,0 +1,15 @@
+{
+  "date": "2026-02-05",
+  "regime": "high_vol_panic",
+  "actions": [],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  },
+  "ensemble_metrics": {
+    "disagreement": 0.7347231209278107,
+    "position_size_multiplier": 0.5458455033480419,
+    "confidence": 0.5833461284637451
+  }
+}

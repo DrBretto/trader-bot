@@ -1,0 +1,159 @@
+{
+  "date": "2026-02-06",
+  "regime": "calm_uptrend",
+  "actions": [],
+  "buy_candidates": [
+    {
+      "symbol": "XLB",
+      "score": 0.8178125,
+      "health_score": 0.8178125,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.10347043701799485,
+      "return_63d": 0.21510781693413494,
+      "suggested_size": 6026.67
+    },
+    {
+      "symbol": "SOXX",
+      "score": 0.80025,
+      "health_score": 0.7274999999999999,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.07273230939702668,
+      "return_63d": 0.1409303695943953,
+      "suggested_size": 4530.76
+    },
+    {
+      "symbol": "IYT",
+      "score": 0.7961250000000001,
+      "health_score": 0.72375,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.068987917370404,
+      "return_63d": 0.15044742729306493,
+      "suggested_size": 4772.24
+    },
+    {
+      "symbol": "VTV",
+      "score": 0.79096875,
+      "health_score": 0.7190624999999999,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.06375631378208424,
+      "return_63d": 0.11435667620538825,
+      "suggested_size": 6604.48
+    },
+    {
+      "symbol": "XLI",
+      "score": 0.7550156250000001,
+      "health_score": 0.7190625,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.08938793483047114,
+      "return_63d": 0.1304177545691907,
+      "suggested_size": 6061.3
+    },
+    {
+      "symbol": "SMH",
+      "score": 0.7545312500000002,
+      "health_score": 0.6859375000000001,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.043036725364915984,
+      "return_63d": 0.11707927677329621,
+      "suggested_size": 4819.08
+    },
+    {
+      "symbol": "XLP",
+      "score": 0.75109375,
+      "health_score": 0.790625,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.14767684677629855,
+      "return_63d": 0.15795364761653952,
+      "suggested_size": 6067.515
+    },
+    {
+      "symbol": "ITA",
+      "score": 0.74903125,
+      "health_score": 0.6809375,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.03365575725453818,
+      "return_63d": 0.1172482933116914,
+      "suggested_size": 4680.6
+    },
+    {
+      "symbol": "VEA",
+      "score": 0.74421875,
+      "health_score": 0.6765625,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.05432060112711312,
+      "return_63d": 0.10955518945634246,
+      "suggested_size": 6061.499999999999
+    },
+    {
+      "symbol": "SLV",
+      "score": 0.7328125,
+      "health_score": 0.7328125,
+      "vol_bucket": "high",
+      "behavior": "mixed",
+      "return_21d": -0.010710259301014546,
+      "return_63d": 0.6082474226804124,
+      "suggested_size": 4843.8
+    },
+    {
+      "symbol": "VGK",
+      "score": 0.72875,
+      "health_score": 0.6625,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.038502171616386915,
+      "return_63d": 0.10628985869701135,
+      "suggested_size": 6015.96
+    },
+    {
+      "symbol": "XBI",
+      "score": 0.7115625,
+      "health_score": 0.646875,
+      "vol_bucket": "high",
+      "behavior": "mixed",
+      "return_21d": -0.007276753934983837,
+      "return_63d": 0.1492537313432838,
+      "suggested_size": 4769.38
+    },
+    {
+      "symbol": "EEM",
+      "score": 0.70984375,
+      "health_score": 0.6453125,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.056464379947229526,
+      "return_63d": 0.08962264150943411,
+      "suggested_size": 6066.06
+    }
+  ],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  },
+  "ensemble_metrics": {
+    "disagreement": 0.8735374361276627,
+    "position_size_multiplier": 0.5,
+    "confidence": 0.4904088079929352
+  },
+  "expert_metrics": {
+    "final_regime_label": "calm_uptrend",
+    "regime_confidence": 0.12646256387233734,
+    "position_size_modifier": 0.3,
+    "risk_throttle_factor": 0.2,
+    "override_reason": null,
+    "macro_credit_score": -0.4565986713138439,
+    "vol_uncertainty_score": 0.8131868131868132,
+    "vol_regime_label": "calm",
+    "fragility_score": 0.8714590738543337,
+    "entropy_shift_flag": false
+  }
+}

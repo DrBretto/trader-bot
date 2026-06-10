@@ -1,0 +1,129 @@
+{
+  "date": "2026-02-11",
+  "regime": "choppy",
+  "actions": [],
+  "buy_candidates": [
+    {
+      "symbol": "SLV",
+      "score": 0.9996587038040161,
+      "health_score": 0.9996587038040161,
+      "vol_bucket": "med",
+      "behavior": "mixed",
+      "return_21d": -0.008804868574388225,
+      "return_63d": 0.6717623935357064,
+      "suggested_size": 8726.699999999999
+    },
+    {
+      "symbol": "XBI",
+      "score": 0.8140730410814285,
+      "health_score": 0.85691899061203,
+      "vol_bucket": "med",
+      "behavior": "mixed",
+      "return_21d": 0.005809731299927456,
+      "return_63d": 0.1322554273776002,
+      "suggested_size": 8725.5
+    },
+    {
+      "symbol": "XRT",
+      "score": 0.7353087663650513,
+      "health_score": 0.7740092277526855,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.029038718291054755,
+      "return_63d": 0.08761216350947154,
+      "suggested_size": 6981.599999999999
+    },
+    {
+      "symbol": "XLF",
+      "score": 0.7019325256347656,
+      "health_score": 0.7388763427734375,
+      "vol_bucket": "low",
+      "behavior": "mean_reversion",
+      "return_21d": -0.04612045577862178,
+      "return_63d": -0.004342080422880867,
+      "suggested_size": 9598.68
+    },
+    {
+      "symbol": "IYT",
+      "score": 0.6510112106800079,
+      "health_score": 0.6852749586105347,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.04718436616096677,
+      "return_63d": 0.12811634349030476,
+      "suggested_size": 8715.15
+    },
+    {
+      "symbol": "XLY",
+      "score": 0.6083465278148651,
+      "health_score": 0.6403647661209106,
+      "vol_bucket": "low",
+      "behavior": "mean_reversion",
+      "return_21d": -0.054288467716029465,
+      "return_63d": -0.012445070611519227,
+      "suggested_size": 9538.560000000001
+    },
+    {
+      "symbol": "IBB",
+      "score": 0.6024218589067459,
+      "health_score": 0.6341282725334167,
+      "vol_bucket": "high",
+      "behavior": "mixed",
+      "return_21d": 0.00764294049008174,
+      "return_63d": 0.08254983076344491,
+      "suggested_size": 6908.400000000001
+    },
+    {
+      "symbol": "ITA",
+      "score": 0.5948812425136566,
+      "health_score": 0.6261907815933228,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.023673641936165835,
+      "return_63d": 0.09470540835189833,
+      "suggested_size": 6928.5
+    },
+    {
+      "symbol": "XLC",
+      "score": 0.5932500630617141,
+      "health_score": 0.6244737505912781,
+      "vol_bucket": "low",
+      "behavior": "mixed",
+      "return_21d": -0.006592939174819179,
+      "return_63d": 0.030852754237288282,
+      "suggested_size": 9575.550000000001
+    },
+    {
+      "symbol": "XLP",
+      "score": 0.5810766756534577,
+      "health_score": 0.5534063577651978,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.10251933150411574,
+      "return_63d": 0.15661389506738188,
+      "suggested_size": 9547.2
+    }
+  ],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  },
+  "ensemble_metrics": {
+    "disagreement": 0.23212182521820068,
+    "position_size_multiplier": 0.874628484249115,
+    "confidence": 0.74925696849823
+  },
+  "expert_metrics": {
+    "final_regime_label": "choppy",
+    "regime_confidence": 0.7678781747817993,
+    "position_size_modifier": 0.524777090549469,
+    "risk_throttle_factor": 0.2,
+    "override_reason": "macro_downgrade",
+    "macro_credit_score": -0.5026151014352148,
+    "vol_uncertainty_score": 0.5796703296703297,
+    "vol_regime_label": "calm",
+    "fragility_score": 0.833040957664548,
+    "entropy_shift_flag": false
+  }
+}

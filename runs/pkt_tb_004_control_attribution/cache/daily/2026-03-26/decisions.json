@@ -1,0 +1,298 @@
+{
+  "date": "2026-03-25",
+  "regime": "high_vol_panic",
+  "actions": [
+    {
+      "action": "SELL",
+      "symbol": "DBC",
+      "shares": 42.895884601,
+      "price": 28.17,
+      "dollars": 1208.37706921017,
+      "reason": "REGIME_PANIC",
+      "details": "Asset class equity not allowed in panic"
+    },
+    {
+      "action": "SELL",
+      "symbol": "GLD",
+      "shares": 4.76e-07,
+      "price": 416.29,
+      "dollars": 0.00019815404,
+      "reason": "STOP_HIT",
+      "details": "Price 416.29 <= stop 422.51"
+    },
+    {
+      "action": "SELL",
+      "symbol": "ITA",
+      "shares": 1.65e-07,
+      "price": 225.86,
+      "dollars": 3.726690000000001e-05,
+      "reason": "HEALTH_COLLAPSE",
+      "details": "Health 0.32 <= 0.35"
+    },
+    {
+      "action": "SELL",
+      "symbol": "IYT",
+      "shares": 3.51e-07,
+      "price": 74.72,
+      "dollars": 2.622672e-05,
+      "reason": "HEALTH_COLLAPSE",
+      "details": "Health 0.21 <= 0.35"
+    },
+    {
+      "action": "SELL",
+      "symbol": "SCHD",
+      "shares": 6.9e-08,
+      "price": 30.54,
+      "dollars": 2.10726e-06,
+      "reason": "REGIME_PANIC",
+      "details": "Asset class equity not allowed in panic"
+    },
+    {
+      "action": "SELL",
+      "symbol": "SLV",
+      "shares": 7.46e-07,
+      "price": 65.21,
+      "dollars": 4.864666e-05,
+      "reason": "STOP_HIT",
+      "details": "Price 65.21 <= stop 65.90"
+    },
+    {
+      "action": "SELL",
+      "symbol": "USO",
+      "shares": 6.64e-07,
+      "price": 113.39,
+      "dollars": 7.529096e-05,
+      "reason": "REGIME_PANIC",
+      "details": "Asset class equity not allowed in panic"
+    },
+    {
+      "action": "SELL",
+      "symbol": "XLE",
+      "shares": 2.29e-07,
+      "price": 60.57,
+      "dollars": 1.387053e-05,
+      "reason": "REGIME_PANIC",
+      "details": "Asset class equity not allowed in panic"
+    },
+    {
+      "action": "SELL",
+      "symbol": "XLI",
+      "shares": 8.92e-07,
+      "price": 165.1,
+      "dollars": 0.0001472692,
+      "reason": "REGIME_PANIC",
+      "details": "Asset class equity not allowed in panic"
+    },
+    {
+      "action": "SELL",
+      "symbol": "XLU",
+      "shares": 6.41e-07,
+      "price": 45.25,
+      "dollars": 2.9005249999999998e-05,
+      "reason": "REGIME_PANIC",
+      "details": "Asset class equity not allowed in panic"
+    },
+    {
+      "action": "SELL",
+      "symbol": "XLV",
+      "shares": 4e-08,
+      "price": 146.24,
+      "dollars": 5.849600000000001e-06,
+      "reason": "REGIME_PANIC",
+      "details": "Asset class equity not allowed in panic"
+    }
+  ],
+  "buy_candidates": [
+    {
+      "symbol": "VIXY",
+      "score": 0.8874166011810303,
+      "health_score": 0.6826281547546387,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.204133430021755,
+      "return_63d": 0.2714395099540581,
+      "suggested_size": 2656.8
+    },
+    {
+      "symbol": "AGG",
+      "score": 0.6,
+      "health_score": 0.5,
+      "vol_bucket": "low",
+      "behavior": "mixed",
+      "return_21d": -0.019586507072905324,
+      "return_63d": -0.006913827655310567,
+      "suggested_size": 2874.19
+    },
+    {
+      "symbol": "BND",
+      "score": 0.6,
+      "health_score": 0.5,
+      "vol_bucket": "low",
+      "behavior": "mixed",
+      "return_21d": -0.018550647270786036,
+      "return_63d": -0.006484733855714575,
+      "suggested_size": 2941.6
+    },
+    {
+      "symbol": "TIP",
+      "score": 0.6,
+      "health_score": 0.5,
+      "vol_bucket": "low",
+      "behavior": "mixed",
+      "return_21d": -0.010331506603180385,
+      "return_63d": 0.003461468391328104,
+      "suggested_size": 2864.16
+    },
+    {
+      "symbol": "MUB",
+      "score": 0.6,
+      "health_score": 0.5,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.02492870941035774,
+      "return_63d": -0.0068396889346951095,
+      "suggested_size": 2120.0
+    },
+    {
+      "symbol": "SHY",
+      "score": 0.5996553182601928,
+      "health_score": 0.4997127652168274,
+      "vol_bucket": "low",
+      "behavior": "mixed",
+      "return_21d": -0.007946063086925026,
+      "return_63d": -0.003868471953578201,
+      "suggested_size": 2884.0
+    },
+    {
+      "symbol": "IEF",
+      "score": 0.5992608189582824,
+      "health_score": 0.4993840157985687,
+      "vol_bucket": "low",
+      "behavior": "mean_reversion",
+      "return_21d": -0.021145555327448218,
+      "return_63d": -0.008113168296234652,
+      "suggested_size": 2860.8
+    },
+    {
+      "symbol": "LQD",
+      "score": 0.5770125031471253,
+      "health_score": 0.48084375262260437,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.026414756446991428,
+      "return_63d": -0.012532921623830684,
+      "suggested_size": 2065.87
+    },
+    {
+      "symbol": "TLT",
+      "score": 0.5314888060092926,
+      "health_score": 0.4251910448074341,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.0340378197997776,
+      "return_63d": -0.005952380952380931,
+      "suggested_size": 2084.16
+    },
+    {
+      "symbol": "UUP",
+      "score": 0.4771066725254059,
+      "health_score": 0.5301185250282288,
+      "vol_bucket": "low",
+      "behavior": "momentum",
+      "return_21d": 0.02176318701586122,
+      "return_63d": 0.024787273399925924,
+      "suggested_size": 2936.2
+    },
+    {
+      "symbol": "XLP",
+      "score": 0.44881320297718047,
+      "health_score": 0.49868133664131165,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.09170938266102058,
+      "return_63d": 0.04661016949152552,
+      "suggested_size": 2119.26
+    }
+  ],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  },
+  "ensemble_metrics": {
+    "disagreement": 0.99991340086126,
+    "position_size_multiplier": 0.5,
+    "confidence": 0.49168238043785095
+  },
+  "expert_metrics": {
+    "final_regime_label": "high_vol_panic",
+    "regime_confidence": 8.659913873998448e-05,
+    "position_size_modifier": 0.3,
+    "risk_throttle_factor": 0.2,
+    "override_reason": null,
+    "effective_exposure_multiplier": 0.27,
+    "target_gross_exposure": 0.27,
+    "throttle_mapping": "effective_exposure_multiplier = position_size_modifier * (1 - 0.50 * risk_throttle_factor)",
+    "fusion_rules": [
+      {
+        "order": 1,
+        "code": "panic_override",
+        "label": "Panic Override",
+        "fired": false,
+        "inputs": "panic_prob=0.49, vol_regime=calm",
+        "threshold": "panic_prob>0.70 OR vol_regime='panic'",
+        "effect": "no change"
+      },
+      {
+        "order": 2,
+        "code": "unstable_calm_override",
+        "label": "Unstable Calm Override",
+        "fired": false,
+        "inputs": "vol_regime=calm, panic_prob=0.49",
+        "threshold": "vol_regime='unstable_calm' AND panic_prob>0.30",
+        "effect": "no change"
+      },
+      {
+        "order": 3,
+        "code": "macro_modulation",
+        "label": "Macro Modulation",
+        "fired": false,
+        "inputs": "macro_credit_score=-0.38, regime=high_vol_panic",
+        "threshold": "score<-0.50 (downgrade) OR score>0.50 (upgrade)",
+        "effect": "no change"
+      },
+      {
+        "order": 4,
+        "code": "fragility_gate",
+        "label": "Fragility Gate",
+        "fired": true,
+        "inputs": "fragility_score=0.95",
+        "threshold": "fragility_score>0.75",
+        "effect": "size=0.60, throttle=0.20"
+      },
+      {
+        "order": 5,
+        "code": "entropy_shift",
+        "label": "Entropy Shift Gate",
+        "fired": false,
+        "inputs": "entropy_shift_flag=False, entropy_score=0.87",
+        "threshold": "entropy_shift_flag=True",
+        "effect": "no change"
+      },
+      {
+        "order": 6,
+        "code": "ensemble_disagreement",
+        "label": "Ensemble Disagreement Sizing",
+        "fired": true,
+        "inputs": "disagreement=1.00, ensemble_multiplier=0.50",
+        "threshold": "multiplier<1.00 when disagreement is elevated",
+        "effect": "size=0.30"
+      }
+    ],
+    "macro_credit_score": -0.378654333087871,
+    "vol_uncertainty_score": 0.9203296703296703,
+    "vol_regime_label": "calm",
+    "fragility_score": 0.9536515917290733,
+    "entropy_shift_flag": false
+  }
+}

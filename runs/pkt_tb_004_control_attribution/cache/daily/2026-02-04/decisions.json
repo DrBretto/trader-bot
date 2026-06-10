@@ -1,0 +1,88 @@
+{
+  "date": "2026-02-04",
+  "regime": "risk_on_trend",
+  "actions": [
+    {
+      "action": "BUY",
+      "symbol": "SOXX",
+      "shares": 33,
+      "price": 330.38,
+      "dollars": 10902.539999999999,
+      "weight": 0.10588403355143632,
+      "reason": "SCORE_1.00_HEALTH_0.93",
+      "score": 1.0,
+      "health": 0.93022620677948,
+      "vol_bucket": "low"
+    },
+    {
+      "action": "BUY",
+      "symbol": "SMH",
+      "shares": 29,
+      "price": 381.94,
+      "dollars": 11076.26,
+      "weight": 0.10757117932742573,
+      "reason": "SCORE_0.99_HEALTH_0.90",
+      "score": 0.994897884130478,
+      "health": 0.9044526219367981,
+      "vol_bucket": "low"
+    },
+    {
+      "action": "BUY",
+      "symbol": "EWZ",
+      "shares": 275,
+      "price": 36.981,
+      "dollars": 10169.775,
+      "weight": 0.09876751631368087,
+      "reason": "SCORE_0.98_HEALTH_0.89",
+      "score": 0.9795684337615967,
+      "health": 0.8905167579650879,
+      "vol_bucket": "med"
+    },
+    {
+      "action": "BUY",
+      "symbol": "XBI",
+      "shares": 90,
+      "price": 125.275,
+      "dollars": 11274.75,
+      "weight": 0.10949888808333257,
+      "reason": "SCORE_0.95_HEALTH_0.86",
+      "score": 0.9472730278968812,
+      "health": 0.8611572980880737,
+      "vol_bucket": "med"
+    },
+    {
+      "action": "BUY",
+      "symbol": "ARKK",
+      "shares": 178,
+      "price": 69.99,
+      "dollars": 12458.22,
+      "weight": 0.12099259296193135,
+      "reason": "SCORE_0.93_HEALTH_0.85",
+      "score": 0.9308821439743042,
+      "health": 0.8462564945220947,
+      "vol_bucket": "low"
+    },
+    {
+      "action": "BUY",
+      "symbol": "MTUM",
+      "shares": 50,
+      "price": 247.05,
+      "dollars": 12352.5,
+      "weight": 0.11996585423617957,
+      "reason": "SCORE_0.93_HEALTH_0.84",
+      "score": 0.9281236231327058,
+      "health": 0.8437487483024597,
+      "vol_bucket": "low"
+    }
+  ],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  },
+  "ensemble_metrics": {
+    "disagreement": 0.9771368987858295,
+    "position_size_multiplier": 0.5,
+    "confidence": 0.44076448678970337
+  }
+}

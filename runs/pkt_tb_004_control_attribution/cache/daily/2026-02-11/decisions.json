@@ -1,0 +1,187 @@
+{
+  "date": "2026-02-11",
+  "regime": "choppy",
+  "actions": [
+    {
+      "action": "SELL",
+      "symbol": "USO",
+      "shares": 80,
+      "price": 78.65,
+      "dollars": 6292.0,
+      "reason": "HEALTH_COLLAPSE",
+      "details": "Health 0.34 <= 0.35"
+    },
+    {
+      "action": "SELL",
+      "symbol": "EWZ",
+      "shares": 214,
+      "price": 38.81,
+      "dollars": 8305.34,
+      "reason": "HEALTH_COLLAPSE",
+      "details": "Health 0.32 <= 0.35"
+    },
+    {
+      "action": "SELL",
+      "symbol": "EWZ",
+      "shares": 116,
+      "price": 38.81,
+      "dollars": 4501.96,
+      "reason": "HEALTH_COLLAPSE",
+      "details": "Health 0.32 <= 0.35"
+    }
+  ],
+  "buy_candidates": [
+    {
+      "symbol": "SLV",
+      "score": 0.9999276399612427,
+      "health_score": 0.9999276399612427,
+      "vol_bucket": "med",
+      "behavior": "mean_reversion",
+      "return_21d": -0.0302991065648065,
+      "return_63d": 0.6355099366673946,
+      "suggested_size": 4942.74
+    },
+    {
+      "symbol": "XBI",
+      "score": 0.8464937448501586,
+      "health_score": 0.8910460472106934,
+      "vol_bucket": "low",
+      "behavior": "mixed",
+      "return_21d": -0.015944484789800817,
+      "return_63d": 0.10776637296757197,
+      "suggested_size": 5487.929999999999
+    },
+    {
+      "symbol": "XRT",
+      "score": 0.7279411941766738,
+      "health_score": 0.7662538886070251,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.027481085892300805,
+      "return_63d": 0.08935692921236305,
+      "suggested_size": 3933.45
+    },
+    {
+      "symbol": "IWM",
+      "score": 0.7120551586151123,
+      "health_score": 0.7495317459106445,
+      "vol_bucket": "high",
+      "behavior": "mixed",
+      "return_21d": 0.002868068833651982,
+      "return_63d": 0.07461891493197848,
+      "suggested_size": 3933.75
+    },
+    {
+      "symbol": "IBB",
+      "score": 0.6893958806991577,
+      "health_score": 0.725679874420166,
+      "vol_bucket": "low",
+      "behavior": "mixed",
+      "return_21d": -0.007059509918319717,
+      "return_63d": 0.06675441895449419,
+      "suggested_size": 5446.08
+    },
+    {
+      "symbol": "XLF",
+      "score": 0.6701193451881409,
+      "health_score": 0.7053887844085693,
+      "vol_bucket": "low",
+      "behavior": "mean_reversion",
+      "return_21d": -0.042322300596852935,
+      "return_63d": -0.0003775722106852397,
+      "suggested_size": 5453.85
+    },
+    {
+      "symbol": "ITA",
+      "score": 0.652384352684021,
+      "health_score": 0.6867203712463379,
+      "vol_bucket": "high",
+      "behavior": "mean_reversion",
+      "return_21d": -0.026083280490382665,
+      "return_63d": 0.09200360240792538,
+      "suggested_size": 3916.46
+    },
+    {
+      "symbol": "XLP",
+      "score": 0.6354758888483047,
+      "health_score": 0.6052151322364807,
+      "vol_bucket": "high",
+      "behavior": "momentum",
+      "return_21d": 0.09753055624844098,
+      "return_63d": 0.15138034803087774,
+      "suggested_size": 3960.0
+    },
+    {
+      "symbol": "XLY",
+      "score": 0.6333992630243301,
+      "health_score": 0.6667360663414001,
+      "vol_bucket": "low",
+      "behavior": "mean_reversion",
+      "return_21d": -0.05613556055252167,
+      "return_63d": -0.014373888832981074,
+      "suggested_size": 5406.38
+    },
+    {
+      "symbol": "XLC",
+      "score": 0.591014814376831,
+      "health_score": 0.6221208572387695,
+      "vol_bucket": "low",
+      "behavior": "mixed",
+      "return_21d": -0.0068370905997446885,
+      "return_63d": 0.030599399717514242,
+      "suggested_size": 5487.0761
+    },
+    {
+      "symbol": "XLV",
+      "score": 0.5557075142860413,
+      "health_score": 0.5557075142860413,
+      "vol_bucket": "high",
+      "behavior": "mixed",
+      "return_21d": -0.01127843436268905,
+      "return_63d": 0.056524986420423584,
+      "suggested_size": 3890.1249999999995
+    },
+    {
+      "symbol": "VGK",
+      "score": 0.5526177436113358,
+      "health_score": 0.5817028880119324,
+      "vol_bucket": "med",
+      "behavior": "momentum",
+      "return_21d": 0.030728200371057612,
+      "return_63d": 0.09835660447300132,
+      "suggested_size": 4977.84
+    },
+    {
+      "symbol": "DIA",
+      "score": 0.5341226816177368,
+      "health_score": 0.5622344017028809,
+      "vol_bucket": "high",
+      "behavior": "mixed",
+      "return_21d": 0.0076830006049606325,
+      "return_63d": 0.054641002912498404,
+      "suggested_size": 3997.68
+    }
+  ],
+  "pass_filters": {
+    "price_coverage": 1.0,
+    "context_freshness": 1,
+    "degraded_mode": false
+  },
+  "ensemble_metrics": {
+    "disagreement": 0.9429542236030102,
+    "position_size_multiplier": 0.5,
+    "confidence": 0.47601816058158875
+  },
+  "expert_metrics": {
+    "final_regime_label": "choppy",
+    "regime_confidence": 0.05704577639698982,
+    "position_size_modifier": 0.3,
+    "risk_throttle_factor": 0.2,
+    "override_reason": "macro_downgrade",
+    "macro_credit_score": -0.5084060165719617,
+    "vol_uncertainty_score": 0.5808219178082191,
+    "vol_regime_label": "calm",
+    "fragility_score": 0.8391042428177122,
+    "entropy_shift_flag": false
+  }
+}
