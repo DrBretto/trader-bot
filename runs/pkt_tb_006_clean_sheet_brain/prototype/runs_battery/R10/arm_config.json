@@ -1,0 +1,35 @@
+{
+ "run_id": "R10",
+ "description": "LLM neutral-constants retrain",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out_rt3",
+  "slippage_seed": 4242,
+  "oof_suffix": "_llm_neutral",
+  "feature_gate_off": [
+   "LLM_block"
+  ],
+  "nightly_dir": "store/nightly_rt3_llm_neutral"
+ },
+ "retrain_required": "RT-3",
+ "e1": {
+  "kind": "retrain_ablation",
+  "oof_suffix": "_llm_neutral",
+  "feature_gate_off": [
+   "LLM_block"
+  ],
+  "exec_dir_without": "exec_out_rt3"
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: LLM (primary)",
+ "config_hash": "9f2f394c72c6c33d",
+ "files": {
+  "genome": "genome.json"
+ }
+}

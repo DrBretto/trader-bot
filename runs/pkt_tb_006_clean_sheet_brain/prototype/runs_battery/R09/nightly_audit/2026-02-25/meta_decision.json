@@ -1,0 +1,48 @@
+{
+ "date": "2026-02-25",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103907.05,
+ "own_drawdown": 0.00155,
+ "trust": {
+  "cast": 0.40116596601368837,
+  "gbm_cond": 0.3615568074758264,
+  "event_head": 0.23727722651048527
+ },
+ "blend_coef": {
+  "cast": 0.40116596601368837,
+  "gbm_cond": 0.3615568074758264,
+  "event_head": 0.23727722651048527
+ },
+ "tilt": {
+  "cast": 0.1269191099152154,
+  "gbm_cond": 0.15097784250113394,
+  "event_head": 0.04897121201607044
+ },
+ "deployment_fraction": 0.3715738832410239,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.371574,
+ "est_book_vol": 0.064408,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.2880254095042991,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "VWO",
+   "price": 58.68,
+   "asset_class": "equity",
+   "sector": "international_em",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 18,
+   "dollars": 1089.01,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 5
+}

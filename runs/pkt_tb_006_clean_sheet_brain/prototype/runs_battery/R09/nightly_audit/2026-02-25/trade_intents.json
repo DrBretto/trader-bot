@@ -1,0 +1,16 @@
+{
+ "date": "2026-02-25",
+ "intents": [
+  {
+   "symbol": "VWO",
+   "price": 58.68,
+   "asset_class": "equity",
+   "sector": "international_em",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 18,
+   "dollars": 1089.01,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

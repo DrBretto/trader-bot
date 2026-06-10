@@ -1,0 +1,71 @@
+{
+ "date": "2026-03-27",
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 645.09,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1687.97,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IWM",
+   "price": 247.44,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 1090.95,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 594.92,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1701.55,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 648.01,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1653.74,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IBB",
+   "price": 165.26,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 6.238953878525456,
+   "dollars": 1031.05,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.11,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 16.0,
+   "dollars": 1377.76,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ]
+}

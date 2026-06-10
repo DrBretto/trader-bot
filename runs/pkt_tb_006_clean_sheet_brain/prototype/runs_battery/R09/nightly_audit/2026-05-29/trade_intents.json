@@ -1,0 +1,27 @@
+{
+ "date": "2026-05-29",
+ "intents": [
+  {
+   "symbol": "VOO",
+   "price": 693.68,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1364.98,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "XLP",
+   "price": 84.405,
+   "asset_class": "equity",
+   "sector": "sector_cons_staples",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 13,
+   "dollars": 1124.41,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

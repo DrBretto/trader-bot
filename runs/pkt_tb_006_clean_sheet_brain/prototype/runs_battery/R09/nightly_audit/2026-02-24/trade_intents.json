@@ -1,0 +1,16 @@
+{
+ "date": "2026-02-24",
+ "intents": [
+  {
+   "symbol": "XLY",
+   "price": 114.99,
+   "asset_class": "equity",
+   "sector": "sector_cons_disc",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 10,
+   "dollars": 1253.04,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

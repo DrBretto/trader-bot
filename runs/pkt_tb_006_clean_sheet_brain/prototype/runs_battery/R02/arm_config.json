@@ -1,0 +1,19 @@
+{
+ "run_id": "R02",
+ "description": "Incumbent (bake-off opponent)",
+ "arm_config": {
+  "strategy": "incumbent",
+  "slippage_seed": 4242
+ },
+ "retrain_required": null,
+ "e1": null,
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "bake-off primary (\u00a74.2)"
+ },
+ "contingency": false,
+ "purpose": "bake-off opponent",
+ "config_hash": "5bf392338d9f4c19",
+ "files": {}
+}

@@ -1,0 +1,321 @@
+{
+ "a": "SYN-1 (R01, record-weighted)",
+ "b": "uniform-weights retrain (R12, RT-5)",
+ "run_dir_a": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R01",
+ "run_dir_b": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R12",
+ "holdout_start": "2026-03-11",
+ "manifest_a": {
+  "generated": "2026-06-10T18:44:04",
+  "command": "python /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/run_replay.py --arm syn1 --window full --out /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R01 --cost-seed 4242 --genome /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R01/genome.json --exec-dir /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/exec_out --exec-mode linear_twin",
+  "arm": "syn1",
+  "window": "full",
+  "code_sha": {
+   "git": "747c58f8f640",
+   "prototype_wiring": "3edd62e80aa1"
+  },
+  "genome": {
+   "trust_prior": [
+    -0.7976769586105441,
+    1.8441695577251007,
+    -1.429998600799269
+   ],
+   "trust_halflife_days": 41.740361368232826,
+   "member_gate": [
+    1,
+    1,
+    1
+   ],
+   "feature_gate": [
+    0,
+    1,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "gross_target": 0.5157883065754484,
+   "vol_target_ann": 0.08648335911431486,
+   "max_symbol_weight": 0.08175373267203596,
+   "dd_brake_threshold": 0.08001844143783443,
+   "dd_brake_strength": 1.0,
+   "no_trade_band": 0.02596656629933275,
+   "conviction_temp": 4.0,
+   "cash_floor": 0.1031998699462734,
+   "risk_aversion_lambda": 3.477283678899133,
+   "abstain_threshold": 0.2443899204544654,
+   "record_weight_eps": 0.38223385230068074,
+   "event_weight_cap": 0.8795265838631618
+  },
+  "genome_hash": "8f4184844e8b",
+  "variant_params_hash": "3023921c7bc7",
+  "snapshot_range": [
+   "2026-02-03",
+   "2026-06-10"
+  ],
+  "n_trading_dates": 84,
+  "start_portfolio_date_used": "2026-02-03",
+  "native_start_portfolio_date": "2026-03-11",
+  "cost_model": {
+   "seed": 4242,
+   "version_sha": "bf8b77716f74"
+  },
+  "exec_mode": "linear_twin",
+  "sigma_source": {
+   "mode": "trailing21",
+   "sigma_col": "sigma_hat_proxy",
+   "book_vol_key": "book_vol_hat_proxy"
+  },
+  "nightly_audit": {
+   "dir": "nightly_audit",
+   "n_files": 130
+  },
+  "exec_weights_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/exec_out",
+  "nightly_manifest": {
+   "generated": "2026-06-10T17:35:57",
+   "window": [
+    "2026-02-02",
+    "2026-06-09"
+   ],
+   "code_sha": "e620dc0e34a6",
+   "cast_n_seeds": 3
+  },
+  "wall_clock_s": 3.9,
+  "summary": {
+   "arm": "syn1",
+   "window": "full",
+   "n_decision_dates": 65,
+   "first_date": "2026-02-04",
+   "last_date": "2026-06-10",
+   "start_value": 103091.25,
+   "final_value_raw": 104358.34,
+   "final_value_cost_adjusted": 104329.4649138139,
+   "n_executed_actions": 4,
+   "actions_per_decision_date": 0.062,
+   "total_traded_dollars": 86670.31,
+   "total_cost_dollars": 28.8751,
+   "cost_drag_bps_of_start_nav": 2.801,
+   "cost_bps_of_traded": 3.332
+  },
+  "evidence_protocol": "committee/EVIDENCE_PROTOCOL.md V1"
+ },
+ "manifest_b": {
+  "generated": "2026-06-10T18:44:53",
+  "command": "python /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/run_replay.py --arm syn1 --window full --out /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R12 --cost-seed 4242 --genome /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R12/genome.json --exec-dir /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/exec_out_rt5 --nightly-dir /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/store/nightly_rt5_uniform --exec-mode learned",
+  "arm": "syn1",
+  "window": "full",
+  "code_sha": {
+   "git": "747c58f8f640",
+   "prototype_wiring": "3edd62e80aa1"
+  },
+  "genome": {
+   "trust_prior": [
+    -0.7976769586105441,
+    1.8441695577251007,
+    -1.429998600799269
+   ],
+   "trust_halflife_days": 41.740361368232826,
+   "member_gate": [
+    1,
+    1,
+    1
+   ],
+   "feature_gate": [
+    0,
+    1,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "gross_target": 0.5157883065754484,
+   "vol_target_ann": 0.08648335911431486,
+   "max_symbol_weight": 0.08175373267203596,
+   "dd_brake_threshold": 0.08001844143783443,
+   "dd_brake_strength": 1.0,
+   "no_trade_band": 0.02596656629933275,
+   "conviction_temp": 4.0,
+   "cash_floor": 0.1031998699462734,
+   "risk_aversion_lambda": 3.477283678899133,
+   "abstain_threshold": 0.2443899204544654,
+   "record_weight_eps": 0.38223385230068074,
+   "event_weight_cap": 0.8795265838631618
+  },
+  "genome_hash": "8f4184844e8b",
+  "variant_params_hash": "3023921c7bc7",
+  "snapshot_range": [
+   "2026-02-03",
+   "2026-06-10"
+  ],
+  "n_trading_dates": 84,
+  "start_portfolio_date_used": "2026-02-03",
+  "native_start_portfolio_date": "2026-03-11",
+  "cost_model": {
+   "seed": 4242,
+   "version_sha": "bf8b77716f74"
+  },
+  "exec_mode": "learned",
+  "sigma_source": {
+   "mode": "trailing21",
+   "sigma_col": "sigma_hat_proxy",
+   "book_vol_key": "book_vol_hat_proxy"
+  },
+  "nightly_audit": {
+   "dir": "nightly_audit",
+   "n_files": 130
+  },
+  "exec_weights_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/exec_out_rt5",
+  "nightly_manifest": {
+   "generated": "2026-06-10T18:04:00",
+   "window": [
+    "2026-02-02",
+    "2026-06-09"
+   ],
+   "code_sha": "3edd62e80aa1",
+   "cast_n_seeds": 3
+  },
+  "wall_clock_s": 3.6,
+  "summary": {
+   "arm": "syn1",
+   "window": "full",
+   "n_decision_dates": 65,
+   "first_date": "2026-02-04",
+   "last_date": "2026-06-10",
+   "start_value": 103092.05,
+   "final_value_raw": 105910.31,
+   "final_value_cost_adjusted": 105877.07637168525,
+   "n_executed_actions": 12,
+   "actions_per_decision_date": 0.185,
+   "total_traded_dollars": 105620.73,
+   "total_cost_dollars": 33.2336,
+   "cost_drag_bps_of_start_nav": 3.224,
+   "cost_bps_of_traded": 3.147
+  },
+  "evidence_protocol": "committee/EVIDENCE_PROTOCOL.md V1"
+ },
+ "full_period": {
+  "metrics_a": {
+   "window_start": "2026-02-04",
+   "window_end": "2026-06-10",
+   "n_days": 65,
+   "total_return": 0.01229439939706034,
+   "cagr": 0.049290302646352924,
+   "sharpe": 1.6540707559409837,
+   "max_drawdown": 0.01319939749724619,
+   "win_rate": 0.515625,
+   "realized_round_trips": 4,
+   "cumulative_transaction_costs": 0.0,
+   "avg_gross_exposure": 0.2571752126304948
+  },
+  "metrics_b": {
+   "window_start": "2026-02-04",
+   "window_end": "2026-06-10",
+   "n_days": 65,
+   "total_return": 0.027299923065034815,
+   "cagr": 0.11188006522889937,
+   "sharpe": 2.2269003447920475,
+   "max_drawdown": 0.021419050702197406,
+   "win_rate": 0.578125,
+   "realized_round_trips": 5,
+   "cumulative_transaction_costs": 4.63568795491301,
+   "avg_gross_exposure": 0.37714004635848986
+  },
+  "delta": {
+   "total_return": -0.015005523667974474,
+   "cagr": -0.06258976258254645,
+   "sharpe": -0.5728295888510637,
+   "max_drawdown": -0.008219653204951216,
+   "win_rate": -0.0625,
+   "realized_round_trips": -1,
+   "cumulative_transaction_costs": -4.63568795491301,
+   "avg_gross_exposure": -0.11996483372799505
+  },
+  "paired_daily": {
+   "n": 64,
+   "mean": -0.00023282529855977833,
+   "sd": 0.001674008502186697,
+   "t": -1.1126600528283914,
+   "mean_bp_day": -2.3282529855977834,
+   "sd_bp_day": 16.74008502186697,
+   "first_date": "2026-02-05",
+   "last_date": "2026-06-10",
+   "hac_t": -1.1363541082845716,
+   "hac_se": 0.0002048879806588186,
+   "ci95": [
+    -0.0006344057406510628,
+    0.0001687551435315061
+   ],
+   "mde": 0.0004097759613176372
+  }
+ },
+ "holdout_only": {
+  "metrics_a": {
+   "window_start": "2026-03-11",
+   "window_end": "2026-06-10",
+   "n_days": 45,
+   "total_return": 0.012991072720321739,
+   "cagr": 0.07672526379965361,
+   "sharpe": 2.4980335052129448,
+   "max_drawdown": 0.005944568534637984,
+   "win_rate": 0.5454545454545454,
+   "realized_round_trips": 0,
+   "cumulative_transaction_costs": 0.0,
+   "avg_gross_exposure": 0.25713450630812357
+  },
+  "metrics_b": {
+   "window_start": "2026-03-11",
+   "window_end": "2026-06-10",
+   "n_days": 45,
+   "total_return": 0.028872331866878875,
+   "cagr": 0.17705732871823532,
+   "sharpe": 3.0696871408904394,
+   "max_drawdown": 0.012357224927599164,
+   "win_rate": 0.5909090909090909,
+   "realized_round_trips": 1,
+   "cumulative_transaction_costs": 2.875495341446367,
+   "avg_gross_exposure": 0.4140073801762341
+  },
+  "delta": {
+   "total_return": -0.015881259146557136,
+   "cagr": -0.10033206491858171,
+   "sharpe": -0.5716536356774946,
+   "max_drawdown": -0.00641265639296118,
+   "win_rate": -0.045454545454545525,
+   "realized_round_trips": -1,
+   "cumulative_transaction_costs": -2.875495341446367,
+   "avg_gross_exposure": -0.15687287386811055
+  },
+  "paired_daily": {
+   "n": 44,
+   "mean": -0.00035755386960918803,
+   "sd": 0.0020003514621295074,
+   "t": -1.185663669894185,
+   "mean_bp_day": -3.5755386960918805,
+   "sd_bp_day": 20.003514621295075,
+   "first_date": "2026-03-12",
+   "last_date": "2026-06-10",
+   "hac_t": -1.4077074443818771,
+   "hac_se": 0.0002539972854701991,
+   "ci95": [
+    -0.0008553885491307783,
+    0.00014028080991240218
+   ],
+   "mde": 0.0005079945709403982
+  }
+ },
+ "run_id": "R12_infotropy_b",
+ "generated": "2026-06-10T19:02:16",
+ "e1_primary": {
+  "hac_t": -0.39885852759239165,
+  "n": 1507,
+  "mean": -1.0730003561095164e-05,
+  "ci95": [
+   -6.345748843322176e-05,
+   4.1997481311031434e-05
+  ],
+  "mde": 5.380355599196592e-05
+ }
+}

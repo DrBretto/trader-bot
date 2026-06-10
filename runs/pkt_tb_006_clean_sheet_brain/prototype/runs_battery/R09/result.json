@@ -1,0 +1,1633 @@
+{
+ "date_value_map": {
+  "2026-02-04": 103046.68,
+  "2026-02-05": 102805.38,
+  "2026-02-06": 103769.89,
+  "2026-02-10": 103787.05,
+  "2026-02-11": 104068.26,
+  "2026-02-12": 103409.77,
+  "2026-02-13": 103716.91,
+  "2026-02-17": 103588.24,
+  "2026-02-18": 103815.61,
+  "2026-02-19": 103770.12,
+  "2026-02-20": 103961.3,
+  "2026-02-24": 103907.05,
+  "2026-02-25": 103991.57,
+  "2026-02-26": 103928.08,
+  "2026-02-27": 104043.82,
+  "2026-03-03": 103445.0,
+  "2026-03-04": 103652.22,
+  "2026-03-05": 103060.27,
+  "2026-03-06": 102547.74,
+  "2026-03-10": 102591.91,
+  "2026-03-11": 102566.91,
+  "2026-03-12": 101830.74,
+  "2026-03-13": 101644.84,
+  "2026-03-17": 102201.63,
+  "2026-03-18": 101362.95,
+  "2026-03-19": 101315.84,
+  "2026-03-20": 100555.98,
+  "2026-03-24": 101026.69,
+  "2026-03-25": 101224.6,
+  "2026-03-26": 100674.29,
+  "2026-03-27": 99873.02,
+  "2026-04-01": 101212.28,
+  "2026-04-02": 101407.48,
+  "2026-04-07": 101645.72,
+  "2026-04-08": 103077.9,
+  "2026-04-09": 103380.08,
+  "2026-04-10": 102957.3,
+  "2026-04-14": 104076.62,
+  "2026-04-15": 104261.72,
+  "2026-04-16": 104538.32,
+  "2026-04-17": 105440.2,
+  "2026-04-21": 104945.28,
+  "2026-04-22": 105305.62,
+  "2026-04-23": 105481.9,
+  "2026-04-24": 105462.25,
+  "2026-04-28": 105320.98,
+  "2026-04-29": 105285.0,
+  "2026-04-30": 106513.64,
+  "2026-05-01": 106351.35,
+  "2026-05-05": 106395.22,
+  "2026-05-06": 107050.42,
+  "2026-05-07": 106586.49,
+  "2026-05-08": 106947.57,
+  "2026-05-21": 107607.33,
+  "2026-05-22": 108346.0,
+  "2026-05-26": 108567.99,
+  "2026-05-27": 108515.36,
+  "2026-05-28": 108792.24,
+  "2026-05-29": 108728.44,
+  "2026-06-02": 108694.09,
+  "2026-06-03": 108304.51,
+  "2026-06-04": 108969.88,
+  "2026-06-05": 107487.06,
+  "2026-06-09": 107752.49,
+  "2026-06-10": 107827.4
+ },
+ "actions": [
+  {
+   "date": "2026-02-04",
+   "symbol": "VEA",
+   "action": "SELL",
+   "shares": 312.921100619611,
+   "price": 67.35,
+   "dollars": 21075.24,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "EFA",
+   "action": "BUY",
+   "shares": 11.0,
+   "price": 102.47,
+   "dollars": 1127.17,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "VGK",
+   "action": "BUY",
+   "shares": 10.0,
+   "price": 88.63,
+   "dollars": 886.3,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "XLK",
+   "action": "BUY",
+   "shares": 8.0,
+   "price": 140.83,
+   "dollars": 1126.64,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "XLI",
+   "action": "BUY",
+   "shares": 5.0,
+   "price": 169.79,
+   "dollars": 848.95,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "XLB",
+   "action": "SELL",
+   "shares": 433.33997866045917,
+   "price": 51.04,
+   "dollars": 22117.67,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "XLC",
+   "action": "BUY",
+   "shares": 8.0,
+   "price": 118.07,
+   "dollars": 944.56,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "VLUE",
+   "action": "SELL",
+   "shares": 145.48215244428516,
+   "price": 149.97,
+   "dollars": 21817.96,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "SCHD",
+   "action": "SELL",
+   "shares": 718.9234490599442,
+   "price": 30.595,
+   "dollars": 21995.46,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "SPY",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 680.94,
+   "dollars": 1361.88,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "QQQ",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 600.21,
+   "dollars": 1200.42,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "IWM",
+   "action": "BUY",
+   "shares": 7.0,
+   "price": 258.5,
+   "dollars": 1809.5,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "DIA",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 492.51,
+   "dollars": 1970.04,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 10.0,
+   "price": 199.64,
+   "dollars": 1996.4,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "VTI",
+   "action": "BUY",
+   "shares": 5.0,
+   "price": 335.84,
+   "dollars": 1679.2,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "VOO",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 626.24,
+   "dollars": 1252.48,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "IVV",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 683.93,
+   "dollars": 1367.86,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "VT",
+   "action": "BUY",
+   "shares": 11.0,
+   "price": 144.0,
+   "dollars": 1584.0,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "QUAL",
+   "action": "BUY",
+   "shares": 6.0,
+   "price": 200.16,
+   "dollars": 1200.96,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "USMV",
+   "action": "BUY",
+   "shares": 13.0,
+   "price": 95.1748,
+   "dollars": 1237.27,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "VIG",
+   "action": "BUY",
+   "shares": 6.0,
+   "price": 226.165,
+   "dollars": 1356.99,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "VUG",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 461.98,
+   "dollars": 923.96,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "VTV",
+   "action": "BUY",
+   "shares": 6.0,
+   "price": 203.135,
+   "dollars": 1218.81,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-11",
+   "symbol": "XLF",
+   "action": "BUY",
+   "shares": 20.0,
+   "price": 53.655,
+   "dollars": 1073.1,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-19",
+   "symbol": "IWM",
+   "action": "SELL",
+   "shares": 5.233962580951507,
+   "price": 262.57,
+   "dollars": 1374.28,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-19",
+   "symbol": "DIA",
+   "action": "SELL",
+   "shares": 2.7412592940317673,
+   "price": 495.555,
+   "dollars": 1358.44,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-19",
+   "symbol": "RSP",
+   "action": "SELL",
+   "shares": 6.782063134036559,
+   "price": 203.085,
+   "dollars": 1377.34,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-24",
+   "symbol": "XLY",
+   "action": "BUY",
+   "shares": 9.0,
+   "price": 115.325,
+   "dollars": 1037.92,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-25",
+   "symbol": "VWO",
+   "action": "BUY",
+   "shares": 17.0,
+   "price": 59.07,
+   "dollars": 1004.19,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-03",
+   "symbol": "INDA",
+   "action": "BUY",
+   "shares": 22.0,
+   "price": 49.64,
+   "dollars": 1092.08,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-04",
+   "symbol": "XLV",
+   "action": "BUY",
+   "shares": 9.0,
+   "price": 156.64,
+   "dollars": 1409.76,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-04",
+   "symbol": "XBI",
+   "action": "BUY",
+   "shares": 10.0,
+   "price": 124.49,
+   "dollars": 1244.9,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-04",
+   "symbol": "IBB",
+   "action": "BUY",
+   "shares": 7.0,
+   "price": 171.5,
+   "dollars": 1200.5,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-05",
+   "symbol": "IWM",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 258.99,
+   "dollars": 1035.96,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-05",
+   "symbol": "DIA",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 483.82,
+   "dollars": 1451.46,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-05",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 9.0,
+   "price": 201.79,
+   "dollars": 1816.11,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-06",
+   "symbol": "XLE",
+   "action": "BUY",
+   "shares": 23.0,
+   "price": 57.1,
+   "dollars": 1313.3,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-10",
+   "symbol": "XLE",
+   "action": "SELL",
+   "shares": 20.353335027590784,
+   "price": 56.055,
+   "dollars": 1140.91,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-17",
+   "symbol": "XLU",
+   "action": "BUY",
+   "shares": 20.0,
+   "price": 47.56,
+   "dollars": 951.2,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-20",
+   "symbol": "DBC",
+   "action": "BUY",
+   "shares": 34.0,
+   "price": 28.88,
+   "dollars": 981.92,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "SPY",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 651.32,
+   "dollars": 651.32,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "IWM",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 245.51,
+   "dollars": 982.04,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "VOO",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 600.63,
+   "dollars": 1201.26,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "IVV",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 654.25,
+   "dollars": 654.25,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "VEA",
+   "action": "SELL",
+   "shares": 19.00977648669322,
+   "price": 62.69,
+   "dollars": 1191.72,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "EFA",
+   "action": "SELL",
+   "shares": 10.954086358381971,
+   "price": 94.485,
+   "dollars": 1035.0,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "XLV",
+   "action": "SELL",
+   "shares": 7.703369064738303,
+   "price": 143.94,
+   "dollars": 1108.82,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 8.399032729567532,
+   "price": 119.555,
+   "dollars": 1004.15,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "MTUM",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 242.815,
+   "dollars": 971.26,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-25",
+   "symbol": "SPY",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 658.67,
+   "dollars": 658.67,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-25",
+   "symbol": "VOO",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 607.4,
+   "dollars": 607.4,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-25",
+   "symbol": "IVV",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 661.63,
+   "dollars": 661.63,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-26",
+   "symbol": "SPY",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 652.06,
+   "dollars": 652.06,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-26",
+   "symbol": "VOO",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 601.295,
+   "dollars": 601.29,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-26",
+   "symbol": "IVV",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 654.98,
+   "dollars": 654.98,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-26",
+   "symbol": "VNQ",
+   "action": "BUY",
+   "shares": 11.0,
+   "price": 87.66,
+   "dollars": 964.26,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-26",
+   "symbol": "TLT",
+   "action": "BUY",
+   "shares": 16.0,
+   "price": 86.34,
+   "dollars": 1381.44,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-27",
+   "symbol": "SPY",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 642.5,
+   "dollars": 1285.0,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-27",
+   "symbol": "IWM",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 246.01,
+   "dollars": 984.04,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-27",
+   "symbol": "VOO",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 590.68,
+   "dollars": 1181.36,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-27",
+   "symbol": "IVV",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 645.47,
+   "dollars": 1290.94,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-27",
+   "symbol": "IBB",
+   "action": "SELL",
+   "shares": 6.238953878525456,
+   "price": 165.19,
+   "dollars": 1030.61,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-27",
+   "symbol": "TLT",
+   "action": "SELL",
+   "shares": 16.0,
+   "price": 85.5,
+   "dollars": 1368.0,
+   "reason": "SYN1_REBALANCE_EXIT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-01",
+   "symbol": "XRT",
+   "action": "BUY",
+   "shares": 11.0,
+   "price": 80.655,
+   "dollars": 887.21,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-01",
+   "symbol": "TLT",
+   "action": "BUY",
+   "shares": 15.0,
+   "price": 86.29,
+   "dollars": 1294.35,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-02",
+   "symbol": "SPY",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 646.425,
+   "dollars": 646.42,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-02",
+   "symbol": "IWM",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 244.98,
+   "dollars": 979.92,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-02",
+   "symbol": "DIA",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 460.18,
+   "dollars": 920.36,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-02",
+   "symbol": "VOO",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 594.43,
+   "dollars": 594.43,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-02",
+   "symbol": "IVV",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 649.58,
+   "dollars": 649.58,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-02",
+   "symbol": "TLT",
+   "action": "SELL",
+   "shares": 15.0,
+   "price": 86.2,
+   "dollars": 1293.0,
+   "reason": "SYN1_REBALANCE_EXIT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "RSP",
+   "action": "SELL",
+   "shares": 6.139667142061695,
+   "price": 193.5,
+   "dollars": 1188.03,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "VT",
+   "action": "SELL",
+   "shares": 11.0,
+   "price": 139.595,
+   "dollars": 1535.55,
+   "reason": "SYN1_REBALANCE_EXIT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "TLT",
+   "action": "BUY",
+   "shares": 15.0,
+   "price": 86.53,
+   "dollars": 1297.95,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-09",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 5.0,
+   "price": 197.255,
+   "dollars": 986.27,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-10",
+   "symbol": "XLV",
+   "action": "BUY",
+   "shares": 6.0,
+   "price": 149.79,
+   "dollars": 898.74,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-10",
+   "symbol": "IBB",
+   "action": "BUY",
+   "shares": 5.0,
+   "price": 172.68,
+   "dollars": 863.4,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-14",
+   "symbol": "VT",
+   "action": "BUY",
+   "shares": 6.0,
+   "price": 147.08,
+   "dollars": 882.48,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-14",
+   "symbol": "TLT",
+   "action": "SELL",
+   "shares": 15.0,
+   "price": 86.715,
+   "dollars": 1300.73,
+   "reason": "SYN1_REBALANCE_EXIT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-15",
+   "symbol": "DIA",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 486.515,
+   "dollars": 486.51,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-15",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 199.73,
+   "dollars": 798.92,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-16",
+   "symbol": "DIA",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 485.825,
+   "dollars": 485.82,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-16",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 200.095,
+   "dollars": 800.38,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-17",
+   "symbol": "QQQ",
+   "action": "SELL",
+   "shares": 1.6625601081389216,
+   "price": 645.52,
+   "dollars": 1073.22,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-17",
+   "symbol": "XLK",
+   "action": "SELL",
+   "shares": 8.0,
+   "price": 154.095,
+   "dollars": 1232.76,
+   "reason": "SYN1_REBALANCE_EXIT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-21",
+   "symbol": "DIA",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 497.215,
+   "dollars": 497.21,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-22",
+   "symbol": "VTI",
+   "action": "SELL",
+   "shares": 3.1371585082442595,
+   "price": 350.455,
+   "dollars": 1099.43,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-23",
+   "symbol": "IYR",
+   "action": "BUY",
+   "shares": 10.0,
+   "price": 101.15,
+   "dollars": 1011.5,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-23",
+   "symbol": "MTUM",
+   "action": "SELL",
+   "shares": 3.8413585494750073,
+   "price": 275.43,
+   "dollars": 1058.03,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-28",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 5.0,
+   "price": 202.085,
+   "dollars": 1010.43,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-30",
+   "symbol": "DIA",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 491.08,
+   "dollars": 491.08,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-01",
+   "symbol": "QQQ",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 669.13,
+   "dollars": 669.13,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-01",
+   "symbol": "DIA",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 498.72,
+   "dollars": 498.72,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "GLD",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 420.18,
+   "dollars": 420.18,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-06",
+   "symbol": "IWM",
+   "action": "SELL",
+   "shares": 3.9266280073069946,
+   "price": 285.37,
+   "dollars": 1120.54,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-07",
+   "symbol": "QQQ",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 696.83,
+   "dollars": 696.83,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-07",
+   "symbol": "VTI",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 362.49,
+   "dollars": 724.98,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-21",
+   "symbol": "VOO",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 679.11,
+   "dollars": 679.11,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-26",
+   "symbol": "DIA",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 507.58,
+   "dollars": 507.58,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-26",
+   "symbol": "XLC",
+   "action": "BUY",
+   "shares": 9.0,
+   "price": 115.67,
+   "dollars": 1041.03,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-29",
+   "symbol": "XLP",
+   "action": "BUY",
+   "shares": 13.0,
+   "price": 83.97,
+   "dollars": 1091.61,
+   "reason": "SYN1_REBALANCE_BUY",
+   "variant": "hybrid"
+  }
+ ],
+ "final_holdings": [
+  {
+   "symbol": "XLB",
+   "shares": 12.660021339540833,
+   "entry_price": 49.27,
+   "peak_price": 53.62,
+   "close_price": 50.810001373291016
+  },
+  {
+   "symbol": "VLUE",
+   "shares": 3.5178475557148374,
+   "entry_price": 147.18,
+   "peak_price": 203.725,
+   "close_price": 193.41000366210938
+  },
+  {
+   "symbol": "VEA",
+   "shares": 0.06912289369575575,
+   "entry_price": 66.2,
+   "peak_price": 72.31,
+   "close_price": 69.81009674072266
+  },
+  {
+   "symbol": "SCHD",
+   "shares": 738.0,
+   "entry_price": 29.7794,
+   "peak_price": 32.82,
+   "close_price": 32.459999084472656
+  },
+  {
+   "symbol": "SCHD",
+   "shares": 19.076550940055768,
+   "entry_price": 29.7899,
+   "peak_price": 32.82,
+   "close_price": 32.459999084472656
+  },
+  {
+   "symbol": "EFA",
+   "shares": 0.04591364161802858,
+   "entry_price": 102.47,
+   "peak_price": 105.675,
+   "close_price": 102.76000213623047
+  },
+  {
+   "symbol": "VGK",
+   "shares": 10.0,
+   "entry_price": 88.63,
+   "peak_price": 90.49,
+   "close_price": 87.79000091552734
+  },
+  {
+   "symbol": "XLI",
+   "shares": 5.0,
+   "entry_price": 169.79,
+   "peak_price": 178.91,
+   "close_price": 174.14999389648438
+  },
+  {
+   "symbol": "XLC",
+   "shares": 8.0,
+   "entry_price": 118.07,
+   "peak_price": 119.06,
+   "close_price": 112.16000366210938
+  },
+  {
+   "symbol": "SPY",
+   "shares": 2.0,
+   "entry_price": 680.94,
+   "peak_price": 759.47,
+   "close_price": 735.6986083984375
+  },
+  {
+   "symbol": "QQQ",
+   "shares": 0.33743989186107837,
+   "entry_price": 600.21,
+   "peak_price": 746.1,
+   "close_price": 706.094970703125
+  },
+  {
+   "symbol": "IWM",
+   "shares": 1.7660374190484927,
+   "entry_price": 258.5,
+   "peak_price": 292.07,
+   "close_price": 288.05999755859375
+  },
+  {
+   "symbol": "DIA",
+   "shares": 1.2587407059682327,
+   "entry_price": 492.51,
+   "peak_price": 516.68,
+   "close_price": 508.0450134277344
+  },
+  {
+   "symbol": "RSP",
+   "shares": 3.2179368659634413,
+   "entry_price": 199.64,
+   "peak_price": 210.8,
+   "close_price": 209.38499450683594
+  },
+  {
+   "symbol": "VTI",
+   "shares": 1.8628414917557405,
+   "entry_price": 335.84,
+   "peak_price": 374.31,
+   "close_price": 363.3299865722656
+  },
+  {
+   "symbol": "VOO",
+   "shares": 2.0,
+   "entry_price": 626.24,
+   "peak_price": 698.31,
+   "close_price": 676.3350219726562
+  },
+  {
+   "symbol": "IVV",
+   "shares": 2.0,
+   "entry_price": 683.93,
+   "peak_price": 763.115,
+   "close_price": 739.25
+  },
+  {
+   "symbol": "QUAL",
+   "shares": 6.0,
+   "entry_price": 200.16,
+   "peak_price": 217.31,
+   "close_price": 214.64500427246094
+  },
+  {
+   "symbol": "USMV",
+   "shares": 13.0,
+   "entry_price": 95.1748,
+   "peak_price": 97.81,
+   "close_price": 95.76000213623047
+  },
+  {
+   "symbol": "VIG",
+   "shares": 6.0,
+   "entry_price": 226.165,
+   "peak_price": 236.57,
+   "close_price": 233.83999633789062
+  },
+  {
+   "symbol": "VUG",
+   "shares": 12.0,
+   "entry_price": 76.99666666666667,
+   "peak_price": 90.295,
+   "close_price": 85.07499694824219
+  },
+  {
+   "symbol": "VTV",
+   "shares": 6.0,
+   "entry_price": 203.135,
+   "peak_price": 214.97,
+   "close_price": 213.77000427246094
+  },
+  {
+   "symbol": "XLF",
+   "shares": 20.0,
+   "entry_price": 53.655,
+   "peak_price": 53.655,
+   "close_price": 52.61000061035156
+  },
+  {
+   "symbol": "XLY",
+   "shares": 9.0,
+   "entry_price": 115.325,
+   "peak_price": 122.065,
+   "close_price": 115.47000122070312
+  },
+  {
+   "symbol": "VWO",
+   "shares": 17.0,
+   "entry_price": 59.07,
+   "peak_price": 61.185,
+   "close_price": 58.470001220703125
+  },
+  {
+   "symbol": "INDA",
+   "shares": 22.0,
+   "entry_price": 49.64,
+   "peak_price": 51.26,
+   "close_price": 47.810001373291016
+  },
+  {
+   "symbol": "XLV",
+   "shares": 1.296630935261697,
+   "entry_price": 156.64,
+   "peak_price": 157.05,
+   "close_price": 154.2899932861328
+  },
+  {
+   "symbol": "XBI",
+   "shares": 1.6009672704324682,
+   "entry_price": 124.49,
+   "peak_price": 138.65,
+   "close_price": 133.52000427246094
+  },
+  {
+   "symbol": "IBB",
+   "shares": 0.7610461214745436,
+   "entry_price": 171.5,
+   "peak_price": 176.74,
+   "close_price": 170.64999389648438
+  },
+  {
+   "symbol": "IWM",
+   "shares": 4.0,
+   "entry_price": 258.99,
+   "peak_price": 292.07,
+   "close_price": 288.05999755859375
+  },
+  {
+   "symbol": "DIA",
+   "shares": 3.0,
+   "entry_price": 483.82,
+   "peak_price": 516.68,
+   "close_price": 508.0450134277344
+  },
+  {
+   "symbol": "RSP",
+   "shares": 2.860332857938305,
+   "entry_price": 201.79,
+   "peak_price": 210.8,
+   "close_price": 209.38499450683594
+  },
+  {
+   "symbol": "XLE",
+   "shares": 2.6466649724092157,
+   "entry_price": 57.1,
+   "peak_price": 62.56,
+   "close_price": 58.09000015258789
+  },
+  {
+   "symbol": "XLU",
+   "shares": 20.0,
+   "entry_price": 47.56,
+   "peak_price": 47.56,
+   "close_price": 43.9900016784668
+  },
+  {
+   "symbol": "DBC",
+   "shares": 34.0,
+   "entry_price": 28.88,
+   "peak_price": 31.33,
+   "close_price": 29.149999618530273
+  },
+  {
+   "symbol": "SPY",
+   "shares": 1.0,
+   "entry_price": 651.32,
+   "peak_price": 759.47,
+   "close_price": 735.6986083984375
+  },
+  {
+   "symbol": "IWM",
+   "shares": 4.0,
+   "entry_price": 245.51,
+   "peak_price": 292.07,
+   "close_price": 288.05999755859375
+  },
+  {
+   "symbol": "VOO",
+   "shares": 2.0,
+   "entry_price": 600.63,
+   "peak_price": 698.31,
+   "close_price": 676.3350219726562
+  },
+  {
+   "symbol": "IVV",
+   "shares": 1.0,
+   "entry_price": 654.25,
+   "peak_price": 763.115,
+   "close_price": 739.25
+  },
+  {
+   "symbol": "MTUM",
+   "shares": 0.15864145052499268,
+   "entry_price": 242.815,
+   "peak_price": 329.565,
+   "close_price": 312.1300048828125
+  },
+  {
+   "symbol": "SPY",
+   "shares": 1.0,
+   "entry_price": 658.67,
+   "peak_price": 759.47,
+   "close_price": 735.6986083984375
+  },
+  {
+   "symbol": "VOO",
+   "shares": 1.0,
+   "entry_price": 607.4,
+   "peak_price": 698.31,
+   "close_price": 676.3350219726562
+  },
+  {
+   "symbol": "IVV",
+   "shares": 1.0,
+   "entry_price": 661.63,
+   "peak_price": 763.115,
+   "close_price": 739.25
+  },
+  {
+   "symbol": "SPY",
+   "shares": 1.0,
+   "entry_price": 652.06,
+   "peak_price": 759.47,
+   "close_price": 735.6986083984375
+  },
+  {
+   "symbol": "VOO",
+   "shares": 1.0,
+   "entry_price": 601.295,
+   "peak_price": 698.31,
+   "close_price": 676.3350219726562
+  },
+  {
+   "symbol": "IVV",
+   "shares": 1.0,
+   "entry_price": 654.98,
+   "peak_price": 763.115,
+   "close_price": 739.25
+  },
+  {
+   "symbol": "VNQ",
+   "shares": 11.0,
+   "entry_price": 87.66,
+   "peak_price": 98.05999755859375,
+   "close_price": 98.05999755859375
+  },
+  {
+   "symbol": "SPY",
+   "shares": 2.0,
+   "entry_price": 642.5,
+   "peak_price": 759.47,
+   "close_price": 735.6986083984375
+  },
+  {
+   "symbol": "IWM",
+   "shares": 4.0,
+   "entry_price": 246.01,
+   "peak_price": 292.07,
+   "close_price": 288.05999755859375
+  },
+  {
+   "symbol": "VOO",
+   "shares": 2.0,
+   "entry_price": 590.68,
+   "peak_price": 698.31,
+   "close_price": 676.3350219726562
+  },
+  {
+   "symbol": "IVV",
+   "shares": 2.0,
+   "entry_price": 645.47,
+   "peak_price": 763.115,
+   "close_price": 739.25
+  },
+  {
+   "symbol": "XRT",
+   "shares": 11.0,
+   "entry_price": 80.655,
+   "peak_price": 87.96,
+   "close_price": 85.4000015258789
+  },
+  {
+   "symbol": "SPY",
+   "shares": 1.0,
+   "entry_price": 646.425,
+   "peak_price": 759.47,
+   "close_price": 735.6986083984375
+  },
+  {
+   "symbol": "IWM",
+   "shares": 0.07337199269300543,
+   "entry_price": 244.98,
+   "peak_price": 292.07,
+   "close_price": 288.05999755859375
+  },
+  {
+   "symbol": "DIA",
+   "shares": 2.0,
+   "entry_price": 460.18,
+   "peak_price": 516.68,
+   "close_price": 508.0450134277344
+  },
+  {
+   "symbol": "VOO",
+   "shares": 1.0,
+   "entry_price": 594.43,
+   "peak_price": 698.31,
+   "close_price": 676.3350219726562
+  },
+  {
+   "symbol": "IVV",
+   "shares": 1.0,
+   "entry_price": 649.58,
+   "peak_price": 763.115,
+   "close_price": 739.25
+  },
+  {
+   "symbol": "RSP",
+   "shares": 5.0,
+   "entry_price": 197.255,
+   "peak_price": 210.8,
+   "close_price": 209.38499450683594
+  },
+  {
+   "symbol": "XLV",
+   "shares": 6.0,
+   "entry_price": 149.79,
+   "peak_price": 154.57000732421875,
+   "close_price": 154.2899932861328
+  },
+  {
+   "symbol": "IBB",
+   "shares": 5.0,
+   "entry_price": 172.68,
+   "peak_price": 176.74,
+   "close_price": 170.64999389648438
+  },
+  {
+   "symbol": "VT",
+   "shares": 6.0,
+   "entry_price": 147.08,
+   "peak_price": 159.34,
+   "close_price": 154.2006072998047
+  },
+  {
+   "symbol": "DIA",
+   "shares": 1.0,
+   "entry_price": 486.515,
+   "peak_price": 516.68,
+   "close_price": 508.0450134277344
+  },
+  {
+   "symbol": "RSP",
+   "shares": 4.0,
+   "entry_price": 199.73,
+   "peak_price": 210.8,
+   "close_price": 209.38499450683594
+  },
+  {
+   "symbol": "DIA",
+   "shares": 1.0,
+   "entry_price": 485.825,
+   "peak_price": 516.68,
+   "close_price": 508.0450134277344
+  },
+  {
+   "symbol": "RSP",
+   "shares": 4.0,
+   "entry_price": 200.095,
+   "peak_price": 210.8,
+   "close_price": 209.38499450683594
+  },
+  {
+   "symbol": "DIA",
+   "shares": 1.0,
+   "entry_price": 497.215,
+   "peak_price": 516.68,
+   "close_price": 508.0450134277344
+  },
+  {
+   "symbol": "IYR",
+   "shares": 10.0,
+   "entry_price": 101.15,
+   "peak_price": 103.8499984741211,
+   "close_price": 103.8499984741211
+  },
+  {
+   "symbol": "RSP",
+   "shares": 5.0,
+   "entry_price": 202.085,
+   "peak_price": 210.8,
+   "close_price": 209.38499450683594
+  },
+  {
+   "symbol": "DIA",
+   "shares": 1.0,
+   "entry_price": 491.08,
+   "peak_price": 516.68,
+   "close_price": 508.0450134277344
+  },
+  {
+   "symbol": "QQQ",
+   "shares": 1.0,
+   "entry_price": 669.13,
+   "peak_price": 746.1,
+   "close_price": 706.094970703125
+  },
+  {
+   "symbol": "DIA",
+   "shares": 1.0,
+   "entry_price": 498.72,
+   "peak_price": 516.68,
+   "close_price": 508.0450134277344
+  },
+  {
+   "symbol": "GLD",
+   "shares": 1.0,
+   "entry_price": 420.18,
+   "peak_price": 434.13,
+   "close_price": 383.6050109863281
+  },
+  {
+   "symbol": "QQQ",
+   "shares": 1.0,
+   "entry_price": 696.83,
+   "peak_price": 746.1,
+   "close_price": 706.094970703125
+  },
+  {
+   "symbol": "VTI",
+   "shares": 2.0,
+   "entry_price": 362.49,
+   "peak_price": 374.31,
+   "close_price": 363.3299865722656
+  },
+  {
+   "symbol": "VOO",
+   "shares": 1.0,
+   "entry_price": 679.11,
+   "peak_price": 698.31,
+   "close_price": 676.3350219726562
+  },
+  {
+   "symbol": "DIA",
+   "shares": 1.0,
+   "entry_price": 507.58,
+   "peak_price": 516.68,
+   "close_price": 508.0450134277344
+  },
+  {
+   "symbol": "XLC",
+   "shares": 9.0,
+   "entry_price": 115.67,
+   "peak_price": 116.64,
+   "close_price": 112.16000366210938
+  },
+  {
+   "symbol": "XLP",
+   "shares": 13.0,
+   "entry_price": 83.97,
+   "peak_price": 84.72000122070312,
+   "close_price": 84.72000122070312
+  }
+ ],
+ "final_cash": 21150.94,
+ "final_value": 107827.4,
+ "final_date": "2026-06-10",
+ "provisional_date": "2026-06-10"
+}

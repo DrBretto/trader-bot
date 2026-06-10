@@ -1,0 +1,35 @@
+{
+ "trust_prior": [
+  -0.7976769586105441,
+  1.8441695577251007,
+  -1.429998600799269
+ ],
+ "trust_halflife_days": 41.740361368232826,
+ "member_gate": [
+  1,
+  0,
+  1
+ ],
+ "feature_gate": [
+  0,
+  1,
+  0,
+  1,
+  1,
+  1,
+  1,
+  1
+ ],
+ "gross_target": 0.5157883065754484,
+ "vol_target_ann": 0.08648335911431486,
+ "max_symbol_weight": 0.08175373267203596,
+ "dd_brake_threshold": 0.08001844143783443,
+ "dd_brake_strength": 1.0,
+ "no_trade_band": 0.02596656629933275,
+ "conviction_temp": 4.0,
+ "cash_floor": 0.1031998699462734,
+ "risk_aversion_lambda": 3.477283678899133,
+ "abstain_threshold": 0.2443899204544654,
+ "record_weight_eps": 0.38223385230068074,
+ "event_weight_cap": 0.8795265838631618
+}

@@ -1,0 +1,27 @@
+{
+ "date": "2026-03-06",
+ "intents": [
+  {
+   "symbol": "XLE",
+   "price": 56.49,
+   "asset_class": "equity",
+   "sector": "sector_energy",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 50,
+   "dollars": 2836.5,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "USO",
+   "price": 96.35,
+   "asset_class": "commodity",
+   "sector": "oil",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 29,
+   "dollars": 2836.5,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

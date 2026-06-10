@@ -1,0 +1,27 @@
+{
+ "date": "2026-04-07",
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 252.36,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 11.0,
+   "dollars": 2775.96,
+   "reason": "SYN1_REBALANCE_EXIT"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.665,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 36,
+   "dollars": 3152.03,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

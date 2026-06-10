@@ -1,0 +1,59 @@
+{
+ "date": "2026-04-01",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "prices_fallback",
+ "nav": 101058.59,
+ "own_drawdown": 0.029347,
+ "trust": {
+  "cast": 0.3802931942554233,
+  "gbm_cond": 0.3571557855817236,
+  "event_head": 0.26255102016285314
+ },
+ "blend_coef": {
+  "cast": 0.3802931942554233,
+  "gbm_cond": 0.3571557855817236,
+  "event_head": 0.26255102016285314
+ },
+ "tilt": {
+  "cast": -0.2568003403952233,
+  "gbm_cond": -0.18664251292707126,
+  "event_head": -0.24953320736702975
+ },
+ "deployment_fraction": 0.40393758572209465,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.403938,
+ "est_book_vol": 0.084102,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.314470738140741,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 2,
+ "intents": [
+  {
+   "symbol": "XRT",
+   "price": 80.45,
+   "asset_class": "equity",
+   "sector": "industry_retail",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 12,
+   "dollars": 1037.03,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.68,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 15,
+   "dollars": 1380.46,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 52
+}

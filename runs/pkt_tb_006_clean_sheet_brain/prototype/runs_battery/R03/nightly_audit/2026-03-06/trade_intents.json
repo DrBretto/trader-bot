@@ -1,0 +1,16 @@
+{
+ "date": "2026-03-06",
+ "intents": [
+  {
+   "symbol": "USO",
+   "price": 96.35,
+   "asset_class": "commodity",
+   "sector": "oil",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 30,
+   "dollars": 2957.63,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

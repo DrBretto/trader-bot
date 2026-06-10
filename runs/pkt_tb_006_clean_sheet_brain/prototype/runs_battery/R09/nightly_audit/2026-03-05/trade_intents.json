@@ -1,0 +1,38 @@
+{
+ "date": "2026-03-05",
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 261.74,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 1169.0,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "DIA",
+   "price": 487.75,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 3,
+   "dollars": 1677.21,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "RSP",
+   "price": 202.89,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 9,
+   "dollars": 1835.39,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

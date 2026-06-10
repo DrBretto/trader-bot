@@ -1,0 +1,35 @@
+{
+ "trust_prior": [
+  0.0,
+  0.0,
+  0.0
+ ],
+ "trust_halflife_days": 21.0,
+ "member_gate": [
+  1,
+  1,
+  1
+ ],
+ "feature_gate": [
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1
+ ],
+ "gross_target": 0.6,
+ "vol_target_ann": 0.1,
+ "max_symbol_weight": 0.08,
+ "dd_brake_threshold": 0.1,
+ "dd_brake_strength": 0.5,
+ "no_trade_band": 0.01,
+ "conviction_temp": 1.0,
+ "cash_floor": 0.1,
+ "risk_aversion_lambda": 2.0,
+ "abstain_threshold": 0.1,
+ "record_weight_eps": 0.25,
+ "event_weight_cap": 1.0
+}

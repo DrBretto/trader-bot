@@ -1,0 +1,16 @@
+{
+ "date": "2026-02-05",
+ "intents": [
+  {
+   "symbol": "RSP",
+   "price": 200.3,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 13,
+   "dollars": 2704.27,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

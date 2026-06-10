@@ -1,0 +1,16 @@
+{
+ "date": "2026-02-24",
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 260.51,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 10,
+   "dollars": 2691.43,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

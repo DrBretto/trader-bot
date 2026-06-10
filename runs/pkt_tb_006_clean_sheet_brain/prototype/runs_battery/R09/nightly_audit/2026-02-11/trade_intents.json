@@ -1,0 +1,16 @@
+{
+ "date": "2026-02-11",
+ "intents": [
+  {
+   "symbol": "XLF",
+   "price": 53.55,
+   "asset_class": "equity",
+   "sector": "sector_financials",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 21,
+   "dollars": 1176.44,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

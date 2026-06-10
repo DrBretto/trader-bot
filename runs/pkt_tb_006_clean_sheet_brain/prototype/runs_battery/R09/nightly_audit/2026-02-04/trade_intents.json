@@ -1,0 +1,203 @@
+{
+ "date": "2026-02-04",
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 689.53,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1195.94,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "QQQ",
+   "price": 616.52,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1035.26,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IWM",
+   "price": 262.773,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 5,
+   "dollars": 1420.46,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "DIA",
+   "price": 492.31,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1428.51,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "RSP",
+   "price": 198.57,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 7,
+   "dollars": 1532.42,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VTI",
+   "price": 339.85,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 3,
+   "dollars": 1249.43,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 634.15,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1056.12,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 692.52,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1080.0,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VT",
+   "price": 145.61,
+   "asset_class": "equity",
+   "sector": "global",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 7,
+   "dollars": 1128.02,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VEA",
+   "price": 66.72,
+   "asset_class": "equity",
+   "sector": "international_dev",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 312.921100619611,
+   "dollars": 20878.1,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "EFA",
+   "price": 101.45,
+   "asset_class": "equity",
+   "sector": "international_dev",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 12,
+   "dollars": 1231.49,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VGK",
+   "price": 87.87,
+   "asset_class": "equity",
+   "sector": "region_europe",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 11,
+   "dollars": 1024.56,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "XLK",
+   "price": 142.08,
+   "asset_class": "equity",
+   "sector": "sector_tech",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 8,
+   "dollars": 1198.11,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "XLI",
+   "price": 168.94,
+   "asset_class": "equity",
+   "sector": "sector_industrials",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 6,
+   "dollars": 1059.21,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "XLB",
+   "price": 50.7,
+   "asset_class": "equity",
+   "sector": "sector_materials",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 433.33997866045917,
+   "dollars": 21970.34,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "XLC",
+   "price": 117.74,
+   "asset_class": "equity",
+   "sector": "sector_comm",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 9,
+   "dollars": 1076.32,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VLUE",
+   "price": 149.57,
+   "asset_class": "equity",
+   "sector": "factor_value",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 145.48215244428516,
+   "dollars": 21759.77,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "SCHD",
+   "price": 30.5,
+   "asset_class": "equity",
+   "sector": "factor_dividend",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 718.9234490599442,
+   "dollars": 21927.17,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ]
+}

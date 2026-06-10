@@ -1,0 +1,16 @@
+{
+ "date": "2026-03-10",
+ "intents": [
+  {
+   "symbol": "XLE",
+   "price": 56.3259,
+   "asset_class": "equity",
+   "sector": "sector_energy",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 20.353335027590784,
+   "dollars": 1146.42,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ]
+}

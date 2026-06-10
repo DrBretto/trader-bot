@@ -1,0 +1,27 @@
+{
+ "date": "2026-04-23",
+ "intents": [
+  {
+   "symbol": "IYR",
+   "price": 100.6,
+   "asset_class": "equity",
+   "sector": "sector_reit",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 11,
+   "dollars": 1126.8,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "MTUM",
+   "price": 276.08,
+   "asset_class": "equity",
+   "sector": "factor_momentum",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 3.8413585494750073,
+   "dollars": 1060.52,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ]
+}

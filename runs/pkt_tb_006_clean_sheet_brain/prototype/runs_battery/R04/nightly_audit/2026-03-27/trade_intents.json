@@ -1,0 +1,27 @@
+{
+ "date": "2026-03-27",
+ "intents": [
+  {
+   "symbol": "XBI",
+   "price": 123.9,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 21.712760088628826,
+   "dollars": 2690.21,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.11,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 35.0,
+   "dollars": 3013.85,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ]
+}

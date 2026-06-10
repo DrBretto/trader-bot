@@ -1,0 +1,27 @@
+{
+ "date": "2026-04-17",
+ "intents": [
+  {
+   "symbol": "QQQ",
+   "price": 640.41,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 1.6625601081389216,
+   "dollars": 1064.72,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "XLK",
+   "price": 152.03,
+   "asset_class": "equity",
+   "sector": "sector_tech",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 8.0,
+   "dollars": 1216.24,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ]
+}

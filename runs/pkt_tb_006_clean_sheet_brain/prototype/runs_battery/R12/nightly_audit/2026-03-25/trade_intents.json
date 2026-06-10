@@ -1,0 +1,16 @@
+{
+ "date": "2026-03-25",
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 653.18,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 2692.3,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

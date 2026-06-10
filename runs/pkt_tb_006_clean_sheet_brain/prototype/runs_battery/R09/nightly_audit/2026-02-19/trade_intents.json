@@ -1,0 +1,38 @@
+{
+ "date": "2026-02-19",
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 263.97,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 5.233962580951507,
+   "dollars": 1381.61,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "DIA",
+   "price": 496.95,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 2.7412592940317673,
+   "dollars": 1362.27,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "RSP",
+   "price": 203.57,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 6.782063134036559,
+   "dollars": 1380.62,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ]
+}

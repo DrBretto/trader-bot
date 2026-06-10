@@ -98,3 +98,14 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   0.51-0.61); DIVERSITY FLOOR TRIGGERED (0.941 >= 0.90, pre-registered equal-trust-tie statement
   applies); break-even IC passed (0.085 >> 0.02).
 - 2026-06-10 :: SYN-1 CONFIGURATION FREEZE COMMIT FOLLOWS (FREEZE_SYN1.md). Holdout looks: 0.
+- 2026-06-10 :: PHASE D EXECUTED. Battery R01-R14 (14 looks) + contingency R19 (risknet repair; R07 ran
+  degenerate because the deployed sigma convention IS trailing-21 -- the planned swap measured null by
+  construction; reserved slot used per 4.4). 15 holdout looks total, caps 20/9 respected (15 replays,
+  5 retrains). VERDICT (mechanical, pre-registered rules): BRAIN vs INCUMBENT TIES (holdout paired
+  t=-0.92, n=44, mean -8.28 bp/day; dSharpe -0.39; endpoint -3.68% context). SCORECARD: no organ
+  POSITIVE; transformer/cast/event/evolution/infotropy-B all 0 (measured); gbm indeterminate (E1 +2.48
+  vs E2 sign disagree); LLM/GDELT/meta-evaluator indeterminate (negative-leaning); infotropy =
+  no-transfer (joint). Holdout n=44 not ~62 (snapshot gap + window math); MDE at t=2 is ~21 bp/day --
+  printed with the verdict. R13/R14 raw byte-identical to R01 (seed sensitivity confined to cost
+  overlay, spread <= $2.81). Evidence: prototype/evidence/ (15 comparisons + scorecard), BAKEOFF.md,
+  ATTRIBUTION.md, COST_WORKSHEET.md.

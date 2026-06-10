@@ -1,0 +1,84 @@
+{
+ "date": "2026-02-04",
+ "strategy": "syn1",
+ "exec_mode": "equal_trust",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "prices_fallback",
+ "nav": 102222.39,
+ "own_drawdown": 0.0,
+ "trust": {
+  "cast": 0.3333333333333333,
+  "gbm_cond": 0.3333333333333333,
+  "event_head": 0.3333333333333333
+ },
+ "blend_coef": {
+  "cast": 0.3333333333333333,
+  "gbm_cond": 0.3333333333333333,
+  "event_head": 0.3333333333333333
+ },
+ "tilt": {
+  "cast": 0.19691884845110386,
+  "gbm_cond": 0.1862572811065967,
+  "event_head": 0.1579554133390218
+ },
+ "deployment_fraction": 0.7,
+ "n_exec_seeds": 0,
+ "gross_target_applied": 0.50525,
+ "est_book_vol": 0.086483,
+ "abstained": false,
+ "rails": [
+  "gross_cap",
+  "vol_cap"
+ ],
+ "mu_blend_abs_mean": 0.2726412552907249,
+ "genome_hash": "8f4184844e8b",
+ "n_intents": 4,
+ "intents": [
+  {
+   "symbol": "VEA",
+   "price": 66.72,
+   "asset_class": "equity",
+   "sector": "international_dev",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 307.06974791120354,
+   "dollars": 20487.69,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "XLB",
+   "price": 50.7,
+   "asset_class": "equity",
+   "sector": "sector_materials",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 429.44084271091816,
+   "dollars": 21772.65,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "VLUE",
+   "price": 149.57,
+   "asset_class": "equity",
+   "sector": "factor_value",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 144.9611721318584,
+   "dollars": 21681.84,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "SCHD",
+   "price": 30.5,
+   "asset_class": "equity",
+   "sector": "factor_dividend",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 716.0982818770659,
+   "dollars": 21841.0,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ],
+ "replaced_incumbent_intents": 3
+}

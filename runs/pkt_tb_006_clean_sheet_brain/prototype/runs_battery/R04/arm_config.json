@@ -1,0 +1,27 @@
+{
+ "run_id": "R04",
+ "description": "cast OFF, trust renorm (no retrain, K17)",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out",
+  "slippage_seed": 4242,
+  "member_gate_off": "cast"
+ },
+ "retrain_required": null,
+ "e1": {
+  "kind": "member_drop",
+  "member": "cast"
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: ensemble (cast drop)",
+ "config_hash": "e184d9c16e888455",
+ "files": {
+  "genome": "genome.json"
+ }
+}

@@ -1,0 +1,70 @@
+{
+ "date": "2026-03-04",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103092.63,
+ "own_drawdown": 0.001372,
+ "trust": {
+  "cast": 0.0,
+  "gbm_cond": 0.6983457984865944,
+  "event_head": 0.3016542015134055
+ },
+ "blend_coef": {
+  "cast": 0.0,
+  "gbm_cond": 0.7246816816890475,
+  "event_head": 0.27531831831095255
+ },
+ "tilt": {
+  "cast": 0.17073310263482447,
+  "gbm_cond": 0.19275380510114032,
+  "event_head": 0.10555240572341175
+ },
+ "deployment_fraction": 0.38377922207085147,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.383779,
+ "est_book_vol": 0.074299,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.5160042264056786,
+ "genome_hash": "f5874d73a1ee",
+ "n_intents": 3,
+ "intents": [
+  {
+   "symbol": "XLV",
+   "price": 156.78,
+   "asset_class": "equity",
+   "sector": "sector_healthcare",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 18,
+   "dollars": 2879.43,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "XBI",
+   "price": 123.53,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 23,
+   "dollars": 2879.43,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IBB",
+   "price": 170.16,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 16,
+   "dollars": 2879.43,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 5
+}

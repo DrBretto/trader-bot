@@ -1,0 +1,27 @@
+{
+ "run_id": "R05",
+ "description": "gbm_cond OFF, trust renorm (no retrain, K17)",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out",
+  "slippage_seed": 4242,
+  "member_gate_off": "gbm_cond"
+ },
+ "retrain_required": null,
+ "e1": {
+  "kind": "member_drop",
+  "member": "gbm_cond"
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: ensemble (gbm_cond drop)",
+ "config_hash": "036afd82f53c7d3d",
+ "files": {
+  "genome": "genome.json"
+ }
+}

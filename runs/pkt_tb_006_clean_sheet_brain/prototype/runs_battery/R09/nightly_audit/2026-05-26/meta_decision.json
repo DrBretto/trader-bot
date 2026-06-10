@@ -1,0 +1,59 @@
+{
+ "date": "2026-05-26",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "prices_fallback",
+ "nav": 108346.0,
+ "own_drawdown": 0.0,
+ "trust": {
+  "cast": 0.4231961383386742,
+  "gbm_cond": 0.289660109972291,
+  "event_head": 0.2871437516890347
+ },
+ "blend_coef": {
+  "cast": 0.4231961383386742,
+  "gbm_cond": 0.289660109972291,
+  "event_head": 0.2871437516890347
+ },
+ "tilt": {
+  "cast": 0.25633000258423805,
+  "gbm_cond": 0.06207862778855661,
+  "event_head": 0.19634749900379733
+ },
+ "deployment_fraction": 0.3933272841885419,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.393327,
+ "est_book_vol": 0.065561,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.2594825279747337,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 2,
+ "intents": [
+  {
+   "symbol": "DIA",
+   "price": 506.13,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1487.5,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "XLC",
+   "price": 115.47,
+   "asset_class": "equity",
+   "sector": "sector_comm",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 10,
+   "dollars": 1202.59,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 9
+}

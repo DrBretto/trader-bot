@@ -1,0 +1,23 @@
+{
+ "run_id": "R14",
+ "description": "Seed-sensitivity: full brain at master seed 4244",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out",
+  "slippage_seed": 4244
+ },
+ "retrain_required": null,
+ "e1": null,
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4244,
+  "read": "seed sensitivity (context only)"
+ },
+ "contingency": false,
+ "purpose": "seed sensitivity (4244)",
+ "config_hash": "b61b6cba0693ce24",
+ "files": {
+  "genome": "genome.json"
+ }
+}

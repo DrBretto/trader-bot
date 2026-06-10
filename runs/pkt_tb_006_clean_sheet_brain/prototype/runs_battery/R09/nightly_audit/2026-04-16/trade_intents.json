@@ -1,0 +1,27 @@
+{
+ "date": "2026-04-16",
+ "intents": [
+  {
+   "symbol": "DIA",
+   "price": 484.685,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1205.99,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "RSP",
+   "price": 199.715,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 5,
+   "dollars": 1156.39,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

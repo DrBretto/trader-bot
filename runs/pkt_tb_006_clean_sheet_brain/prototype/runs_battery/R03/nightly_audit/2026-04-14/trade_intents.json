@@ -1,0 +1,27 @@
+{
+ "date": "2026-04-14",
+ "intents": [
+  {
+   "symbol": "EWZ",
+   "price": 41.53,
+   "asset_class": "equity",
+   "sector": "country_brazil",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 72,
+   "dollars": 3006.67,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "UNG",
+   "price": 10.67,
+   "asset_class": "commodity",
+   "sector": "natural_gas",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 268,
+   "dollars": 2867.29,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

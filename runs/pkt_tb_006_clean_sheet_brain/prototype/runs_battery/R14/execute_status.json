@@ -1,0 +1,32 @@
+{
+ "run_id": "R14",
+ "config_hash": "b61b6cba0693ce24",
+ "arm_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R14",
+ "ledger_entry": {
+  "run_id": "R14",
+  "date_executed": "2026-06-10T18:44:58",
+  "config_hash": "b61b6cba0693ce24",
+  "purpose": "seed sensitivity (4244)"
+ },
+ "returncode": 0,
+ "cmd": [
+  "/Users/drbretto/Desktop/Projects/trader-bot/.venv/bin/python",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/run_replay.py",
+  "--arm",
+  "syn1",
+  "--window",
+  "full",
+  "--out",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R14",
+  "--cost-seed",
+  "4244",
+  "--genome",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R14/genome.json",
+  "--exec-dir",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/exec_out",
+  "--exec-mode",
+  "linear_twin"
+ ],
+ "outputs_ok": true,
+ "missing_outputs": []
+}

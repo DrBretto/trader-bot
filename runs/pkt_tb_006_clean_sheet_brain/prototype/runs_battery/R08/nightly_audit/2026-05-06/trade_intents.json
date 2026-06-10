@@ -1,0 +1,27 @@
+{
+ "date": "2026-05-06",
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 282.61,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 10.888262141552143,
+   "dollars": 3077.13,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "VT",
+   "price": 152.115,
+   "asset_class": "equity",
+   "sector": "global",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 18.0,
+   "dollars": 2738.07,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ]
+}

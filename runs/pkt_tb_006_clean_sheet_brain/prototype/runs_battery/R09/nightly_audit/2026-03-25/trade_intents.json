@@ -1,0 +1,38 @@
+{
+ "date": "2026-03-25",
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 653.18,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1838.34,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 602.38,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1261.2,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 656.23,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1853.6,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

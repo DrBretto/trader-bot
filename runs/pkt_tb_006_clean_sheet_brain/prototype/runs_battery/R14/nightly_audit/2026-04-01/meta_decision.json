@@ -1,0 +1,38 @@
+{
+ "date": "2026-04-01",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "prices_fallback",
+ "nav": 102715.81,
+ "own_drawdown": 0.010622,
+ "trust": {
+  "cast": 0.2763090279868471,
+  "gbm_cond": 0.5037820220854253,
+  "event_head": 0.21990894992772758
+ },
+ "blend_coef": {
+  "cast": 0.2838285495303433,
+  "gbm_cond": 0.5174920329232825,
+  "event_head": 0.19867941754637417
+ },
+ "tilt": {
+  "cast": -0.12551161179263326,
+  "gbm_cond": -0.07234740084875425,
+  "event_head": -0.13658101053434535
+ },
+ "deployment_fraction": 0.41365653394730434,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.40745,
+ "est_book_vol": 0.086483,
+ "abstained": false,
+ "rails": [
+  "vol_cap"
+ ],
+ "mu_blend_abs_mean": 0.4538368481103851,
+ "genome_hash": "8f4184844e8b",
+ "n_intents": 0,
+ "intents": [],
+ "replaced_incumbent_intents": 6
+}

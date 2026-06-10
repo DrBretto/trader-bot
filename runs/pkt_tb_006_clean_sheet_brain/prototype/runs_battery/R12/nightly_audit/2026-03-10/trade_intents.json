@@ -1,0 +1,27 @@
+{
+ "date": "2026-03-10",
+ "intents": [
+  {
+   "symbol": "XBI",
+   "price": 127.1,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 21,
+   "dollars": 2686.53,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IBB",
+   "price": 171.2,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 15,
+   "dollars": 2684.47,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

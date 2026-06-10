@@ -1,0 +1,15 @@
+{"run_id": "R01", "date_executed": "2026-06-10T18:44:00", "config_hash": "ed35d0a7cb616e40", "purpose": "bake-off base / paired-arm base"}
+{"run_id": "R02", "date_executed": "2026-06-10T18:44:05", "config_hash": "5bf392338d9f4c19", "purpose": "bake-off opponent"}
+{"run_id": "R03", "date_executed": "2026-06-10T18:44:09", "config_hash": "e7d27a8fa309348c", "purpose": "organ: transformer (primary)"}
+{"run_id": "R04", "date_executed": "2026-06-10T18:44:13", "config_hash": "e184d9c16e888455", "purpose": "organ: ensemble (cast drop)"}
+{"run_id": "R05", "date_executed": "2026-06-10T18:44:17", "config_hash": "036afd82f53c7d3d", "purpose": "organ: ensemble (gbm_cond drop)"}
+{"run_id": "R06", "date_executed": "2026-06-10T18:44:22", "config_hash": "e97c827d1303ec99", "purpose": "organ: ensemble (event_head drop)"}
+{"run_id": "R07", "date_executed": "2026-06-10T18:44:26", "config_hash": "77e7058c4bab2c64", "purpose": "organ: ensemble (RiskNet+ instrument)"}
+{"run_id": "R08", "date_executed": "2026-06-10T18:44:30", "config_hash": "bc2baf0226acce21", "purpose": "organ: meta-evaluator"}
+{"run_id": "R09", "date_executed": "2026-06-10T18:44:34", "config_hash": "c47d72e48d80f26a", "purpose": "organ: evolution (champion vs B0)"}
+{"run_id": "R10", "date_executed": "2026-06-10T18:44:40", "config_hash": "9f2f394c72c6c33d", "purpose": "organ: LLM (primary)"}
+{"run_id": "R11", "date_executed": "2026-06-10T18:44:45", "config_hash": "24d7a4cf636ba8ab", "purpose": "organ: GDELT (block arm)"}
+{"run_id": "R12", "date_executed": "2026-06-10T18:44:49", "config_hash": "04907ea133293169", "purpose": "organ: infotropy Transfer B"}
+{"run_id": "R13", "date_executed": "2026-06-10T18:44:53", "config_hash": "81b54f70daf9bca3", "purpose": "seed sensitivity (4243)"}
+{"run_id": "R14", "date_executed": "2026-06-10T18:44:58", "config_hash": "b61b6cba0693ce24", "purpose": "seed sensitivity (4244)"}
+{"run_id": "R19", "date_executed": "2026-06-10", "config_hash": "sigma_source=risknet contingency (repairs degenerate R07: deployed convention IS trailing21)", "purpose": "risknet organ E2 contrast, candidate-minus-deployed orientation; reserved contingency slot per TOURNAMENT 4.4"}

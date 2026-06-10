@@ -1,0 +1,81 @@
+{
+ "date": "2026-05-08",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 106586.49,
+ "own_drawdown": 0.004343,
+ "trust": {
+  "cast": 0.39829946330525146,
+  "gbm_cond": 0.3426762845547979,
+  "event_head": 0.25902425213995073
+ },
+ "blend_coef": {
+  "cast": 0.39829946330525146,
+  "gbm_cond": 0.3426762845547979,
+  "event_head": 0.25902425213995073
+ },
+ "tilt": {
+  "cast": 0.24238054813838733,
+  "gbm_cond": 0.1665337154699456,
+  "event_head": 0.22833884761558265
+ },
+ "deployment_fraction": 0.3597258987139511,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.359726,
+ "est_book_vol": 0.064544,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.3233183788816879,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 4,
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 731.53,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1090.67,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "QQQ",
+   "price": 694.93,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1363.04,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "DIA",
+   "price": 495.88,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1233.0,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 672.27,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1181.53,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 6
+}

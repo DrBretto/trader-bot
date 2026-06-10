@@ -1,0 +1,38 @@
+{
+ "date": "2026-04-07",
+ "intents": [
+  {
+   "symbol": "RSP",
+   "price": 193.92,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 6.139667142061695,
+   "dollars": 1190.6,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "VT",
+   "price": 140.08,
+   "asset_class": "equity",
+   "sector": "global",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 11.0,
+   "dollars": 1540.88,
+   "reason": "SYN1_REBALANCE_EXIT"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.665,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 15,
+   "dollars": 1384.95,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "date": "2026-03-25",
+ "strategy": "syn1",
+ "exec_mode": "learned",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 102042.56,
+ "own_drawdown": 0.017857,
+ "trust": {
+  "cast": 0.2657330270879842,
+  "gbm_cond": 0.502194631446083,
+  "event_head": 0.23207234146593286
+ },
+ "blend_coef": {
+  "cast": 0.2733706173612874,
+  "gbm_cond": 0.5166323855812058,
+  "event_head": 0.2099969970575068
+ },
+ "tilt": {
+  "cast": -0.09056957156325393,
+  "gbm_cond": -0.05520349538958211,
+  "event_head": 0.0
+ },
+ "deployment_fraction": 0.4810453048808573,
+ "n_exec_seeds": 5,
+ "gross_target_applied": 0.380027,
+ "est_book_vol": 0.063017,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.4263288308269746,
+ "genome_hash": "bb9e0652df56",
+ "n_intents": 0,
+ "intents": [],
+ "replaced_incumbent_intents": 15
+}

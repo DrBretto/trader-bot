@@ -1,0 +1,16 @@
+{
+ "date": "2026-03-03",
+ "intents": [
+  {
+   "symbol": "INDA",
+   "price": 50.95,
+   "asset_class": "equity",
+   "sector": "country_india",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 22,
+   "dollars": 1166.3,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

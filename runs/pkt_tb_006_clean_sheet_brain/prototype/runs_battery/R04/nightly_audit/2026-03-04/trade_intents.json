@@ -1,0 +1,38 @@
+{
+ "date": "2026-03-04",
+ "intents": [
+  {
+   "symbol": "XLV",
+   "price": 156.78,
+   "asset_class": "equity",
+   "sector": "sector_healthcare",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 18,
+   "dollars": 2879.43,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "XBI",
+   "price": 123.53,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 23,
+   "dollars": 2879.43,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IBB",
+   "price": 170.16,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 16,
+   "dollars": 2879.43,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

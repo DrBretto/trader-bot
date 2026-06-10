@@ -1,0 +1,49 @@
+{
+ "date": "2026-04-15",
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 694.36,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1070.23,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "DIA",
+   "price": 485.46,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1041.13,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "RSP",
+   "price": 199.66,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 5,
+   "dollars": 1147.07,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 697.51,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1095.68,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

@@ -1,0 +1,81 @@
+{
+ "date": "2026-04-14",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103584.62,
+ "own_drawdown": 0.004658,
+ "trust": {
+  "cast": 0.4063430808563377,
+  "gbm_cond": 0.34049394298281305,
+  "event_head": 0.2531629761608493
+ },
+ "blend_coef": {
+  "cast": 0.4063430808563377,
+  "gbm_cond": 0.34049394298281305,
+  "event_head": 0.2531629761608493
+ },
+ "tilt": {
+  "cast": 0.04349773485184578,
+  "gbm_cond": 0.0636007333058745,
+  "event_head": 0.03272694922655225
+ },
+ "deployment_fraction": 0.3707837500126602,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.370784,
+ "est_book_vol": 0.073691,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.2876431790564109,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 4,
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 686.0,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1067.47,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 689.4,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1150.99,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VT",
+   "price": 146.4,
+   "asset_class": "equity",
+   "sector": "global",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 7,
+   "dollars": 1120.92,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.74,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 15.0,
+   "dollars": 1301.1,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ],
+ "replaced_incumbent_intents": 1
+}

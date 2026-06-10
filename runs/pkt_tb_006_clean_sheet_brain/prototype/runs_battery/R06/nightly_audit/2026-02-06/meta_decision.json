@@ -1,0 +1,48 @@
+{
+ "date": "2026-02-06",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103002.7,
+ "own_drawdown": 0.000857,
+ "trust": {
+  "cast": 0.3565970737972747,
+  "gbm_cond": 0.6434029262027253,
+  "event_head": 0.0
+ },
+ "blend_coef": {
+  "cast": 0.3565970737972747,
+  "gbm_cond": 0.6434029262027253,
+  "event_head": 0.0
+ },
+ "tilt": {
+  "cast": 0.17646333585115628,
+  "gbm_cond": 0.17116965619738192,
+  "event_head": 0.12634743817279548
+ },
+ "deployment_fraction": 0.37984966234605716,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.37985,
+ "est_book_vol": 0.075127,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.616125757414247,
+ "genome_hash": "0b3320065280",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "EFA",
+   "price": 100.33,
+   "asset_class": "equity",
+   "sector": "international_dev",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 26,
+   "dollars": 2684.26,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 5
+}

@@ -1,0 +1,48 @@
+{
+ "date": "2026-05-06",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "prices_fallback",
+ "nav": 106395.22,
+ "own_drawdown": 0.001112,
+ "trust": {
+  "cast": 0.39500141500918834,
+  "gbm_cond": 0.3398379071716942,
+  "event_head": 0.2651606778191175
+ },
+ "blend_coef": {
+  "cast": 0.39500141500918834,
+  "gbm_cond": 0.3398379071716942,
+  "event_head": 0.2651606778191175
+ },
+ "tilt": {
+  "cast": 0.2219833039532294,
+  "gbm_cond": 0.15356802966973004,
+  "event_head": 0.22551347652862164
+ },
+ "deployment_fraction": 0.3686800998123005,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.270921,
+ "est_book_vol": 0.051632,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.2586724088734602,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 282.61,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 3.9266280073069946,
+   "dollars": 1109.7,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ],
+ "replaced_incumbent_intents": 0
+}

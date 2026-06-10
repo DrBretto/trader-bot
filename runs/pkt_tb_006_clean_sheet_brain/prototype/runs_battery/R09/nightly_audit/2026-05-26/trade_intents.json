@@ -1,0 +1,27 @@
+{
+ "date": "2026-05-26",
+ "intents": [
+  {
+   "symbol": "DIA",
+   "price": 506.13,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1487.5,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "XLC",
+   "price": 115.47,
+   "asset_class": "equity",
+   "sector": "sector_comm",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 10,
+   "dollars": 1202.59,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+{
+ "date": "2026-04-23",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 105305.62,
+ "own_drawdown": 0.000835,
+ "trust": {
+  "cast": 0.39706387021576955,
+  "gbm_cond": 0.3461276277904302,
+  "event_head": 0.2568085019938002
+ },
+ "blend_coef": {
+  "cast": 0.39706387021576955,
+  "gbm_cond": 0.3461276277904302,
+  "event_head": 0.2568085019938002
+ },
+ "tilt": {
+  "cast": 0.2737505478220944,
+  "gbm_cond": 0.2277119681869929,
+  "event_head": 0.25039826844006524
+ },
+ "deployment_fraction": 0.37000187366019544,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.274982,
+ "est_book_vol": 0.051293,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.31098904360345575,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 2,
+ "intents": [
+  {
+   "symbol": "IYR",
+   "price": 100.6,
+   "asset_class": "equity",
+   "sector": "sector_reit",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 11,
+   "dollars": 1126.8,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "MTUM",
+   "price": 276.08,
+   "asset_class": "equity",
+   "sector": "factor_momentum",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 3.8413585494750073,
+   "dollars": 1060.52,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ],
+ "replaced_incumbent_intents": 21
+}

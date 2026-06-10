@@ -1,0 +1,59 @@
+{
+ "date": "2026-04-07",
+ "strategy": "syn1",
+ "exec_mode": "learned",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103086.21,
+ "own_drawdown": 0.001279,
+ "trust": {
+  "cast": 0.26911897900842774,
+  "gbm_cond": 0.5032580174804544,
+  "event_head": 0.22762300351111803
+ },
+ "blend_coef": {
+  "cast": 0.2767064950381307,
+  "gbm_cond": 0.5174477743211525,
+  "event_head": 0.2058457306407168
+ },
+ "tilt": {
+  "cast": 0.045140901758590625,
+  "gbm_cond": -0.07080204400965502,
+  "event_head": -0.1287213872608352
+ },
+ "deployment_fraction": 0.47150384520384814,
+ "n_exec_seeds": 5,
+ "gross_target_applied": 0.374447,
+ "est_book_vol": 0.071489,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.41138064572879385,
+ "genome_hash": "8f4184844e8b",
+ "n_intents": 2,
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 252.36,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 11.0,
+   "dollars": 2775.96,
+   "reason": "SYN1_REBALANCE_EXIT"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.665,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 36,
+   "dollars": 3152.03,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 4
+}

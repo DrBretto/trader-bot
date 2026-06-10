@@ -1,0 +1,16 @@
+{
+ "date": "2026-05-07",
+ "intents": [
+  {
+   "symbol": "XRT",
+   "price": 85.11,
+   "asset_class": "equity",
+   "sector": "industry_retail",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 36,
+   "dollars": 3125.35,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

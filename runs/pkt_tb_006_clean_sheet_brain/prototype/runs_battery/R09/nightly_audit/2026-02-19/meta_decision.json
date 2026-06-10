@@ -1,0 +1,70 @@
+{
+ "date": "2026-02-19",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103815.61,
+ "own_drawdown": 0.002431,
+ "trust": {
+  "cast": 0.40278260224867735,
+  "gbm_cond": 0.36264251992437124,
+  "event_head": 0.23457487782695136
+ },
+ "blend_coef": {
+  "cast": 0.40278260224867735,
+  "gbm_cond": 0.36264251992437124,
+  "event_head": 0.23457487782695136
+ },
+ "tilt": {
+  "cast": 0.14412739800521746,
+  "gbm_cond": 0.15787037937819356,
+  "event_head": 0.05169482866953814
+ },
+ "deployment_fraction": 0.37519459488092183,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.287183,
+ "est_book_vol": 0.049211,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.28559174061516046,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 3,
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 263.97,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 5.233962580951507,
+   "dollars": 1381.61,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "DIA",
+   "price": 496.95,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 2.7412592940317673,
+   "dollars": 1362.27,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "RSP",
+   "price": 203.57,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 6.782063134036559,
+   "dollars": 1380.62,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ],
+ "replaced_incumbent_intents": 0
+}

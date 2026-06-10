@@ -1,0 +1,60 @@
+{
+ "date": "2026-03-26",
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 656.82,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1194.02,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 605.66,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1154.09,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 659.74,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1151.15,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VNQ",
+   "price": 87.84,
+   "asset_class": "equity",
+   "sector": "sector_reit",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 11,
+   "dollars": 1026.47,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.84,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 16,
+   "dollars": 1427.27,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

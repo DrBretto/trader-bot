@@ -1,0 +1,49 @@
+{
+ "date": "2026-04-14",
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 686.0,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1067.47,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 689.4,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1150.99,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VT",
+   "price": 146.4,
+   "asset_class": "equity",
+   "sector": "global",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 7,
+   "dollars": 1120.92,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.74,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 15.0,
+   "dollars": 1301.1,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+ "date": "2026-04-09",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103077.9,
+ "own_drawdown": 0.009562,
+ "trust": {
+  "cast": 0.39354609491755654,
+  "gbm_cond": 0.35367076881842135,
+  "event_head": 0.2527831362640221
+ },
+ "blend_coef": {
+  "cast": 0.39354609491755654,
+  "gbm_cond": 0.35367076881842135,
+  "event_head": 0.2527831362640221
+ },
+ "tilt": {
+  "cast": -0.1306644007763158,
+  "gbm_cond": -0.07564508746968628,
+  "event_head": -0.12618393008760104
+ },
+ "deployment_fraction": 0.37888308386915914,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.378883,
+ "est_book_vol": 0.077871,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.28849703124605763,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "RSP",
+   "price": 198.03,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 5,
+   "dollars": 1096.12,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 0
+}

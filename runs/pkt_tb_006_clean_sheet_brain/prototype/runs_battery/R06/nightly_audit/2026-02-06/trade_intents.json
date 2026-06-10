@@ -1,0 +1,16 @@
+{
+ "date": "2026-02-06",
+ "intents": [
+  {
+   "symbol": "EFA",
+   "price": 100.33,
+   "asset_class": "equity",
+   "sector": "international_dev",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 26,
+   "dollars": 2684.26,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

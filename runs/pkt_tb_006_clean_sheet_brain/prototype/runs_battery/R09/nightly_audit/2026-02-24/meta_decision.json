@@ -1,0 +1,48 @@
+{
+ "date": "2026-02-24",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103635.93,
+ "own_drawdown": 0.004163,
+ "trust": {
+  "cast": 0.40694572117260797,
+  "gbm_cond": 0.3555118172749002,
+  "event_head": 0.23754246155249184
+ },
+ "blend_coef": {
+  "cast": 0.40694572117260797,
+  "gbm_cond": 0.3555118172749002,
+  "event_head": 0.23754246155249184
+ },
+ "tilt": {
+  "cast": 0.13108414115904232,
+  "gbm_cond": 0.1503959918657052,
+  "event_head": 0.04862755454163379
+ },
+ "deployment_fraction": 0.3757310287807364,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.375731,
+ "est_book_vol": 0.065954,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.2837849390738916,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "XLY",
+   "price": 114.99,
+   "asset_class": "equity",
+   "sector": "sector_cons_disc",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 10,
+   "dollars": 1253.04,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 25
+}

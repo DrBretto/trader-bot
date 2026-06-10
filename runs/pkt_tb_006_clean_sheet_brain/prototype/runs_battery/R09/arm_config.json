@@ -1,0 +1,26 @@
+{
+ "run_id": "R09",
+ "description": "B0 DEFAULT_GENOME brain (evolution B2 read)",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "B0",
+  "exec_dir": "exec_out",
+  "slippage_seed": 4242
+ },
+ "retrain_required": null,
+ "e1": {
+  "kind": "genome_swap",
+  "without_genome": "B0"
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: evolution (champion vs B0)",
+ "config_hash": "c47d72e48d80f26a",
+ "files": {
+  "genome": "genome.json"
+ }
+}

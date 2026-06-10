@@ -1,0 +1,48 @@
+{
+ "date": "2026-05-28",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 108515.36,
+ "own_drawdown": 0.000485,
+ "trust": {
+  "cast": 0.42000750865288977,
+  "gbm_cond": 0.32119445319552886,
+  "event_head": 0.2587980381515813
+ },
+ "blend_coef": {
+  "cast": 0.42000750865288977,
+  "gbm_cond": 0.32119445319552886,
+  "event_head": 0.2587980381515813
+ },
+ "tilt": {
+  "cast": 0.26868546415791084,
+  "gbm_cond": 0.07980836582270132,
+  "event_head": 0.21990533210043936
+ },
+ "deployment_fraction": 0.3482269378293598,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.348227,
+ "est_book_vol": 0.05634,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.28712809953390683,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "VOO",
+   "price": 689.97,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1125.53,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 8
+}

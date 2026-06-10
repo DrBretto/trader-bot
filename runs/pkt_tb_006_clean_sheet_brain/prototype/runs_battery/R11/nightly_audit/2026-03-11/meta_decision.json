@@ -1,0 +1,70 @@
+{
+ "date": "2026-03-11",
+ "strategy": "syn1",
+ "exec_mode": "learned",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 102837.16,
+ "own_drawdown": 0.010101,
+ "trust": {
+  "cast": 0.26858993285183413,
+  "gbm_cond": 0.5057688101717454,
+  "event_head": 0.22564125697642062
+ },
+ "blend_coef": {
+  "cast": 0.27609338890036583,
+  "gbm_cond": 0.5199001143116251,
+  "event_head": 0.20400649678800908
+ },
+ "tilt": {
+  "cast": 0.09720759151506933,
+  "gbm_cond": 0.12607334494452882,
+  "event_head": 0.0
+ },
+ "deployment_fraction": 0.4700127479094781,
+ "n_exec_seeds": 5,
+ "gross_target_applied": 0.374127,
+ "est_book_vol": 0.053031,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.45546562595165413,
+ "genome_hash": "bb9e0652df56",
+ "n_intents": 3,
+ "intents": [
+  {
+   "symbol": "VTI",
+   "price": 333.568,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 8,
+   "dollars": 2931.9,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "QUAL",
+   "price": 200.28,
+   "asset_class": "equity",
+   "sector": "factor_quality",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 14,
+   "dollars": 2989.26,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VTV",
+   "price": 199.94,
+   "asset_class": "equity",
+   "sector": "style_value",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 13,
+   "dollars": 2748.47,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 3
+}

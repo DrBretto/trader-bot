@@ -1,0 +1,47 @@
+{
+ "generated": "2026-06-10T18:44:08",
+ "command": "python /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/run_replay.py --arm incumbent --window full --out /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R02 --cost-seed 4242",
+ "arm": "incumbent",
+ "window": "full",
+ "code_sha": {
+  "git": "747c58f8f640",
+  "prototype_wiring": "3edd62e80aa1"
+ },
+ "genome": null,
+ "genome_hash": null,
+ "variant_params_hash": "3023921c7bc7",
+ "snapshot_range": [
+  "2026-02-03",
+  "2026-06-10"
+ ],
+ "n_trading_dates": 84,
+ "start_portfolio_date_used": "2026-02-03",
+ "native_start_portfolio_date": "2026-03-11",
+ "cost_model": {
+  "seed": 4242,
+  "version_sha": "bf8b77716f74"
+ },
+ "exec_mode": null,
+ "sigma_source": null,
+ "nightly_audit": null,
+ "exec_weights_dir": null,
+ "nightly_manifest": null,
+ "wall_clock_s": 2.9,
+ "summary": {
+  "arm": "incumbent",
+  "window": "full",
+  "n_decision_dates": 65,
+  "first_date": "2026-02-04",
+  "last_date": "2026-06-10",
+  "start_value": 102971.07,
+  "final_value_raw": 112032.21,
+  "final_value_cost_adjusted": 111667.94454783354,
+  "n_executed_actions": 122,
+  "actions_per_decision_date": 1.877,
+  "total_traded_dollars": 1097907.87,
+  "total_cost_dollars": 364.2655,
+  "cost_drag_bps_of_start_nav": 35.376,
+  "cost_bps_of_traded": 3.318
+ },
+ "evidence_protocol": "committee/EVIDENCE_PROTOCOL.md V1"
+}

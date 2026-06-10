@@ -1,0 +1,81 @@
+{
+ "date": "2026-04-15",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 104076.62,
+ "own_drawdown": 0.0,
+ "trust": {
+  "cast": 0.3984366913668009,
+  "gbm_cond": 0.34408773521655817,
+  "event_head": 0.257475573416641
+ },
+ "blend_coef": {
+  "cast": 0.3984366913668009,
+  "gbm_cond": 0.34408773521655817,
+  "event_head": 0.257475573416641
+ },
+ "tilt": {
+  "cast": 0.09723712623135072,
+  "gbm_cond": 0.09646535829382594,
+  "event_head": 0.09033040616984632
+ },
+ "deployment_fraction": 0.36804415923253353,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.368044,
+ "est_book_vol": 0.071221,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.29085698864942433,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 4,
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 694.36,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1070.23,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "DIA",
+   "price": 485.46,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1041.13,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "RSP",
+   "price": 199.66,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 5,
+   "dollars": 1147.07,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 697.51,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1095.68,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 3
+}

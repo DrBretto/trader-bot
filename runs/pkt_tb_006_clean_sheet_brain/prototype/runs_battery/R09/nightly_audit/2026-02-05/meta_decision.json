@@ -1,0 +1,191 @@
+{
+ "date": "2026-02-05",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103046.68,
+ "own_drawdown": 0.0,
+ "trust": {
+  "cast": 0.41153404727757664,
+  "gbm_cond": 0.35521699719278615,
+  "event_head": 0.2332489555296373
+ },
+ "blend_coef": {
+  "cast": 0.41153404727757664,
+  "gbm_cond": 0.35521699719278615,
+  "event_head": 0.2332489555296373
+ },
+ "tilt": {
+  "cast": 0.16185158406821584,
+  "gbm_cond": 0.1446466997550914,
+  "event_head": 0.10755914878380907
+ },
+ "deployment_fraction": 0.35625101589669894,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.356251,
+ "est_book_vol": 0.055373,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.3143531731522372,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 14,
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 686.19,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1702.38,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "QQQ",
+   "price": 605.75,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1656.84,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IWM",
+   "price": 260.52,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 7,
+   "dollars": 1883.05,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "DIA",
+   "price": 494.75,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 2018.74,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "RSP",
+   "price": 200.3,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 10,
+   "dollars": 2155.19,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VTI",
+   "price": 338.25,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 5,
+   "dollars": 1757.52,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 630.91,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1601.86,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 689.29,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1738.88,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VT",
+   "price": 145.13,
+   "asset_class": "equity",
+   "sector": "global",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 11,
+   "dollars": 1688.91,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "QUAL",
+   "price": 201.62,
+   "asset_class": "equity",
+   "sector": "factor_quality",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 6,
+   "dollars": 1211.55,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "USMV",
+   "price": 95.13,
+   "asset_class": "equity",
+   "sector": "factor_minvol",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 14,
+   "dollars": 1419.04,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VIG",
+   "price": 226.54,
+   "asset_class": "equity",
+   "sector": "factor_dividend_growth",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 6,
+   "dollars": 1393.12,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VUG",
+   "price": 467.37,
+   "asset_class": "equity",
+   "sector": "style_growth",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1274.69,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VTV",
+   "price": 203.6,
+   "asset_class": "equity",
+   "sector": "style_value",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 6,
+   "dollars": 1355.3,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 10
+}

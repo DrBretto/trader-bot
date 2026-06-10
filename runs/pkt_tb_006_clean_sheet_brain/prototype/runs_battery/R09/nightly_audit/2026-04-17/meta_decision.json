@@ -1,0 +1,59 @@
+{
+ "date": "2026-04-17",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 104538.32,
+ "own_drawdown": 0.0,
+ "trust": {
+  "cast": 0.39680255382628804,
+  "gbm_cond": 0.3494309070003833,
+  "event_head": 0.25376653917332875
+ },
+ "blend_coef": {
+  "cast": 0.396802553826288,
+  "gbm_cond": 0.3494309070003833,
+  "event_head": 0.25376653917332875
+ },
+ "tilt": {
+  "cast": 0.18552941235437456,
+  "gbm_cond": 0.15711885071000617,
+  "event_head": 0.13538972879916597
+ },
+ "deployment_fraction": 0.3750429357958935,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.27987,
+ "est_book_vol": 0.055552,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.2838807488168985,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 2,
+ "intents": [
+  {
+   "symbol": "QQQ",
+   "price": 640.41,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 1.6625601081389216,
+   "dollars": 1064.72,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "XLK",
+   "price": 152.03,
+   "asset_class": "equity",
+   "sector": "sector_tech",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 8.0,
+   "dollars": 1216.24,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ],
+ "replaced_incumbent_intents": 1
+}

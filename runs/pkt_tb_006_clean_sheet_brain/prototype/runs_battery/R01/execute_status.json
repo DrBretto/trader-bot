@@ -1,0 +1,32 @@
+{
+ "run_id": "R01",
+ "config_hash": "ed35d0a7cb616e40",
+ "arm_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R01",
+ "ledger_entry": {
+  "run_id": "R01",
+  "date_executed": "2026-06-10T18:44:00",
+  "config_hash": "ed35d0a7cb616e40",
+  "purpose": "bake-off base / paired-arm base"
+ },
+ "returncode": 0,
+ "cmd": [
+  "/Users/drbretto/Desktop/Projects/trader-bot/.venv/bin/python",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/run_replay.py",
+  "--arm",
+  "syn1",
+  "--window",
+  "full",
+  "--out",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R01",
+  "--cost-seed",
+  "4242",
+  "--genome",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R01/genome.json",
+  "--exec-dir",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/exec_out",
+  "--exec-mode",
+  "linear_twin"
+ ],
+ "outputs_ok": true,
+ "missing_outputs": []
+}

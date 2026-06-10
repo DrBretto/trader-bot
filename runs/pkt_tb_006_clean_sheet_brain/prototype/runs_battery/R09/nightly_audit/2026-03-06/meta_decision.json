@@ -1,0 +1,59 @@
+{
+ "date": "2026-03-06",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103060.27,
+ "own_drawdown": 0.009733,
+ "trust": {
+  "cast": 0.4092443850897507,
+  "gbm_cond": 0.340433181352521,
+  "event_head": 0.25032243355772826
+ },
+ "blend_coef": {
+  "cast": 0.4092443850897507,
+  "gbm_cond": 0.340433181352521,
+  "event_head": 0.25032243355772826
+ },
+ "tilt": {
+  "cast": 0.0983691776073639,
+  "gbm_cond": 0.12247948701514941,
+  "event_head": 0.041530044401452
+ },
+ "deployment_fraction": 0.3850838478742607,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.385084,
+ "est_book_vol": 0.072719,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.2708757026059302,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 2,
+ "intents": [
+  {
+   "symbol": "XLE",
+   "price": 56.49,
+   "asset_class": "equity",
+   "sector": "sector_energy",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 24,
+   "dollars": 1409.55,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "USO",
+   "price": 96.35,
+   "asset_class": "commodity",
+   "sector": "oil",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 15,
+   "dollars": 1454.9,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 35
+}

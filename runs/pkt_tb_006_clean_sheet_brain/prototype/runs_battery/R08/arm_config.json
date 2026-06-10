@@ -1,0 +1,30 @@
+{
+ "run_id": "R08",
+ "description": "Executive -> equal-trust + fixed f=0.7 (same vol cap)",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out",
+  "slippage_seed": 4242,
+  "executive_bypass": {
+   "equal_trust": true,
+   "f_fixed": 0.7
+  }
+ },
+ "retrain_required": null,
+ "e1": {
+  "kind": "executive_bypass",
+  "f_fixed": 0.7
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: meta-evaluator",
+ "config_hash": "bc2baf0226acce21",
+ "files": {
+  "genome": "genome.json"
+ }
+}

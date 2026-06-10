@@ -1,0 +1,23 @@
+{
+ "run_id": "R01",
+ "description": "SYN-1, the ONE pre-registered config (bake-off + base of every paired arm)",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out",
+  "slippage_seed": 4242
+ },
+ "retrain_required": "RT-1",
+ "e1": null,
+ "e2": {
+  "pair_vs": "R02",
+  "slippage_seed": 4242,
+  "read": "bake-off primary (\u00a74.2)"
+ },
+ "contingency": false,
+ "purpose": "bake-off base / paired-arm base",
+ "config_hash": "ed35d0a7cb616e40",
+ "files": {
+  "genome": "genome.json"
+ }
+}

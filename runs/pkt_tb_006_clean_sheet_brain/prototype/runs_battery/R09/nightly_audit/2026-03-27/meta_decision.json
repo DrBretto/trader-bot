@@ -1,0 +1,103 @@
+{
+ "date": "2026-03-27",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 100674.29,
+ "own_drawdown": 0.033157,
+ "trust": {
+  "cast": 0.38794273067040164,
+  "gbm_cond": 0.3423190569429634,
+  "event_head": 0.2697382123866349
+ },
+ "blend_coef": {
+  "cast": 0.38794273067040164,
+  "gbm_cond": 0.3423190569429634,
+  "event_head": 0.2697382123866349
+ },
+ "tilt": {
+  "cast": -0.2118149763475168,
+  "gbm_cond": -0.17205149343068946,
+  "event_head": -0.19315310851053075
+ },
+ "deployment_fraction": 0.41760587305638014,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.417606,
+ "est_book_vol": 0.081968,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.33224996419657266,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 6,
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 645.09,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1687.97,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IWM",
+   "price": 247.44,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 1090.95,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 594.92,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1701.55,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 648.01,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1653.74,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IBB",
+   "price": 165.26,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 6.238953878525456,
+   "dollars": 1031.05,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.11,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 16.0,
+   "dollars": 1377.76,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ],
+ "replaced_incumbent_intents": 50
+}

@@ -1,0 +1,71 @@
+{
+ "date": "2026-04-02",
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 655.18,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1126.87,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IWM",
+   "price": 249.4,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 1015.03,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "DIA",
+   "price": 465.51,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1052.12,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 602.12,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1160.6,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 658.15,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1036.83,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.275,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 15.0,
+   "dollars": 1294.12,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ]
+}

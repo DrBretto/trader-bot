@@ -1,0 +1,38 @@
+{
+ "date": "2026-03-24",
+ "intents": [
+  {
+   "symbol": "VTI",
+   "price": 324.19,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 8,
+   "dollars": 2877.96,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 604.43,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 2698.3,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 658.34,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 2683.52,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

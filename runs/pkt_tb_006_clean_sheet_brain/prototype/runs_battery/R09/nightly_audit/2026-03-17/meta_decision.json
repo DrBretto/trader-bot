@@ -1,0 +1,48 @@
+{
+ "date": "2026-03-17",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 102073.96,
+ "own_drawdown": 0.019349,
+ "trust": {
+  "cast": 0.3915990904505321,
+  "gbm_cond": 0.3474477816680053,
+  "event_head": 0.2609531278814627
+ },
+ "blend_coef": {
+  "cast": 0.3915990904505321,
+  "gbm_cond": 0.3474477816680053,
+  "event_head": 0.2609531278814627
+ },
+ "tilt": {
+  "cast": -0.09713259662209889,
+  "gbm_cond": -0.052135418410234426,
+  "event_head": -0.1070365320853911
+ },
+ "deployment_fraction": 0.39321944790558755,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.393219,
+ "est_book_vol": 0.069339,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.3320075862321505,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "XLU",
+   "price": 47.26,
+   "asset_class": "equity",
+   "sector": "sector_utilities",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 21,
+   "dollars": 1035.05,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 25
+}

@@ -1,0 +1,92 @@
+{
+ "date": "2026-03-26",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 101224.6,
+ "own_drawdown": 0.027705,
+ "trust": {
+  "cast": 0.38218091354608713,
+  "gbm_cond": 0.3439697964038763,
+  "event_head": 0.2738492900500366
+ },
+ "blend_coef": {
+  "cast": 0.38218091354608713,
+  "gbm_cond": 0.3439697964038763,
+  "event_head": 0.2738492900500366
+ },
+ "tilt": {
+  "cast": -0.21575645580869007,
+  "gbm_cond": -0.17235278036660534,
+  "event_head": -0.19454503155665948
+ },
+ "deployment_fraction": 0.4099218820091605,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.409922,
+ "est_book_vol": 0.078785,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.3077944316370064,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 5,
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 656.82,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1194.02,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VOO",
+   "price": 605.66,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1154.09,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 659.74,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1151.15,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VNQ",
+   "price": 87.84,
+   "asset_class": "equity",
+   "sector": "sector_reit",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 11,
+   "dollars": 1026.47,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.84,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 16,
+   "dollars": 1427.27,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 45
+}

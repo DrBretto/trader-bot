@@ -1,0 +1,16 @@
+{
+ "date": "2026-05-29",
+ "intents": [
+  {
+   "symbol": "XLV",
+   "price": 150.84,
+   "asset_class": "equity",
+   "sector": "sector_healthcare",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 17.81686105282372,
+   "dollars": 2687.5,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ]
+}

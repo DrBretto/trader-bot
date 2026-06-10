@@ -1,0 +1,16 @@
+{
+ "date": "2026-03-17",
+ "intents": [
+  {
+   "symbol": "XLU",
+   "price": 47.26,
+   "asset_class": "equity",
+   "sector": "sector_utilities",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 21,
+   "dollars": 1035.05,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

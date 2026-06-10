@@ -1,0 +1,32 @@
+{
+ "run_id": "R03",
+ "description": "Ridge-in-slot (transformer qua transformer)",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out_rt2",
+  "slippage_seed": 4242,
+  "oof_member_map": {
+   "cast": "ridge_twin"
+  },
+  "nightly_dir": "store/nightly_rt2_ridge_slot"
+ },
+ "retrain_required": "RT-2",
+ "e1": {
+  "kind": "member_swap",
+  "slot": "cast",
+  "swap_to": "ridge_twin",
+  "exec_dir_without": "exec_out_rt2"
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: transformer (primary)",
+ "config_hash": "e7d27a8fa309348c",
+ "files": {
+  "genome": "genome.json"
+ }
+}

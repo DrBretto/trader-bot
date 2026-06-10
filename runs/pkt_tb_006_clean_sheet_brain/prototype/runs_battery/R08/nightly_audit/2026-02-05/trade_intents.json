@@ -1,0 +1,82 @@
+{
+ "date": "2026-02-05",
+ "intents": [
+  {
+   "symbol": "SPY",
+   "price": 686.19,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 3,
+   "dollars": 2723.78,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IWM",
+   "price": 260.52,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 11,
+   "dollars": 2935.75,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "DIA",
+   "price": 494.75,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 6,
+   "dollars": 3094.94,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "RSP",
+   "price": 200.3,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 16,
+   "dollars": 3255.04,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VTI",
+   "price": 338.25,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 8,
+   "dollars": 2788.47,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "IVV",
+   "price": 689.29,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 2766.6,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VT",
+   "price": 145.13,
+   "asset_class": "equity",
+   "sector": "global",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 18,
+   "dollars": 2707.98,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

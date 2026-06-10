@@ -1,0 +1,59 @@
+{
+ "date": "2026-05-29",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 108792.24,
+ "own_drawdown": 0.0,
+ "trust": {
+  "cast": 0.4210953998000211,
+  "gbm_cond": 0.3219109312380922,
+  "event_head": 0.25699366896188663
+ },
+ "blend_coef": {
+  "cast": 0.4210953998000211,
+  "gbm_cond": 0.3219109312380922,
+  "event_head": 0.25699366896188663
+ },
+ "tilt": {
+  "cast": 0.27956363812316865,
+  "gbm_cond": 0.09585410301594462,
+  "event_head": 0.23581937081173984
+ },
+ "deployment_fraction": 0.3446516048524939,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.344652,
+ "est_book_vol": 0.054397,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.27726918946295637,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 2,
+ "intents": [
+  {
+   "symbol": "VOO",
+   "price": 693.68,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 1,
+   "dollars": 1364.98,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "XLP",
+   "price": 84.405,
+   "asset_class": "equity",
+   "sector": "sector_cons_staples",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 13,
+   "dollars": 1124.41,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 26
+}

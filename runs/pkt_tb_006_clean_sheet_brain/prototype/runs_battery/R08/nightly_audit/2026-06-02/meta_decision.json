@@ -1,0 +1,48 @@
+{
+ "date": "2026-06-02",
+ "strategy": "syn1",
+ "exec_mode": "equal_trust",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 106806.4,
+ "own_drawdown": 0.001691,
+ "trust": {
+  "cast": 0.3333333333333333,
+  "gbm_cond": 0.3333333333333333,
+  "event_head": 0.3333333333333333
+ },
+ "blend_coef": {
+  "cast": 0.3333333333333333,
+  "gbm_cond": 0.3333333333333333,
+  "event_head": 0.3333333333333333
+ },
+ "tilt": {
+  "cast": 0.268683300093893,
+  "gbm_cond": 0.1198307923733753,
+  "event_head": 0.23828325021880276
+ },
+ "deployment_fraction": 0.7,
+ "n_exec_seeds": 0,
+ "gross_target_applied": 0.466667,
+ "est_book_vol": 0.074888,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.298188435177587,
+ "genome_hash": "8f4184844e8b",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "IYR",
+   "price": 99.63,
+   "asset_class": "equity",
+   "sector": "sector_reit",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 28,
+   "dollars": 2881.52,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 1
+}

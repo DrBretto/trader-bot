@@ -1,0 +1,16 @@
+{
+ "date": "2026-03-20",
+ "intents": [
+  {
+   "symbol": "DBC",
+   "price": 28.84,
+   "asset_class": "commodity",
+   "sector": "broad_commodities",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 35,
+   "dollars": 1034.53,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

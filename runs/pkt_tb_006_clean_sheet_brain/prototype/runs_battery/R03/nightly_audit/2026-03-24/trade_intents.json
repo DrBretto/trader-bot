@@ -1,0 +1,27 @@
+{
+ "date": "2026-03-24",
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 247.45,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 11,
+   "dollars": 2844.19,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VTI",
+   "price": 324.19,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 8,
+   "dollars": 2700.94,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

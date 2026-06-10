@@ -1,0 +1,61 @@
+{
+ "date": "2026-05-06",
+ "strategy": "syn1",
+ "exec_mode": "equal_trust",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "prices_fallback",
+ "nav": 105247.83,
+ "own_drawdown": 0.000728,
+ "trust": {
+  "cast": 0.3333333333333333,
+  "gbm_cond": 0.3333333333333333,
+  "event_head": 0.3333333333333333
+ },
+ "blend_coef": {
+  "cast": 0.3333333333333333,
+  "gbm_cond": 0.3333333333333333,
+  "event_head": 0.3333333333333333
+ },
+ "tilt": {
+  "cast": 0.17290941952421318,
+  "gbm_cond": 0.13455799539144195,
+  "event_head": 0.1629853284814062
+ },
+ "deployment_fraction": 0.7,
+ "n_exec_seeds": 0,
+ "gross_target_applied": 0.448391,
+ "est_book_vol": 0.086483,
+ "abstained": false,
+ "rails": [
+  "vol_cap"
+ ],
+ "mu_blend_abs_mean": 0.2533654626376013,
+ "genome_hash": "8f4184844e8b",
+ "n_intents": 2,
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 282.61,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 10.888262141552143,
+   "dollars": 3077.13,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "VT",
+   "price": 152.115,
+   "asset_class": "equity",
+   "sector": "global",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 18.0,
+   "dollars": 2738.07,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ],
+ "replaced_incumbent_intents": 0
+}

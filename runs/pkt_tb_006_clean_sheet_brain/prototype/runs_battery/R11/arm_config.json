@@ -1,0 +1,37 @@
+{
+ "run_id": "R11",
+ "description": "GDELT G1-G5 ablated retrain",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out_rt4",
+  "slippage_seed": 4242,
+  "oof_suffix": "_gdelt_ablated",
+  "feature_gate_off": [
+   "G1_themes",
+   "G4G5_novelty_conc"
+  ],
+  "nightly_dir": "store/nightly_rt4_gdelt_ablated"
+ },
+ "retrain_required": "RT-4",
+ "e1": {
+  "kind": "retrain_ablation",
+  "oof_suffix": "_gdelt_ablated",
+  "feature_gate_off": [
+   "G1_themes",
+   "G4G5_novelty_conc"
+  ],
+  "exec_dir_without": "exec_out_rt4"
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: GDELT (block arm)",
+ "config_hash": "24d7a4cf636ba8ab",
+ "files": {
+  "genome": "genome.json"
+ }
+}

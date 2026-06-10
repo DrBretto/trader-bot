@@ -1,0 +1,13 @@
+{
+ "date": "2026-06-10",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "risknet",
+ "flags": [
+  "missing_nightly_artifacts_hold"
+ ],
+ "marks_source": "features",
+ "nav": 104309.73,
+ "own_drawdown": 0.002998,
+ "intents": []
+}

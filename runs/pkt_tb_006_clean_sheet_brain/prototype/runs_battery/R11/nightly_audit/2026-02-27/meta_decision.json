@@ -1,0 +1,59 @@
+{
+ "date": "2026-02-27",
+ "strategy": "syn1",
+ "exec_mode": "learned",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103641.39,
+ "own_drawdown": 0.00062,
+ "trust": {
+  "cast": 0.26997306548052624,
+  "gbm_cond": 0.507088708841246,
+  "event_head": 0.22293822567822788
+ },
+ "blend_coef": {
+  "cast": 0.27742343222599575,
+  "gbm_cond": 0.5210840651181654,
+  "event_head": 0.20149250265583887
+ },
+ "tilt": {
+  "cast": 0.2167359152260743,
+  "gbm_cond": 0.24934669023024822,
+  "event_head": 0.0
+ },
+ "deployment_fraction": 0.46497660096910715,
+ "n_exec_seeds": 5,
+ "gross_target_applied": 0.371287,
+ "est_book_vol": 0.061019,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.4280569414465634,
+ "genome_hash": "bb9e0652df56",
+ "n_intents": 2,
+ "intents": [
+  {
+   "symbol": "QQQ",
+   "price": 609.28,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 2844.89,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VUG",
+   "price": 465.46,
+   "asset_class": "equity",
+   "sector": "style_growth",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 5,
+   "dollars": 2785.25,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 8
+}

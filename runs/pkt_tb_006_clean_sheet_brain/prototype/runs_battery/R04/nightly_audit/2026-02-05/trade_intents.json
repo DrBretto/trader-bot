@@ -1,0 +1,16 @@
+{
+ "date": "2026-02-05",
+ "intents": [
+  {
+   "symbol": "SCHD",
+   "price": 31.01,
+   "asset_class": "equity",
+   "sector": "factor_dividend",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 696.0937411357654,
+   "dollars": 21585.87,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ]
+}

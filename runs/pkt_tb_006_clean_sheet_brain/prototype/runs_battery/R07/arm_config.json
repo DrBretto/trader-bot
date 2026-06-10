@@ -1,0 +1,28 @@
+{
+ "run_id": "R07",
+ "description": "RiskNet+ -> trailing-21d realized replacement",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out",
+  "slippage_seed": 4242,
+  "sigma_source": "trailing21",
+  "nightly_dir": "store/nightly_trailing_sigma"
+ },
+ "retrain_required": null,
+ "e1": {
+  "kind": "sigma_swap",
+  "without_source": "trailing21"
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: ensemble (RiskNet+ instrument)",
+ "config_hash": "77e7058c4bab2c64",
+ "files": {
+  "genome": "genome.json"
+ }
+}

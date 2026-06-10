@@ -1,0 +1,31 @@
+{
+ "run_id": "R12",
+ "description": "Infotropy-B uniform-weights retrain (scorecard read)",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out_rt5",
+  "slippage_seed": 4242,
+  "oof_suffix": "_uniform",
+  "uniform_w_rec": true,
+  "nightly_dir": "store/nightly_rt5_uniform"
+ },
+ "retrain_required": "RT-5",
+ "e1": {
+  "kind": "retrain_ablation",
+  "oof_suffix": "_uniform",
+  "uniform_w_rec": true,
+  "exec_dir_without": "exec_out_rt5"
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: infotropy Transfer B",
+ "config_hash": "04907ea133293169",
+ "files": {
+  "genome": "genome.json"
+ }
+}

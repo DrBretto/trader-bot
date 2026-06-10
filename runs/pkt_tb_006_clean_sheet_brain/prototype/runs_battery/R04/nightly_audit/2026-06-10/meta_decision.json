@@ -1,0 +1,13 @@
+{
+ "date": "2026-06-10",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [
+  "missing_nightly_artifacts_hold"
+ ],
+ "marks_source": "features",
+ "nav": 103105.65,
+ "own_drawdown": 0.001246,
+ "intents": []
+}

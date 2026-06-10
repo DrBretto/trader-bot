@@ -1,0 +1,26 @@
+{
+ "run_id": "R02",
+ "config_hash": "5bf392338d9f4c19",
+ "arm_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R02",
+ "ledger_entry": {
+  "run_id": "R02",
+  "date_executed": "2026-06-10T18:44:05",
+  "config_hash": "5bf392338d9f4c19",
+  "purpose": "bake-off opponent"
+ },
+ "returncode": 0,
+ "cmd": [
+  "/Users/drbretto/Desktop/Projects/trader-bot/.venv/bin/python",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/run_replay.py",
+  "--arm",
+  "incumbent",
+  "--window",
+  "full",
+  "--out",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R02",
+  "--cost-seed",
+  "4242"
+ ],
+ "outputs_ok": true,
+ "missing_outputs": []
+}

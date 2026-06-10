@@ -1,0 +1,16 @@
+{
+ "date": "2026-04-14",
+ "intents": [
+  {
+   "symbol": "TLT",
+   "price": 86.74,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 33.0,
+   "dollars": 2862.42,
+   "reason": "SYN1_REBALANCE_EXIT"
+  }
+ ]
+}

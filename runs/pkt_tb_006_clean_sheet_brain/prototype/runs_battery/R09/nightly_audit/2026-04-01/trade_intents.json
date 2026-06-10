@@ -1,0 +1,27 @@
+{
+ "date": "2026-04-01",
+ "intents": [
+  {
+   "symbol": "XRT",
+   "price": 80.45,
+   "asset_class": "equity",
+   "sector": "industry_retail",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 12,
+   "dollars": 1037.03,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "TLT",
+   "price": 86.68,
+   "asset_class": "bond",
+   "sector": "treas_long",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 15,
+   "dollars": 1380.46,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

@@ -1,0 +1,50 @@
+{
+ "date": "2026-03-06",
+ "strategy": "syn1",
+ "exec_mode": "learned",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103036.48,
+ "own_drawdown": 0.001762,
+ "trust": {
+  "cast": 0.2634247488921039,
+  "gbm_cond": 0.5090671369145471,
+  "event_head": 0.2275081141933489
+ },
+ "blend_coef": {
+  "cast": 0.2708485634022991,
+  "gbm_cond": 0.5234117745552618,
+  "event_head": 0.20573966204243904
+ },
+ "tilt": {
+  "cast": 0.1566342994340561,
+  "gbm_cond": 0.17409146360823746,
+  "event_head": 0.09084144542683857
+ },
+ "deployment_fraction": 0.46746027363900566,
+ "n_exec_seeds": 5,
+ "gross_target_applied": 0.368961,
+ "est_book_vol": 0.086483,
+ "abstained": false,
+ "rails": [
+  "vol_cap"
+ ],
+ "mu_blend_abs_mean": 0.3832689451458764,
+ "genome_hash": "8f4184844e8b",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "USO",
+   "price": 96.35,
+   "asset_class": "commodity",
+   "sector": "oil",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 30,
+   "dollars": 2957.63,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 4
+}

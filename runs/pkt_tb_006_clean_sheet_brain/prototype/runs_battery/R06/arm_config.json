@@ -1,0 +1,27 @@
+{
+ "run_id": "R06",
+ "description": "event_head OFF, trust renorm (no retrain, K17)",
+ "arm_config": {
+  "strategy": "syn1",
+  "genome": "frozen",
+  "exec_dir": "exec_out",
+  "slippage_seed": 4242,
+  "member_gate_off": "event_head"
+ },
+ "retrain_required": null,
+ "e1": {
+  "kind": "member_drop",
+  "member": "event_head"
+ },
+ "e2": {
+  "pair_vs": "R01",
+  "slippage_seed": 4242,
+  "read": "holdout-only paired daily stats (sign confirmation)"
+ },
+ "contingency": false,
+ "purpose": "organ: ensemble (event_head drop)",
+ "config_hash": "e97c827d1303ec99",
+ "files": {
+  "genome": "genome.json"
+ }
+}

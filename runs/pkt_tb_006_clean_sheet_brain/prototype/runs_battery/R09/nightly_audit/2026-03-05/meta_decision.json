@@ -1,0 +1,70 @@
+{
+ "date": "2026-03-05",
+ "strategy": "syn1",
+ "exec_mode": "linear_twin",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103652.22,
+ "own_drawdown": 0.004006,
+ "trust": {
+  "cast": 0.40642518923993437,
+  "gbm_cond": 0.3497775176887323,
+  "event_head": 0.24379729307133344
+ },
+ "blend_coef": {
+  "cast": 0.40642518923993437,
+  "gbm_cond": 0.3497775176887323,
+  "event_head": 0.24379729307133344
+ },
+ "tilt": {
+  "cast": 0.11546921096467938,
+  "gbm_cond": 0.13951241373951864,
+  "event_head": 0.051833067354366893
+ },
+ "deployment_fraction": 0.3725211464584999,
+ "n_exec_seeds": 1,
+ "gross_target_applied": 0.372521,
+ "est_book_vol": 0.05774,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.2949364878154838,
+ "genome_hash": "c09995de90f5",
+ "n_intents": 3,
+ "intents": [
+  {
+   "symbol": "IWM",
+   "price": 261.74,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 1169.0,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "DIA",
+   "price": 487.75,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 3,
+   "dollars": 1677.21,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "RSP",
+   "price": 202.89,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 9,
+   "dollars": 1835.39,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ],
+ "replaced_incumbent_intents": 6
+}

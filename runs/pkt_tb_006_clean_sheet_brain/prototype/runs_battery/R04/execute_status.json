@@ -1,0 +1,32 @@
+{
+ "run_id": "R04",
+ "config_hash": "e184d9c16e888455",
+ "arm_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R04",
+ "ledger_entry": {
+  "run_id": "R04",
+  "date_executed": "2026-06-10T18:44:13",
+  "config_hash": "e184d9c16e888455",
+  "purpose": "organ: ensemble (cast drop)"
+ },
+ "returncode": 0,
+ "cmd": [
+  "/Users/drbretto/Desktop/Projects/trader-bot/.venv/bin/python",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/run_replay.py",
+  "--arm",
+  "syn1",
+  "--window",
+  "full",
+  "--out",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R04",
+  "--cost-seed",
+  "4242",
+  "--genome",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/runs_battery/R04/genome.json",
+  "--exec-dir",
+  "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/exec_out",
+  "--exec-mode",
+  "linear_twin"
+ ],
+ "outputs_ok": true,
+ "missing_outputs": []
+}

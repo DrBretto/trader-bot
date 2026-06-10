@@ -1,0 +1,16 @@
+{
+ "date": "2026-05-22",
+ "intents": [
+  {
+   "symbol": "VOO",
+   "price": 682.89,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 2,
+   "dollars": 1374.76,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

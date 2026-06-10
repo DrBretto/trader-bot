@@ -1,0 +1,27 @@
+{
+ "date": "2026-02-27",
+ "intents": [
+  {
+   "symbol": "QQQ",
+   "price": 609.28,
+   "asset_class": "equity",
+   "sector": "broad",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 4,
+   "dollars": 2844.89,
+   "reason": "SYN1_REBALANCE_BUY"
+  },
+  {
+   "symbol": "VUG",
+   "price": 465.46,
+   "asset_class": "equity",
+   "sector": "style_growth",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 5,
+   "dollars": 2785.25,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}

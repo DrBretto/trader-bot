@@ -1,0 +1,16 @@
+{
+ "date": "2026-05-05",
+ "intents": [
+  {
+   "symbol": "XBI",
+   "price": 133.51,
+   "asset_class": "equity",
+   "sector": "industry_biotech",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 20.554960304809875,
+   "dollars": 2744.29,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+ "date": "2026-02-05",
+ "strategy": "syn1",
+ "exec_mode": "learned",
+ "sigma_source": "trailing21",
+ "flags": [],
+ "marks_source": "features",
+ "nav": 103085.44,
+ "own_drawdown": 0.0,
+ "trust": {
+  "cast": 0.2663554732150216,
+  "gbm_cond": 0.5043918499339475,
+  "event_head": 0.22925267685103107
+ },
+ "blend_coef": {
+  "cast": 0.273921033436192,
+  "gbm_cond": 0.5187177803606877,
+  "event_head": 0.20736118620312022
+ },
+ "tilt": {
+  "cast": 0.19776757330537417,
+  "gbm_cond": 0.1892743861331986,
+  "event_head": 0.15240625586741507
+ },
+ "deployment_fraction": 0.45961528318363254,
+ "n_exec_seeds": 5,
+ "gross_target_applied": 0.459615,
+ "est_book_vol": 0.079389,
+ "abstained": false,
+ "rails": [],
+ "mu_blend_abs_mean": 0.39203091974477566,
+ "genome_hash": "8f4184844e8b",
+ "n_intents": 1,
+ "intents": [
+  {
+   "symbol": "SCHD",
+   "price": 31.01,
+   "asset_class": "equity",
+   "sector": "factor_dividend",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 700.3341234366623,
+   "dollars": 21717.36,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ],
+ "replaced_incumbent_intents": 5
+}

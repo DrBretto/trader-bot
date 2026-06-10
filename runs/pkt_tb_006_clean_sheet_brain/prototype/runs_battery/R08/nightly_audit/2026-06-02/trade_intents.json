@@ -1,0 +1,16 @@
+{
+ "date": "2026-06-02",
+ "intents": [
+  {
+   "symbol": "IYR",
+   "price": 99.63,
+   "asset_class": "equity",
+   "sector": "sector_reit",
+   "leverage_flag": 0,
+   "action": "BUY",
+   "shares": 28,
+   "dollars": 2881.52,
+   "reason": "SYN1_REBALANCE_BUY"
+  }
+ ]
+}
