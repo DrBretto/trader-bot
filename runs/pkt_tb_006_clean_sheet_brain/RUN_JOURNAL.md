@@ -42,3 +42,16 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   BEATS iff paired holdout t >= +1.0 and dSharpe > 0; TIES |t| < 1; LOSES t <= -1.0.
 - 2026-06-10 :: PRE-REGISTRATION COMMIT FOLLOWS. TOURNAMENT.md bake-off criteria + BUILD_SPEC.md are
   committed BEFORE any build work or holdout read. Holdout-look ledger: 0. Validation-look ledger: 0.
+- 2026-06-10 :: Phase C wave 1 done. data_layer.py (S3 snapshot cache 87 prices-days in window,
+  OHLCV 64/64 via yfinance with split table, CBOE 7/7, FRED 12/12, COT 3 markets, 22 tests green).
+  GDELT top-up 2026-02-05->2026-06-10 COMPLETE (124/124 days, 0 failed) -- holdout GDELT-dark gap closed.
+  Deep backfill (2015->2026) running, ETA minutes. FINDINGS: snapshot gap 2026-05-11->05-22 (8 missing
+  decision days, both bake-off arms affected identically); HY-OAS only 2023->; morning_prices rare in S3.
+- 2026-06-10 :: HARNESS WIRING FINDINGS (post-registration, allowed): replay_engine._execute_intents
+  applies NO transaction-cost model (fills at raw open); seed_portfolio hardcodes 2026-03-11 (the live
+  book at holdout start). Adjudication, identical for both arms: E2 verdict pair = native 03-11-seeded
+  runs; full-period context pair via identical runtime seed-date override (2 contingency slots); the
+  pre-registered "same cost model, seeded rng 4242" implemented as an identical post-hoc cost overlay
+  on both arms' executed fills, raw and cost-adjusted both reported, paired stats on cost-adjusted.
+- 2026-06-10 :: DICTIONARY FREEZE COMMIT FOLLOWS (theme_to_sector, ACTOR_MAP, bucket_map, THEMES_FIN
+  frozen before any validation-fold model selection, per TR G4 / TOURNAMENT 4.6.3).
