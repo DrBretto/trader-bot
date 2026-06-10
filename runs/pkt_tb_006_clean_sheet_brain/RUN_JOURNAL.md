@@ -15,3 +15,10 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   6 mechanisms, 2 TRANSFERS / 3 RESTATEMENT / 1 NO-TRANSFER.
 - 2026-06-10 :: Dispatching roles 7-10 (Meta-Evaluator Designer, Evolution Engineer, LLM Sentiment
   Engineer, Data Edge Scout) for blind mechanism proposals. Seal still intact: no incumbent reads.
+- 2026-06-10 :: Roles 7-10 returned blind proposals (designs/proposals/): META_EVALUATOR (gating MLP,
+  differentiable decision replay, ~600 params), EVOLUTION (29-gene disposition genome, OOF-frozen-head
+  fitness, B0/B1/B2 ceremonial-proof battery), LLM_SENTIMENT (GKG slug+quotation organ, ~$0.15/mo,
+  $2.40 backfill, Bedrock Haiku verified live), DATA_EDGE (GDELT-rich backfill + CBOE/COT/FRED shortlist).
+  CRITICAL: GDELT local history ends 2026-02-04 — top-up backfill is a Phase C prerequisite.
+  Seal intact: no incumbent reads by any role.
+- 2026-06-10 :: Dispatching Architects Alpha/Beta/Gamma (independent complete designs, sealed rule absolute).
