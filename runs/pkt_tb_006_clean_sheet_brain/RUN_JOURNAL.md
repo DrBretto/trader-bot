@@ -132,3 +132,8 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   training-convention 3.45 bp/day vs harness 14.29 bp/day mean |daily utility| on 18 identical
   steps -> gap 122.1% > 25% => reported as relaxation-gaming per the pre-registered sentence;
   SCORECARD gate 6 updated from NOT PROVIDED. Holdout flag stayed UNSET throughout the repairs.
+- 2026-06-10 :: COMMITTEE_REPORT.md written (PKT-TB-002 field set, panel effectiveness rows, subagent
+  invocation IDs, protocol-conformance summary, required final line). Plan doc marked complete.
+  STOP CONDITION REACHED: dossier complete; prototype built; bake-off run with pre-registered criteria;
+  attribution matrix done; committee report converged; committed on ai/clean-sheet-traders-brain.
+  No production integration, no deploy.
