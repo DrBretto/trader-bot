@@ -1,0 +1,29 @@
+{
+  "pilot": "corrected_models",
+  "packet": "PKT-TB-005-EXPANSION-ATLAS-V1-20260609",
+  "code_sha": "83111700e41b9ce6c44f5f392623ddf9d8fadaf0",
+  "params_hash": "80a8453651c7fb32",
+  "seed": 20260217,
+  "data_snapshot": {
+    "source": "s3://investment-system-data/daily/",
+    "range": [
+      "2025-08-04",
+      "2026-06-09"
+    ],
+    "cache_built_at": "2026-06-09T23:56:20",
+    "n_snapshots": 194
+  },
+  "holdout_start": "2026-03-11",
+  "holdout_looks_this_pilot": 1,
+  "fill_cost_model": "paper_trader.execute_trade (production, unmodified)",
+  "command": ".venv/bin/python runs/pkt_tb_005_expansion_atlas/pilots/pilot_corrected_models.py",
+  "wall_clock_seconds": 44.8,
+  "variants_logged": [
+    "stored_control/full",
+    "stored_control/holdout",
+    "corrected_models/full",
+    "corrected_models/holdout"
+  ],
+  "notes": "Corrected-2026-06-06-models counterfactual. Production-faithful inference (incl. the 21x context-row tiling ModelLoader does \u2014 the sequence models never see real sequences at inference). Days <= 2026-02-03 are in-sample for the corrected models (pseudo-label training softens this); holdout is the clean read. 12th and final pre-registered holdout arm-read.",
+  "written_at": "2026-06-10T09:31:29"
+}

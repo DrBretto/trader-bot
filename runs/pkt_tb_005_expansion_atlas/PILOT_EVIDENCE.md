@@ -226,11 +226,57 @@ this window (no crash day) and is coordinated with PKT-TB-004 per the atlas.
 
 ---
 
+## Addendum pilot 6 — Corrected-models counterfactual (operator-requested), E1+E2
+
+**Question.** How would the stretch have gone had the models been trained
+right? (All deep-era stored days ran short-corpus-mistrained models; the
+corrected 2026-06-06 retrain — regime GRU 9%→73% OOS — has one stored day.)
+
+**Design.** Per-date inference regenerated with the CURRENT production models
+loaded via the production `ModelLoader` (regime `ensemble_v20260606`; health
+resolved to the `health_v20260601.pkl` artifact — only regime was retrained on
+2026-06-06, per BEAT_CHAMPION "health model unchanged"), from each date's
+stored context/features (as-of-date inputs only), swapped via the harness
+hook; production-faithful in every respect including the discovery below.
+Ranking layer (blend 0.35) identical in both arms. In-sample caveat: corrected
+models trained on the 11-year corpus through ~2026-02-03 (assumption; pkl does
+not record the range) → days ≤ 2026-02-03 are in-sample for them; the holdout
+is entirely post-training = the clean read. 12th and final holdout arm-read.
+
+**Results (`pilots/results_corrected_models.json`):**
+
+| arm | E1 full ret | E1 maxDD | E2 holdout ret | E2 maxDD | paired t full | paired t holdout | paired t post-training-only (n=66) |
+|---|---|---|---|---|---|---|---|
+| stored record (mistrained) | +4.58% | -12.29% | -5.87% | -12.21% | — | — | — |
+| corrected 2026-06-06 models | +0.11% | -9.03% | -5.33% | -8.08% | -0.26 | **+0.009** | -0.34 |
+
+Label agreement: corrected-vs-stored 80.9%, corrected-vs-rules 56.7%; mean
+disagreement 0.354 (throttle active ~daily), mean confidence 0.77.
+
+**Verdict: the corrected models replay the same stretch statistically
+identically to the mistrained record** (holdout paired t = 0.009 — as close to
+a coin-flip as the harness can produce; drawdown path modestly better, endpoint
+modestly worse, all within noise). The 9%→73% label-accuracy improvement does
+not cash out in portfolio terms on this window — consistent with the
+baseline-check tie: the regime label path is not where this system's P&L is
+made or lost, at least under the current bundle and its ranking layer. The
+operator's hypothetical is answered: **the stretch would have gone essentially
+the same.**
+
+**New run-level finding #7 (production inference tiling).**
+`ModelLoader.predict_regime` builds the model input by TILING the single
+current day's context row 21× (`np.tile(features, (seq_length, 1))`) — the
+GRU/Transformer, trained on real 21-day sequences, have never been fed a real
+temporal sequence at production inference. Every sequence-modeling capacity
+argument for the deep pair is moot under this serving path; fixing it (feed
+the actual trailing 21-day context window, which the pipeline has) is a bug-fix
+lane candidate that would need its own E1/E2 read.
+
 ## Final line
 
-All five pilots carry E1+E2 manifests (`manifests/`); every variant including
-three bugged/superseded runs is logged; 11/12 pre-registered holdout arm-reads
-consumed; no pilot result exceeds the t≥3.0 evidence bar — every directional
+All six pilots carry E1+E2 manifests (`manifests/`); every variant including
+three bugged/superseded runs is logged; 12/12 pre-registered holdout arm-reads
+consumed (budget exhausted — no further holdout reads this window); no pilot result exceeds the t≥3.0 evidence bar — every directional
 claim above is graded suggestive-or-noise and parked accordingly; the S-01
 sleeve pilot reports E1+E2 numbers whose harm component is attributed to a
 pilot-wiring constraint (production partial-SELL landmine), so its

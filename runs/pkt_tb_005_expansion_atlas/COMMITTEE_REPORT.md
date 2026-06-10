@@ -241,6 +241,29 @@ Scope corrections that follow:
   configuration has effectively NO evaluated history yet; all
   champion/promotion evidence to date should be read with that scope.
 
+## Addendum 2 (2026-06-10, operator-requested counterfactual)
+
+**"How would the stretch have gone had the models been trained right?" —
+essentially the same.** Per-date inference was regenerated with the corrected
+2026-06-06 models (production ModelLoader, as-of-date stored inputs) and
+replayed over the full stretch (PILOT_EVIDENCE addendum pilot 6; 12th and
+final holdout look). Holdout paired t = **0.009** vs the mistrained stored
+record — a statistical coin-flip (endpoint -5.3% vs -5.9%; drawdown path
+modestly better, within noise). The mistraining, while real and worth fixing,
+was NOT the binding constraint on this window's performance; this is
+consistent with the baseline-check tie (the regime label path is not where
+P&L is made or lost under the current bundle), and it sharpens the ranking
+layer's status as the dominant unexplained negative on the harness.
+
+**New finding #7 — production inference never feeds real sequences.**
+`ModelLoader.predict_regime` tiles the current day's context row 21× as the
+model input; the sequence models (trained on real 21-day sequences) serve on
+constant sequences. The deep pair's sequence-modeling capacity is structurally
+unused in production; the 9%→73% retrain accuracy is label-reproduction
+accuracy under this tiling. Bug-fix-lane candidate (feed the real trailing
+window) with its own E1/E2 read; until then, every capacity argument for the
+deep regime pair over the rules is void at serving time.
+
 ## Final line
 
 ATLAS: 56 candidates → 7 piloted / 40 parked / 9 killed; PILOT VERDICTS: baseline-regime=tie (Δret -1.9pp holdout, t=-0.68, sign flips across ranking variants @E2), health-rules-vs-AE=+14.5pp holdout ret / ΔSharpe +5.8, t=+1.18 noise-with-direction @E2, ranking-layer=-7.5pp holdout ret / ΔmaxDD -10.7pp vs blend-0, t=-0.65 + no clean OOS read exists @E2-contaminated-in-its-favor, cash-sleeve=evidence-incomplete (wiring confounded by production partial-SELL landmine, t=-2.32 @E1), universe-removals=Δ≈0 (|t|≤0.2) → harmless, removals win @E2; BASELINE CHECK: ensemble (as-it-ran: short-corpus-mistrained models on every evaluated day; the corrected 2026-06-06 models have 1 stored day and are UNTESTED) DOES NOT BEAT dumb baseline by any measurable margin (best |t|=1.05 < 2.0 on 45 holdout days, both directions, both harness variants).
