@@ -40,8 +40,25 @@ LLM/GDELT features come from the store panel (store/panel.npz). The driver is
 idempotent — one command, overwrites store/nightly/ — so it is simply re-run
 after the final LLM merge + member retrain.
 
+VARIANT STORES (battery contract, TOURNAMENT §4.4 / battery.py): --variant
+writes store/nightly_<tag>/ with the retrain-arm member sources substituted:
+  rt2_ridge_slot     CAST slot <- ridge twin deploy (models_out/ridge_twin),
+                     ledger warmed with fold-6 ridge_twin OOF
+  rt3_llm_neutral    GBM/EventHead <- models_out/*_llm_neutral on the
+                     LLM-neutralized panel (llm_* columns + masks at 0)
+  rt4_gdelt_ablated  GBM/EventHead <- models_out/*_gdelt_ablated on the
+                     G1-G5-ablated panel
+  rt5_uniform        CAST slot <- models_out/cast_uniform deploy seeds;
+                     ledger w_rec_raw forced to 1.0 (uniform record weights —
+                     the replay-side expression of the executive's uniform
+                     w_rec; the adapter's genome-eps tilt then weights all
+                     days equally)
+The exec_inputs z vector is NEVER masked here — arm genomes gate z at replay
+time (feature_gate); member opinions/books/ledger carry the substitution.
+
 Usage:
     .venv/bin/python precompute_nightly.py [--start 2026-02-02] [--end 2026-06-09]
+                                           [--variant rt2_ridge_slot|...]
 """
 from __future__ import annotations
 
@@ -80,6 +97,26 @@ WARM_START = "2025-08-04"        # ledger warm-up start (fine-tune window start)
 WARM_END = "2026-02-01"          # warm uses fold-6 OOF dates strictly before the window
 EVENT_ABSTAIN = 0.10             # EventHead deploy abstain (registered constant)
 EVENT_WEIGHT_CAP_DEPLOY = 1.0    # genome event_weight_cap applies at blend time, not here
+
+# ---- retrain-arm variant stores (battery.py declared dirs) -------------------
+VARIANTS = {
+    "base": {},
+    "rt2_ridge_slot": {"cast_source": "ridge_twin",
+                       "warm_map": {"cast": "ridge_twin"}},
+    "rt3_llm_neutral": {"neutralize": "llm",
+                        "gbm_dir": "gbm_cond_llm_neutral",
+                        "event_dir": "event_head_llm_neutral",
+                        "warm_map": {"gbm_cond": "gbm_cond_llm_neutral",
+                                     "event_head": "event_head_llm_neutral"}},
+    "rt4_gdelt_ablated": {"neutralize": "gdelt",
+                          "gbm_dir": "gbm_cond_gdelt_ablated",
+                          "event_dir": "event_head_gdelt_ablated",
+                          "warm_map": {"gbm_cond": "gbm_cond_gdelt_ablated",
+                                       "event_head": "event_head_gdelt_ablated"}},
+    "rt5_uniform": {"cast_source": "cast_uniform",
+                    "warm_map": {"cast": "cast_uniform"},
+                    "uniform_w_rec": True},
+}
 
 
 def log_look(component: str, decision: str, provenance: str) -> None:
@@ -120,11 +157,11 @@ def proxy_vol_world(panel: dict) -> dict:
 
 
 # ---------------------------------------------------------------- member inference
-def infer_cast(panel: dict, idxs: np.ndarray) -> dict:
+def infer_cast(panel: dict, idxs: np.ndarray, model_dir: str = "cast") -> dict:
     import torch
-    seeds_files = sorted((MODELS / "cast").glob("seed_*.pt"))
+    seeds_files = sorted((MODELS / model_dir).glob("seed_*.pt"))
     if not seeds_files:
-        raise FileNotFoundError("models_out/cast/seed_*.pt missing")
+        raise FileNotFoundError(f"models_out/{model_dir}/seed_*.pt missing")
     sec_ids, cls_ids = M.sector_class_ids(REPO / "config" / "universe.csv")
     sec_t = torch.from_numpy(sec_ids)
     cls_t = torch.from_numpy(cls_ids)
@@ -164,26 +201,39 @@ def infer_cast(panel: dict, idxs: np.ndarray) -> dict:
         c[j] = float(np.nanmean(cors)) if cors else np.nan
     return {"mu": mu, "sigma": np.maximum(sigma, 1e-2), "c": np.nan_to_num(c),
             "n_seeds": len(seeds_files),
-            "manifest": json.loads((MODELS / "cast" / "manifest.json").read_text())}
+            "manifest": json.loads((MODELS / model_dir / "manifest.json").read_text())}
 
 
-def infer_gbm(panel: dict, idxs: np.ndarray, screen: dict) -> dict:
+def infer_ridge(panel: dict, idxs: np.ndarray) -> dict:
+    """Ridge-twin deploy inference for the RT-2 cast slot: mu = design @ coef;
+    sigma/c = 1 (the OOF twin convention, members.run_ridge)."""
+    z = np.load(MODELS / "ridge_twin" / "coef.npz", allow_pickle=False)
+    coef = np.asarray(z["coef"], dtype=np.float64)
+    A, _, _ = M._ridge_design(panel, idxs)
+    mu = np.einsum("nsd,d->ns", A.astype(np.float64), coef)
+    n = len(idxs)
+    return {"mu": mu, "sigma": np.ones_like(mu), "c": np.ones(n),
+            "n_seeds": 1,
+            "manifest": json.loads((MODELS / "ridge_twin" / "manifest.json").read_text())}
+
+
+def infer_gbm(panel: dict, idxs: np.ndarray, screen: dict,
+              model_dir: str = "gbm_cond") -> dict:
     import pickle
-    with (MODELS / "gbm_cond" / "model.pkl").open("rb") as fh:
+    with (MODELS / model_dir / "model.pkl").open("rb") as fh:
         blob = pickle.load(fh)
     clf, iso = blob["clf"], blob["iso"]
     bucket_ids = blob["bucket_ids"]
     # routing variant comes from the DEPLOY manifest (registered §9.1 outcome
     # ships r3_only; hardwired "conjunctive" broke the design width — fixed)
-    man = json.loads((MODELS / "gbm_cond" / "manifest.json").read_text())
+    man = json.loads((MODELS / model_dir / "manifest.json").read_text())
     variant = man.get("params", {}).get("variant", "conjunctive")
     D, y, valid, w, mono = M.gbm_design(panel, idxs, blob["sym_is_credit"],
                                         blob["sym_is_equity"], screen, 6,
                                         variant)
     P, mu2, c2 = M.gbm_outputs(clf, D, valid, panel, idxs, iso=iso)
     return {"mu_raw": np.nan_to_num(mu2, nan=0.0), "c": np.nan_to_num(c2),
-            "bucket_ids": bucket_ids,
-            "manifest": json.loads((MODELS / "gbm_cond" / "manifest.json").read_text())}
+            "bucket_ids": bucket_ids, "manifest": man}
 
 
 def gbm_sigma_chronological(panel: dict, dates: np.ndarray, mu_window: np.ndarray,
@@ -201,9 +251,10 @@ def gbm_sigma_chronological(panel: dict, dates: np.ndarray, mu_window: np.ndarra
     return sig[len(warm_idx):]
 
 
-def infer_event(panel: dict, idxs: np.ndarray, screen: dict) -> dict:
+def infer_event(panel: dict, idxs: np.ndarray, screen: dict,
+                model_dir: str = "event_head") -> dict:
     import pickle
-    with (MODELS / "event_head" / "model.pkl").open("rb") as fh:
+    with (MODELS / model_dir / "model.pkl").open("rb") as fh:
         blob = pickle.load(fh)
     models, keep_cols = blob["models"], blob["keep_cols"]
     b_cols = [str(c) for c in panel["B_cols"]]
@@ -221,7 +272,7 @@ def infer_event(panel: dict, idxs: np.ndarray, screen: dict) -> dict:
         Xk = np.nan_to_num(B[idxs][:, k, :][:, kidx].astype(np.float64), nan=0.0)
         val_mu_b[:, k] = en.predict((Xk - mu_) / sd_)
     # gated event mass percentile (c3): full-panel history so the 252d window is warm
-    ev_man = json.loads((MODELS / "event_head" / "manifest.json").read_text())
+    ev_man = json.loads((MODELS / model_dir / "manifest.json").read_text())
     ev_variant = ev_man.get("params", {}).get("variant", "conjunctive")
     passing = [f for f in IT.FAMILIES if f != "LLM_event_flags"
                and IT.screen_pass(screen, f, 6, ev_variant)]
@@ -257,7 +308,7 @@ def infer_event(panel: dict, idxs: np.ndarray, screen: dict) -> dict:
         v = resid_sd[k] if np.isfinite(resid_sd[k]) else 1.0
         sigma3[:, sym_of_bucket[k]] = max(v / max(np.nanmean(resid_sd), 1e-9), 0.25)
     return {"mu": mu3, "sigma": sigma3, "c": c3, "n_pass_families": len(passing),
-            "manifest": json.loads((MODELS / "event_head" / "manifest.json").read_text())}
+            "manifest": ev_man}
 
 
 def infer_risknet(panel: dict, idxs: np.ndarray) -> dict:
@@ -279,9 +330,12 @@ def infer_risknet(panel: dict, idxs: np.ndarray) -> dict:
 
 
 # ---------------------------------------------------------------- warm OOF
-def load_warm_oof(panel_dates: np.ndarray) -> dict:
-    """Fold-6 OOF member outputs restricted to [WARM_START, WARM_END]."""
-    oofs = {m: bk.load_oof(OOF, 6, m) for m in bk.MEMBERS}
+def load_warm_oof(panel_dates: np.ndarray, name_map: dict | None = None) -> dict:
+    """Fold-6 OOF member outputs restricted to [WARM_START, WARM_END].
+    name_map redirects a slot to a variant OOF file (e.g. cast -> ridge_twin)
+    so variant ledgers warm on the SAME member lineage they deploy."""
+    nm = name_map or {}
+    oofs = {m: bk.load_oof(OOF, 6, nm.get(m, m)) for m in bk.MEMBERS}
     d0 = oofs[bk.MEMBERS[0]]["dates"]
     for m in bk.MEMBERS:
         assert np.array_equal(oofs[m]["dates"], d0), "fold-6 OOF date mismatch"
@@ -303,9 +357,15 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--start", default=WINDOW_START)
     ap.add_argument("--end", default=WINDOW_END)
+    ap.add_argument("--variant", default="base", choices=sorted(VARIANTS),
+                    help="retrain-arm variant store -> store/nightly_<tag>/ "
+                         "(base -> store/nightly/)")
     args = ap.parse_args()
     t0 = time.time()
     command = "python " + " ".join(sys.argv)
+    vc = VARIANTS[args.variant]
+    out_root = NIGHTLY if args.variant == "base" \
+        else PROTO / "store" / f"nightly_{args.variant}"
 
     panel = load_panel()
     dates = np.asarray(panel["dates"]).astype(str)
@@ -314,24 +374,38 @@ def main() -> None:
     world = proxy_vol_world(panel)
     hs = bk.load_half_spread_bps()
 
+    # variant neutralization: member INFERENCE sees the neutralized panel
+    # (mirrors the retrained members' training inputs); world prices / proxy
+    # sigma / Z are untouched (z gating is the genome's job at replay time)
+    panel_inf = panel
+    if vc.get("neutralize"):
+        from retrain_arms import neutralize_panel
+        panel_inf = neutralize_panel(panel, vc["neutralize"])
+
     window_mask = (dates >= args.start) & (dates <= args.end)
     widx = np.nonzero(window_mask)[0]
     wdates = dates[widx]
-    print(f"window {wdates[0]}..{wdates[-1]} ({len(wdates)} panel dates)")
+    print(f"window {wdates[0]}..{wdates[-1]} ({len(wdates)} panel dates) "
+          f"variant={args.variant}")
 
     # ---- deploy member inference over the window (vectorized) -----------------
-    print("CAST...", flush=True)
-    cast = infer_cast(panel, widx)
+    cast_source = vc.get("cast_source", "cast")
+    print(f"CAST slot ({cast_source})...", flush=True)
+    if cast_source == "ridge_twin":
+        cast = infer_ridge(panel_inf, widx)
+    else:
+        cast = infer_cast(panel_inf, widx, model_dir=cast_source)
     print("GBM-Cond...", flush=True)
-    gbm = infer_gbm(panel, widx, screen)
+    gbm = infer_gbm(panel_inf, widx, screen, model_dir=vc.get("gbm_dir", "gbm_cond"))
     print("EventHead...", flush=True)
-    event = infer_event(panel, widx, screen)
+    event = infer_event(panel_inf, widx, screen,
+                        model_dir=vc.get("event_dir", "event_head"))
     print("RiskNet+...", flush=True)
     risk = infer_risknet(panel, widx)
 
     # ---- warm history (fold-6 OOF) + chronological ledger ---------------------
     print("ledger (warm fold-6 OOF + window deploy)...", flush=True)
-    warm = load_warm_oof(dates)
+    warm = load_warm_oof(dates, name_map=vc.get("warm_map"))
     gbm_sigma = gbm_sigma_chronological(panel, dates, gbm["mu_raw"], widx,
                                         gbm["bucket_ids"], warm)
     member_out = {
@@ -372,9 +446,12 @@ def main() -> None:
     u_warm = np.concatenate([u_by[m][:n_warm] for m in bk.MEMBERS])
     u_std = float(max(np.nanstd(u_warm), 1e-4))
     w_rec_raw_cat = np.nan_to_num(panel["w_rec_score"][cat_gidx], nan=0.0).mean(axis=1)
+    if vc.get("uniform_w_rec"):
+        # rt5: uniform record weights in the replay tilt (clip(eps+1,...)=1)
+        w_rec_raw_cat = np.ones_like(w_rec_raw_cat)
 
     # ---- per-date artifacts ----------------------------------------------------
-    NIGHTLY.mkdir(parents=True, exist_ok=True)
+    out_root.mkdir(parents=True, exist_ok=True)
     rows_ledger = []
     for m in bk.MEMBERS:
         st = ledger[m]
@@ -388,8 +465,8 @@ def main() -> None:
                                 "warm_oof_f6", "window_deploy"),
         }))
     pd.concat(rows_ledger, ignore_index=True).to_parquet(
-        NIGHTLY / "ledger.parquet", index=False)
-    (NIGHTLY / "ledger_meta.json").write_text(json.dumps({
+        out_root / "ledger.parquet", index=False)
+    (out_root / "ledger_meta.json").write_text(json.dumps({
         "u_std": u_std, "warm_stats": warm_stats, "lag_rule": "D-h-1 (h=5)",
         "warm_source": "oof/fold_6_<member>.npz (walk-forward OOF), dates "
                        f"{WARM_START}..{WARM_END} (n={n_warm})",
@@ -404,7 +481,7 @@ def main() -> None:
                         "event_head": event["manifest"], "risknet": risk["manifest"]}
     n_written = 0
     for j, d in enumerate(wdates):
-        out = NIGHTLY / str(d)
+        out = out_root / str(d)
         out.mkdir(parents=True, exist_ok=True)
         gi = n_warm + j                              # index in concatenated series
         # expert_opinions
@@ -453,8 +530,9 @@ def main() -> None:
         n_written += 1
 
     meta = json.loads((PROTO / "store" / "panel_meta.json").read_text())
-    (NIGHTLY / "manifest.json").write_text(json.dumps({
+    (out_root / "manifest.json").write_text(json.dumps({
         "generated": dt.datetime.now().isoformat(timespec="seconds"),
+        "variant": args.variant, "variant_config": vc,
         "window": [str(wdates[0]), str(wdates[-1])], "n_dates": n_written,
         "panel": {"generated": meta["generated"], "llm_merged": meta.get("llm_merged"),
                   "n_dates": meta["n_dates"]},
@@ -472,7 +550,7 @@ def main() -> None:
              "exec inputs use trailing-vol proxy sigma_hat/book_vol_hat "
              "(executive training convention), E4 heads carried alongside",
              "wiring adjudication — training/deploy input consistency")
-    print(f"wrote {n_written} nightly dirs -> {NIGHTLY} "
+    print(f"wrote {n_written} nightly dirs -> {out_root} "
           f"({time.time() - t0:.0f}s)")
 
 

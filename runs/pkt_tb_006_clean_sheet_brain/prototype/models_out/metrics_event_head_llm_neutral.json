@@ -1,0 +1,44 @@
+{
+ "F1": {
+  "purged_spearman": 0.06230612062956298,
+  "weekly_rank_ic": 0.006851981110535945,
+  "abstain_frac": 0.10756972111553785,
+  "n_pass_families": 2,
+  "wall_s": 0.1
+ },
+ "F2": {
+  "purged_spearman": 0.030953881646783827,
+  "weekly_rank_ic": 0.01638179630316126,
+  "abstain_frac": 0.1067193675889328,
+  "n_pass_families": 4,
+  "wall_s": 0.1
+ },
+ "F3": {
+  "purged_spearman": 0.0023482998409730953,
+  "weekly_rank_ic": 0.025386015815219064,
+  "abstain_frac": 0.08366533864541832,
+  "n_pass_families": 3,
+  "wall_s": 0.1
+ },
+ "F4": {
+  "purged_spearman": 0.060735519447661264,
+  "weekly_rank_ic": 0.07263309074518295,
+  "abstain_frac": 0.10358565737051793,
+  "n_pass_families": 1,
+  "wall_s": 0.0
+ },
+ "F5": {
+  "purged_spearman": 0.10160388312046181,
+  "weekly_rank_ic": 0.09191851203578005,
+  "abstain_frac": 0.13147410358565736,
+  "n_pass_families": 2,
+  "wall_s": 0.1
+ },
+ "F6": {
+  "purged_spearman": 0.07770074906592916,
+  "weekly_rank_ic": 0.08112397678430215,
+  "abstain_frac": 0.088,
+  "n_pass_families": 1,
+  "wall_s": 0.1
+ }
+}

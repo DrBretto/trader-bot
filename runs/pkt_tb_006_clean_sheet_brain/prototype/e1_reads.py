@@ -22,9 +22,17 @@ Supported arm shapes (one ``E1Side`` per side of the comparison):
 FORCED CHOICES (logged once here, printed in every E1 manifest):
   - The E1 daily-utility series is the walk's daily BOOK RETURN at cost
     scenario 1.0 (the same series whose Sharpe/MaxDD defines the EA's U_f).
-  - Base sides use sigma_source='risknet' (the brain's E4 instrument) when
-    risknet OOFs exist, falling back to the world trailing-21d proxy with a
-    manifest warning; R07's without-side forces 'trailing21'.
+  - Base sides use sigma_source='trailing21' — the FROZEN deployed sigma
+    convention (FREEZE_SYN1.md: trailing-21 proxy is the replay default), so
+    E1 and E2 compare the same brain. The R07 organ read is therefore
+    risknet (with) vs trailing21 (without/deployed): positive t = the RiskNet
+    E4 instrument ADDS over the deployed trailing-21 proxy. [supersedes the
+    earlier 'risknet base' choice — re-logged in validation_looks.jsonl]
+  - Base sides walk LOFO executives of the FROZEN gate class. The rung that
+    ships for an exec dir is read from <exec_dir>/ladder.json ("ships":
+    "linear_twin"|"mlp"); linear_twin rungs load lofo_twin_fold<f>.pt
+    (LinearGate), mlp rungs load lofo_fold<f>.pt (Executive MLP). Missing
+    ladder.json falls back to the MLP LOFO files (legacy layout).
   - The R08 bypass replaces the WHOLE trust/sizing stack with tau = 1/M over
     gated members and f = 0.7 (no genome trust tilt, no event_weight_cap),
     keeping the genome rail ladder (gross/cash, max-symbol, vol cap, dd brake,
@@ -58,7 +66,7 @@ class E1Side:
     oof_member_map: dict | None = None      # e.g. {"cast": "ridge_twin"}
     exec_dir: Path | None = None            # LOFO executive dir (lofo_fold<f>.pt)
     models: dict | None = None              # {fold: nn.Module} injected (tests)
-    sigma_source: str = "risknet"           # 'risknet' | 'trailing21'
+    sigma_source: str = "trailing21"        # 'trailing21' (FROZEN deployed) | 'risknet'
     uniform_w_rec: bool = False             # infotropy-B without-side
     bypass: dict | None = None              # {"equal_trust": True, "f_fixed": 0.7}
     feature_gate_off: tuple = ()            # ea.FEATURE_GATE_NAMES entries forced 0
@@ -123,11 +131,25 @@ def apply_sigma_source(data: ex.ExecData, oof_dir: Path, fold_list: list[int],
     return data
 
 
+def shipped_rung(exec_dir: Path) -> str:
+    """The §7.3 ladder rung that SHIPS for this exec dir: <dir>/ladder.json
+    {'ships': 'linear_twin'|'mlp'}; missing file = legacy MLP layout."""
+    p = Path(exec_dir) / "ladder.json"
+    if p.exists():
+        return json.loads(p.read_text())["ships"]
+    return "mlp"
+
+
 def load_lofo(exec_dir: Path, fold_list: list[int]) -> dict:
+    """LOFO executives of the SHIPPED gate class for this dir (frozen-gate
+    mirroring: E1 walks the same gate class the replay deploys)."""
+    rung = shipped_rung(exec_dir)
+    cls, pat = ((ex.LinearGate, "lofo_twin_fold{f}.pt") if rung == "linear_twin"
+                else (ex.Executive, "lofo_fold{f}.pt"))
     models = {}
     for f in fold_list:
-        m = ex.Executive()
-        m.load_state_dict(torch.load(Path(exec_dir) / f"lofo_fold{f}.pt"))
+        m = cls()
+        m.load_state_dict(torch.load(Path(exec_dir) / pat.format(f=f)))
         m.eval()
         models[f] = m
     return models
@@ -239,7 +261,8 @@ class E1WalkEngine(ea.FitnessEngine):
         equity, peak = 0.0, 0.0
         for i in range(n):
             dd = peak - equity
-            hidden = np.tanh(pre[i] + c["w_dd"] * dd)
+            h_pre = pre[i] + c["w_dd"] * dd
+            hidden = np.tanh(h_pre) if c["act"] == "tanh" else h_pre
             f_dep = 1.0 / (1.0 + np.exp(-(c["gain"] * (hidden @ c["v2"] + c["b2"])
                                           + c["bias"])))
             w = f_dep * w_unit[i]

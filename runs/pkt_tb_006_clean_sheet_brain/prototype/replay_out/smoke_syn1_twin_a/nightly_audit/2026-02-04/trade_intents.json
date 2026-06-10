@@ -1,0 +1,49 @@
+{
+ "date": "2026-02-04",
+ "intents": [
+  {
+   "symbol": "VEA",
+   "price": 66.72,
+   "asset_class": "equity",
+   "sector": "international_dev",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 305.41733878141804,
+   "dollars": 20377.44,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "XLB",
+   "price": 50.7,
+   "asset_class": "equity",
+   "sector": "sector_materials",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 430.7285711157389,
+   "dollars": 21837.94,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "VLUE",
+   "price": 149.57,
+   "asset_class": "equity",
+   "sector": "factor_value",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 146.44024262238605,
+   "dollars": 21903.07,
+   "reason": "SYN1_REBALANCE_TRIM"
+  },
+  {
+   "symbol": "SCHD",
+   "price": 30.5,
+   "asset_class": "equity",
+   "sector": "factor_dividend",
+   "leverage_flag": 0,
+   "action": "SELL",
+   "shares": 724.1189715486938,
+   "dollars": 22085.63,
+   "reason": "SYN1_REBALANCE_TRIM"
+  }
+ ]
+}

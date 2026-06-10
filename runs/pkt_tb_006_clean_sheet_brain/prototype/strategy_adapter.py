@@ -31,10 +31,13 @@ src.utils.three_line_replay.strategies.Strategy whose post_decision:
 Missing nightly artifacts for D (e.g. the 2026-05-11..05-22 snapshot gap)
 => emits NO intents (hold) and flags it in meta_decision.json.
 
-Battery knobs (TOURNAMENT §4.3/§4.4):
-  exec_mode    'learned' (default) | 'equal_trust' — the R08 executive bypass:
-               tau = 1/M over ACTIVE members, deployment f fixed at 0.7, same
-               genome rails (vol cap etc.); learned executive never loaded.
+Battery knobs (TOURNAMENT §4.3/§4.4; FREEZE_SYN1.md):
+  exec_mode    'linear_twin' (DEFAULT — the FROZEN SYN-1 executive gate per
+               FREEZE_SYN1.md §7.3 ladder: exec_dir/linear_twin.pt, pure-numpy
+               forward, same genome rails) | 'learned' (MLP seed ensemble,
+               retained for diagnostics) | 'equal_trust' — the R08 executive
+               bypass: tau = 1/M over ACTIVE members, deployment f fixed at
+               0.7, same genome rails (vol cap etc.); no executive loaded.
   sigma_source 'trailing21' (default; the trailing-vol-proxy columns the
                executive trained on — the landed/R01 behavior, now named) |
                'risknet' (E4 RiskNet+ heads) — selects the vol-cap sigma_hat
@@ -68,10 +71,14 @@ LAG = bk.H + 1          # ledger / tilt lag: stats at D use u(D') with D' <= D-h
 MIN_ORDER_DEFAULT = 250.0
 FULL_EXIT_EPS = 1e-9
 
-# R08 executive bypass (TOURNAMENT §4.3 meta-evaluator baseline): tau = 1/M over
-# ACTIVE members, deployment f fixed, same genome rails — mirrors the
-# e1_reads.E1WalkEngine.fold_daily_returns bypass walk.
-EXEC_MODES = ("learned", "equal_trust")
+# Executive gate modes. 'linear_twin' is the FROZEN SYN-1 deployment gate
+# (FREEZE_SYN1.md: the §7.3 ladder shipped the linear twin because the MLP did
+# not beat it); 'learned' (MLP seed ensemble) stays available for diagnostics;
+# 'equal_trust' is the R08 bypass (TOURNAMENT §4.3 meta-evaluator baseline):
+# tau = 1/M over ACTIVE members, deployment f fixed, same genome rails —
+# mirrors the e1_reads.E1WalkEngine.fold_daily_returns bypass walk.
+EXEC_MODES = ("linear_twin", "learned", "equal_trust")
+DEFAULT_EXEC_MODE = "linear_twin"
 EQUAL_TRUST_F = 0.7
 
 # R07 sigma source (vol-cap sigma_hat + executive book-vol input). 'trailing21'
@@ -85,12 +92,24 @@ SIGMA_SOURCES = {
 
 
 # ------------------------------------------------------------------ exec weights
-def load_exec_weights(exec_dir: Path) -> List[Dict[str, np.ndarray]]:
-    """Load every executive_seed*.pt in exec_dir as plain numpy dicts."""
+def load_exec_weights(exec_dir: Path,
+                      exec_mode: str = DEFAULT_EXEC_MODE
+                      ) -> List[Dict[str, np.ndarray]]:
+    """Load the executive gate weights as plain numpy dicts.
+
+    exec_mode='linear_twin' -> exactly [exec_dir/linear_twin.pt] (the frozen
+    gate, a one-element 'ensemble'); 'learned' -> every executive_seed*.pt."""
     import torch
-    files = sorted(Path(exec_dir).glob("executive_seed*.pt"))
-    if not files:
-        raise FileNotFoundError(f"no executive_seed*.pt in {exec_dir}")
+    if exec_mode == "linear_twin":
+        p = Path(exec_dir) / "linear_twin.pt"
+        if not p.exists():
+            raise FileNotFoundError(f"no linear_twin.pt in {exec_dir} "
+                                    f"(the frozen exec gate)")
+        files = [p]
+    else:
+        files = sorted(Path(exec_dir).glob("executive_seed*.pt"))
+        if not files:
+            raise FileNotFoundError(f"no executive_seed*.pt in {exec_dir}")
     out = []
     for f in files:
         sd = torch.load(f, weights_only=True)
@@ -100,22 +119,32 @@ def load_exec_weights(exec_dir: Path) -> List[Dict[str, np.ndarray]]:
 
 def exec_trust_numpy(w: Dict[str, np.ndarray], x_trust: np.ndarray
                      ) -> tuple[np.ndarray, float]:
-    """Pure-numpy mirror of executive.Executive.trust pre-softmax: x_trust [3,30]
-    -> (raw logits s[3], model temperature T)."""
-    e = np.tanh(x_trust @ w["phi.weight"].T + w["phi.bias"])      # [3,8]
-    s = e @ w["v"] + w["b"][0] + w["b_m"]                          # [3]
+    """Pure-numpy mirror of the executive trust pre-softmax: x_trust [3,30]
+    -> (raw logits s[3], model temperature T). Dispatches on the state-dict
+    keys: Executive MLP ('phi.weight' ...) or LinearGate twin ('a'/'B')."""
+    if "phi.weight" in w:                                          # Executive MLP
+        e = np.tanh(x_trust @ w["phi.weight"].T + w["phi.bias"])   # [3,8]
+        s = e @ w["v"] + w["b"][0] + w["b_m"]                      # [3]
+    else:                                                          # LinearGate twin
+        xm = x_trust[:, :6]                                        # [3,6]
+        z = x_trust[0, 6:]                                         # z identical across members
+        s = xm @ w["a"] + w["B"] @ z + w["b_m"]                    # [3]
     T = float(np.clip(np.exp(w["log_T"][0]), 0.1, 10.0))
     return s, T
 
 
 def exec_sizing_numpy(w: Dict[str, np.ndarray], x_psi_pre_dd: np.ndarray,
                       dd: float) -> float:
-    """Pure-numpy mirror of executive.Executive.sizing for ONE date.
-    x_psi_pre_dd [35] with the drawdown slot (34) unset. Returns deployment f."""
+    """Pure-numpy mirror of the executive sizing head for ONE date.
+    x_psi_pre_dd [35] with the drawdown slot (34) unset. Returns deployment f.
+    Dispatches MLP ('psi1.weight') vs LinearGate twin ('c'/'d')."""
     x_psi = x_psi_pre_dd.copy()
     x_psi[34] = dd
-    hidden = np.tanh(x_psi @ w["psi1.weight"].T + w["psi1.bias"])  # [8]
-    raw = float(hidden @ w["psi2.weight"][0] + w["psi2.bias"][0])
+    if "psi1.weight" in w:                                         # Executive MLP
+        hidden = np.tanh(x_psi @ w["psi1.weight"].T + w["psi1.bias"])  # [8]
+        raw = float(hidden @ w["psi2.weight"][0] + w["psi2.bias"][0])
+    else:                                                          # LinearGate twin
+        raw = float(x_psi @ w["c"] + w["d"][0])
     return 1.0 / (1.0 + np.exp(-(float(w["psi_out_gain"][0]) * raw
                                  + float(w["psi_out_bias"][0])
                                  + float(w["f_sigmoid_bias"][0]))))
@@ -233,7 +262,7 @@ def make_syn1_strategy(genome: Genome | dict | str | Path,
                        cache=None,
                        universe_csv: Path | str = REPO / "config" / "universe.csv",
                        min_order: float = MIN_ORDER_DEFAULT,
-                       exec_mode: str = "learned",
+                       exec_mode: str = DEFAULT_EXEC_MODE,
                        sigma_source: str = "trailing21") -> Strategy:
     if exec_mode not in EXEC_MODES:
         raise ValueError(f"unknown exec_mode {exec_mode!r} (choices: {EXEC_MODES})")
@@ -246,9 +275,10 @@ def make_syn1_strategy(genome: Genome | dict | str | Path,
     elif isinstance(genome, dict):
         genome = Genome.from_dict(genome)
     nightly_dir = Path(nightly_dir)
-    # equal_trust bypasses the learned executive entirely — no weights needed
+    # equal_trust bypasses the executive entirely — no weights needed;
+    # linear_twin loads exactly the frozen one-element gate
     seeds_w = ([] if exec_mode == "equal_trust"
-               else load_exec_weights(Path(exec_weights_dir)))
+               else load_exec_weights(Path(exec_weights_dir), exec_mode))
 
     uni = pd.read_csv(universe_csv)
     symbols = [str(s).strip() for s in uni["symbol"]]

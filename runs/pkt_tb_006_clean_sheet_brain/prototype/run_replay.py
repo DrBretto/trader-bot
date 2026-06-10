@@ -22,8 +22,13 @@ PKT_TB_006_HOLDOUT_AUTHORIZED=1 (set by the orchestrator at battery time).
 unable to touch >= 2026-03-11 (asserted on the trading-date list).
 
 Battery knobs (close the §4.4 runner capability gaps; all manifest-recorded):
-  --exec-mode learned|equal_trust   R08 executive bypass (tau=1/M over active
-                                    members, f fixed 0.7, same vol-cap rails)
+  --exec-mode linear_twin|learned|equal_trust
+                                    'linear_twin' (DEFAULT) = the FROZEN SYN-1
+                                    executive gate (FREEZE_SYN1.md §7.3 ladder;
+                                    exec_dir/linear_twin.pt, pure numpy);
+                                    'learned' = MLP seed ensemble (diagnostics);
+                                    'equal_trust' = R08 bypass (tau=1/M over
+                                    active members, f fixed 0.7, same rails)
   --cost-seed <int>                 R13/R14 slippage-seed override for the
                                     post-hoc cost overlay rng (default 4242)
   --sigma-source trailing21|risknet R07 sigma swap for the vol-cap sigma_hat +
@@ -196,10 +201,12 @@ def build_parser() -> argparse.ArgumentParser:
                     help="genome json path (default: B0 DEFAULT_GENOME)")
     ap.add_argument("--exec-dir", default=str(PROTO / "exec_out"))
     ap.add_argument("--nightly-dir", default=str(PROTO / "store" / "nightly"))
-    ap.add_argument("--exec-mode", default="learned",
-                    choices=["learned", "equal_trust"],
-                    help="R08 bypass: equal_trust = tau 1/M over active members, "
-                         "f fixed 0.7, same vol-cap rails (syn1 only)")
+    ap.add_argument("--exec-mode", default="linear_twin",
+                    choices=["linear_twin", "learned", "equal_trust"],
+                    help="executive gate (syn1 only): linear_twin = the FROZEN "
+                         "SYN-1 gate (default; FREEZE_SYN1.md); learned = MLP "
+                         "seed ensemble (diagnostics); equal_trust = R08 bypass "
+                         "(tau 1/M over active members, f fixed 0.7, same rails)")
     ap.add_argument("--cost-seed", type=int, default=COST_SEED,
                     help="slippage seed for the post-hoc cost overlay rng "
                          f"(R13/R14 override; default {COST_SEED})")

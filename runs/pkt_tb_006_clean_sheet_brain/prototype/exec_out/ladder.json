@@ -1,0 +1,12 @@
+{
+ "generated": "2026-06-10T18:00:57",
+ "rt": "rt1_base",
+ "mlp_val_util_mean": 0.00016883540956769139,
+ "linear_twin_val_util": 0.00017010186275001615,
+ "ships": "linear_twin",
+ "replay_exec_mode": "linear_twin",
+ "fine_tune": "executed, delta exactly 0 on all seeds -> de-claimed (\u00a74.6#9)",
+ "lofo_files": "lofo_twin_fold<f>.pt (frozen gate class; MLP lofo_fold<f>.pt retained for EA fitness walks per TR S2)",
+ "provenance": "exec_out/final_diagnostics.json (freeze record)",
+ "wall_clock_s": 7.1
+}

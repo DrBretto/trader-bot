@@ -1,0 +1,96 @@
+{
+ "generated": "2026-06-10T18:02:21",
+ "command": "python run_replay.py --arm syn1 --smoke --genome ea/genome_2026-02-06.json --out replay_out/smoke_syn1_twin_b",
+ "arm": "syn1",
+ "window": "smoke",
+ "code_sha": {
+  "git": "4afc606db792",
+  "prototype_wiring": "3edd62e80aa1"
+ },
+ "genome": {
+  "trust_prior": [
+   -0.7976769586105441,
+   1.8441695577251007,
+   -1.429998600799269
+  ],
+  "trust_halflife_days": 41.740361368232826,
+  "member_gate": [
+   1,
+   1,
+   1
+  ],
+  "feature_gate": [
+   0,
+   1,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "gross_target": 0.5157883065754484,
+  "vol_target_ann": 0.08648335911431486,
+  "max_symbol_weight": 0.08175373267203596,
+  "dd_brake_threshold": 0.08001844143783443,
+  "dd_brake_strength": 1.0,
+  "no_trade_band": 0.02596656629933275,
+  "conviction_temp": 4.0,
+  "cash_floor": 0.1031998699462734,
+  "risk_aversion_lambda": 3.477283678899133,
+  "abstain_threshold": 0.2443899204544654,
+  "record_weight_eps": 0.38223385230068074,
+  "event_weight_cap": 0.8795265838631618
+ },
+ "genome_hash": "8f4184844e8b",
+ "variant_params_hash": "3023921c7bc7",
+ "snapshot_range": [
+  "2026-02-03",
+  "2026-03-07"
+ ],
+ "n_trading_dates": 25,
+ "start_portfolio_date_used": "2026-02-03",
+ "native_start_portfolio_date": "2026-03-11",
+ "cost_model": {
+  "seed": 4242,
+  "version_sha": "bf8b77716f74"
+ },
+ "exec_mode": "linear_twin",
+ "sigma_source": {
+  "mode": "trailing21",
+  "sigma_col": "sigma_hat_proxy",
+  "book_vol_key": "book_vol_hat_proxy"
+ },
+ "nightly_audit": {
+  "dir": "nightly_audit",
+  "n_files": 38
+ },
+ "exec_weights_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/exec_out",
+ "nightly_manifest": {
+  "generated": "2026-06-10T17:35:57",
+  "window": [
+   "2026-02-02",
+   "2026-06-09"
+  ],
+  "code_sha": "e620dc0e34a6",
+  "cast_n_seeds": 3
+ },
+ "wall_clock_s": 2.6,
+ "summary": {
+  "arm": "syn1",
+  "window": "smoke",
+  "n_decision_dates": 19,
+  "first_date": "2026-02-04",
+  "last_date": "2026-03-06",
+  "start_value": 103091.25,
+  "final_value_raw": 103091.4,
+  "final_value_cost_adjusted": 103062.5249138139,
+  "n_executed_actions": 4,
+  "actions_per_decision_date": 0.211,
+  "total_traded_dollars": 86670.31,
+  "total_cost_dollars": 28.8751,
+  "cost_drag_bps_of_start_nav": 2.801,
+  "cost_bps_of_traded": 3.332
+ },
+ "evidence_protocol": "committee/EVIDENCE_PROTOCOL.md V1"
+}

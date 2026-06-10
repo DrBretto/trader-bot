@@ -1,0 +1,44 @@
+{
+ "F1": {
+  "purged_spearman": NaN,
+  "weekly_rank_ic": NaN,
+  "abstain_frac": 1.0,
+  "n_pass_families": 2,
+  "wall_s": 0.0
+ },
+ "F2": {
+  "purged_spearman": NaN,
+  "weekly_rank_ic": NaN,
+  "abstain_frac": 1.0,
+  "n_pass_families": 4,
+  "wall_s": 0.0
+ },
+ "F3": {
+  "purged_spearman": NaN,
+  "weekly_rank_ic": NaN,
+  "abstain_frac": 1.0,
+  "n_pass_families": 3,
+  "wall_s": 0.0
+ },
+ "F4": {
+  "purged_spearman": NaN,
+  "weekly_rank_ic": NaN,
+  "abstain_frac": 1.0,
+  "n_pass_families": 1,
+  "wall_s": 0.0
+ },
+ "F5": {
+  "purged_spearman": NaN,
+  "weekly_rank_ic": NaN,
+  "abstain_frac": 1.0,
+  "n_pass_families": 2,
+  "wall_s": 0.0
+ },
+ "F6": {
+  "purged_spearman": NaN,
+  "weekly_rank_ic": NaN,
+  "abstain_frac": 1.0,
+  "n_pass_families": 1,
+  "wall_s": 0.0
+ }
+}

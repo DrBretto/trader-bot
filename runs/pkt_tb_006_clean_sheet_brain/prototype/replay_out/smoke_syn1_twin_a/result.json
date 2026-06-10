@@ -1,0 +1,106 @@
+{
+ "date_value_map": {
+  "2026-02-04": 103091.25,
+  "2026-02-05": 103013.51,
+  "2026-02-06": 103445.45,
+  "2026-02-10": 103375.42,
+  "2026-02-11": 103660.81,
+  "2026-02-12": 103400.98,
+  "2026-02-13": 103611.42,
+  "2026-02-17": 103456.36,
+  "2026-02-18": 103568.61,
+  "2026-02-19": 103585.31,
+  "2026-02-20": 103639.44,
+  "2026-02-24": 103663.26,
+  "2026-02-25": 103584.35,
+  "2026-02-26": 103582.54,
+  "2026-02-27": 103777.55,
+  "2026-03-03": 103516.65,
+  "2026-03-04": 103505.95,
+  "2026-03-05": 103217.3,
+  "2026-03-06": 103091.4
+ },
+ "actions": [
+  {
+   "date": "2026-02-04",
+   "symbol": "VEA",
+   "action": "SELL",
+   "shares": 305.41733878141804,
+   "price": 67.35,
+   "dollars": 20569.86,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "XLB",
+   "action": "SELL",
+   "shares": 430.7285711157389,
+   "price": 51.04,
+   "dollars": 21984.39,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "VLUE",
+   "action": "SELL",
+   "shares": 146.44024262238605,
+   "price": 149.97,
+   "dollars": 21961.64,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "SCHD",
+   "action": "SELL",
+   "shares": 724.1189715486938,
+   "price": 30.595,
+   "dollars": 22154.42,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  }
+ ],
+ "final_holdings": [
+  {
+   "symbol": "XLB",
+   "shares": 15.271428884261127,
+   "entry_price": 49.27,
+   "peak_price": 53.62,
+   "close_price": 49.86
+  },
+  {
+   "symbol": "VLUE",
+   "shares": 2.5597573776139484,
+   "entry_price": 147.18,
+   "peak_price": 152.9,
+   "close_price": 144.62
+  },
+  {
+   "symbol": "VEA",
+   "shares": 26.58266121858196,
+   "entry_price": 66.2,
+   "peak_price": 70.31,
+   "close_price": 65.295
+  },
+  {
+   "symbol": "SCHD",
+   "shares": 738.0,
+   "entry_price": 29.7794,
+   "peak_price": 31.86,
+   "close_price": 31.12
+  },
+  {
+   "symbol": "SCHD",
+   "shares": 13.881028451306179,
+   "entry_price": 29.7899,
+   "peak_price": 31.86,
+   "close_price": 31.12
+  }
+ ],
+ "final_cash": 76825.52,
+ "final_value": 103091.4,
+ "final_date": "2026-03-06",
+ "provisional_date": null
+}

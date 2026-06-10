@@ -366,6 +366,17 @@ def missing_outputs(arm_dir: Path) -> list[str]:
     return missing
 
 
+def shipped_exec_mode(exec_dir: str | Path) -> str:
+    """The replay exec-mode for an exec dir: <dir>/ladder.json
+    'replay_exec_mode' (the §7.3 ladder rung that ships, recorded by the
+    retrain driver; 'linear_twin' is the FROZEN base rung per FREEZE_SYN1.md).
+    Missing ladder.json defaults to the frozen rung."""
+    p = PROTO / exec_dir / "ladder.json"
+    if p.exists():
+        return json.loads(p.read_text()).get("replay_exec_mode", "linear_twin")
+    return "linear_twin"
+
+
 def default_replay_cmd(arm: Arm, arm_dir: Path) -> list[str]:
     """Map an arm onto the LANDED run_replay.py CLI. Refuses (PreconditionFailed,
     naming the missing knob) when the runner cannot express the arm — the
@@ -392,8 +403,10 @@ def default_replay_cmd(arm: Arm, arm_dir: Path) -> list[str]:
             cmd += ["--nightly-dir", str(PROTO / cfg["nightly_dir"])]
         if cfg.get("sigma_source"):
             cmd += ["--sigma-source", cfg["sigma_source"]]
-        if bp:
-            cmd += ["--exec-mode", "equal_trust"]
+        # executive gate: R08 bypass, else the dir's SHIPPED ladder rung
+        # (linear_twin for the frozen base; per-arm rung from ladder.json)
+        cmd += ["--exec-mode", "equal_trust" if bp
+                else shipped_exec_mode(cfg.get("exec_dir", "exec_out"))]
     return cmd
 
 
@@ -457,6 +470,40 @@ def execute_arm(run_id: str, replay_cmd: list[str] | None = None,
 
 
 # ============================ plan mode ========================================
+def arm_blockers(arm: Arm, frozen_path: Path = FROZEN_GENOME,
+                 retrain_ledger: Path = RETRAIN_LEDGER) -> list[str]:
+    """Execution-readiness check for one arm (NO ledger writes, NO replays):
+    everything execute_arm would refuse on, plus artifact existence for the
+    knobs default_replay_cmd would pass. Empty list = runnable now."""
+    blockers: list[str] = []
+    cfg = arm.arm_config
+    if cfg.get("reserved"):
+        return ["reserved contingency slot (arm_config undefined)"]
+    if arm.retrain_required and arm.retrain_required not in retrain_ids(retrain_ledger):
+        blockers.append(f"retrain {arm.retrain_required} not registered")
+    if cfg.get("strategy") != "syn1":
+        return blockers
+    if cfg.get("genome", "frozen") == "frozen" and not Path(frozen_path).exists():
+        blockers.append(f"frozen genome missing at {frozen_path}")
+    if cfg.get("member_gate_off") and "<" in str(cfg["member_gate_off"]):
+        blockers.append(f"member_gate_off placeholder {cfg['member_gate_off']} "
+                        f"(decided from R04-R06)")
+    exec_dir = cfg.get("exec_dir", "exec_out")
+    bp = cfg.get("executive_bypass")
+    if not bp:
+        mode = shipped_exec_mode(exec_dir)
+        need = ("linear_twin.pt" if mode == "linear_twin" else "executive_seed11.pt")
+        if not (PROTO / exec_dir / need).exists():
+            blockers.append(f"{exec_dir}/{need} missing (exec-mode {mode})")
+    elif not bp.get("equal_trust") or bp.get("f_fixed") != 0.7:
+        blockers.append(f"inexpressible executive_bypass {bp}")
+    nd = cfg.get("nightly_dir")
+    if nd and not cfg.get("sigma_source"):
+        if not (PROTO / nd / "manifest.json").exists():
+            blockers.append(f"variant nightly store {nd} missing")
+    return blockers
+
+
 def plan(allow_unfrozen: bool = True, frozen_path: Path = FROZEN_GENOME) -> dict:
     """Print + persist the full battery with config hashes BEFORE anything runs
     (the orchestrator commits this plan). Zero ledger writes."""
@@ -480,6 +527,7 @@ def plan(allow_unfrozen: bool = True, frozen_path: Path = FROZEN_GENOME) -> dict
                 gdoc = "GENOME:UNFROZEN(plan-placeholder)"
         else:
             gdoc = "N/A(incumbent)"
+        blockers = arm_blockers(arm, frozen_path)
         rows.append({
             "run_id": run_id, "description": arm.description,
             "retrain": arm.retrain_required or "—",
@@ -488,6 +536,11 @@ def plan(allow_unfrozen: bool = True, frozen_path: Path = FROZEN_GENOME) -> dict
             "e1": (arm.e1 or {}).get("kind", "—"),
             "e2": (arm.e2 or {}).get("pair_vs", "—"),
             "slippage_seed": arm.arm_config.get("slippage_seed"),
+            "exec_mode": ("equal_trust" if arm.arm_config.get("executive_bypass")
+                          else shipped_exec_mode(arm.arm_config.get("exec_dir", "exec_out"))
+                          if arm.arm_config.get("strategy") == "syn1" else None),
+            "runnable": not blockers,
+            "blockers": blockers,
             "arm_config": arm.arm_config,
         })
     genome_frozen = Path(frozen_path).exists()
@@ -507,6 +560,10 @@ def plan(allow_unfrozen: bool = True, frozen_path: Path = FROZEN_GENOME) -> dict
                     "retrains_consumed": len(retrain_ids())},
         "seeds": {"paired": SEED_PAIRED, "sensitivity": list(SEED_SENS)},
         "e1_only_reads": E1_ONLY_READS,
+        "planned_arms_runnable": all(r["runnable"] for r in rows
+                                     if not r["contingency"]),
+        "not_runnable": {r["run_id"]: r["blockers"] for r in rows
+                         if not r["runnable"]},
         "arms": rows,
     }
     with open(PLAN_PATH, "w") as fh:
@@ -523,13 +580,22 @@ def print_plan(doc: dict) -> None:
     print(f"  budgets: {b['planned_replays']} planned replays (cap {b['max_replays']}, "
           f"{b['replays_consumed']} consumed); {b['planned_retrains']} planned retrains "
           f"(cap {b['max_retrains']}, {b['retrains_consumed']} consumed)")
-    hdr = f"{'run':<5}{'retrain':<8}{'cont':<6}{'hash':<18}{'E1 read':<22}{'E2 vs':<7}{'seed':<6}description"
+    hdr = (f"{'run':<5}{'retrain':<8}{'cont':<6}{'hash':<18}{'E1 read':<22}"
+           f"{'E2 vs':<7}{'seed':<6}{'exec':<13}{'run?':<6}description")
     print(hdr)
     print("-" * len(hdr))
     for r in doc["arms"]:
         print(f"{r['run_id']:<5}{r['retrain']:<8}{str(r['contingency'])[0]:<6}"
               f"{r['config_hash']:<18}{r['e1']:<22}{r['e2']:<7}"
-              f"{str(r['slippage_seed'] or '—'):<6}{r['description']}")
+              f"{str(r['slippage_seed'] or '—'):<6}"
+              f"{str(r.get('exec_mode') or '—'):<13}"
+              f"{('YES' if r['runnable'] else 'NO'):<6}{r['description']}")
+    if doc.get("not_runnable"):
+        print("  NOT RUNNABLE:")
+        for rid, bl in doc["not_runnable"].items():
+            print(f"    {rid}: {'; '.join(bl)}")
+    print(f"  planned (non-contingency) arms all runnable: "
+          f"{doc['planned_arms_runnable']}")
     print(f"  plan written: {PLAN_PATH}")
 
 

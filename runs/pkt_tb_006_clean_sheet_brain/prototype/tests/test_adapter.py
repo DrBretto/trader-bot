@@ -219,7 +219,7 @@ def test_runner_cli_knob_defaults_and_overrides():
     ap = RR.build_parser()
     a = ap.parse_args(["--arm", "syn1", "--out", "x"])
     assert a.cost_seed == RR.COST_SEED == 4242
-    assert a.exec_mode == "learned"
+    assert a.exec_mode == "linear_twin"          # the FROZEN SYN-1 gate (FREEZE_SYN1.md)
     assert a.sigma_source == "trailing21"        # the landed/R01 behavior, named
     b = ap.parse_args(["--arm", "syn1", "--out", "x", "--cost-seed", "4243",
                        "--exec-mode", "equal_trust", "--sigma-source", "risknet"])
@@ -390,6 +390,62 @@ def test_sigma_swap_deterministic_byte_identical(tmp_path):
         outs.append(((nd / D_FIX / "meta_decision.json").read_bytes(),
                      (nd / D_FIX / "trade_intents.json").read_bytes()))
     assert outs[0] == outs[1]
+
+
+def test_linear_twin_is_default_and_loads_one_gate(tmp_path):
+    """The FROZEN gate: default exec_mode == linear_twin, loads exactly
+    exec_dir/linear_twin.pt (a one-element 'ensemble'). A zero-init LinearGate
+    gives tau = 1/3 each (s = 0) and f = sigmoid(0) = 0.5 — exact values."""
+    import torch
+    import executive as exmod
+    books = {m: np.full(4, 0.1) for m in MEMBERS}
+    nd, uni = _nightly_fixture(tmp_path, books)
+    ed = tmp_path / "exec"
+    ed.mkdir()
+    torch.save(exmod.LinearGate(seed=11).state_dict(), ed / "linear_twin.pt")
+    strat = make_syn1_strategy(ea.Genome.b0(), exec_weights_dir=ed,
+                               nightly_dir=nd, cache=None, universe_csv=uni)
+    strat.post_decision(_ctx(), [])
+    meta = json.loads((nd / D_FIX / "meta_decision.json").read_text())
+    assert meta["exec_mode"] == "linear_twin"
+    assert meta["n_exec_seeds"] == 1
+    for m in MEMBERS:
+        assert meta["trust"][m] == pytest.approx(1.0 / 3.0)
+    assert meta["deployment_fraction"] == pytest.approx(0.5)
+    # missing twin file refuses loudly
+    with pytest.raises(FileNotFoundError, match="linear_twin"):
+        make_syn1_strategy(ea.Genome.b0(), exec_weights_dir=tmp_path / "none",
+                           nightly_dir=nd, cache=None, universe_csv=uni)
+
+
+def test_linear_twin_numpy_forward_matches_torch():
+    """exec_trust_numpy / exec_sizing_numpy reproduce the torch LinearGate."""
+    import torch
+    import executive as exmod
+    twin = exmod.LinearGate(seed=11)
+    with torch.no_grad():
+        for p in twin.parameters():
+            p.add_(torch.randn_like(p) * 0.2)       # non-trivial weights
+    w = {k: v.detach().numpy().astype(np.float64)
+         for k, v in twin.state_dict().items()}
+    rng = np.random.default_rng(7)
+    xm = rng.normal(size=(3, 6))
+    z = rng.normal(size=24)
+    x_trust = np.concatenate([xm, np.tile(z, (3, 1))], axis=1)   # [3,30]
+    s_np, T_np = SA.exec_trust_numpy(w, x_trust)
+    with torch.no_grad():
+        tau_t, s_t = twin.trust(torch.tensor(x_trust, dtype=torch.float32))
+        T_t = float(torch.exp(twin.log_T).clamp(0.1, 10.0))
+    assert np.allclose(s_np, s_t.numpy(), atol=1e-5)
+    assert T_np == pytest.approx(T_t, abs=1e-6)
+    x_psi = rng.normal(size=35)
+    dd = 0.07
+    f_np = SA.exec_sizing_numpy(w, x_psi, dd)
+    xp = x_psi.copy()
+    xp[34] = dd
+    with torch.no_grad():
+        f_t, _ = twin.sizing(torch.tensor(xp, dtype=torch.float32))
+    assert f_np == pytest.approx(float(f_t), abs=1e-5)
 
 
 def test_unknown_knob_values_refused():

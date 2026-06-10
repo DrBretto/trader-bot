@@ -276,7 +276,12 @@ def screen_pass(screen: dict, family: str, fold: int,
                 variant: str = "conjunctive") -> bool:
     """Routing read for EventHead/GBM design matrices.
 
-    variant='conjunctive' (production R1∧R2∧R3) or 'r3_only' (falsifier twin)."""
+    variant='conjunctive' (the original R1∧R2∧R3 gate — DEAD per the §9.1
+    falsifier), 'r3_only' (R3-only screening — SHIPS per FREEZE_SYN1.md), or
+    'no_screen' (no Transfer-A screening at all: every family passes — the
+    Infotropy-A fold-level read's without-side twin)."""
+    if variant == "no_screen":
+        return True
     e = screen["families"][family][f"F{fold}"]
     if e.get("status") == "pending_llm_merge":
         return False

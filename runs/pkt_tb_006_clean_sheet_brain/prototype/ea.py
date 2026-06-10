@@ -217,15 +217,28 @@ class FitnessEngine:
             x_tr = torch.cat([t.r, t.c.unsqueeze(-1), t.agree.unsqueeze(-1), zz], dim=-1)
             _, s = model.trust(x_tr)
             T_exec = float(torch.exp(model.log_T).clamp(0.1, 10.0))
-            # psi decomposition: hidden = tanh(A_static + W_mu·mustats + w_ent·ent + w_dd·dd)
-            if not isinstance(model, ex.Executive):
+            # psi decomposition: hidden = act(A_static + W_mu·mustats + w_ent·ent + w_dd·dd)
+            # act = tanh for the Executive MLP; identity for the LinearGate twin
+            # (raw = x_psi·c + d decomposes into the same static/dynamic parts,
+            # so the SAME walk serves both gate classes — required since the
+            # SYN-1 freeze ships the linear twin as the deployed gate and the
+            # E1 reads must walk the same gate class; EA fitness walks remain
+            # MLP-LOFO per TR S2/FREEZE, unchanged).
+            if isinstance(model, ex.Executive):
+                act = "tanh"
+                W1 = model.psi1.weight.detach().numpy()          # [8,35]
+                b1 = model.psi1.bias.detach().numpy()
+                v2 = model.psi2.weight.detach().numpy()[0]
+                b2 = float(model.psi2.bias.detach().numpy()[0])
+            elif isinstance(model, ex.LinearGate):
+                act = "linear"
+                W1 = model.c.detach().numpy()[None, :]           # [1,35]
+                b1 = model.d.detach().numpy().reshape(1)
+                v2 = np.ones(1)
+                b2 = 0.0
+            else:
                 raise NotImplementedError(
-                    "FitnessEngine walks LOFO MLP executives only (TR S2); "
-                    "the linear twin is a training-time challenger, not an EA input.")
-            W1 = model.psi1.weight.detach().numpy()              # [8,35]
-            b1 = model.psi1.bias.detach().numpy()
-            v2 = model.psi2.weight.detach().numpy()[0]
-            b2 = float(model.psi2.bias.detach().numpy()[0])
+                    f"FitnessEngine cannot walk a {type(model).__name__}")
             gain = float(model.psi_out_gain.detach())
             bias = float(model.psi_out_bias.detach()) + float(model.f_sigmoid_bias.detach())
         led = np.stack([d.r[idx, :, 0].mean(1), d.r[idx, :, 1].mean(1)], axis=1)
@@ -237,7 +250,7 @@ class FitnessEngine:
         A_static = x_static @ W1.T + b1                          # [n,8]
         cache = {"s": s.numpy(), "T_exec": T_exec, "A_static": A_static,
                  "W_mu": W1[:, 27:30], "w_ent": W1[:, 30], "w_dd": W1[:, 34],
-                 "v2": v2, "b2": b2, "gain": gain, "bias": bias,
+                 "v2": v2, "b2": b2, "gain": gain, "bias": bias, "act": act,
                  "books": d.books[idx], "mu": d.mu[idx],
                  "fwd1": d.rets5[idx, 0, :], "sigma_hat": d.sigma_hat[idx],
                  "u_real": d.u_real[idx], "w_rec_raw": d.w_rec_raw[idx]}
@@ -293,7 +306,8 @@ class FitnessEngine:
         for i in range(n):
             for sc in COST_SCENARIOS:
                 dd = peak[sc] - equity[sc]
-                hidden = np.tanh(pre[i] + c["w_dd"] * dd)
+                h_pre = pre[i] + c["w_dd"] * dd
+                hidden = np.tanh(h_pre) if c["act"] == "tanh" else h_pre
                 f_dep = 1.0 / (1.0 + np.exp(-(c["gain"] * (hidden @ c["v2"] + c["b2"])
                                               + c["bias"])))
                 w = f_dep * w_unit[i]

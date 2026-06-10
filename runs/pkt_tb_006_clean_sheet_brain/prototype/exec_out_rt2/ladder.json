@@ -1,0 +1,25 @@
+{
+ "generated": "2026-06-10T18:01:14",
+ "rt": "rt2",
+ "oof_member_map": {
+  "cast": "ridge_twin"
+ },
+ "z_cols_zeroed_at_train": [],
+ "uniform_w_rec": false,
+ "mlp_val_util": {
+  "11": 0.0001518840144854039,
+  "13": 0.0001430011761840433,
+  "17": 0.00012588548997882754,
+  "19": 0.00016322158626280725,
+  "23": 0.00016461867198813707
+ },
+ "mlp_val_util_mean": 0.0001497221877798438,
+ "linear_twin_val_util": 0.00012543931370601058,
+ "ships": "mlp",
+ "replay_exec_mode": "learned",
+ "fine_tune": "not applied (de-claimed at freeze: delta exactly 0, \u00a74.6#9)",
+ "lofo_files": "lofo_fold<f>.pt",
+ "n_days": 1507,
+ "val_days": 226,
+ "wall_clock_s": 15.2
+}

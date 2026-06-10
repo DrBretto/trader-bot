@@ -1,0 +1,781 @@
+{
+ "generated": "2026-06-10T18:03:09",
+ "spec": {
+  "statistic": "pooled F1-F6 OOF daily utility difference on identical dates, HAC t (Newey-West, 10 lags), cost scenario 1.0 (TOURNAMENT \u00a74.3 primary read)",
+  "base_side": {
+   "genome": "EA champion ea/genome_2026-02-06.json (FROZEN)",
+   "executive_gate": "linear twin (FROZEN rung; LOFO LinearGate twins exec_out/lofo_twin_fold<f>.pt \u2014 E1 walks the same gate class E2 deploys)",
+   "sigma_source": "trailing21 (FROZEN deployed convention)",
+   "member_oofs": "shipping set: cast (record-weighted), gbm_cond (uniform per freeze), event_head (R3-only), risknet instrument"
+  },
+  "rt_exec_rungs": {
+   "rt2": "mlp",
+   "rt3": "mlp",
+   "rt4": "mlp",
+   "rt5": "mlp"
+  },
+  "verdict_rule": "POSITIVE: E1 HAC t >= +2 AND E2 holdout mean delta >= 0; ZERO: |t| < 1; NEGATIVE: t <= -2; else INDETERMINATE (with CI + MDE printed). E2 tags pending the holdout replays."
+ },
+ "reads": {
+  "transformer": {
+   "with": "syn1_frozen_base",
+   "without": "ridge_in_slot_rt2",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": -5.657674922876341e-06,
+   "sd": 0.0008544759087275425,
+   "hac_t": -0.28197523024054244,
+   "naive_t": -0.257036496967059,
+   "ci95": [
+    -4.4983976170606445e-05,
+    3.366862632485377e-05
+   ],
+   "mde": 4.0128878824214396e-05,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": -4.003667787411933e-05,
+     "hac_t": -1.2079763980598823
+    },
+    "2": {
+     "n": 253,
+     "mean": 2.824074383877091e-05,
+     "hac_t": 0.7271250794389373
+    },
+    "3": {
+     "n": 251,
+     "mean": -7.529255731894383e-06,
+     "hac_t": -0.297393635591507
+    },
+    "4": {
+     "n": 251,
+     "mean": 7.061209876794502e-05,
+     "hac_t": 1.051530300506838
+    },
+    "5": {
+     "n": 251,
+     "mean": -7.152954697897433e-05,
+     "hac_t": -1.2029215956598915
+    },
+    "6": {
+     "n": 250,
+     "mean": -1.4006781855623558e-05,
+     "hac_t": -0.2715052960090624
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "transformer",
+   "note": "CAST-Small qua transformer: identical features through the ridge twin + RT-2 executive re-fit (R03 primary)",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "0 (measured)",
+    "reason": "E1 |t|=0.28 < 1.0"
+   },
+   "mean_bp_day": -0.05657674922876341,
+   "wall_s": 0.9
+  },
+  "ensemble_cast_drop": {
+   "with": "syn1_frozen_base",
+   "without": "cast_off_renorm",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": 9.147739089618002e-06,
+   "sd": 0.002301362835075577,
+   "hac_t": 0.17392783190512637,
+   "naive_t": 0.1543068835111341,
+   "ci95": [
+    -9.393851467011064e-05,
+    0.00011223399284934664
+   ],
+   "mde": 0.00010519005485686596,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": 6.86565785869201e-05,
+     "hac_t": 0.2616494097075519
+    },
+    "2": {
+     "n": 253,
+     "mean": -6.752106452456182e-06,
+     "hac_t": -0.10050841071061178
+    },
+    "3": {
+     "n": 251,
+     "mean": 5.377418289115129e-05,
+     "hac_t": 0.539306751329817
+    },
+    "4": {
+     "n": 251,
+     "mean": 7.751388031285617e-05,
+     "hac_t": 1.0082420954385323
+    },
+    "5": {
+     "n": 251,
+     "mean": -3.067591791915647e-05,
+     "hac_t": -0.9152058561381778
+    },
+    "6": {
+     "n": 250,
+     "mean": -0.00010797009580515527,
+     "hac_t": -1.1911005489576785
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "ensemble_cast_drop",
+   "note": "CAST OFF, trust renormalized (R04; K17 \u2014 no retrain)",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "0 (measured)",
+    "reason": "E1 |t|=0.17 < 1.0"
+   },
+   "mean_bp_day": 0.09147739089618002,
+   "wall_s": 0.0
+  },
+  "ensemble_gbm_drop": {
+   "with": "syn1_frozen_base",
+   "without": "gbm_off_renorm",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": 0.0001111737985746906,
+   "sd": 0.0017093342574235673,
+   "hac_t": 2.4825170866048163,
+   "naive_t": 2.524829608052665,
+   "ci95": [
+    2.339972185951171e-05,
+    0.0001989478752898695
+   ],
+   "mde": 8.956538440324377e-05,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": 0.00010622405544488149,
+     "hac_t": 1.4476463170097187
+    },
+    "2": {
+     "n": 253,
+     "mean": 7.98864942825407e-05,
+     "hac_t": 0.5287210286391547
+    },
+    "3": {
+     "n": 251,
+     "mean": 0.0,
+     "hac_t": NaN
+    },
+    "4": {
+     "n": 251,
+     "mean": 0.00029662657447687235,
+     "hac_t": 1.6109259761838632
+    },
+    "5": {
+     "n": 251,
+     "mean": 0.00010501775934526878,
+     "hac_t": 1.349414738166423
+    },
+    "6": {
+     "n": 250,
+     "mean": 7.941066277021298e-05,
+     "hac_t": 1.8932360524398573
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "ensemble_gbm_drop",
+   "note": "GBM-Cond OFF, trust renormalized (R05)",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "indeterminate",
+    "reason": "E1 t=+2.48 >= +2.0 but E2 holdout sign disagrees/unavailable"
+   },
+   "mean_bp_day": 1.111737985746906,
+   "wall_s": 0.0
+  },
+  "ensemble_event_drop": {
+   "with": "syn1_frozen_base",
+   "without": "event_off_renorm",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": 5.918466062100473e-06,
+   "sd": 0.0006754819339959227,
+   "hac_t": 0.3606033378284639,
+   "naive_t": 0.34013556886089674,
+   "ci95": [
+    -2.625038060352591e-05,
+    3.8087312727726856e-05
+   ],
+   "mde": 3.282535374043509e-05,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": 2.4096286825329825e-05,
+     "hac_t": 0.7008151907412029
+    },
+    "2": {
+     "n": 253,
+     "mean": -1.8676584211988887e-05,
+     "hac_t": -1.4042479952437954
+    },
+    "3": {
+     "n": 251,
+     "mean": -3.4774350808804216e-05,
+     "hac_t": -0.7118917584247688
+    },
+    "4": {
+     "n": 251,
+     "mean": 1.9239264186684803e-05,
+     "hac_t": 0.4263961989590437
+    },
+    "5": {
+     "n": 251,
+     "mean": -2.6404551714546163e-05,
+     "hac_t": -0.6230008889052759
+    },
+    "6": {
+     "n": 250,
+     "mean": 7.249194156225553e-05,
+     "hac_t": 1.7296030058466891
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "ensemble_event_drop",
+   "note": "EventHead OFF, trust renormalized (R06)",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "0 (measured)",
+    "reason": "E1 |t|=0.36 < 1.0"
+   },
+   "mean_bp_day": 0.05918466062100473,
+   "wall_s": 0.0
+  },
+  "risknet": {
+   "with": "risknet_sigma_candidate",
+   "without": "syn1_frozen_base",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": 4.3272626029462795e-05,
+   "sd": 0.0013274832111742193,
+   "hac_t": 1.3863438203496459,
+   "naive_t": 1.2654379084988694,
+   "ci95": [
+    -1.79058102089274e-05,
+    0.00010445106226785299
+   ],
+   "mde": 6.242697575345938e-05,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": 0.0001910118704673607,
+     "hac_t": 1.5394904348511596
+    },
+    "2": {
+     "n": 253,
+     "mean": 1.028766679771764e-05,
+     "hac_t": 1.3040072616574614
+    },
+    "3": {
+     "n": 251,
+     "mean": -1.0686321909504059e-05,
+     "hac_t": -0.0814731776004063
+    },
+    "4": {
+     "n": 251,
+     "mean": 1.6646702427028767e-07,
+     "hac_t": 1.6104052394877681
+    },
+    "5": {
+     "n": 251,
+     "mean": 6.7283797815493035e-06,
+     "hac_t": 0.5132168688484586
+    },
+    "6": {
+     "n": 250,
+     "mean": 6.246699396118054e-05,
+     "hac_t": 2.0111950477351788
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "risknet",
+   "note": "DIRECTION: trailing-21 is the DEPLOYED default (FREEZE) \u2014 read = RiskNet-sigma candidate MINUS deployed trailing-21; positive t = the E4 instrument would ADD over the deployed proxy (R07)",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "indeterminate",
+    "reason": "1.0 <= |E1 t|=1.39 < 2.0"
+   },
+   "mean_bp_day": 0.43272626029462796,
+   "wall_s": 0.4
+  },
+  "executive": {
+   "with": "syn1_frozen_base",
+   "without": "equal_trust_f0.7",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": -5.256361464454585e-05,
+   "sd": 0.002254552338736406,
+   "hac_t": -1.0223804205099045,
+   "naive_t": -0.9050686607564263,
+   "ci95": [
+    -0.00015333303729441145,
+    4.820580800531973e-05
+   ],
+   "mde": 0.00010282594147945468,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": -9.056113448351219e-05,
+     "hac_t": -0.3541649909766818
+    },
+    "2": {
+     "n": 253,
+     "mean": -4.5049231438571475e-05,
+     "hac_t": -0.9046065264027243
+    },
+    "3": {
+     "n": 251,
+     "mean": 2.3019564748727358e-05,
+     "hac_t": 1.2977203031172657
+    },
+    "4": {
+     "n": 251,
+     "mean": 3.111065309614145e-05,
+     "hac_t": 0.8540417958705171
+    },
+    "5": {
+     "n": 251,
+     "mean": -0.00013627431353095806,
+     "hac_t": -1.3854765721814253
+    },
+    "6": {
+     "n": 250,
+     "mean": -9.786759577120817e-05,
+     "hac_t": -0.7946717167450227
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "executive",
+   "note": "linear-twin executive (frozen gate) vs equal-trust tau=1/M + fixed f=0.7, same rails (R08); diversity-floor caveat: solo-book corr 0.941 >= 0.90 -> equal-trust tie expected 'by construction' (\u00a74.6.5)",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "indeterminate",
+    "reason": "1.0 <= |E1 t|=1.02 < 2.0"
+   },
+   "mean_bp_day": -0.5256361464454585,
+   "wall_s": 0.4
+  },
+  "evolution": {
+   "with": "syn1_frozen_base",
+   "without": "b0_default_genome",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": -8.5963469600296e-05,
+   "sd": 0.003747376479963584,
+   "hac_t": -0.955570081324823,
+   "naive_t": -0.8905190931524701,
+   "ci95": [
+    -0.0002622858594589071,
+    9.03589202583151e-05
+   ],
+   "mde": 0.0001799208059781746,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": -8.547918962645939e-05,
+     "hac_t": -0.21943771393102426
+    },
+    "2": {
+     "n": 253,
+     "mean": -0.00014168052024754653,
+     "hac_t": -1.4010290482503476
+    },
+    "3": {
+     "n": 251,
+     "mean": 1.319301134820938e-05,
+     "hac_t": 0.04651272270648128
+    },
+    "4": {
+     "n": 251,
+     "mean": 3.341195070315622e-05,
+     "hac_t": 0.6741433637016965
+    },
+    "5": {
+     "n": 251,
+     "mean": -0.00016172837179008505,
+     "hac_t": -1.642399666397126
+    },
+    "6": {
+     "n": 250,
+     "mean": -0.00017340209849742773,
+     "hac_t": -0.9069528866634767
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "evolution",
+   "note": "champion genome vs B0 DEFAULT_GENOME (R09; the EA proposal's B2 read)",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "0 (measured)",
+    "reason": "E1 |t|=0.96 < 1.0"
+   },
+   "mean_bp_day": -0.85963469600296,
+   "wall_s": 0.0
+  },
+  "llm": {
+   "with": "syn1_frozen_base",
+   "without": "llm_neutral_rt3",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": -1.2237271761599935e-05,
+   "sd": 0.0004568673070582011,
+   "hac_t": -1.0799014889701892,
+   "naive_t": -1.039803199578705,
+   "ci95": [
+    -3.444767974576559e-05,
+    9.973136222565721e-06
+   ],
+   "mde": 2.266368161649557e-05,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": 3.4108815496076286e-05,
+     "hac_t": 0.9891184279237265
+    },
+    "2": {
+     "n": 253,
+     "mean": -4.2310215245005135e-05,
+     "hac_t": -1.1237721625590527
+    },
+    "3": {
+     "n": 251,
+     "mean": -1.678156659459649e-05,
+     "hac_t": -1.0574259963213954
+    },
+    "4": {
+     "n": 251,
+     "mean": 1.8358349258193505e-05,
+     "hac_t": 0.6887824231996703
+    },
+    "5": {
+     "n": 251,
+     "mean": -2.2703104663704037e-05,
+     "hac_t": -1.317879627913949
+    },
+    "6": {
+     "n": 250,
+     "mean": -4.398275982093236e-05,
+     "hac_t": -1.9656536726401228
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "llm",
+   "note": "all llm_* at neutral constants (masks 0) + RT-3 executive re-fit + LLM_block z gated (R10 primary)",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "indeterminate",
+    "reason": "1.0 <= |E1 t|=1.08 < 2.0"
+   },
+   "mean_bp_day": -0.12237271761599935,
+   "wall_s": 0.4
+  },
+  "gdelt": {
+   "with": "syn1_frozen_base",
+   "without": "gdelt_ablated_rt4",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": -5.1553153209617105e-05,
+   "sd": 0.0012553967669598465,
+   "hac_t": -1.7866077942130694,
+   "naive_t": -1.594156131894752,
+   "ci95": [
+    -0.00010810959532194737,
+    5.003288902713167e-06
+   ],
+   "mde": 5.771065521666354e-05,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": -0.00014919995038039502,
+     "hac_t": -2.319859427663729
+    },
+    "2": {
+     "n": 253,
+     "mean": 7.454607870985912e-05,
+     "hac_t": 0.9030451598036091
+    },
+    "3": {
+     "n": 251,
+     "mean": -1.0438108374553769e-05,
+     "hac_t": -0.28657717957065193
+    },
+    "4": {
+     "n": 251,
+     "mean": 9.253093894108852e-05,
+     "hac_t": 1.8240962081997554
+    },
+    "5": {
+     "n": 251,
+     "mean": -7.383073210410048e-05,
+     "hac_t": -0.9642881542625659
+    },
+    "6": {
+     "n": 250,
+     "mean": -0.00024470143587631665,
+     "hac_t": -3.28939788578821
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "gdelt",
+   "note": "G1-G5 blocks ablated everywhere + RT-4 executive re-fit (R11); champion already gates G1_themes+G3_tone off on BOTH sides",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "indeterminate",
+    "reason": "1.0 <= |E1 t|=1.79 < 2.0"
+   },
+   "mean_bp_day": -0.5155315320961711,
+   "wall_s": 0.4
+  },
+  "infotropy_b": {
+   "with": "syn1_frozen_base",
+   "without": "uniform_weights_rt5",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": -1.0730003561095164e-05,
+   "sd": 0.0011777657853111706,
+   "hac_t": -0.39885852759239165,
+   "naive_t": -0.35366945938709365,
+   "ci95": [
+    -6.345748843322176e-05,
+    4.1997481311031434e-05
+   ],
+   "mde": 5.380355599196592e-05,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": 1.3249951133526654e-05,
+     "hac_t": 0.11000398266722186
+    },
+    "2": {
+     "n": 253,
+     "mean": -2.0526848827769015e-05,
+     "hac_t": -0.2642433699985255
+    },
+    "3": {
+     "n": 251,
+     "mean": -9.19901981284638e-06,
+     "hac_t": -1.3877014228345799
+    },
+    "4": {
+     "n": 251,
+     "mean": 3.0862203602806466e-05,
+     "hac_t": 1.4985632363870138
+    },
+    "5": {
+     "n": 251,
+     "mean": -2.5433963798493354e-05,
+     "hac_t": -1.4149528169744023
+    },
+    "6": {
+     "n": 250,
+     "mean": -5.342437826207279e-05,
+     "hac_t": -0.7973435966699052
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "infotropy_b",
+   "note": "Transfer-B uniform side: uniform CAST twin + uniform w_rec in the executive (RT-5). Shipping GBM is ALREADY uniform (freeze \u00a79.2) so the contrast is exactly {CAST record-weighting, executive w_rec loss weighting, trust-tilt record weighting} (R12)",
+   "fold_level_only": false,
+   "e1_provisional_tag": {
+    "tag": "0 (measured)",
+    "reason": "E1 |t|=0.40 < 1.0"
+   },
+   "mean_bp_day": -0.10730003561095164,
+   "wall_s": 0.4
+  },
+  "infotropy_a": {
+   "with": "syn1_frozen_base",
+   "without": "event_head_noscreen",
+   "n": 1507,
+   "n_with_only": 0,
+   "n_without_only": 0,
+   "mean": 8.566122346672594e-06,
+   "sd": 0.0003656010172208869,
+   "hac_t": 0.8833352922767791,
+   "naive_t": 0.9095645043398854,
+   "ci95": [
+    -1.0440929614540712e-05,
+    2.75731743078859e-05
+   ],
+   "mde": 1.9394950980829905e-05,
+   "per_fold": {
+    "1": {
+     "n": 251,
+     "mean": 5.832212269578368e-05,
+     "hac_t": 1.609939466114684
+    },
+    "2": {
+     "n": 253,
+     "mean": 6.784957234015742e-07,
+     "hac_t": 1.17581221210749
+    },
+    "3": {
+     "n": 251,
+     "mean": 0.0,
+     "hac_t": NaN
+    },
+    "4": {
+     "n": 251,
+     "mean": 3.5400873096426185e-05,
+     "hac_t": 1.1012161757330012
+    },
+    "5": {
+     "n": 251,
+     "mean": -4.661003652379634e-07,
+     "hac_t": -1.4759635868635328
+    },
+    "6": {
+     "n": 250,
+     "mean": -4.2679975175019805e-05,
+     "hac_t": -1.5232376965853498
+    }
+   },
+   "warnings": [],
+   "spec": {
+    "statistic": "pooled F1-F6 OOF daily utility difference, HAC t (Newey-West, 10 lags), cost scenario 1.0",
+    "folds": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "organ": "infotropy_a",
+   "note": "Transfer-A: R3-only screened EventHead (SHIPS per freeze; conjunctive gate DEAD) vs NO-SCREEN twin \u2014 FOLD-LEVEL ONLY per D5 (E1-only, no replay, base executive, no re-fit)",
+   "fold_level_only": true,
+   "e1_provisional_tag": {
+    "tag": "0 (measured)",
+    "reason": "E1 |t|=0.88 < 1.0"
+   },
+   "mean_bp_day": 0.08566122346672593,
+   "wall_s": 0.4
+  }
+ },
+ "wall_clock_s": 3.8
+}

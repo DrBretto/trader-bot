@@ -1,7 +1,7 @@
 {
- "generated": "2026-06-10T17:36:37",
+ "generated": "2026-06-10T18:07:50",
  "genome_frozen": true,
- "frozen_genome_path": "/private/tmp/claude-501/pytest-of-drbretto/pytest-70/test_plan_covers_all_arms_no_l0/genome_frozen.json",
+ "frozen_genome_path": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/ea/genome_2026-02-06.json",
  "note": null,
  "budgets": {
   "max_replays": 20,
@@ -9,7 +9,7 @@
   "planned_replays": 14,
   "planned_retrains": 5,
   "replays_consumed": 0,
-  "retrains_consumed": 0
+  "retrains_consumed": 5
  },
  "seeds": {
   "paired": 4242,
@@ -26,16 +26,43 @@
    "note": "Transfer A: gated EventHead vs R3-only twin, E1 only, no replay"
   }
  },
+ "planned_arms_runnable": true,
+ "not_runnable": {
+  "R16": [
+   "retrain RT-6 not registered",
+   "exec_out_rt6/linear_twin.pt missing (exec-mode linear_twin)",
+   "variant nightly store store/nightly_rt6_g1_ablated missing"
+  ],
+  "R17": [
+   "retrain RT-7 not registered",
+   "exec_out_rt7/linear_twin.pt missing (exec-mode linear_twin)",
+   "variant nightly store store/nightly_rt7_dataedge missing"
+  ],
+  "R18": [
+   "retrain RT-8 not registered",
+   "member_gate_off placeholder <member-TBD-from-R04-R06> (decided from R04-R06)",
+   "exec_out_rt8/linear_twin.pt missing (exec-mode linear_twin)"
+  ],
+  "R19": [
+   "reserved contingency slot (arm_config undefined)"
+  ],
+  "R20": [
+   "reserved contingency slot (arm_config undefined)"
+  ]
+ },
  "arms": [
   {
    "run_id": "R01",
    "description": "SYN-1, the ONE pre-registered config (bake-off + base of every paired arm)",
    "retrain": "RT-1",
    "contingency": false,
-   "config_hash": "f863294d2c5e263e",
+   "config_hash": "ed35d0a7cb616e40",
    "e1": "\u2014",
    "e2": "R02",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -52,6 +79,9 @@
    "e1": "\u2014",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": null,
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "incumbent",
     "slippage_seed": 4242
@@ -62,10 +92,13 @@
    "description": "Ridge-in-slot (transformer qua transformer)",
    "retrain": "RT-2",
    "contingency": false,
-   "config_hash": "5f923ac946a620b6",
+   "config_hash": "e7d27a8fa309348c",
    "e1": "member_swap",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "learned",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -82,10 +115,13 @@
    "description": "cast OFF, trust renorm (no retrain, K17)",
    "retrain": "\u2014",
    "contingency": false,
-   "config_hash": "52b50dcb40fb95eb",
+   "config_hash": "e184d9c16e888455",
    "e1": "member_drop",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -99,10 +135,13 @@
    "description": "gbm_cond OFF, trust renorm (no retrain, K17)",
    "retrain": "\u2014",
    "contingency": false,
-   "config_hash": "bd9d76c0e1743cdb",
+   "config_hash": "036afd82f53c7d3d",
    "e1": "member_drop",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -116,10 +155,13 @@
    "description": "event_head OFF, trust renorm (no retrain, K17)",
    "retrain": "\u2014",
    "contingency": false,
-   "config_hash": "0d026720ed9bccd3",
+   "config_hash": "e97c827d1303ec99",
    "e1": "member_drop",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -133,10 +175,13 @@
    "description": "RiskNet+ -> trailing-21d realized replacement",
    "retrain": "\u2014",
    "contingency": false,
-   "config_hash": "294555cf2d772b6d",
+   "config_hash": "77e7058c4bab2c64",
    "e1": "sigma_swap",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -151,10 +196,13 @@
    "description": "Executive -> equal-trust + fixed f=0.7 (same vol cap)",
    "retrain": "\u2014",
    "contingency": false,
-   "config_hash": "a428bd7017f4c35a",
+   "config_hash": "bc2baf0226acce21",
    "e1": "executive_bypass",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "equal_trust",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -175,6 +223,9 @@
    "e1": "genome_swap",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "B0",
@@ -187,10 +238,13 @@
    "description": "LLM neutral-constants retrain",
    "retrain": "RT-3",
    "contingency": false,
-   "config_hash": "e9219e593f87d70b",
+   "config_hash": "9f2f394c72c6c33d",
    "e1": "retrain_ablation",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "learned",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -208,10 +262,13 @@
    "description": "GDELT G1-G5 ablated retrain",
    "retrain": "RT-4",
    "contingency": false,
-   "config_hash": "5fbf02a89508565a",
+   "config_hash": "24d7a4cf636ba8ab",
    "e1": "retrain_ablation",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "learned",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -230,10 +287,13 @@
    "description": "Infotropy-B uniform-weights retrain (scorecard read)",
    "retrain": "RT-5",
    "contingency": false,
-   "config_hash": "6b50df7556343a7b",
+   "config_hash": "04907ea133293169",
    "e1": "retrain_ablation",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "learned",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -249,10 +309,13 @@
    "description": "Seed-sensitivity: full brain at master seed 4243",
    "retrain": "\u2014",
    "contingency": false,
-   "config_hash": "4c811291253b9893",
+   "config_hash": "81b54f70daf9bca3",
    "e1": "\u2014",
    "e2": "R01",
    "slippage_seed": 4243,
+   "exec_mode": "linear_twin",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -265,10 +328,13 @@
    "description": "Seed-sensitivity: full brain at master seed 4244",
    "retrain": "\u2014",
    "contingency": false,
-   "config_hash": "9ed127de71aa8489",
+   "config_hash": "b61b6cba0693ce24",
    "e1": "\u2014",
    "e2": "R01",
    "slippage_seed": 4244,
+   "exec_mode": "linear_twin",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -281,10 +347,13 @@
    "description": "CONTINGENCY: LLM feature-neutralized, NO retrain",
    "retrain": "\u2014",
    "contingency": true,
-   "config_hash": "2674f9d9ee28fec6",
+   "config_hash": "49caad872b49b55b",
    "e1": "gate_only",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": true,
+   "blockers": [],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -300,10 +369,17 @@
    "description": "CONTINGENCY: G1 theme-dictionary alone ablated",
    "retrain": "RT-6",
    "contingency": true,
-   "config_hash": "169fb22632380d12",
+   "config_hash": "bcaab5cbc78e71aa",
    "e1": "retrain_ablation",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": false,
+   "blockers": [
+    "retrain RT-6 not registered",
+    "exec_out_rt6/linear_twin.pt missing (exec-mode linear_twin)",
+    "variant nightly store store/nightly_rt6_g1_ablated missing"
+   ],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -321,10 +397,17 @@
    "description": "CONTINGENCY: S1/S3/S2 data-edge block ablated",
    "retrain": "RT-7",
    "contingency": true,
-   "config_hash": "e3b3cbcb33cef976",
+   "config_hash": "3bdcba0d3b9e276d",
    "e1": "retrain_ablation",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": false,
+   "blockers": [
+    "retrain RT-7 not registered",
+    "exec_out_rt7/linear_twin.pt missing (exec-mode linear_twin)",
+    "variant nightly store store/nightly_rt7_dataedge missing"
+   ],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -344,10 +427,17 @@
    "description": "CONTINGENCY: retrained-executive member-drop arm (D6)",
    "retrain": "RT-8",
    "contingency": true,
-   "config_hash": "f1e4de1fdeb0aca7",
+   "config_hash": "9f54f65b16a8c831",
    "e1": "member_drop_retrained",
    "e2": "R01",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": false,
+   "blockers": [
+    "retrain RT-8 not registered",
+    "member_gate_off placeholder <member-TBD-from-R04-R06> (decided from R04-R06)",
+    "exec_out_rt8/linear_twin.pt missing (exec-mode linear_twin)"
+   ],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -361,10 +451,15 @@
    "description": "CONTINGENCY: reserved",
    "retrain": "\u2014",
    "contingency": true,
-   "config_hash": "97985536a566df26",
+   "config_hash": "00e3e43a262c35e2",
    "e1": "\u2014",
    "e2": "\u2014",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": false,
+   "blockers": [
+    "reserved contingency slot (arm_config undefined)"
+   ],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",
@@ -378,10 +473,15 @@
    "description": "CONTINGENCY: reserved (RT-9 reserve)",
    "retrain": "RT-9",
    "contingency": true,
-   "config_hash": "c8efa9f0f90b0e93",
+   "config_hash": "b8f6e6cdf19b2d71",
    "e1": "\u2014",
    "e2": "\u2014",
    "slippage_seed": 4242,
+   "exec_mode": "linear_twin",
+   "runnable": false,
+   "blockers": [
+    "reserved contingency slot (arm_config undefined)"
+   ],
    "arm_config": {
     "strategy": "syn1",
     "genome": "frozen",

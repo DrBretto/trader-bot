@@ -272,6 +272,7 @@ def test_default_cmd_maps_arm_onto_landed_runner_cli(battery_env):
     ("R14", ["--cost-seed", "4244"]),
     ("R07", ["--sigma-source", "trailing21"]),   # replay-time sigma swap landed
     ("R01", ["--cost-seed", "4242"]),            # paired seed passed explicitly
+    ("R01", ["--exec-mode", "linear_twin"]),     # the FROZEN gate ships (FREEZE)
 ])
 def test_former_capability_gaps_now_expressed(battery_env, run_id, fragment):
     arm = battery.ARMS[run_id]
@@ -294,6 +295,18 @@ def test_r07_sigma_swap_supersedes_variant_nightly_store(battery_env):
     d10, _ = battery.materialize_arm(arm10, battery_env["out_root"],
                                      battery_env["frozen_path"])
     assert "--nightly-dir" in battery.default_replay_cmd(arm10, d10)
+
+
+def test_shipped_exec_mode_reads_ladder(tmp_path, monkeypatch):
+    """exec-mode per dir: ladder.json replay_exec_mode; missing file = the
+    frozen linear_twin rung."""
+    monkeypatch.setattr(battery, "PROTO", tmp_path)
+    assert battery.shipped_exec_mode("exec_out_x") == "linear_twin"
+    d = tmp_path / "exec_out_x"
+    d.mkdir()
+    (d / "ladder.json").write_text(json.dumps(
+        {"ships": "mlp", "replay_exec_mode": "learned"}))
+    assert battery.shipped_exec_mode("exec_out_x") == "learned"
 
 
 def test_nonstandard_bypass_shape_still_refused(battery_env):
@@ -415,6 +428,50 @@ def test_e1_bypass_and_genome_swap_reads(world, oof_dir, models):
     res2 = e1.run_e1(_side(world, models, label="champ", genome=champ),
                      _side(world, models, label="B0"), world, oof_dir, [1, 2])
     assert res2["n"] > 200
+
+
+def test_e1_walk_supports_linear_twin_gate(world, oof_dir):
+    """The frozen-gate mirroring: E1WalkEngine walks LinearGate LOFOs; the
+    series-recomputed utility must still equal fold_utility exactly, and the
+    psi decomposition must be flagged linear."""
+    import torch
+    twins = {}
+    for f, seed in ((1, 11), (2, 13)):
+        tw = ex.LinearGate(seed=seed)
+        with torch.no_grad():
+            for p in tw.parameters():
+                p.add_(torch.randn(p.shape) * 0.1)   # non-trivial weights
+        twins[f] = tw.eval()
+    side = _side(world, twins, label="twin-gate")
+    eng = e1.build_side(side, world, oof_dir, [1, 2])
+    g = ea.Genome.b0()
+    c = eng._cached(1, tuple(g.feature_gate))
+    assert c["act"] == "linear"
+    assert c["A_static"].shape[1] == 1               # twin decomposition [n,1]
+    for f in (1, 2):
+        u_series = eng.utility_from_series(g, f)
+        u_walk = eng.fold_utility(g, f)
+        assert u_series == pytest.approx(u_walk, abs=1e-9)
+    # and the twin walk differs from an MLP walk (it is a different gate)
+    eng_mlp = e1.build_side(_side(world, {1: ex.Executive(seed=11).eval(),
+                                          2: ex.Executive(seed=13).eval()},
+                                  label="mlp"), world, oof_dir, [1, 2])
+    assert eng.fold_utility(g, 1) != eng_mlp.fold_utility(g, 1)
+
+
+def test_load_lofo_honors_ladder_rung(tmp_path):
+    import torch
+    d = tmp_path / "exec_x"
+    d.mkdir()
+    for f in (1, 2):
+        torch.save(ex.Executive(seed=11).state_dict(), d / f"lofo_fold{f}.pt")
+        torch.save(ex.LinearGate(seed=11).state_dict(), d / f"lofo_twin_fold{f}.pt")
+    # no ladder.json -> legacy MLP layout
+    assert isinstance(e1.load_lofo(d, [1, 2])[1], ex.Executive)
+    (d / "ladder.json").write_text(json.dumps({"ships": "linear_twin"}))
+    assert isinstance(e1.load_lofo(d, [1, 2])[1], ex.LinearGate)
+    (d / "ladder.json").write_text(json.dumps({"ships": "mlp"}))
+    assert isinstance(e1.load_lofo(d, [1, 2])[2], ex.Executive)
 
 
 def test_e1_member_swap_uses_member_map(world, oof_dir, models):

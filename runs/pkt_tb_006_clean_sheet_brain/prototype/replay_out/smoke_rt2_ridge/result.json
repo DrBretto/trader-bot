@@ -1,0 +1,102 @@
+{
+ "date_value_map": {
+  "2026-02-04": 103085.44,
+  "2026-02-05": 103024.63,
+  "2026-02-06": 103102.91,
+  "2026-02-10": 103154.71,
+  "2026-02-11": 103193.98,
+  "2026-02-12": 103153.92,
+  "2026-02-13": 103178.97,
+  "2026-02-17": 103157.17,
+  "2026-02-18": 103173.69,
+  "2026-02-19": 103171.31,
+  "2026-02-20": 103197.14,
+  "2026-02-24": 103202.55,
+  "2026-02-25": 103217.55,
+  "2026-02-26": 103218.16,
+  "2026-02-27": 103231.59,
+  "2026-03-03": 103091.23,
+  "2026-03-04": 103113.11,
+  "2026-03-05": 103036.48,
+  "2026-03-06": 103001.98
+ },
+ "actions": [
+  {
+   "date": "2026-02-04",
+   "symbol": "VEA",
+   "action": "SELL",
+   "shares": 301.397487402336,
+   "price": 67.35,
+   "dollars": 20299.12,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "XLB",
+   "action": "SELL",
+   "shares": 430.70779841736,
+   "price": 51.04,
+   "dollars": 21983.33,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "VLUE",
+   "action": "SELL",
+   "shares": 149.0,
+   "price": 149.97,
+   "dollars": 22345.53,
+   "reason": "SYN1_REBALANCE_EXIT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "SCHD",
+   "action": "SELL",
+   "shares": 738.0,
+   "price": 30.595,
+   "dollars": 22579.11,
+   "reason": "SYN1_REBALANCE_EXIT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "SCHD",
+   "action": "SELL",
+   "shares": 700.3341234366623,
+   "price": 30.995,
+   "dollars": 21706.86,
+   "reason": "SYN1_REBALANCE_TRIM",
+   "variant": "hybrid"
+  }
+ ],
+ "final_holdings": [
+  {
+   "symbol": "XLB",
+   "shares": 15.292201582640018,
+   "entry_price": 49.27,
+   "peak_price": 53.62,
+   "close_price": 49.86
+  },
+  {
+   "symbol": "VEA",
+   "shares": 30.602512597663974,
+   "entry_price": 66.2,
+   "peak_price": 70.31,
+   "close_price": 65.295
+  },
+  {
+   "symbol": "SCHD",
+   "shares": 37.66587656333775,
+   "entry_price": 29.7794,
+   "peak_price": 31.86,
+   "close_price": 31.12
+  }
+ ],
+ "final_cash": 99069.16,
+ "final_value": 103001.98,
+ "final_date": "2026-03-06",
+ "provisional_date": null
+}
