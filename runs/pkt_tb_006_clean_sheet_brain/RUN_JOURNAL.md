@@ -55,3 +55,16 @@ commit must appear in this journal BEFORE any incumbent-strategy read.
   on both arms' executed fills, raw and cost-adjusted both reported, paired stats on cost-adjusted.
 - 2026-06-10 :: DICTIONARY FREEZE COMMIT FOLLOWS (theme_to_sector, ACTOR_MAP, bucket_map, THEMES_FIN
   frozen before any validation-fold model selection, per TR G4 / TOURNAMENT 4.6.3).
+- 2026-06-10 :: Phase C wave 2+3 done. Feature store (2,845 dates, 6/6 alignment tests), GDELT shift
+  gate PASS (worst bucket energy_oil 4.83sd of 5.0 limit -- flagged to placebo read). Deep GDELT
+  backfill COMPLETE 2015-02-18->2026-06-10, 4,131 days, 0 failures. Members trained: CAST-Small FINAL
+  16,483 params, purged Spearman mean .106 / weekly rank-IC .105 (bar 0.02); ridge twin at noise
+  (-.009). Shrink rungs taken (logged): OOF seeds 3->2, deploy 5->3, 8-day grad minibatches.
+  INFOTROPY-A: conjunctive R1^R2^R3 gate fails all families all folds (R1 at base rate vs 0.5 bar);
+  per pre-registered 9.1 falsifier the gate is DEAD, R3-only screening ships; verdict to scorecard.
+  Transfer-B A/B: CAST marginal win (ships weighted), GBM negative on smoke (re-read post-LLM-merge).
+  Executive 561 params + linear twin 121 + EA (27-gene, B0/B1 controls) built, 70/70 tests green.
+  FINDINGS logged: beta_to=0.5 scale concern (registered constant; watch final training), COT-in-Z
+  spec inconsistency (sec2.3 vs sec4 -- sec4 tensor spec governs, COT stays member-side), q95
+  self-erasure on sparse nights. LLM Tier-1 resumed after rate-limit kill (seen-cache repaired by
+  re-scoring 7 pilot-thread days ~$0.03).

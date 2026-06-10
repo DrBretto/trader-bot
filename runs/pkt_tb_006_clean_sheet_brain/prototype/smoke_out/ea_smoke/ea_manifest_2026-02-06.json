@@ -1,0 +1,135 @@
+{
+ "window_end": "2026-02-06",
+ "seed": 2583287999,
+ "champion_fitness": 1.7068722141138628,
+ "b0_fitness": 1.2436814415055113,
+ "champion_fold_u": {
+  "5": 2.0764759013180365,
+  "6": 1.583670985045805
+ },
+ "b0_fold_u": {
+  "5": 1.2217918670596641,
+  "6": 1.309350164843053
+ },
+ "margin": 0.4631907726083515,
+ "cross_fold_sd": 0.29018160702781015,
+ "adopted_champion": true,
+ "shipped": "champion",
+ "champion": {
+  "trust_prior": [
+   1.906739251582621,
+   0.949281639996626,
+   1.7834974070898704
+  ],
+  "trust_halflife_days": 11.98128100273022,
+  "member_gate": [
+   1,
+   1,
+   1
+  ],
+  "feature_gate": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "gross_target": 0.40722242612409454,
+  "vol_target_ann": 0.10688824005654764,
+  "max_symbol_weight": 0.117683757071309,
+  "dd_brake_threshold": 0.19758920167682892,
+  "dd_brake_strength": 0.8807690799043956,
+  "no_trade_band": 0.028041784907005804,
+  "conviction_temp": 0.3842121669988229,
+  "cash_floor": 0.20329972752825856,
+  "risk_aversion_lambda": 1.2223469370758016,
+  "abstain_threshold": 0.15623173076924002,
+  "record_weight_eps": 0.35661698903110783,
+  "event_weight_cap": 1.3861802145958098
+ },
+ "b0": {
+  "trust_prior": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "trust_halflife_days": 21.0,
+  "member_gate": [
+   1,
+   1,
+   1
+  ],
+  "feature_gate": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "gross_target": 0.6,
+  "vol_target_ann": 0.1,
+  "max_symbol_weight": 0.08,
+  "dd_brake_threshold": 0.1,
+  "dd_brake_strength": 0.5,
+  "no_trade_band": 0.01,
+  "conviction_temp": 1.0,
+  "cash_floor": 0.1,
+  "risk_aversion_lambda": 2.0,
+  "abstain_threshold": 0.1,
+  "record_weight_eps": 0.25,
+  "event_weight_cap": 1.0
+ },
+ "shipped_genome": {
+  "trust_prior": [
+   1.906739251582621,
+   0.949281639996626,
+   1.7834974070898704
+  ],
+  "trust_halflife_days": 11.98128100273022,
+  "member_gate": [
+   1,
+   1,
+   1
+  ],
+  "feature_gate": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "gross_target": 0.40722242612409454,
+  "vol_target_ann": 0.10688824005654764,
+  "max_symbol_weight": 0.117683757071309,
+  "dd_brake_threshold": 0.19758920167682892,
+  "dd_brake_strength": 0.8807690799043956,
+  "no_trade_band": 0.028041784907005804,
+  "conviction_temp": 0.3842121669988229,
+  "cash_floor": 0.20329972752825856,
+  "risk_aversion_lambda": 1.2223469370758016,
+  "abstain_threshold": 0.15623173076924002,
+  "record_weight_eps": 0.35661698903110783,
+  "event_weight_cap": 1.3861802145958098
+ },
+ "history": [
+  {
+   "gen": 0,
+   "best": 1.5173715559638432,
+   "sigma": 0.085
+  },
+  {
+   "gen": 1,
+   "best": 1.7068722141138628,
+   "sigma": 0.07225000000000001
+  }
+ ]
+}

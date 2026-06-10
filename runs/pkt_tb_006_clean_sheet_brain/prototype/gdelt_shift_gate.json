@@ -1,0 +1,202 @@
+{
+ "generated": "2026-06-10T12:35:48",
+ "reference_window": {
+  "start": "2025-09-01",
+  "end": "2026-01-31",
+  "n_days": 153
+ },
+ "topup_window": {
+  "start": "2026-02-05",
+  "end": "2026-06-10",
+  "n_days": 126
+ },
+ "checks": {
+  "record_count_median_ratio": {
+   "median_reference": 5191.0,
+   "median_topup": 4888.5,
+   "ratio": 0.9417260643421306,
+   "bounds": [
+    0.5,
+    2.0
+   ],
+   "verdict": "PASS"
+  },
+  "tone_shift": {
+   "reference_mean_tone": -0.4608181850892119,
+   "topup_mean_tone": -0.5678156291394567,
+   "reference_daily_tone_sd": 0.26502437064914575,
+   "abs_shift": 0.1069974440502448,
+   "limit": 0.5300487412982915,
+   "shift_in_sd_units": 0.4037268111916171,
+   "verdict": "PASS"
+  },
+  "g1_bucket_share_shift": {
+   "per_bucket": {
+    "commodity_broad": {
+     "reference_mean_share": 0.04190697021180652,
+     "reference_share_sd": 0.004872380153266068,
+     "topup_mean_share": 0.03649608023776132,
+     "shift_in_sd_units": 1.1105229485055998,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "consumer_disc": {
+     "reference_mean_share": 0.005608432626551589,
+     "reference_share_sd": 0.0013182324746462356,
+     "topup_mean_share": 0.00528065113899344,
+     "shift_in_sd_units": 0.24865226267932264,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "consumer_staples": {
+     "reference_mean_share": 0.05284221981071631,
+     "reference_share_sd": 0.005191139311559688,
+     "topup_mean_share": 0.05649053504655299,
+     "shift_in_sd_units": 0.7027966342017778,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "credit": {
+     "reference_mean_share": 0.024638232491052736,
+     "reference_share_sd": 0.004664198991880359,
+     "topup_mean_share": 0.023633563156441408,
+     "shift_in_sd_units": 0.2154001869046111,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "em_broad": {
+     "reference_mean_share": 0.03614685516996057,
+     "reference_share_sd": 0.005341108371830621,
+     "topup_mean_share": 0.03529398705792347,
+     "shift_in_sd_units": 0.15967998637421169,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "energy_oil": {
+     "reference_mean_share": 0.04045518869163052,
+     "reference_share_sd": 0.005884417044272455,
+     "topup_mean_share": 0.06887906931372231,
+     "shift_in_sd_units": 4.830364742716175,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "eur": {
+     "reference_mean_share": 0.0014644553114346675,
+     "reference_share_sd": 0.0006211800393652974,
+     "topup_mean_share": 0.0011846274955799785,
+     "shift_in_sd_units": 0.4504777972914397,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "financials_banks": {
+     "reference_mean_share": 0.009429436621717807,
+     "reference_share_sd": 0.0026089045473645925,
+     "topup_mean_share": 0.008833346101726322,
+     "shift_in_sd_units": 0.22848306987453046,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "gold_pm": {
+     "reference_mean_share": 0.007290085074290865,
+     "reference_share_sd": 0.0015605909610238373,
+     "topup_mean_share": 0.006109125190655479,
+     "shift_in_sd_units": 0.7567388977189823,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "healthcare_biotech": {
+     "reference_mean_share": 0.08029184339294967,
+     "reference_share_sd": 0.00815594960292194,
+     "topup_mean_share": 0.07058964494960969,
+     "shift_in_sd_units": 1.1895853843756081,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "industrials_defense": {
+     "reference_mean_share": 0.09469497493899665,
+     "reference_share_sd": 0.011410789219268087,
+     "topup_mean_share": 0.1004545658498626,
+     "shift_in_sd_units": 0.5047495664138991,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "materials": {
+     "reference_mean_share": 0.029548644215845278,
+     "reference_share_sd": 0.0035334005560870158,
+     "topup_mean_share": 0.02596192180796295,
+     "shift_in_sd_units": 1.015090803023579,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "natgas": {
+     "reference_mean_share": 0.0016834192027131074,
+     "reference_share_sd": 0.0006073326608766657,
+     "topup_mean_share": 0.003761031188164545,
+     "shift_in_sd_units": 3.42087972422308,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "rates_duration": {
+     "reference_mean_share": 0.027252713595191966,
+     "reference_share_sd": 0.007387728639505422,
+     "topup_mean_share": 0.026066214883956988,
+     "shift_in_sd_units": 0.160603991988857,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "real_estate": {
+     "reference_mean_share": 0.004327033130040232,
+     "reference_share_sd": 0.0010854523070374167,
+     "topup_mean_share": 0.00406179769460644,
+     "shift_in_sd_units": 0.2443547576564774,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "tech": {
+     "reference_mean_share": 0.0996370275734336,
+     "reference_share_sd": 0.007998144293891302,
+     "topup_mean_share": 0.09148736891276213,
+     "shift_in_sd_units": 1.0189436900876976,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "us_broad": {
+     "reference_mean_share": 0.23390464928304924,
+     "reference_share_sd": 0.016054430802407083,
+     "topup_mean_share": 0.2177270264062675,
+     "shift_in_sd_units": 1.007673400314895,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "usd": {
+     "reference_mean_share": 0.012102277750701199,
+     "reference_share_sd": 0.0032898131778502037,
+     "topup_mean_share": 0.011082168929689952,
+     "shift_in_sd_units": 0.31008107933893636,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "utilities": {
+     "reference_mean_share": 0.011090541816365058,
+     "reference_share_sd": 0.0029760159491255345,
+     "topup_mean_share": 0.009860795264415353,
+     "shift_in_sd_units": 0.4132190730735334,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    },
+    "volatility": {
+     "reference_mean_share": 0.1856849990915524,
+     "reference_share_sd": 0.025375180701929914,
+     "topup_mean_share": 0.19674647937334513,
+     "shift_in_sd_units": 0.43591730091409586,
+     "limit_sd_units": 5.0,
+     "verdict": "PASS"
+    }
+   },
+   "worst_bucket": "energy_oil",
+   "worst_shift_in_sd_units": 4.830364742716175,
+   "verdict": "PASS"
+  }
+ },
+ "overall": "PASS"
+}

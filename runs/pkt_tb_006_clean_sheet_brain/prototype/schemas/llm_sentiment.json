@@ -1,0 +1,31 @@
+{
+  "type": "object", "additionalProperties": false,
+  "required": ["as_of", "buckets", "global", "event_flags"],
+  "properties": {
+    "as_of": {"type": "string"},
+    "buckets": {"type": "object",
+      "patternProperties": {"^[a-z_]+$": {
+        "type": "object", "additionalProperties": false,
+        "required": ["sent", "conf", "sal"],
+        "properties": {
+          "sent": {"type": "number", "minimum": -1, "maximum": 1},
+          "conf": {"type": "number", "minimum": 0, "maximum": 1},
+          "sal":  {"type": "number", "minimum": 0, "maximum": 1},
+          "drivers": {"type": "array", "items": {"type": "integer"}, "maxItems": 3}}}}},
+    "global": {"type": "object", "additionalProperties": false,
+      "required": ["risk_appetite", "rates_pressure", "geopolitical_risk"],
+      "properties": {
+        "risk_appetite":    {"type": "number", "minimum": -1, "maximum": 1},
+        "rates_pressure":   {"type": "number", "minimum": -1, "maximum": 1},
+        "geopolitical_risk":{"type": "number", "minimum": 0,  "maximum": 1}}},
+    "event_flags": {"type": "array", "items": {"type": "object",
+      "required": ["flag", "buckets"], "additionalProperties": false,
+      "properties": {
+        "flag": {"type": "string", "enum": ["cb_decision","cb_speech","inflation_print",
+          "jobs_print","earnings_megacap","geopolitical_escalation","sanctions_tariffs",
+          "credit_event","energy_supply_shock","election_political","regulatory_action",
+          "natural_disaster"]},
+        "buckets": {"type": "array", "items": {"type": "string"}},
+        "severity": {"type": "number", "minimum": 0, "maximum": 1}}}}
+  }
+}
