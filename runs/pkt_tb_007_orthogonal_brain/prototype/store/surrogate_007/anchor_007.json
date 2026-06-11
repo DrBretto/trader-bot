@@ -1,0 +1,74 @@
+{
+ "check": "L3/FM5 anchor \u2014 surrogate vs real engine, pre-holdout leg",
+ "generated": "2026-06-10T23:12:44",
+ "criteria": {
+  "pearson_min": 0.8,
+  "slope_band": [
+   0.5,
+   2.0
+  ],
+  "mean_equivalence": "<= 2 x se_real"
+ },
+ "genome_hash": "a6c7f99569aa",
+ "genome": {
+  "tilt_gain": 0.5,
+  "conviction_temp": 1.0,
+  "dead_zone": 0.05,
+  "disp_gain": 0.5,
+  "cap_core": 0.0125,
+  "cap_conditional": 0.00625,
+  "defensive_fraction": 0.25,
+  "event_damp_strength": 0.0,
+  "organ_trust": {
+   "M1": 0.5,
+   "M2": -0.3
+  }
+ },
+ "real_engine": {
+  "incumbent_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/B0_EXPR/incumbent",
+  "orb_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/SMOKE_TILT/orb1_run1",
+  "nightly_dir_matches_orb_arm": true
+ },
+ "organ_inputs_synthetic": true,
+ "leg_note": "fixed-test-genome certification leg; the registered final form re-runs with champion + B0 + real organ inputs before the first production EA generation",
+ "surrogate_walk": {
+  "n_days": 21,
+  "n_active": 10,
+  "neutral_reasons": {
+   "no_tilt_capacity": 6,
+   "dead_zone_quantized": 5
+  }
+ },
+ "anchor": {
+  "n_paired_deltas": 20,
+  "dates": [
+   "2026-02-03",
+   "2026-03-06"
+  ],
+  "pearson": 0.4996,
+  "pearson_pass": "False",
+  "slope_real_on_surr": 0.8203,
+  "slope_pass": true,
+  "mean_surr": -1.384084277865723e-05,
+  "mean_real": -3.4821111343230627e-07,
+  "mean_gap": 1.3492631665224925e-05,
+  "se_real_2x": 3.773979879861752e-05,
+  "mean_equivalence_pass": true,
+  "degenerate_both_zero": "False",
+  "d4_magnitude_caution": false,
+  "spearman_diag": 0.3327,
+  "pearson_loo_range_diag": [
+   0.3411,
+   0.6624
+  ],
+  "verdict": "FAIL (stop-and-fix finding)",
+  "power_limits": "Fisher se ~ 0.24 at n=20; a true rho 0.5 passes rarely \u2014 pre-registered power limitation, printed not hidden",
+  "raw_value_decomposition_diag": {
+   "pearson": 0.626,
+   "slope_real_on_surr": 0.7921,
+   "mean_gap": 1.5480111306899042e-05,
+   "se_real_2x": 2.9084854784590394e-05
+  }
+ },
+ "surrogate_space_note": "surrogate side is (surrogate space)"
+}

@@ -1,0 +1,260 @@
+{
+ "generated": "2026-06-10T22:57:22",
+ "surrogate_space_disclaimer": "every number from this simulator is (surrogate space)",
+ "divergences_l2c": [
+  "fold era: features rebuilt from ohlcv adj_close (production formulas; live pipeline uses broker closes \u2014 differs around distributions/splits)",
+  "fold era: regime = heuristic SPY rule (scripts/build_ranking_history.py thresholds); live era uses the incumbent replay's regime_used record",
+  "fold era: base book starts all-cash at fold start (ramp-in days; symmetric across genomes by pairing)",
+  "regime_compatibility multiplier table not replicated (multiplier := 1.0); threshold-by-regime IS replicated",
+  "LLM veto / LLM size adj / ensemble+expert sizing modifiers := neutral 1.0",
+  "max_sector_weight cluster cap, leveraged constraints, reduce/trim layer, VUG split handling: not replicated",
+  "sell layer reduced to: 3-day health<=0.35 collapse + 10% trailing stop + panic force-sell of equity sleeve (the dominant observed engine behaviors)",
+  "tilt quantization at leg level in weight space (no integer shares); min_order respected; sub-2x-min_order total => neutral day",
+  "tilt overlay: re-solved on active days, CARRIED (no unwind) on neutral days exactly like the real channel, closed when the chassis fully sells the name; but the carried tilt does NOT feed back into future chassis decisions (the real path coupling is what the anchor certifies)",
+  "fills at adj open(D); marks at adj close(D); costs = half-spread + 1bp expectation (deterministic; seeded full model only at bake-off)"
+ ],
+ "packs": {
+  "folds": {
+   "1": {
+    "n_days": 251,
+    "first": "2020-02-03",
+    "last": "2021-01-29",
+    "mean_holdings": 5.932270916334661,
+    "mean_buys_per_day": 0.11155378486055777,
+    "nav_end_over_start": 1.1864146353800944,
+    "regime_counts": {
+     "risk_off_trend": 81,
+     "risk_on_trend": 71,
+     "choppy": 63,
+     "high_vol_panic": 25,
+     "calm_uptrend": 11
+    }
+   },
+   "2": {
+    "n_days": 253,
+    "first": "2021-02-01",
+    "last": "2022-01-31",
+    "mean_holdings": 4.569169960474309,
+    "mean_buys_per_day": 0.06719367588932806,
+    "nav_end_over_start": 1.0987059449364154,
+    "regime_counts": {
+     "risk_on_trend": 99,
+     "calm_uptrend": 81,
+     "choppy": 53,
+     "risk_off_trend": 20
+    }
+   },
+   "3": {
+    "n_days": 251,
+    "first": "2022-02-01",
+    "last": "2023-01-31",
+    "mean_holdings": 4.0239043824701195,
+    "mean_buys_per_day": 0.13545816733067728,
+    "nav_end_over_start": 0.9296445389234138,
+    "regime_counts": {
+     "risk_off_trend": 153,
+     "choppy": 62,
+     "high_vol_panic": 36
+    }
+   },
+   "4": {
+    "n_days": 251,
+    "first": "2023-02-01",
+    "last": "2024-01-31",
+    "mean_holdings": 5.46613545816733,
+    "mean_buys_per_day": 0.07171314741035857,
+    "nav_end_over_start": 0.9853103054653483,
+    "regime_counts": {
+     "risk_on_trend": 110,
+     "calm_uptrend": 64,
+     "risk_off_trend": 44,
+     "choppy": 33
+    }
+   },
+   "5": {
+    "n_days": 251,
+    "first": "2024-02-01",
+    "last": "2025-01-31",
+    "mean_holdings": 4.681274900398407,
+    "mean_buys_per_day": 0.06772908366533864,
+    "nav_end_over_start": 1.0758309589982735,
+    "regime_counts": {
+     "risk_on_trend": 136,
+     "calm_uptrend": 69,
+     "risk_off_trend": 28,
+     "choppy": 18
+    }
+   },
+   "6": {
+    "n_days": 250,
+    "first": "2025-02-03",
+    "last": "2026-01-30",
+    "mean_holdings": 5.372,
+    "mean_buys_per_day": 0.08,
+    "nav_end_over_start": 1.1702850466762265,
+    "regime_counts": {
+     "risk_on_trend": 93,
+     "calm_uptrend": 85,
+     "risk_off_trend": 43,
+     "choppy": 19,
+     "high_vol_panic": 10
+    }
+   }
+  },
+  "panel_dates": [
+   "2019-06-03",
+   "2026-03-10"
+  ],
+  "deployed_config_check": {
+   "ranking_blend": 0.35,
+   "blend_is_065_035": true,
+   "model_dir": "models/ranking_expanded_unconditioned",
+   "params_match": {
+    "max_positions": true,
+    "max_position_weight": true,
+    "buy_score_threshold": true,
+    "min_health_buy": true,
+    "sell_health_threshold": true,
+    "sell_health_days": true,
+    "trailing_stop_base": true,
+    "min_order_dollars": true
+   }
+  },
+  "live": {
+   "n_days": 21,
+   "first": "2026-02-02",
+   "last": "2026-03-06",
+   "base_book_source": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/B0_EXPR/incumbent",
+   "regime_counts": {
+    "choppy": 8,
+    "high_vol_panic": 6,
+    "risk_off_trend": 4,
+    "risk_on_trend": 3
+   }
+  },
+  "wall_clock_s": 42.6
+ },
+ "updated": "2026-06-10T23:14:37",
+ "anchor_l3_fm5": {
+  "n_paired_deltas": 20,
+  "dates": [
+   "2026-02-03",
+   "2026-03-06"
+  ],
+  "pearson": 0.4996,
+  "pearson_pass": "False",
+  "slope_real_on_surr": 0.8203,
+  "slope_pass": true,
+  "mean_surr": -1.384084277865723e-05,
+  "mean_real": -3.4821111343230627e-07,
+  "mean_gap": 1.3492631665224925e-05,
+  "se_real_2x": 3.773979879861752e-05,
+  "mean_equivalence_pass": true,
+  "degenerate_both_zero": "False",
+  "d4_magnitude_caution": false,
+  "spearman_diag": 0.3327,
+  "pearson_loo_range_diag": [
+   0.3411,
+   0.6624
+  ],
+  "verdict": "FAIL (stop-and-fix finding)",
+  "power_limits": "Fisher se ~ 0.24 at n=20; a true rho 0.5 passes rarely \u2014 pre-registered power limitation, printed not hidden",
+  "raw_value_decomposition_diag": {
+   "pearson": 0.626,
+   "slope_real_on_surr": 0.7921,
+   "mean_gap": 1.5480111306899042e-05,
+   "se_real_2x": 2.9084854784590394e-05
+  }
+ },
+ "anchor_artifact": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/store/surrogate_007/anchor_007.json",
+ "l7_firewall_check": {
+  "check": "L7 deployed-MLP training-window firewall",
+  "firewall": "2026-03-11",
+  "deployed_pt_sha256": "531f817c939323cdc505a209f7189127b6bfbb3ed19e300e709916f0ec5aa3a7",
+  "repo_pt_sha256": "531f817c939323cdc505a209f7189127b6bfbb3ed19e300e709916f0ec5aa3a7",
+  "sha_match_repo": true,
+  "pt_added_in_commit": "30fb365159a1dda63352dc5b15cc6d212e4e9fd0 2026-03-21 feat: hybrid ranking system with shadow deployment",
+  "ranking_history": {
+   "train_samples": 29388,
+   "val_samples": 7348,
+   "forward_days": 21,
+   "best_val_loss": 0.08741972955136464
+  },
+  "training_script_gate_cutoff": true,
+  "training_download_window": true,
+  "s3_last_modified": "2026-03-22 01:25:46+00:00",
+  "s3_sha_note": "upload date 2026-03-22 is the ARTIFACT upload, not the data end",
+  "training_data_end": "2026-01-14",
+  "verdict": "PASS",
+  "formal_manifest_exists": false,
+  "finding": "no formal training manifest exists for the deployed RankingMLP \u2014 verified by repo forensics (sha-matched blob -> committed training script with hardcoded gate_cutoff 2026-01-15); training-data end 2026-01-14 < 2026-03-11 firewall. Paired-cancellation argument (both arms share the model) prints in the E2 block regardless (TOURNAMENT_007 G17)."
+ },
+ "fidelity_l2a_rank_ic": {
+  "per_fold": {
+   "1": {
+    "ic21": 0.1835,
+    "n_ic21": 51,
+    "ic5": 0.0699,
+    "n_ic5": 51
+   },
+   "2": {
+    "ic21": -0.0291,
+    "n_ic21": 51,
+    "ic5": 0.0333,
+    "n_ic5": 51
+   },
+   "3": {
+    "ic21": 0.0008,
+    "n_ic21": 51,
+    "ic5": 0.0465,
+    "n_ic5": 51
+   },
+   "4": {
+    "ic21": 0.1077,
+    "n_ic21": 51,
+    "ic5": 0.0512,
+    "n_ic5": 51
+   },
+   "5": {
+    "ic21": 0.218,
+    "n_ic21": 51,
+    "ic5": 0.0902,
+    "n_ic5": 51
+   },
+   "6": {
+    "ic21": 0.3283,
+    "n_ic21": 50,
+    "ic5": 0.1603,
+    "n_ic5": 50
+   }
+  },
+  "live_era": {
+   "ic5": -0.106,
+   "n_ic5": 21,
+   "ic21": null
+  },
+  "note_live_21d": "deferred to bake-off \u2014 21d targets from the live era cross the 2026-03-11 firewall (pre-registered consequence: firewall wins)",
+  "memorization_read": {
+   "fold_mean_ic5": 0.0752,
+   "live_ic5": -0.106,
+   "fold_minus_live_ic5": 0.1812,
+   "fold_much_greater_than_live": true,
+   "in_sample_overlap_disclosure": "the deployed MLP trained on 2023-06-01 -> 2026-01-14 (L7), which OVERLAPS folds F4-F6 \u2014 their fold-era IC is partially in-sample for the model; the live era (>= 2026-01-31) is fully out-of-training. fold >> live = memorization of the historical record, exactly what this check quantifies (Skeptic L2)."
+  }
+ },
+ "fidelity_l2c_blend_check": {
+  "ranking_blend": 0.35,
+  "blend_is_065_035": true,
+  "model_dir": "models/ranking_expanded_unconditioned",
+  "params_match": {
+   "max_positions": true,
+   "max_position_weight": true,
+   "buy_score_threshold": true,
+   "min_health_buy": true,
+   "sell_health_threshold": true,
+   "sell_health_days": true,
+   "trailing_stop_base": true,
+   "min_order_dollars": true
+  }
+ }
+}

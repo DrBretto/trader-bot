@@ -1,0 +1,238 @@
+{
+ "mode": "smoke",
+ "generated": "2026-06-10T23:14:52",
+ "master_seed": 4242,
+ "roster": [
+  "M1",
+  "M2",
+  "M5"
+ ],
+ "organs_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/store/nightly_007_folds_SYNTH",
+ "synthetic_inputs": true,
+ "surrogate_space": true,
+ "packs_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/store/surrogate_007",
+ "production": {
+  "P": 8,
+  "G": 2,
+  "k_eff": 12,
+  "n_genome_evals": 16,
+  "champion_rule": "best_maxmin_top8_member",
+  "champion_hash": "eb11c12a295f",
+  "champion_fitness": 0.1635336574009063,
+  "champion_fold_u": {
+   "1": 0.42108905480251624,
+   "2": 0.03643810756674694,
+   "3": 0.08489643803307588,
+   "4": 0.25495393969421537,
+   "5": 0.45159479713467177,
+   "6": 0.20831567397676326
+  },
+  "champion_genome": {
+   "tilt_gain": 0.2795741054101999,
+   "conviction_temp": 1.9027976940860352,
+   "dead_zone": 0.27730583132486286,
+   "disp_gain": 1.4083310778646487,
+   "cap_core": 0.010107181607876404,
+   "cap_conditional": 0.001836519457417768,
+   "defensive_fraction": 0.010983654799655462,
+   "event_damp_strength": 0.16305760166567673,
+   "organ_trust": {
+    "M1": 0.9042872267147102,
+    "M2": -1.9971683271704266,
+    "M5": -0.8812670204732211
+   }
+  },
+  "top8": [
+   {
+    "hash": "3b578d99e4e8",
+    "fitness": 0.17168006875333303,
+    "fold_u": {
+     "1": 0.6207842332079241,
+     "2": 0.22138748086061974,
+     "3": 0.11915392527269121,
+     "4": 0.044486606809393384,
+     "5": 0.320730213541844,
+     "6": 0.02480626648662503
+    }
+   },
+   {
+    "hash": "eb11c12a295f",
+    "fitness": 0.1635336574009063,
+    "fold_u": {
+     "1": 0.42108905480251624,
+     "2": 0.03643810756674694,
+     "3": 0.08489643803307588,
+     "4": 0.25495393969421537,
+     "5": 0.45159479713467177,
+     "6": 0.20831567397676326
+    }
+   },
+   {
+    "hash": "ee4875b841cf",
+    "fitness": 0.13795621483771026,
+    "fold_u": {
+     "1": 0.5919199226182235,
+     "2": -0.09736954642451669,
+     "3": 0.19231270824032431,
+     "4": 0.03312287070061969,
+     "5": 0.514731012607752,
+     "6": 0.3420851380915405
+    }
+   },
+   {
+    "hash": "cf1496c56b14",
+    "fitness": 0.13515601057576532,
+    "fold_u": {
+     "1": 0.35339520935647306,
+     "2": 0.006364365379301479,
+     "3": 0.06835589387179876,
+     "4": 0.17060930164053856,
+     "5": 0.4645006708628785,
+     "6": 0.12859800871222052
+    }
+   },
+   {
+    "hash": "c0fe58c78fbf",
+    "fitness": 0.09298730436358527,
+    "fold_u": {
+     "1": 0.7024868739275515,
+     "2": -0.08611005621239853,
+     "3": 0.025989774018336752,
+     "4": 0.013533946381358058,
+     "5": 0.44795557920298607,
+     "6": 0.16307428909608673
+    }
+   },
+   {
+    "hash": "449a8b8655f6",
+    "fitness": 0.0,
+    "fold_u": {
+     "1": 0.0,
+     "2": 0.0,
+     "3": 0.0,
+     "4": 0.0,
+     "5": 0.0,
+     "6": 0.0
+    }
+   },
+   {
+    "hash": "ff787246708e",
+    "fitness": -0.27552550335176296,
+    "fold_u": {
+     "1": 0.4449862607977609,
+     "2": -0.3237606836193556,
+     "3": 0.4117461686360608,
+     "4": 0.15485100129625112,
+     "5": 0.03546734996999495,
+     "6": 0.021670385526097038
+    }
+   },
+   {
+    "hash": "75d6769595fb",
+    "fitness": -0.3791252632243098,
+    "fold_u": {
+     "1": 0.3018921535521578,
+     "2": -0.36681097770840204,
+     "3": 0.14822746322722208,
+     "4": 0.04264047856243162,
+     "5": 0.24808962153908348,
+     "6": -0.007592446674826798
+    }
+   }
+  ]
+ },
+ "adoption_gate": {
+  "margin": 0.1635336574009063,
+  "cross_fold_sd": 0.16984573424271612,
+  "k_eff": 12,
+  "bar_multiplier": 2.2293,
+  "bar": 0.378638,
+  "adopted": false
+ },
+ "boundary_pin_audit": {
+  "fraction_pinned": 0.2727,
+  "pinned_genes": [
+   "organ_trust.M2",
+   "conviction_temp",
+   "defensive_fraction"
+  ],
+  "noise_flag": false,
+  "rule": "FB2: >1/3 of genes within 5% of an edge => noise flag"
+ },
+ "b1_random_search": {
+  "K": 16,
+  "best_fitness": 0.0912179505584966,
+  "ga_beats_b1": true
+ },
+ "rotation": {
+  "rotations": {
+   "5": {
+    "champion_hash": "b0529943fb5f",
+    "champion_rule": "median_of_top8",
+    "train_fitness": 0.011435030743364353,
+    "unseen_fold_dU": 0.0202951495494566,
+    "k_eff": 13,
+    "P": 8,
+    "G": 2,
+    "masks_synthetic": true,
+    "roster": [
+     "M1",
+     "M2",
+     "M5"
+    ]
+   },
+   "6": {
+    "champion_hash": "7173d8722ea9",
+    "champion_rule": "median_of_top8",
+    "train_fitness": -0.004326041001689887,
+    "unseen_fold_dU": 0.01173727954611988,
+    "k_eff": 13,
+    "P": 8,
+    "G": 2,
+    "masks_synthetic": true,
+    "roster": [
+     "M1",
+     "M2",
+     "M5"
+    ]
+   }
+  },
+  "gate": {
+   "delta_u": {
+    "5": 0.0202951495494566,
+    "6": 0.01173727954611988
+   },
+   "n_nonneg": 2,
+   "n_rotations": 2,
+   "pooled_mean": 0.016016,
+   "pooled_se": 0.004279,
+   "passed": false,
+   "rule": ">=4/6 dU>=0 AND pooled mean > 1x se (surrogate space)"
+  },
+  "masks_synthetic_any": true
+ },
+ "ship": {
+  "gates_are_AND": true,
+  "adoption_passed": false,
+  "rotation_passed": false,
+  "adopted_champion": false,
+  "shipped": "B0",
+  "shipped_genome": {
+   "tilt_gain": 0.0,
+   "conviction_temp": 1.0,
+   "dead_zone": 0.1,
+   "disp_gain": 0.5,
+   "cap_core": 0.0125,
+   "cap_conditional": 0.00625,
+   "defensive_fraction": 0.25,
+   "event_damp_strength": 0.0,
+   "organ_trust": {
+    "M1": 0.0,
+    "M2": 0.0,
+    "M5": 0.0
+   }
+  },
+  "note": "SYNTHETIC-INPUT SMOKE \u2014 ship decision is machinery exercise only, never evidence"
+ },
+ "wall_clock_min": 1.94
+}

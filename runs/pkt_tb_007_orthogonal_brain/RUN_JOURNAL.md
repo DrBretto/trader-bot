@@ -53,3 +53,21 @@
   space); all gates w/ P(pass|null)/P(pass|effect); battery <=14 planned arms; ledgers init 0).
   BUILD_SPEC_007 committed (prototype/): organ specs, tilt adapter + projection, lot fixes, EA,
   surrogate + anchor, build order w/ B0-EXPR hash check FIRST, shrink ladder. Phase C may begin.
+- 2026-06-10 :: Phase C wave 2b (evolution stack) built: ea_007.py ((mu+lambda) GA on the 12-gene
+  genome, floored paired-IR fitness through THE SAME tilt_adapter.solve_tilt path as the harness --
+  shared implementation extracted by surgical refactor, wave-1 tests stay green; B0=individual #0,
+  FITNESS(B0)===0 asserted; median-of-top-8 champion; adoption gate max(1.4, sqrt(2lnK_eff))xsd;
+  6-rotation gate >=4/6 + pooled>1xse w/ per-rotation masks contract; B1; boundary-pin FB2;
+  blend-0 entrypoint; wall-cap shrink ladder), surrogate_007.py (deployed-MLP-on-historical-features
+  chassis simulator, fold packs F1-F6 + record-driven live pack, carry semantics, L2a/L2c checks),
+  anchor_007.py, tests/test_ea_007.py (41/41 suite green). FIDELITY: blend check PASS (deployed
+  ranking_blend 0.35); L2a memorization fold>>live CONFIRMED (fold ic5 +0.075 vs live -0.106;
+  21d live deferred -- firewall); L7 PASS by repo forensics (no formal manifest -- ledgered;
+  training-data end 2026-01-14 < 2026-03-11). ANCHOR (L3/FM5, fixed-test-genome leg, n=20):
+  Pearson 0.50 FAIL / slope 0.82 PASS / mean-equivalence PASS => stop-and-fix FINDING per
+  pre-registration; decomposition shows solve-level legs match the real expression logs and the
+  shortfall is cost-rng noise + execution microstructure + path coupling at 10x-below-T_max tilt
+  scale. Production EA NOT run (consequence honored; organs pending anyway). EA smoke PASS
+  (P=8 G=2 + 2 rotations, synthetic organs): fitness improves over B0, gates exercise, B1 ran.
+  8 findings ledgered in prototype/validation_looks_007.jsonl. Production entrypoint:
+  ea_007.py --mode full (after wave-2a organs/masks/roster + champion-scale anchor re-run).

@@ -569,6 +569,37 @@ def tilt_to_intents(incumbent_intents: List[Dict[str, Any]],
     return new_intents, log
 
 
+# ---------------------------------------------------------------- shared solve
+def solve_tilt(organs: dict, genome: Genome007,
+               masks: Dict[str, Dict[str, float]],
+               support: List[str], active: List[str],
+               tau: Dict[str, float], T_t: float,
+               beta_v: np.ndarray, sigma_v: np.ndarray,
+               lb_v: np.ndarray, ub_v: np.ndarray
+               ) -> Tuple[Dict[str, float], dict, dict, tuple]:
+    """THE expression solve (§2.4 -> §2.5): combine direction -> demean over
+    support -> scale to the tilt budget -> M4 damp -> defensive clip -> parity
+    projection. Module-level so the replay adapter (post_decision) and the EA
+    fitness walk (surrogate_007 / ea_007) share ONE implementation — the
+    simulator matches the harness expression bit-for-bit by construction
+    (BUILD_SPEC_007 §5.2; wave-2b consistency test asserts <=1e-9)."""
+    s, organ_mu_z = combine_direction(organs, genome, masks, support,
+                                      active, tau)
+    sv = np.array([s[n] for n in support])
+    sv = sv - sv.mean()                      # demeaned over support
+    mass = np.abs(sv).sum()
+    if mass <= 0:
+        return {}, {}, organ_mu_z, (0.0, 0.0)
+    dw = {n: float(sv[i] * (2 * T_t / mass)) for i, n in enumerate(support)}
+    m4 = apply_m4_damp(dw, organs, genome)
+    share_pre, share_post = apply_defensive_clip(dw, genome.defensive_fraction)
+    d = np.array([dw[n] for n in support])
+    x, pinfo = project_parity(d, beta_v, sigma_v, lb_v, ub_v)
+    return ({n: float(x[i]) for i, n in enumerate(support)},
+            {"m4_damp": m4, "projection": pinfo}, organ_mu_z,
+            (share_pre, share_post))
+
+
 # ---------------------------------------------------------------- marks guard
 def guarded_marks(features_df, inputs_date: str, cache=None
                   ) -> Tuple[Dict[str, float], str]:
@@ -634,24 +665,13 @@ def make_tilt_strategy(genome: Genome007 | dict | str | Path,
                               "disp_forecast_z": conv.get("disp_forecast_z"),
                               "organ_q": conv["organ_q"]} if conv else None)})
 
-    # the core direction->projection pipeline, reused by organ attribution
+    # the core direction->projection pipeline, reused by organ attribution —
+    # a thin delegate to the module-level shared solve (solve_tilt), which the
+    # EA fitness walk also calls (one implementation, by construction)
     def _pipeline(organs, active, tau, T_t, support, beta_v, sigma_v,
                   lb_v, ub_v) -> Tuple[Dict[str, float], dict, dict, tuple]:
-        s, organ_mu_z = combine_direction(organs, genome, masks, support,
-                                          active, tau)
-        sv = np.array([s[n] for n in support])
-        sv = sv - sv.mean()                      # demeaned over support
-        mass = np.abs(sv).sum()
-        if mass <= 0:
-            return {}, {}, organ_mu_z, (0.0, 0.0)
-        dw = {n: float(sv[i] * (2 * T_t / mass)) for i, n in enumerate(support)}
-        m4 = apply_m4_damp(dw, organs, genome)
-        share_pre, share_post = apply_defensive_clip(dw, genome.defensive_fraction)
-        d = np.array([dw[n] for n in support])
-        x, pinfo = project_parity(d, beta_v, sigma_v, lb_v, ub_v)
-        return ({n: float(x[i]) for i, n in enumerate(support)},
-                {"m4_damp": m4, "projection": pinfo}, organ_mu_z,
-                (share_pre, share_post))
+        return solve_tilt(organs, genome, masks, support, active, tau, T_t,
+                          beta_v, sigma_v, lb_v, ub_v)
 
     def post(ctx: StrategyContext, incumbent_intents: List[Dict[str, Any]]
              ) -> List[Dict[str, Any]]:

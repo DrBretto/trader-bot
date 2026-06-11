@@ -1,0 +1,121 @@
+{
+ "folds": {
+  "1": {
+   "n_days": 251,
+   "first": "2020-02-03",
+   "last": "2021-01-29",
+   "mean_holdings": 5.932270916334661,
+   "mean_buys_per_day": 0.11155378486055777,
+   "nav_end_over_start": 1.1864146353800944,
+   "regime_counts": {
+    "risk_off_trend": 81,
+    "risk_on_trend": 71,
+    "choppy": 63,
+    "high_vol_panic": 25,
+    "calm_uptrend": 11
+   }
+  },
+  "2": {
+   "n_days": 253,
+   "first": "2021-02-01",
+   "last": "2022-01-31",
+   "mean_holdings": 4.569169960474309,
+   "mean_buys_per_day": 0.06719367588932806,
+   "nav_end_over_start": 1.0987059449364154,
+   "regime_counts": {
+    "risk_on_trend": 99,
+    "calm_uptrend": 81,
+    "choppy": 53,
+    "risk_off_trend": 20
+   }
+  },
+  "3": {
+   "n_days": 251,
+   "first": "2022-02-01",
+   "last": "2023-01-31",
+   "mean_holdings": 4.0239043824701195,
+   "mean_buys_per_day": 0.13545816733067728,
+   "nav_end_over_start": 0.9296445389234138,
+   "regime_counts": {
+    "risk_off_trend": 153,
+    "choppy": 62,
+    "high_vol_panic": 36
+   }
+  },
+  "4": {
+   "n_days": 251,
+   "first": "2023-02-01",
+   "last": "2024-01-31",
+   "mean_holdings": 5.46613545816733,
+   "mean_buys_per_day": 0.07171314741035857,
+   "nav_end_over_start": 0.9853103054653483,
+   "regime_counts": {
+    "risk_on_trend": 110,
+    "calm_uptrend": 64,
+    "risk_off_trend": 44,
+    "choppy": 33
+   }
+  },
+  "5": {
+   "n_days": 251,
+   "first": "2024-02-01",
+   "last": "2025-01-31",
+   "mean_holdings": 4.681274900398407,
+   "mean_buys_per_day": 0.06772908366533864,
+   "nav_end_over_start": 1.0758309589982735,
+   "regime_counts": {
+    "risk_on_trend": 136,
+    "calm_uptrend": 69,
+    "risk_off_trend": 28,
+    "choppy": 18
+   }
+  },
+  "6": {
+   "n_days": 250,
+   "first": "2025-02-03",
+   "last": "2026-01-30",
+   "mean_holdings": 5.372,
+   "mean_buys_per_day": 0.08,
+   "nav_end_over_start": 1.1702850466762265,
+   "regime_counts": {
+    "risk_on_trend": 93,
+    "calm_uptrend": 85,
+    "risk_off_trend": 43,
+    "choppy": 19,
+    "high_vol_panic": 10
+   }
+  }
+ },
+ "panel_dates": [
+  "2019-06-03",
+  "2026-03-10"
+ ],
+ "deployed_config_check": {
+  "ranking_blend": 0.35,
+  "blend_is_065_035": true,
+  "model_dir": "models/ranking_expanded_unconditioned",
+  "params_match": {
+   "max_positions": true,
+   "max_position_weight": true,
+   "buy_score_threshold": true,
+   "min_health_buy": true,
+   "sell_health_threshold": true,
+   "sell_health_days": true,
+   "trailing_stop_base": true,
+   "min_order_dollars": true
+  }
+ },
+ "live": {
+  "n_days": 21,
+  "first": "2026-02-02",
+  "last": "2026-03-06",
+  "base_book_source": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/B0_EXPR/incumbent",
+  "regime_counts": {
+   "choppy": 8,
+   "high_vol_panic": 6,
+   "risk_off_trend": 4,
+   "risk_on_trend": 3
+  }
+ },
+ "wall_clock_s": 42.6
+}
