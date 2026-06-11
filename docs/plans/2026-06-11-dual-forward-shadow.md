@@ -23,11 +23,16 @@ arm). Verdict reads pre-registered in runs/pkt_tb_007_orthogonal_brain/shadow/SH
 - [x] launchd plist com.traderbot.shadow.plist (nightly, after the night pipeline lands)
 - [x] First night run end-to-end (manual), verify artifacts + JSON
 - [x] Frontend: render shadow line(s) when shadow_timeseries.json exists (graceful absent)
-- [ ] STOP: ask operator before frontend deploy (CLAUDE.md checkpoint)
+- [x] STOP: ask operator before frontend deploy — APPROVED; deployed 2026-06-11 (sync + CloudFront invalidation ID4ZA9EG85NQ4NEJ6BBXBBUOFL); verified live: shadow legend renders, shadow_timeseries.json intact post-sync, zero console errors
 
 ## Execution Log
 
 - 2026-06-11: Branch ai/forward-shadow from ai/orthogonal-brain. Plan doc created.
+- 2026-06-11: Engine built + launchd loaded; first forecast record written pre-open (12:49 UTC).
+- 2026-06-11: Frontend built + DEPLOYED (operator-approved); live verification green.
+
+**COMPLETE 2026-06-11.** Shadow accruing nightly. Verdict reads: IC 2027-01-27, utility 2027-08-10
+(SHADOW_PREREG.md is the contract).
 - 2026-06-11: Shadow engine built (shadow/{shadow_lib,forward_inference,shadow_nightly}.py).
   Imports, not forks: tilt_adapter/genome_007/lot_fix_007/risk_stats_007/run_replay_007.cost_overlay
   (TB-007), FeatureStore/features_gdelt/gdelt_backfill/data_layer.fetch_cboe (TB-006),
