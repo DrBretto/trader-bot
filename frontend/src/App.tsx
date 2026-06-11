@@ -230,7 +230,7 @@ export function App() {
             )}
           </div>
 
-          <PerformanceLenses equityCurve={data.equity_curve} />
+          <PerformanceLenses equityCurve={data.equity_curve} shadow={shadow} />
         </div>
 
         <LearnModeNav />

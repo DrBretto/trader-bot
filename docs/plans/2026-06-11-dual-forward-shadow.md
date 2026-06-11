@@ -33,6 +33,11 @@ arm). Verdict reads pre-registered in runs/pkt_tb_007_orthogonal_brain/shadow/SH
 
 **COMPLETE 2026-06-11.** Shadow accruing nightly. Verdict reads: IC 2027-01-27, utility 2027-08-10
 (SHADOW_PREREG.md is the contract).
+- 2026-06-11 (follow-up, operator-requested): bottom "Current Model vs Previous" lens repointed —
+  once shadow_A has settled points it renders "New Brain (paper) vs Current Model" (rebased to 100
+  at shadow start, amber new-model line); falls back to the legacy comparison until then. Deployed +
+  invalidated. First-deploy visibility issue was operator browser cache (CF invalidation had
+  Completed; edge served the new bundle).
 - 2026-06-11: Shadow engine built (shadow/{shadow_lib,forward_inference,shadow_nightly}.py).
   Imports, not forks: tilt_adapter/genome_007/lot_fix_007/risk_stats_007/run_replay_007.cost_overlay
   (TB-007), FeatureStore/features_gdelt/gdelt_backfill/data_layer.fetch_cboe (TB-006),
