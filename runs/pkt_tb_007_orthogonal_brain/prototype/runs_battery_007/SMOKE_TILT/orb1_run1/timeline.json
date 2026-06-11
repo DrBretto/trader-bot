@@ -1,0 +1,719 @@
+[
+ {
+  "date": "2026-02-02",
+  "ending_value": 100764.57,
+  "ending_cash": 12140.02,
+  "holdings_count": 4,
+  "regime_used": "risk_on_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "SCHD",
+    "shares": 737.0,
+    "entry_price": 29.82,
+    "peak_price": 30.015,
+    "close_price": 30.015
+   },
+   {
+    "symbol": "XLB",
+    "shares": 446.0,
+    "entry_price": 49.27,
+    "peak_price": 49.65,
+    "close_price": 49.65
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 149.0,
+    "entry_price": 147.18,
+    "peak_price": 149.63,
+    "close_price": 149.63
+   },
+   {
+    "symbol": "VEA",
+    "shares": 332.0,
+    "entry_price": 66.2,
+    "peak_price": 66.46,
+    "close_price": 66.46
+   }
+  ]
+ },
+ {
+  "date": "2026-02-03",
+  "ending_value": 101667.69,
+  "ending_cash": 12140.02,
+  "holdings_count": 4,
+  "regime_used": "risk_on_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "SCHD",
+    "shares": 737.0,
+    "entry_price": 29.82,
+    "peak_price": 30.5,
+    "close_price": 30.5
+   },
+   {
+    "symbol": "XLB",
+    "shares": 446.0,
+    "entry_price": 49.27,
+    "peak_price": 50.7,
+    "close_price": 50.7
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 149.0,
+    "entry_price": 147.18,
+    "peak_price": 149.63,
+    "close_price": 149.57
+   },
+   {
+    "symbol": "VEA",
+    "shares": 332.0,
+    "entry_price": 66.2,
+    "peak_price": 66.72,
+    "close_price": 66.72
+   }
+  ]
+ },
+ {
+  "date": "2026-02-04",
+  "ending_value": 102178.12,
+  "ending_cash": 34815.27,
+  "holdings_count": 5,
+  "regime_used": "risk_on_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "SCHD",
+    "shares": 358.5,
+    "entry_price": 29.82,
+    "peak_price": 31.01,
+    "close_price": 31.01
+   },
+   {
+    "symbol": "XLB",
+    "shares": 218.0,
+    "entry_price": 49.27,
+    "peak_price": 51.895,
+    "close_price": 51.89
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 149.0,
+    "entry_price": 147.18,
+    "peak_price": 149.63,
+    "close_price": 149.13
+   },
+   {
+    "symbol": "VEA",
+    "shares": 332.0,
+    "entry_price": 66.2,
+    "peak_price": 66.8,
+    "close_price": 66.8
+   },
+   {
+    "symbol": "FXI",
+    "shares": 14.0,
+    "entry_price": 38.72,
+    "peak_price": 38.72,
+    "close_price": 38.27
+   }
+  ]
+ },
+ {
+  "date": "2026-02-05",
+  "ending_value": 101555.61,
+  "ending_cash": 67924.93,
+  "holdings_count": 6,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "SCHD",
+    "shares": 179.25,
+    "entry_price": 29.82,
+    "peak_price": 31.01,
+    "close_price": 30.97
+   },
+   {
+    "symbol": "XLB",
+    "shares": 109.0,
+    "entry_price": 49.27,
+    "peak_price": 51.895,
+    "close_price": 50.5
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 74.5,
+    "entry_price": 147.18,
+    "peak_price": 149.63,
+    "close_price": 148.15
+   },
+   {
+    "symbol": "VEA",
+    "shares": 166.0,
+    "entry_price": 66.2,
+    "peak_price": 66.8,
+    "close_price": 65.9
+   },
+   {
+    "symbol": "FXI",
+    "shares": 7.0,
+    "entry_price": 38.72,
+    "peak_price": 38.72,
+    "close_price": 38.2
+   },
+   {
+    "symbol": "SOXX",
+    "shares": 1.0,
+    "entry_price": 326.54,
+    "peak_price": 330.83,
+    "close_price": 330.83
+   }
+  ]
+ },
+ {
+  "date": "2026-02-06",
+  "ending_value": 101849.42,
+  "ending_cash": 101849.42,
+  "holdings_count": 0,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": []
+ },
+ {
+  "date": "2026-02-10",
+  "ending_value": 102063.76,
+  "ending_cash": 31340.42,
+  "holdings_count": 3,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLP",
+    "shares": 288.0,
+    "entry_price": 87.35,
+    "peak_price": 87.35,
+    "close_price": 87.15
+   },
+   {
+    "symbol": "XLB",
+    "shares": 434.0,
+    "entry_price": 52.2,
+    "peak_price": 52.91,
+    "close_price": 52.91
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 724.0,
+    "entry_price": 31.35,
+    "peak_price": 31.35,
+    "close_price": 31.3
+   }
+  ]
+ },
+ {
+  "date": "2026-02-11",
+  "ending_value": 102976.16,
+  "ending_cash": 31107.07,
+  "holdings_count": 4,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLP",
+    "shares": 288.0,
+    "entry_price": 87.35,
+    "peak_price": 88.4,
+    "close_price": 88.4
+   },
+   {
+    "symbol": "XLB",
+    "shares": 434.0,
+    "entry_price": 52.2,
+    "peak_price": 53.62,
+    "close_price": 53.62
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 714.0,
+    "entry_price": 31.35,
+    "peak_price": 31.64,
+    "close_price": 31.64
+   },
+   {
+    "symbol": "FXE",
+    "shares": 5.0,
+    "entry_price": 109.5,
+    "peak_price": 109.57,
+    "close_price": 109.57
+   }
+  ]
+ },
+ {
+  "date": "2026-02-12",
+  "ending_value": 102668.04,
+  "ending_cash": 31104.91,
+  "holdings_count": 5,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "XLP",
+    "shares": 288.0,
+    "entry_price": 87.35,
+    "peak_price": 89.235,
+    "close_price": 89.235
+   },
+   {
+    "symbol": "XLB",
+    "shares": 426.0,
+    "entry_price": 52.2,
+    "peak_price": 53.62,
+    "close_price": 52.85
+   },
+   {
+    "symbol": "SCHD",
+    "shares": 714.0,
+    "entry_price": 31.35,
+    "peak_price": 31.64,
+    "close_price": 31.34
+   },
+   {
+    "symbol": "FXE",
+    "shares": 5.0,
+    "entry_price": 109.5,
+    "peak_price": 109.57,
+    "close_price": 109.51
+   },
+   {
+    "symbol": "FXI",
+    "shares": 11.0,
+    "entry_price": 39.185,
+    "peak_price": 39.185,
+    "close_price": 38.64
+   }
+  ]
+ },
+ {
+  "date": "2026-02-13",
+  "ending_value": 102518.93,
+  "ending_cash": 87195.58,
+  "holdings_count": 2,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": [
+   {
+    "symbol": "GLD",
+    "shares": 15.0,
+    "entry_price": 459.73,
+    "peak_price": 462.61,
+    "close_price": 462.61
+   },
+   {
+    "symbol": "USO",
+    "shares": 110.0,
+    "entry_price": 76.12,
+    "peak_price": 76.22,
+    "close_price": 76.22
+   }
+  ]
+ },
+ {
+  "date": "2026-02-17",
+  "ending_value": 102450.35,
+  "ending_cash": 25261.35,
+  "holdings_count": 7,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "GLD",
+    "shares": 15.0,
+    "entry_price": 459.73,
+    "peak_price": 462.61,
+    "close_price": 448.23
+   },
+   {
+    "symbol": "USO",
+    "shares": 110.0,
+    "entry_price": 76.12,
+    "peak_price": 76.22,
+    "close_price": 75.73
+   },
+   {
+    "symbol": "SLV",
+    "shares": 223.0,
+    "entry_price": 67.27,
+    "peak_price": 67.27,
+    "close_price": 66.36
+   },
+   {
+    "symbol": "KRE",
+    "shares": 210.0,
+    "entry_price": 71.43,
+    "peak_price": 71.54,
+    "close_price": 71.54
+   },
+   {
+    "symbol": "SOXX",
+    "shares": 42.0,
+    "entry_price": 349.805,
+    "peak_price": 354.1,
+    "close_price": 354.1
+   },
+   {
+    "symbol": "SMH",
+    "shares": 42.0,
+    "entry_price": 402.705,
+    "peak_price": 407.46,
+    "close_price": 407.46
+   },
+   {
+    "symbol": "FXE",
+    "shares": 3.0,
+    "entry_price": 109.1,
+    "peak_price": 109.35,
+    "close_price": 109.35
+   }
+  ]
+ },
+ {
+  "date": "2026-02-18",
+  "ending_value": 104175.8,
+  "ending_cash": 25261.35,
+  "holdings_count": 7,
+  "regime_used": "risk_off_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "GLD",
+    "shares": 15.0,
+    "entry_price": 459.73,
+    "peak_price": 462.61,
+    "close_price": 458.17
+   },
+   {
+    "symbol": "USO",
+    "shares": 110.0,
+    "entry_price": 76.12,
+    "peak_price": 79.4,
+    "close_price": 79.4
+   },
+   {
+    "symbol": "SLV",
+    "shares": 223.0,
+    "entry_price": 67.27,
+    "peak_price": 70.09,
+    "close_price": 70.09
+   },
+   {
+    "symbol": "KRE",
+    "shares": 210.0,
+    "entry_price": 71.43,
+    "peak_price": 71.54,
+    "close_price": 71.37
+   },
+   {
+    "symbol": "SOXX",
+    "shares": 42.0,
+    "entry_price": 349.805,
+    "peak_price": 357.93,
+    "close_price": 357.93
+   },
+   {
+    "symbol": "SMH",
+    "shares": 42.0,
+    "entry_price": 402.705,
+    "peak_price": 412.64,
+    "close_price": 412.64
+   },
+   {
+    "symbol": "FXE",
+    "shares": 3.0,
+    "entry_price": 109.1,
+    "peak_price": 109.35,
+    "close_price": 108.73
+   }
+  ]
+ },
+ {
+  "date": "2026-02-19",
+  "ending_value": 104289.58,
+  "ending_cash": 29685.27,
+  "holdings_count": 7,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "GLD",
+    "shares": 15.0,
+    "entry_price": 459.73,
+    "peak_price": 462.61,
+    "close_price": 459.61
+   },
+   {
+    "symbol": "USO",
+    "shares": 55.0,
+    "entry_price": 76.12,
+    "peak_price": 81.19,
+    "close_price": 81.19
+   },
+   {
+    "symbol": "SLV",
+    "shares": 223.0,
+    "entry_price": 67.27,
+    "peak_price": 71.01,
+    "close_price": 71.01
+   },
+   {
+    "symbol": "KRE",
+    "shares": 210.0,
+    "entry_price": 71.43,
+    "peak_price": 71.54,
+    "close_price": 71.0
+   },
+   {
+    "symbol": "SOXX",
+    "shares": 42.0,
+    "entry_price": 349.805,
+    "peak_price": 357.93,
+    "close_price": 355.84
+   },
+   {
+    "symbol": "SMH",
+    "shares": 42.0,
+    "entry_price": 402.705,
+    "peak_price": 412.64,
+    "close_price": 410.2
+   },
+   {
+    "symbol": "FXE",
+    "shares": 3.0,
+    "entry_price": 109.1,
+    "peak_price": 109.35,
+    "close_price": 108.6
+   }
+  ]
+ },
+ {
+  "date": "2026-02-20",
+  "ending_value": 106199.05,
+  "ending_cash": 29685.27,
+  "holdings_count": 7,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "GLD",
+    "shares": 15.0,
+    "entry_price": 459.73,
+    "peak_price": 468.49,
+    "close_price": 468.49
+   },
+   {
+    "symbol": "USO",
+    "shares": 55.0,
+    "entry_price": 76.12,
+    "peak_price": 81.19,
+    "close_price": 80.85
+   },
+   {
+    "symbol": "SLV",
+    "shares": 223.0,
+    "entry_price": 67.27,
+    "peak_price": 76.6234,
+    "close_price": 76.6234
+   },
+   {
+    "symbol": "KRE",
+    "shares": 210.0,
+    "entry_price": 71.43,
+    "peak_price": 71.9,
+    "close_price": 71.9
+   },
+   {
+    "symbol": "SOXX",
+    "shares": 42.0,
+    "entry_price": 349.805,
+    "peak_price": 359.43,
+    "close_price": 359.43
+   },
+   {
+    "symbol": "SMH",
+    "shares": 42.0,
+    "entry_price": 402.705,
+    "peak_price": 415.03,
+    "close_price": 415.03
+   },
+   {
+    "symbol": "FXE",
+    "shares": 3.0,
+    "entry_price": 109.1,
+    "peak_price": 109.35,
+    "close_price": 108.78
+   }
+  ]
+ },
+ {
+  "date": "2026-02-24",
+  "ending_value": 106080.06,
+  "ending_cash": 106080.06,
+  "holdings_count": 0,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": []
+ },
+ {
+  "date": "2026-02-25",
+  "ending_value": 106080.06,
+  "ending_cash": 106080.06,
+  "holdings_count": 0,
+  "regime_used": "risk_off_trend",
+  "holdings_at_close": []
+ },
+ {
+  "date": "2026-02-26",
+  "ending_value": 106533.9,
+  "ending_cash": 24959.46,
+  "holdings_count": 7,
+  "regime_used": "choppy",
+  "holdings_at_close": [
+   {
+    "symbol": "ITA",
+    "shares": 49.0,
+    "entry_price": 239.1,
+    "peak_price": 242.82,
+    "close_price": 242.82
+   },
+   {
+    "symbol": "XLB",
+    "shares": 269.0,
+    "entry_price": 53.0,
+    "peak_price": 53.0,
+    "close_price": 53.0
+   },
+   {
+    "symbol": "XLE",
+    "shares": 262.0,
+    "entry_price": 54.4,
+    "peak_price": 55.05,
+    "close_price": 55.05
+   },
+   {
+    "symbol": "SOXX",
+    "shares": 36.0,
+    "entry_price": 356.8,
+    "peak_price": 356.8,
+    "close_price": 356.8
+   },
+   {
+    "symbol": "VLUE",
+    "shares": 93.0,
+    "entry_price": 151.12,
+    "peak_price": 151.12,
+    "close_price": 151.12
+   },
+   {
+    "symbol": "IYT",
+    "shares": 166.0,
+    "entry_price": 81.61,
+    "peak_price": 82.22,
+    "close_price": 82.22
+   },
+   {
+    "symbol": "FXI",
+    "shares": 12.0,
+    "entry_price": 37.39,
+    "peak_price": 37.39,
+    "close_price": 37.39
+   }
+  ]
+ },
+ {
+  "date": "2026-02-27",
+  "ending_value": 106035.35,
+  "ending_cash": 98086.2,
+  "holdings_count": 1,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": [
+   {
+    "symbol": "USO",
+    "shares": 97.0,
+    "entry_price": 81.99,
+    "peak_price": 81.99,
+    "close_price": 81.95
+   }
+  ]
+ },
+ {
+  "date": "2026-03-03",
+  "ending_value": 106664.92,
+  "ending_cash": 72818.1,
+  "holdings_count": 2,
+  "regime_used": "risk_off_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "USO",
+    "shares": 97.0,
+    "entry_price": 81.99,
+    "peak_price": 90.18,
+    "close_price": 90.18
+   },
+   {
+    "symbol": "XLP",
+    "shares": 286.0,
+    "entry_price": 88.35,
+    "peak_price": 88.35,
+    "close_price": 87.76
+   }
+  ]
+ },
+ {
+  "date": "2026-03-04",
+  "ending_value": 106541.62,
+  "ending_cash": 92533.94,
+  "holdings_count": 2,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": [
+   {
+    "symbol": "GLD",
+    "shares": 15.0,
+    "entry_price": 474.8,
+    "peak_price": 474.8,
+    "close_price": 471.76
+   },
+   {
+    "symbol": "SLV",
+    "shares": 92.0,
+    "entry_price": 76.34,
+    "peak_price": 76.34,
+    "close_price": 75.34
+   }
+  ]
+ },
+ {
+  "date": "2026-03-05",
+  "ending_value": 106223.19,
+  "ending_cash": 79842.7,
+  "holdings_count": 3,
+  "regime_used": "risk_off_trend",
+  "holdings_at_close": [
+   {
+    "symbol": "GLD",
+    "shares": 15.0,
+    "entry_price": 474.8,
+    "peak_price": 474.8,
+    "close_price": 466.22
+   },
+   {
+    "symbol": "SLV",
+    "shares": 92.0,
+    "entry_price": 76.34,
+    "peak_price": 76.34,
+    "close_price": 74.26
+   },
+   {
+    "symbol": "XLP",
+    "shares": 147.0,
+    "entry_price": 86.335,
+    "peak_price": 86.335,
+    "close_price": 85.41
+   }
+  ]
+ },
+ {
+  "date": "2026-03-06",
+  "ending_value": 106272.03,
+  "ending_cash": 106272.03,
+  "holdings_count": 0,
+  "regime_used": "high_vol_panic",
+  "holdings_at_close": []
+ }
+]

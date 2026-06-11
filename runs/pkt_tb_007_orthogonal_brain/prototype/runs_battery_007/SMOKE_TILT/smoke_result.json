@@ -1,0 +1,43 @@
+{
+ "generated": "2026-06-10T22:29:45",
+ "window": "preholdout",
+ "n_synthetic_organ_files": 27,
+ "genome": {
+  "organ_trust": {
+   "M1": 0.5,
+   "M2": -0.3
+  },
+  "tilt_gain": 0.5,
+  "conviction_temp": 1.0,
+  "dead_zone": 0.05,
+  "disp_gain": 0.5,
+  "cap_core": 0.0125,
+  "cap_conditional": 0.00625,
+  "defensive_fraction": 0.25,
+  "event_damp_strength": 0.0
+ },
+ "checks": {
+  "rerun_timeline_hash_equal": true,
+  "rerun_daily_series_hash_equal": true,
+  "rerun_expression_logs_equal": true,
+  "differs_from_incumbent": true,
+  "intents_changed": true,
+  "all_active_days_satisfy_projection": true,
+  "expression_logs_written": true
+ },
+ "stats": {
+  "incumbent_n_actions": 51,
+  "orb1_n_actions": 68,
+  "n_tilt_actions_executed": 10,
+  "n_active_days": 10,
+  "n_neutral_days": 11,
+  "bad_days": [],
+  "turnover_one_sided_mean": 0.008474,
+  "turnover_one_sided_max": 0.011234,
+  "t_max": 0.08,
+  "parity_resid_max_cash": 1.9999999999610173e-08,
+  "parity_resid_max_beta": 8.673617379884035e-19,
+  "parity_sigma_frac_of_eps_max": 0.9737
+ },
+ "pass": true
+}

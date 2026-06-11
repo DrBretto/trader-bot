@@ -1,0 +1,33 @@
+{
+ "generated": "2026-06-10T22:30:04",
+ "window": "preholdout",
+ "holdout_guard_env_unset": true,
+ "arms": {
+  "incumbent": {
+   "sha256_timeline": "8ad235334a12923da8cf5c719f45db3ed66ecddc4b2ddb2aea78f99b98b36c7b",
+   "sha256_daily_series": "dcc6923294a6fd58dd6f587f57fa3818758385a5273582388ed67ed8d462af7f",
+   "sha256_cost_overlay": "03c0a9fd4bce17c0764a5af2c20b0d6da0191d23170d25d537826a9082e1139f",
+   "n_decision_dates": 21,
+   "final_value_raw": 106268.22,
+   "n_executed_actions": 51
+  },
+  "orb1_b0": {
+   "sha256_timeline": "8ad235334a12923da8cf5c719f45db3ed66ecddc4b2ddb2aea78f99b98b36c7b",
+   "sha256_daily_series": "dcc6923294a6fd58dd6f587f57fa3818758385a5273582388ed67ed8d462af7f",
+   "sha256_cost_overlay": "03c0a9fd4bce17c0764a5af2c20b0d6da0191d23170d25d537826a9082e1139f",
+   "n_decision_dates": 21,
+   "final_value_raw": 106268.22,
+   "n_executed_actions": 51
+  }
+ },
+ "checks": {
+  "timeline_hash_equal": true,
+  "daily_series_hash_equal": true,
+  "cost_overlay_hash_equal": true,
+  "actions_identical": true,
+  "n_actions": 51,
+  "all_expression_logs_neutral": true,
+  "n_expression_logs": 21
+ },
+ "pass": true
+}

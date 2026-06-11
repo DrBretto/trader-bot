@@ -1,0 +1,59 @@
+{
+ "generated": "2026-06-10T22:30:03",
+ "command": "python /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/run_replay_007.py --arm orb1 --window preholdout --out /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/B0_EXPR/orb1_b0",
+ "arm": "orb1",
+ "window": "preholdout",
+ "code_sha": {
+  "git": "2122e093818f+dirty"
+ },
+ "genome": {
+  "tilt_gain": 0.0,
+  "conviction_temp": 1.0,
+  "dead_zone": 0.1,
+  "disp_gain": 0.5,
+  "cap_core": 0.0125,
+  "cap_conditional": 0.00625,
+  "defensive_fraction": 0.25,
+  "event_damp_strength": 0.0,
+  "organ_trust": {}
+ },
+ "genome_hash": "5d4c411764e4",
+ "masks_hash": "507988de6101",
+ "variant_params_hash": "3023921c7bc7",
+ "snapshot_range": [
+  "2026-01-31",
+  "2026-03-07"
+ ],
+ "n_trading_dates": 27,
+ "start_portfolio_date_used": "2026-01-31",
+ "native_start_portfolio_date": "2026-03-11",
+ "lot_patch": "lot_fix_007._execute_intents_lotfix (both arms)",
+ "cost_model": {
+  "seed": 4242,
+  "version_sha": "bf8b77716f74"
+ },
+ "nightly_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/store/nightly_007",
+ "organ_inputs_audited": 0,
+ "holdout_guard_env_set": false,
+ "wall_clock_s": 2.7,
+ "summary": {
+  "arm": "orb1",
+  "window": "preholdout",
+  "n_decision_dates": 21,
+  "first_date": "2026-02-02",
+  "last_date": "2026-03-06",
+  "start_value": 100764.57,
+  "final_value_raw": 106268.22,
+  "final_value_cost_adjusted": 106048.0515764733,
+  "n_executed_actions": 51,
+  "actions_per_decision_date": 2.429,
+  "total_traded_dollars": 672841.75,
+  "total_cost_dollars": 220.1684,
+  "cost_drag_bps_of_start_nav": 21.85,
+  "cost_bps_of_traded": 3.272,
+  "sha256_timeline": "8ad235334a12923da8cf5c719f45db3ed66ecddc4b2ddb2aea78f99b98b36c7b",
+  "sha256_daily_series": "dcc6923294a6fd58dd6f587f57fa3818758385a5273582388ed67ed8d462af7f"
+ },
+ "evidence_protocol": "committee/EVIDENCE_PROTOCOL.md V1",
+ "pre_registration": "runs/pkt_tb_007_orthogonal_brain/TOURNAMENT_007.md \u00a74"
+}
