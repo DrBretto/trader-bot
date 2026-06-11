@@ -12,6 +12,7 @@ import {
   TooltipProps,
 } from 'recharts';
 import { ChartMarker, EquityCurvePoint, DrawdownPoint, MonthlyReturn, TimeseriesPoint } from '../types';
+import { ShadowTimeseries } from '../hooks/useShadowData';
 import { format, parseISO } from 'date-fns';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -21,6 +22,7 @@ interface Props {
   monthlyReturns?: MonthlyReturn[];
   timeseries?: TimeseriesPoint[];
   chartMarkers?: ChartMarker[];
+  shadow?: ShadowTimeseries | null;
 }
 
 const MARKER_COLORS: Record<string, string> = {
@@ -40,6 +42,8 @@ interface MergedPoint {
   preHybridValue: number | null;
   optimizedValue: number | null;
   hybridValue: number | null;
+  shadowA: number | null;
+  shadowB: number | null;
   benchmark: number;
   drawdownPct: number;
   peak: number;
@@ -145,6 +149,16 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
           vs SPY: <span style={{ fontWeight: 600 }}>{spread >= 0 ? '+' : ''}{formatCurrency(spread)}</span>
         </div>
       )}
+      {point.shadowA !== null && point.shadowA !== undefined && (
+        <div style={{ color: '#f59e0b' }}>
+          Shadow: brain tilt (paper): <span style={{ fontWeight: 500 }}>{formatCurrency(point.shadowA)}</span>
+        </div>
+      )}
+      {point.shadowB !== null && point.shadowB !== undefined && (
+        <div style={{ color: '#fbbf24' }}>
+          Shadow: +event damp (paper): <span style={{ fontWeight: 500 }}>{formatCurrency(point.shadowB)}</span>
+        </div>
+      )}
       {regime && (
         <div style={{ color: '#cbd5e1' }}>
           Regime band: <span style={{ fontWeight: 600 }}>{regime}</span>
@@ -159,10 +173,26 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
 
 const HYBRID_PROMOTION_DATE = '2026-03-28';
 
-export function PerformanceChart({ equityData, drawdownData, monthlyReturns, timeseries = [], chartMarkers }: Props) {
+// Pre-registered verdict read dates from SHADOW_PREREG.md (the JSON's
+// prereg_pointer references that doc, not the dates themselves):
+// IC read ≈ 2027-01-27, final utility read ≈ 2027-08-10.
+const SHADOW_READ_DATES = '2027-01-27 / 2027-08-10';
+
+function formatShadowStat(v: number | null | undefined, digits = 2): string {
+  return v === null || v === undefined ? '—' : v.toFixed(digits);
+}
+
+export function PerformanceChart({ equityData, drawdownData, monthlyReturns, timeseries = [], chartMarkers, shadow }: Props) {
   // Build drawdown lookup
   const ddMap = new Map(drawdownData.map((d) => [d.date, d.drawdown]));
   const regimeByDate = new Map(timeseries.map((pt) => [pt.date, pt.final_regime_label]));
+
+  // Dual forward shadow (paper books, PKT-TB-007 follow-on). Absent or
+  // armed-but-empty payloads render nothing new.
+  const shadowAByDate = new Map(shadow?.shadow_A ?? []);
+  const shadowBByDate = new Map(shadow?.shadow_B ?? []);
+  const hasShadowA = shadowAByDate.size > 0;
+  const hasShadowB = shadowBByDate.size > 0;
 
   // Trim leading flat zone
   const startVal = equityData[0]?.value ?? 0;
@@ -196,6 +226,8 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
       preHybridValue,
       optimizedValue,
       hybridValue,
+      shadowA: shadowAByDate.get(point.date) ?? null,
+      shadowB: shadowBByDate.get(point.date) ?? null,
       benchmark: point.benchmark,
       drawdownPct: (ddMap.get(point.date) ?? 0) * 100,
       peak,
@@ -445,6 +477,37 @@ Background color bands show the detected market regime at each point in time.`}
             connectNulls
           />
 
+          {/* Dual forward shadow paper books (PKT-TB-007 follow-on), from the
+              shadow start date forward. A (brain tilt) is the primary shadow
+              arm; B (+event damp) is the pre-registered confirmation arm,
+              rendered visually subordinate (thinner, dashed). */}
+          {hasShadowA && (
+            <Line
+              yAxisId="equity"
+              type="monotone"
+              dataKey="shadowA"
+              stroke="#f59e0b"
+              strokeWidth={1.5}
+              dot={false}
+              legendType="none"
+              connectNulls
+            />
+          )}
+          {hasShadowB && (
+            <Line
+              yAxisId="equity"
+              type="monotone"
+              dataKey="shadowB"
+              stroke="#f59e0b"
+              strokeWidth={1}
+              strokeOpacity={0.55}
+              strokeDasharray="4 3"
+              dot={false}
+              legendType="none"
+              connectNulls
+            />
+          )}
+
           {/* PRIMARY canonical line — single continuous solid blue across the
               entire date range. After the 2026-05-16 canon promotion, `value`
               carries the optimized champion values where they exist (from
@@ -515,6 +578,21 @@ Background color bands show the detected market regime at each point in time.`}
         <span className="legend-item">
           <span className="legend-swatch" style={{ background: '#ef4444', opacity: 0.5 }} /> Drawdown
         </span>
+        {hasShadowA && (
+          <span className="legend-item">
+            <span className="legend-swatch" style={{ background: '#f59e0b' }} /> Shadow: brain tilt (paper)
+          </span>
+        )}
+        {hasShadowB && (
+          <span className="legend-item">
+            <span className="legend-swatch legend-swatch-dashed" style={{ color: '#f59e0b', opacity: 0.7 }} /> Shadow: +event damp (paper)
+          </span>
+        )}
+        {shadow && !hasShadowA && !hasShadowB && (
+          <span className="legend-item">
+            <span className="legend-swatch" style={{ background: '#f59e0b', opacity: 0.45 }} /> Shadow (paper): armed — accruing
+          </span>
+        )}
         <span className="legend-item legend-item-regime">
           <span style={{ color: '#64748b' }}>Bands:</span>
           {(['calm_uptrend', 'risk_on_trend', 'choppy', 'risk_off_trend', 'high_vol_panic'] as const).map((regime) => (
@@ -525,6 +603,26 @@ Background color bands show the detected market regime at each point in time.`}
           ))}
         </span>
       </div>
+
+      {/* Dual forward shadow accrual note — neutral status only, no verdict
+          language before the pre-registered read dates. */}
+      {shadow && (
+        <div className="shadow-note">
+          {hasShadowA || hasShadowB ? (
+            <>
+              Shadow (paper): {shadow.stats.days_accrued} day{shadow.stats.days_accrued === 1 ? '' : 's'} accrued
+              {' · '}mean IC {formatShadowStat(shadow.stats.mean_ic, 3)} (t={formatShadowStat(shadow.stats.ic_t, 2)})
+              {' · '}utility diff {formatShadowStat(shadow.stats.utility_diff_bp_day)} bp/day
+              {shadow.stats.utility_diff_bp_day_ci ?? shadow.stats.ci
+                ? ` (95% CI [${(shadow.stats.utility_diff_bp_day_ci ?? shadow.stats.ci)!.map((v) => v.toFixed(2)).join(', ')}])`
+                : ''}
+              {' — '}accruing; verdict reads pre-registered for {SHADOW_READ_DATES}.
+            </>
+          ) : (
+            <>Shadow (paper): armed — accruing. Verdict reads pre-registered for {SHADOW_READ_DATES}.</>
+          )}
+        </div>
+      )}
 
       {/* Monthly returns heatmap strip */}
       {monthlyReturns && monthlyReturns.length > 0 && (

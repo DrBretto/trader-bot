@@ -62,7 +62,7 @@ Set `VITE_DATA_URL` at build time. For production (S3 static hosting), use:
 VITE_DATA_URL=dashboard.json npm run build
 ```
 
-This makes the app fetch `dashboard.json` and `timeseries.json` from the same S3 prefix. Without this variable, it defaults to `./data/dashboard.json` (local dev).
+This makes the app fetch `dashboard.json`, `timeseries.json`, and `shadow_timeseries.json` (dual forward shadow; optional — absent until the shadow job runs) from the same S3 prefix. Without this variable, it defaults to `./data/dashboard.json` (local dev).
 
 ## Dashboard Components
 
@@ -128,7 +128,8 @@ npm run build
 # Upload to S3 (see docs/DEPLOY.md for full command with --exclude flags)
 aws s3 sync dist/ s3://investment-system-data/dashboard/ \
   --exclude "dashboard.json" --exclude "timeseries.json" \
-  --exclude "timeseries.parquet" --exclude "data/*" \
+  --exclude "timeseries.parquet" --exclude "shadow_timeseries.json" \
+  --exclude "data/*" \
   --delete --region us-east-1
 ```
 

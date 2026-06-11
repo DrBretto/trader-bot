@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useDashboardData } from './hooks/useDashboardData';
 import { useTimeseriesData } from './hooks/useTimeseriesData';
+import { useShadowData } from './hooks/useShadowData';
 import { useOptimizerData } from './hooks/useOptimizerData';
 import { useIsMobile } from './hooks/useIsMobile';
 import { isStrictlyIncreasingByDate } from './utils/timeseries';
@@ -65,6 +66,7 @@ export function App() {
   const isMobile = useIsMobile();
   const { data, loading, error } = useDashboardData();
   const { data: timeseries } = useTimeseriesData();
+  const { data: shadow } = useShadowData();
   const [selectedOptimizerRun, setSelectedOptimizerRun] = useState<string | undefined>(undefined);
   const [optimizerOpen, setOptimizerOpen] = useState(false);
   const {
@@ -165,6 +167,7 @@ export function App() {
                 monthlyReturns={data.monthly_returns}
                 timeseries={timeseries}
                 chartMarkers={data.chart_markers}
+                shadow={shadow}
               />
             </LearnModeOverlay>
           </div>

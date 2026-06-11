@@ -144,11 +144,13 @@ cd frontend
 npm install
 VITE_DATA_URL=dashboard.json npm run build
 
-# 2. Upload to S3 (--exclude protects data files written by the pipeline)
+# 2. Upload to S3 (--exclude protects data files written by the pipeline;
+#    shadow_timeseries.json is written nightly by the dual forward shadow job)
 aws s3 sync dist/ s3://investment-system-data/dashboard/ \
   --exclude "dashboard.json" \
   --exclude "timeseries.json" \
   --exclude "timeseries.parquet" \
+  --exclude "shadow_timeseries.json" \
   --exclude "data/*" \
   --delete --region us-east-1
 

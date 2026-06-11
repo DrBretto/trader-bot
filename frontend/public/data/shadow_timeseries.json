@@ -1,0 +1,25 @@
+{
+    "as_of": "2026-06-11T12:49:48+00:00",
+    "forward_boundary": "2026-06-10",
+    "ic_series": [],
+    "live_line": [],
+    "prereg_pointer": "runs/pkt_tb_007_orthogonal_brain/shadow/SHADOW_PREREG.md (mirrored at s3://investment-system-data/shadow/pkt_tb_007/SHADOW_PREREG.md)",
+    "provisional_date": null,
+    "schema": "shadow_timeseries.v1",
+    "shadow_A": [],
+    "shadow_B": [],
+    "shadow_I": [],
+    "start_date": null,
+    "stats": {
+        "ci": null,
+        "days_accrued": 0,
+        "ic_t": null,
+        "m4a_diff_bp_day": null,
+        "m4a_diff_bp_day_ci": null,
+        "mean_ic": null,
+        "n_settled": 0,
+        "n_weeks_ic": 0,
+        "utility_diff_bp_day": null,
+        "utility_diff_bp_day_ci": null
+    }
+}

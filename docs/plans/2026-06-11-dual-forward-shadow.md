@@ -22,7 +22,7 @@ arm). Verdict reads pre-registered in runs/pkt_tb_007_orthogonal_brain/shadow/SH
 - [x] Tests (determinism, catch-up idempotence, no-look-ahead timestamps, S3 round-trip)
 - [x] launchd plist com.traderbot.shadow.plist (nightly, after the night pipeline lands)
 - [x] First night run end-to-end (manual), verify artifacts + JSON
-- [ ] Frontend: render shadow line(s) when shadow_timeseries.json exists (graceful absent)
+- [x] Frontend: render shadow line(s) when shadow_timeseries.json exists (graceful absent)
 - [ ] STOP: ask operator before frontend deploy (CLAUDE.md checkpoint)
 
 ## Execution Log
@@ -54,6 +54,27 @@ arm). Verdict reads pre-registered in runs/pkt_tb_007_orthogonal_brain/shadow/SH
   (daily/2026-06-12 not yet written — 2026-06-11 settles tonight); published
   dashboard/shadow_timeseries.json skeleton (armed) + 4 mirror objects under
   s3://investment-system-data/shadow/pkt_tb_007/.
+
+- 2026-06-11: Frontend shadow overlay. New hook useShadowData.ts (same idioms as
+  useTimeseriesData: VITE_DATA_URL same-prefix fetch, ./data/ fallback, cache-bust,
+  fail-soft null on 404/parse/schema mismatch; types live in the hook since the payload is
+  shadow-job-owned, also avoids the in-flight types/index.ts edit from another task).
+  PerformanceChart: shadow_A solid amber 1.5px, shadow_B dashed amber 1px (subordinate),
+  merged by date into the existing equity rows, tooltip rows, legend chips
+  "Shadow: brain tilt (paper)" / "Shadow: +event damp (paper)"; armed-empty payload renders a
+  single "Shadow (paper): armed — accruing" legend chip + neutral stats note (days accrued,
+  mean IC (t), utility diff bp/day with 95% CI when present; read dates 2027-01-27 / 2027-08-10
+  hardcoded with comment — prereg_pointer carries the doc path, not dates). App.tsx wires the
+  hook into the desktop PerformanceChart. Armed skeleton committed as
+  public/data/shadow_timeseries.json dev fixture. DEPLOY.md + FRONTEND.md sync commands gained
+  --exclude "shadow_timeseries.json" (without it, `aws s3 sync --delete` would delete the
+  pipeline-written shadow JSON on every frontend deploy). Checks: tsc+vite build green; eslint
+  not installed (repo lint script skips by design); no frontend unit tests exist
+  (playwright-verify.mjs / diag-runtime.mjs target the live site post-deploy). Local vite dev +
+  Playwright verification: armed fixture → chip+note, zero console errors; fixture absent →
+  nothing shadow-rendered, zero console errors (vite SPA-fallback HTML caught by schema guard;
+  prod S3 404 caught by response.ok); populated fixture → both amber lines from start date
+  forward + full stats note, zero console errors. BUILD ONLY — not deployed.
 
 ## Follow-ups
 
