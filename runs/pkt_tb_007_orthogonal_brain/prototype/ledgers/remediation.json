@@ -1,1 +1,14 @@
-[]
+[
+ {
+  "ts": "2026-06-11T01:36:34",
+  "rung": 1,
+  "family": "anchor L3/FM5",
+  "trigger": "anchor leg 1 FAIL (Pearson 0.4996 at starved test-tilt scale)",
+  "remedy": "re-run at champion-representative scale per CHAIR ADJUDICATION 2 (pre-stated 2026-06-11, commit 0b52981)",
+  "outcome": "Pearson 0.2818 (<0.5 branch) -> B0 ships outright; EA production sequence not run; fold-era surrogate UNCERTIFIED for fitness",
+  "artifacts": [
+   "store/surrogate_007/anchor_007.json",
+   "store/surrogate_007/anchor_007_rerun.json"
+  ]
+ }
+]

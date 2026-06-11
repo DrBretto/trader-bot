@@ -1,0 +1,43 @@
+{
+ "generated": "2026-06-11T01:36:34",
+ "packet": "PKT-TB-007 Phase C wave 3",
+ "decision": "B0 SHIPS OUTRIGHT",
+ "rule": "CHAIR ADJUDICATION 2 (pre-stated remediation ladder, commit 0b52981): anchor Pearson < 0.5 => B0 ships",
+ "anchor": {
+  "leg1": {
+   "pearson": 0.4996,
+   "raw": 0.626,
+   "scale": "starved test tilt (synthetic organs)",
+   "artifact": "store/surrogate_007/anchor_007.json"
+  },
+  "leg2_representative": {
+   "pearson": 0.2818,
+   "raw": 0.2862,
+   "slope": 0.8248,
+   "mean_equivalence": "PASS",
+   "n": 20,
+   "genome_hash": "952a2f5a565e",
+   "artifact": "store/surrogate_007/anchor_007_rerun.json"
+  }
+ },
+ "ea_production_sequence": "NOT RUN (no certified fitness pack at any level; ea_cycles 0/3 burned)",
+ "shipped_genome_hash": "3df8053a6c42",
+ "shipped_genome": {
+  "tilt_gain": 0.0,
+  "conviction_temp": 1.0,
+  "dead_zone": 0.1,
+  "disp_gain": 0.5,
+  "cap_core": 0.0125,
+  "cap_conditional": 0.00625,
+  "defensive_fraction": 0.25,
+  "event_damp_strength": 0.0,
+  "organ_trust": {
+   "M1": 0.0
+  }
+ },
+ "roster": [
+  "M1"
+ ],
+ "surrogate_status": "fold-era AND live-era surrogate fitness UNCERTIFIED (anchor <0.5); every surrogate number remains (surrogate space), diagnostics only",
+ "restriction_print": "ANCHOR DISPOSITION: B0 ships outright (Pearson 0.2818 < 0.5, chair pre-stated rule) \u2014 print in every downstream output"
+}

@@ -9,7 +9,7 @@
   "LLM veto / LLM size adj / ensemble+expert sizing modifiers := neutral 1.0",
   "max_sector_weight cluster cap, leveraged constraints, reduce/trim layer, VUG split handling: not replicated",
   "sell layer reduced to: 3-day health<=0.35 collapse + 10% trailing stop + panic force-sell of equity sleeve (the dominant observed engine behaviors)",
-  "tilt quantization at leg level in weight space (no integer shares); min_order respected; sub-2x-min_order total => neutral day",
+  "tilt quantization mirrors tilt_to_intents at leg level: chassis-order edits floor-free, new legs whole-share-rounded at the mark + min_order; the suppression/absorber micro-logic is not replicated",
   "tilt overlay: re-solved on active days, CARRIED (no unwind) on neutral days exactly like the real channel, closed when the chassis fully sells the name; but the carried tilt does NOT feed back into future chassis decisions (the real path coupling is what the anchor certifies)",
   "fills at adj open(D); marks at adj close(D); costs = half-spread + 1bp expectation (deterministic; seeded full model only at bake-off)"
  ],
@@ -134,39 +134,39 @@
   },
   "wall_clock_s": 42.6
  },
- "updated": "2026-06-10T23:14:37",
+ "updated": "2026-06-11T01:33:09",
  "anchor_l3_fm5": {
   "n_paired_deltas": 20,
   "dates": [
    "2026-02-03",
    "2026-03-06"
   ],
-  "pearson": 0.4996,
+  "pearson": 0.2818,
   "pearson_pass": "False",
-  "slope_real_on_surr": 0.8203,
+  "slope_real_on_surr": 0.8248,
   "slope_pass": true,
-  "mean_surr": -1.384084277865723e-05,
-  "mean_real": -3.4821111343230627e-07,
-  "mean_gap": 1.3492631665224925e-05,
-  "se_real_2x": 3.773979879861752e-05,
+  "mean_surr": 2.3270797761303925e-05,
+  "mean_real": 3.152511322830898e-05,
+  "mean_gap": 8.254315467005054e-06,
+  "se_real_2x": 0.00010044522550335277,
   "mean_equivalence_pass": true,
   "degenerate_both_zero": "False",
   "d4_magnitude_caution": false,
-  "spearman_diag": 0.3327,
+  "spearman_diag": 0.5894,
   "pearson_loo_range_diag": [
-   0.3411,
-   0.6624
+   0.2401,
+   0.3965
   ],
   "verdict": "FAIL (stop-and-fix finding)",
   "power_limits": "Fisher se ~ 0.24 at n=20; a true rho 0.5 passes rarely \u2014 pre-registered power limitation, printed not hidden",
   "raw_value_decomposition_diag": {
-   "pearson": 0.626,
-   "slope_real_on_surr": 0.7921,
-   "mean_gap": 1.5480111306899042e-05,
-   "se_real_2x": 2.9084854784590394e-05
+   "pearson": 0.2862,
+   "slope_real_on_surr": 0.7881,
+   "mean_gap": 4.622311089880751e-06,
+   "se_real_2x": 9.450469922357759e-05
   }
  },
- "anchor_artifact": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/store/surrogate_007/anchor_007.json",
+ "anchor_artifact": "store/surrogate_007/anchor_007_rerun.json",
  "l7_firewall_check": {
   "check": "L7 deployed-MLP training-window firewall",
   "firewall": "2026-03-11",

@@ -1,1 +1,11 @@
-[]
+[
+ {
+  "ts": "2026-06-11T01:36:34",
+  "arm": "orb1",
+  "window": "preholdout",
+  "out_dir": "runs_battery_007/ANCHOR_RERUN/orb1_rep",
+  "purpose": "anchor remediation re-run (chair adjudication 2)",
+  "genome_hash": "952a2f5a565e",
+  "guard_env_set": false
+ }
+]
