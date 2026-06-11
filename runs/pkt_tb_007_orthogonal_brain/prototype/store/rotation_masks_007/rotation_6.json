@@ -1,0 +1,72 @@
+{
+ "rotation": 6,
+ "withheld_fold": 6,
+ "derived_from_folds": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "roster": [
+  "M1"
+ ],
+ "masks": {
+  "M1": {
+   "RSP": 0.0,
+   "FXI": 1.0,
+   "IYR": 0.0,
+   "SOXX": 1.0,
+   "KRE": 0.0,
+   "XRT": 0.0,
+   "ITA": 0.0,
+   "TLT": 1.0,
+   "SHY": 0.0,
+   "AGG": 0.0,
+   "MUB": 0.5,
+   "USO": 0.0,
+   "FXE": 1.0
+  },
+  "M2": {
+   "RSP": 0.0,
+   "FXI": 0.0,
+   "IYR": 0.0,
+   "SOXX": 0.0,
+   "KRE": 0.0,
+   "XRT": 0.5,
+   "ITA": 0.0,
+   "TLT": 0.0,
+   "SHY": 0.0,
+   "AGG": 0.0,
+   "MUB": 0.0,
+   "USO": 0.0,
+   "FXE": 0.0
+  },
+  "M5": {
+   "ITA": 1.0,
+   "SOXX": 1.0,
+   "XRT": 1.0,
+   "TLT": 1.0,
+   "AGG": 1.0,
+   "MUB": 1.0,
+   "FXE": 1.0,
+   "USO": 1.0,
+   "FXI": 1.0,
+   "RSP": 1.0,
+   "IYR": 1.0,
+   "SHY": 1.0,
+   "KRE": 1.0
+  }
+ },
+ "roster_detail": {
+  "directional": [
+   "M1"
+  ],
+  "M3": "B-disp",
+  "M4_variant": "M4-A",
+  "M5": "disabled"
+ },
+ "c2_demotions": [],
+ "synthetic": false,
+ "provenance": "re-derived from 5 training folds via the frozen rule texts (BUILD_SPEC \u00a72.3, TOURNAMENT \u00a74.4.1/\u00a74.4.6)"
+}

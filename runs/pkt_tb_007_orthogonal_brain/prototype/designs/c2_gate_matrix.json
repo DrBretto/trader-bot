@@ -1,0 +1,588 @@
+{
+ "generated": "2026-06-11T01:22:47",
+ "spaces": [
+  "G-signal (per-day cross-sectional Spearman, standardized)",
+  "G-book (TB-006 fixed solo-book daily-return Pearson)"
+ ],
+ "pooled_bar": 0.7,
+ "member_zero_m1_bar": 0.8,
+ "replication_trigger": ">=2 of 12 fold x space cells |rho| > 0.8, or 1 cell > 1.09",
+ "operating_characteristics": {
+  "pooled": "n_eff ~ 300, se ~ 0.06; P(breach | true rho 0.5) ~ 0.04%; P(sneak-under | true 0.78) ~ 9%",
+  "trigger": "double-breach P ~ 1.5%/pair at true 0.5; ~24% at true 0.6"
+ },
+ "directional_pairs": {
+  "Z0-M1": {
+   "signal": {
+    "pooled": 0.19577107822015175,
+    "per_fold": {
+     "1": 0.2558002251208871,
+     "2": 0.12970002688439938,
+     "3": 0.21667128306745564,
+     "4": 0.1278556230107897,
+     "5": 0.2622779224526449,
+     "6": 0.18279615843767824
+    },
+    "inclusion_rate": 1.0
+   },
+   "book": {
+    "pooled": 0.9137143399003913,
+    "per_fold": {
+     "1": 0.9584074454184223,
+     "2": 0.8037243622018112,
+     "3": 0.9393015784771952,
+     "4": 0.8246644308758425,
+     "5": 0.8435929030988789,
+     "6": 0.8795970468391148
+    },
+    "inclusion_rate": 1.0
+   },
+   "pooled_bar": 0.8,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 6,
+   "replication_trigger_fired": false,
+   "special_row": "M1-vs-member-zero: pooled <= 0.8 binding, no per-fold ceiling (per-fold se 0.146)"
+  },
+  "Z0-M2": {
+   "signal": {
+    "pooled": 0.09594015624730552,
+    "per_fold": {
+     "1": 0.22533037600730746,
+     "2": -0.07500788120447277,
+     "3": 0.33634694637850077,
+     "4": -0.12180699169500481,
+     "5": -0.013069635509599352,
+     "6": 0.2257273396757552
+    },
+    "inclusion_rate": 1.0
+   },
+   "book": {
+    "pooled": 0.9112108724844696,
+    "per_fold": {
+     "1": 0.9529162168033858,
+     "2": 0.6572534114576211,
+     "3": 0.951890224235266,
+     "4": 0.7723589738287518,
+     "5": 0.841953697110346,
+     "6": 0.9243138444683003
+    },
+    "inclusion_rate": 1.0
+   },
+   "pooled_bar": 0.7,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 4,
+   "replication_trigger_fired": true,
+   "special_row": null
+  },
+  "Z0-M4": {
+   "signal": {
+    "pooled": 0.035358822069920234,
+    "per_fold": {
+     "1": 0.012447060121066049,
+     "2": 0.10898310725085528,
+     "3": 0.050606110280166955,
+     "4": 0.05132683375853979,
+     "5": -0.036776299122204884,
+     "6": 0.02382776545498199
+    },
+    "inclusion_rate": 0.9608493696084937
+   },
+   "book": {
+    "pooled": 0.899401819091227,
+    "per_fold": {
+     "1": 0.9386453616670071,
+     "2": 0.8172238909225459,
+     "3": 0.9010683813851494,
+     "4": 0.806159197931007,
+     "5": 0.839483553478492,
+     "6": 0.9133819003909267
+    },
+    "inclusion_rate": 0.9608493696084937
+   },
+   "pooled_bar": 0.7,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 6,
+   "replication_trigger_fired": true,
+   "special_row": null
+  },
+  "Z0-M5": {
+   "signal": {
+    "pooled": 0.05431220709899335,
+    "per_fold": {
+     "1": 0.09841048040181663,
+     "2": 0.09967989618659298,
+     "3": 0.031063400942522978,
+     "4": -0.033289878548516096,
+     "5": -0.03635983067823017,
+     "6": 0.04948535783605194
+    },
+    "inclusion_rate": 0.5540809555408096
+   },
+   "book": {
+    "pooled": 0.8805010880250578,
+    "per_fold": {
+     "1": 0.9039261775882345,
+     "2": 0.8700324112821077,
+     "3": 0.9278009809460485,
+     "4": 0.6977153579370996,
+     "5": 0.8934402227337369,
+     "6": 0.8057536882586721
+    },
+    "inclusion_rate": 0.5540809555408096
+   },
+   "pooled_bar": 0.7,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 5,
+   "replication_trigger_fired": true,
+   "special_row": null
+  },
+  "M1-M2": {
+   "signal": {
+    "pooled": 0.16828242141866556,
+    "per_fold": {
+     "1": 0.294515292128676,
+     "2": -0.05349182302362164,
+     "3": 0.25927531982320334,
+     "4": -0.05879489657700898,
+     "5": 0.16015222726742964,
+     "6": 0.41077162679875207
+    },
+    "inclusion_rate": 1.0
+   },
+   "book": {
+    "pooled": 0.9510321325692825,
+    "per_fold": {
+     "1": 0.9772000949245934,
+     "2": 0.7460703607780181,
+     "3": 0.9712820207078209,
+     "4": 0.8494318683697032,
+     "5": 0.979318737282009,
+     "6": 0.9774166706745148
+    },
+    "inclusion_rate": 1.0
+   },
+   "pooled_bar": 0.7,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 5,
+   "replication_trigger_fired": true,
+   "special_row": null
+  },
+  "M1-M4": {
+   "signal": {
+    "pooled": 0.2019749905044182,
+    "per_fold": {
+     "1": 0.0744648177971757,
+     "2": 0.31670667708597927,
+     "3": 0.11221100598194916,
+     "4": 0.49997211163551714,
+     "5": 0.042390724843228346,
+     "6": 0.1768595490892106
+    },
+    "inclusion_rate": 0.9608493696084937
+   },
+   "book": {
+    "pooled": 0.9685146613114299,
+    "per_fold": {
+     "1": 0.9807285318760353,
+     "2": 0.971691042467511,
+     "3": 0.9404687610910671,
+     "4": 0.9818127315750879,
+     "5": 0.9765542068036113,
+     "6": 0.9673261166794712
+    },
+    "inclusion_rate": 0.9608493696084937
+   },
+   "pooled_bar": 0.7,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 6,
+   "replication_trigger_fired": true,
+   "special_row": null
+  },
+  "M1-M5": {
+   "signal": {
+    "pooled": 0.06259870496726327,
+    "per_fold": {
+     "1": 0.12429166530720052,
+     "2": 0.21325677871734036,
+     "3": -0.025247407019881023,
+     "4": -0.1731493391763472,
+     "5": -0.09067373923794665,
+     "6": 0.10332964406473816
+    },
+    "inclusion_rate": 0.5540809555408096
+   },
+   "book": {
+    "pooled": 0.911263065092108,
+    "per_fold": {
+     "1": 0.9081719505188456,
+     "2": 0.9501379956186119,
+     "3": 0.941613060828654,
+     "4": 0.7506663913974043,
+     "5": 0.8814709766026279,
+     "6": 0.9364111898566911
+    },
+    "inclusion_rate": 0.5540809555408096
+   },
+   "pooled_bar": 0.7,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 5,
+   "replication_trigger_fired": true,
+   "special_row": null
+  },
+  "M2-M4": {
+   "signal": {
+    "pooled": 0.003689845329081867,
+    "per_fold": {
+     "1": 0.03623455870883308,
+     "2": -0.11695551491007432,
+     "3": 0.04918093182888654,
+     "4": -0.041231691653600355,
+     "5": 0.0055803064231905,
+     "6": 0.09691578723604849
+    },
+    "inclusion_rate": 0.9608493696084937
+   },
+   "book": {
+    "pooled": 0.9323623392614503,
+    "per_fold": {
+     "1": 0.9601626905978068,
+     "2": 0.6863381479173218,
+     "3": 0.9649956479726298,
+     "4": 0.8324304235131426,
+     "5": 0.9638237138271314,
+     "6": 0.9777061847236104
+    },
+    "inclusion_rate": 0.9608493696084937
+   },
+   "pooled_bar": 0.7,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 5,
+   "replication_trigger_fired": true,
+   "special_row": null
+  },
+  "M2-M5": {
+   "signal": {
+    "pooled": -0.01055547789909437,
+    "per_fold": {
+     "1": 0.14310707095904254,
+     "2": -0.27913450137451395,
+     "3": 0.018181108664764325,
+     "4": 0.22628422300290668,
+     "5": -0.18253746085508546,
+     "6": 0.03731761617424921
+    },
+    "inclusion_rate": 0.5540809555408096
+   },
+   "book": {
+    "pooled": 0.8906974694676468,
+    "per_fold": {
+     "1": 0.9084957652939332,
+     "2": 0.7401329584288899,
+     "3": 0.9573947351663175,
+     "4": 0.831724510841702,
+     "5": 0.9088842945027016,
+     "6": 0.9371233579032442
+    },
+    "inclusion_rate": 0.5540809555408096
+   },
+   "pooled_bar": 0.7,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 5,
+   "replication_trigger_fired": true,
+   "special_row": null
+  },
+  "M4-M5": {
+   "signal": {
+    "pooled": 0.026347508553488063,
+    "per_fold": {
+     "1": -0.12860965326809273,
+     "2": 0.21634122550425125,
+     "3": 0.03532247071485811,
+     "4": -0.10704871931562215,
+     "5": 0.043954076484163995,
+     "6": -0.05770478545560542
+    },
+    "inclusion_rate": 0.5195753151957532
+   },
+   "book": {
+    "pooled": 0.9103408065029492,
+    "per_fold": {
+     "1": 0.9037618354844663,
+     "2": 0.9500360877152851,
+     "3": 0.9504016086308433,
+     "4": 0.7408988767381255,
+     "5": 0.8528513737947654,
+     "6": 0.9244731407439157
+    },
+    "inclusion_rate": 0.5195753151957532
+   },
+   "pooled_bar": 0.7,
+   "binding_breach": true,
+   "per_fold_cells_over_0.8": 5,
+   "replication_trigger_fired": true,
+   "special_row": null
+  }
+ },
+ "g_scalar_rows": {
+  "M3_vs_M1_tilt_proxy": {
+   "pooled": 0.1588536696896113,
+   "per_fold": {
+    "1": 0.08883464479113495,
+    "2": -0.042179002113233666,
+    "3": -0.07193665995554634,
+    "4": 0.4231927534071466,
+    "5": 0.28963952178114316,
+    "6": -0.09987005469269249
+   },
+   "n": 1507,
+   "pooled_bar": 0.7,
+   "binding_breach": false,
+   "note": "pre-EA proxy: per-day sd over support of the member's standardized mu (genes not yet evolved)"
+  },
+  "M3_vs_M2_tilt_proxy": {
+   "pooled": -0.146679178535814,
+   "per_fold": {
+    "1": 0.13899468657571065,
+    "2": -0.26069831241717656,
+    "3": -0.04060824615235911,
+    "4": -0.21760404752284274,
+    "5": 0.0227668411324434,
+    "6": -0.27094150046637977
+   },
+   "n": 1507,
+   "pooled_bar": 0.7,
+   "binding_breach": false,
+   "note": "pre-EA proxy: per-day sd over support of the member's standardized mu (genes not yet evolved)"
+  },
+  "M3_vs_M4_tilt_proxy": {
+   "pooled": -0.06772290017010295,
+   "per_fold": {
+    "1": -0.4771300414055073,
+    "2": -0.2736806707710231,
+    "3": -0.10451760730277025,
+    "4": 0.38905418143113635,
+    "5": 0.35212895082402923,
+    "6": -0.3955922166367977
+   },
+   "n": 1507,
+   "pooled_bar": 0.7,
+   "binding_breach": false,
+   "note": "pre-EA proxy: per-day sd over support of the member's standardized mu (genes not yet evolved)"
+  },
+  "M3_vs_M5_tilt_proxy": {
+   "pooled": -0.18270756060003424,
+   "per_fold": {
+    "1": -0.48100560728218406,
+    "2": -0.19230027055823654,
+    "3": -0.2565436706605846,
+    "4": -0.09724801885632084,
+    "5": -0.20399994174599614,
+    "6": -0.41254049012014504
+   },
+   "n": 1507,
+   "pooled_bar": 0.7,
+   "binding_breach": false,
+   "note": "pre-EA proxy: per-day sd over support of the member's standardized mu (genes not yet evolved)"
+  },
+  "M3_vs_regime_scalar": {
+   "pooled": NaN,
+   "per_fold": {
+    "1": NaN,
+    "2": NaN,
+    "3": NaN,
+    "4": NaN,
+    "5": NaN,
+    "6": NaN
+   },
+   "n": 125,
+   "pooled_bar": 0.7,
+   "binding_breach": false,
+   "note": "regime labels exist only in the artifact record (2025-08-04..fitness end) \u2014 coverage-limited row, disclosed; scalar encoding panic=0 .. risk_on=1"
+  },
+  "M5_vs_regime_scalar": {
+   "pooled": NaN,
+   "n": 125,
+   "pooled_bar": 0.7,
+   "binding_breach": false,
+   "note": "coverage-limited (artifact-record era)"
+  },
+  "M3_vs_VIX_level": {
+   "pooled": 0.3360476716941996,
+   "per_fold": {
+    "1": 0.43245275232917696,
+    "2": 0.7520815311675711,
+    "3": 0.4575777210936419,
+    "4": 0.43084587492602744,
+    "5": 0.6455376685136084,
+    "6": 0.781710909462541
+   },
+   "n": 1507,
+   "pooled_bar": 0.7,
+   "binding_breach": false,
+   "note": null
+  }
+ },
+ "m6_rows_report_only": {
+  "M6-Z0": {
+   "signal_pooled": 0.0146060622316481,
+   "signal_per_fold": {
+    "1": -0.0487048957050589,
+    "2": 0.03940905457278026,
+    "3": -0.004165093064651235,
+    "4": 0.042256830774974496,
+    "5": 0.07775818536469847,
+    "6": -0.019250227574721553
+   },
+   "book_pooled": 0.7887763187064146,
+   "book_per_fold": {
+    "1": 0.8523005496368162,
+    "2": 0.7230696175485288,
+    "3": 0.847966471405608,
+    "4": 0.7677059238522602,
+    "5": 0.8008052384673798,
+    "6": 0.5650450166179237
+   },
+   "report_only": true
+  },
+  "M6-M1": {
+   "signal_pooled": 0.10273750963909722,
+   "signal_per_fold": {
+    "1": 0.039578208783886196,
+    "2": 0.17520794422968333,
+    "3": 0.11925649052143074,
+    "4": 0.1073834697838682,
+    "5": 0.10084550410274506,
+    "6": 0.07345934065934064
+   },
+   "book_pooled": 0.8473363382809668,
+   "book_per_fold": {
+    "1": 0.8835900153876897,
+    "2": 0.8431260741196961,
+    "3": 0.8957740597373232,
+    "4": 0.7590177359867556,
+    "5": 0.874195868627591,
+    "6": 0.6809199689194679
+   },
+   "report_only": true
+  },
+  "M6-M2": {
+   "signal_pooled": -0.007644592815696455,
+   "signal_per_fold": {
+    "1": -0.09392090822379401,
+    "2": 0.005717038997000756,
+    "3": -0.005040544749434279,
+    "4": -0.008670322586044,
+    "5": 0.06022604932123214,
+    "6": -0.0042718998149906895
+   },
+   "book_pooled": 0.803182748450572,
+   "book_per_fold": {
+    "1": 0.8723362772583084,
+    "2": 0.681709735064772,
+    "3": 0.8781718746482616,
+    "4": 0.6795172972384141,
+    "5": 0.8710088250953385,
+    "6": 0.6388518292159888
+   },
+   "report_only": true
+  },
+  "M6-M4": {
+   "signal_pooled": 0.03420786621095746,
+   "signal_per_fold": {
+    "1": 0.0980988928417779,
+    "2": 0.13675101191323855,
+    "3": -0.026578101727406128,
+    "4": -0.024276635522621777,
+    "5": -0.031073800040705462,
+    "6": 0.05378820971283975
+   },
+   "book_pooled": 0.822558024599597,
+   "book_per_fold": {
+    "1": 0.8610917935029018,
+    "2": 0.8190600239655053,
+    "3": 0.8782566738012927,
+    "4": 0.7464562240399641,
+    "5": 0.8671741139537826,
+    "6": 0.6133023237217122
+   },
+   "report_only": true
+  },
+  "M6-M5": {
+   "signal_pooled": 0.014966299438539863,
+   "signal_per_fold": {
+    "1": -0.025563280113394624,
+    "2": 0.07211107269806308,
+    "3": 0.010788926759583619,
+    "4": 0.020759232644521987,
+    "5": -0.1545857397468854,
+    "6": -0.005350190596446284
+   },
+   "book_pooled": 0.8099038408171874,
+   "book_per_fold": {
+    "1": 0.7889508406926933,
+    "2": 0.8756632152262103,
+    "3": 0.8693872735334904,
+    "4": 0.6077345211505012,
+    "5": 0.8524367391079719,
+    "6": 0.8288506826017846
+   },
+   "report_only": true
+  },
+  "raw_input_overlap_with_M1": {
+   "columns": [
+    "gap_open_pct",
+    "range_pct",
+    "volume_z_21d"
+   ],
+   "value_correlation_m6_vs_m1_lastday": {
+    "gap_open_pct": 0.986223564265781,
+    "range_pct": 0.9924965752818898,
+    "volume_z_21d": 0.9999546451614911
+   },
+   "disclosure": "M6 shares these 3 raw input columns with M1's fast block \u2014 disclosed report-only per TOURNAMENT G9; M6 never enters the tilt"
+  }
+ },
+ "binding_breaches": [
+  "Z0-M1",
+  "Z0-M2",
+  "Z0-M4",
+  "Z0-M5",
+  "M1-M2",
+  "M1-M4",
+  "M1-M5",
+  "M2-M4",
+  "M2-M5",
+  "M4-M5"
+ ],
+ "scalar_binding_breaches": [],
+ "replication_triggers_fired": [
+  "Z0-M2",
+  "Z0-M4",
+  "Z0-M5",
+  "M1-M2",
+  "M1-M4",
+  "M1-M5",
+  "M2-M4",
+  "M2-M5",
+  "M4-M5"
+ ],
+ "remediation_ladder_history": [],
+ "measurement_validity_finding": {
+  "kind": "measurement_validity_finding",
+  "summary": "the registered G-book instrument (TB-006 \u00a76 long-only unit-gross solo books) saturates on the common market factor: every directional pair pools at book rho ~0.9 INCLUDING pairs whose signal-space rho is ~0.00-0.20, and the pre-registration's printed operating characteristics assumed true rho ~0.5 (P(breach|true 0.5) ~ 0.04%). The breach pattern is uniform across signal-orthogonal pairs => it identifies the instrument's market-beta loading, not organ redundancy.",
+  "market_residualized_book_pearson_report_only": {
+   "Z0-M1": 0.01777134820927691,
+   "Z0-M2": 0.16739823462018713,
+   "Z0-M4": -0.08984747248722151,
+   "Z0-M5": 0.03713808645399951,
+   "M1-M2": 0.3725497280529873,
+   "M1-M4": 0.49847378103682904,
+   "M1-M5": -0.000912800254219142,
+   "M2-M4": 0.1692376961913667,
+   "M2-M5": 0.10889549225689418,
+   "M4-M5": -0.011041076220361358
+  },
+  "ladder_disposition": "ESCALATED, no rungs burned: the ladder (<=2 passes/pair, <=4 rungs system-wide) is mechanically inapplicable to 10 simultaneous instrument-driven breaches; rung remedies (re-partition/residualize/horizon-shift/demote) target organ redundancy, which the signal space contradicts. Disposition is a chair/orchestrator decision, surfaced as a finding per executor rails."
+ },
+ "GATE": "REMEDIATION REQUIRED"
+}

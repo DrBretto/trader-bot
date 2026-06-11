@@ -1,0 +1,44 @@
+{
+ "F1": {
+  "daily_rank_ic_1d": 0.026971393894548987,
+  "val_mse": 1.0002468824386597,
+  "best_epoch": 2,
+  "param_count": 2473,
+  "wall_s": 5.4
+ },
+ "F2": {
+  "daily_rank_ic_1d": 0.017341262951482042,
+  "val_mse": 0.999543309211731,
+  "best_epoch": 5,
+  "param_count": 2473,
+  "wall_s": 8.8
+ },
+ "F3": {
+  "daily_rank_ic_1d": 0.011059177823056475,
+  "val_mse": 0.9997168183326721,
+  "best_epoch": 4,
+  "param_count": 2473,
+  "wall_s": 8.2
+ },
+ "F4": {
+  "daily_rank_ic_1d": 0.04823043078645046,
+  "val_mse": 0.9990769624710083,
+  "best_epoch": 6,
+  "param_count": 2473,
+  "wall_s": 11.1
+ },
+ "F5": {
+  "daily_rank_ic_1d": 0.017553435172345862,
+  "val_mse": 0.9994921684265137,
+  "best_epoch": 3,
+  "param_count": 2473,
+  "wall_s": 9.9
+ },
+ "F6": {
+  "daily_rank_ic_1d": 0.013331812604101238,
+  "val_mse": 0.99996018409729,
+  "best_epoch": 2,
+  "param_count": 2473,
+  "wall_s": 9.8
+ }
+}

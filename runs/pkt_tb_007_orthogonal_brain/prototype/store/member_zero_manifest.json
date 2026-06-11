@@ -1,0 +1,18 @@
+{
+ "generated": "2026-06-10T22:46:45",
+ "model_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/cache/s3/models/ranking_expanded_unconditioned",
+ "features": [
+  "return_1d",
+  "return_5d",
+  "return_21d",
+  "return_63d",
+  "vol_21d",
+  "vol_63d",
+  "drawdown_63d",
+  "trend_63d",
+  "rel_strength_21d",
+  "rel_strength_63d"
+ ],
+ "convention": "features through D-1 close; adj_close basis (forced choice, ledgered)",
+ "wall_clock_s": 0.4
+}

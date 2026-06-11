@@ -32,7 +32,11 @@ NAMES = list(TA.TILT_CORE) + list(TA.TILT_COND)
 
 # ------------------------------------------------------------ tiny fixtures
 def _organ_file(tmp: Path, date: str, seed: int = 7) -> None:
-    rng = np.random.default_rng(seed + hash(date) % 1000)
+    # zlib.crc32, not hash(): str hash is salted per process (PYTHONHASHSEED)
+    # and made this fixture non-deterministic — some salt draws quantized the
+    # tilt away and flipped the projection-consistency test neutral.
+    import zlib
+    rng = np.random.default_rng(seed + zlib.crc32(date.encode()) % 1000)
     organs = {k: {"mu": {s: round(float(rng.standard_normal()), 6)
                          for s in NAMES}, "q": 0.6} for k in ROSTER}
     doc = {"date": date, "schema_version": "organ_inputs_007.v1",

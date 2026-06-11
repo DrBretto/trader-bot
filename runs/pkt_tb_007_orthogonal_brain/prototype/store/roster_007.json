@@ -1,0 +1,16 @@
+{
+ "roster": [
+  "M1"
+ ],
+ "acceptance_passers": [
+  "M1"
+ ],
+ "c2_gate": "REMEDIATION REQUIRED",
+ "c2_demotions": [],
+ "M3": "B-disp",
+ "M4_variant": "M4-A",
+ "M5": "disabled",
+ "masks": "frozen Phase-0 production masks (G15/A9)",
+ "generated": "2026-06-11T01:23:55",
+ "provenance": "mechanical map: verdict-arm tilt roster = {M1,M2,M4,M5} \u2229 acceptance-gate passers, post-C2 (TOURNAMENT \u00a74.4.1)"
+}

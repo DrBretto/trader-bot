@@ -1,0 +1,51 @@
+{
+ "generated": "2026-06-10T22:46:05",
+ "builder": "make_targets_007.py",
+ "code_sha": "4fe6edeb186f",
+ "source_panel": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_006_clean_sheet_brain/prototype/store/panel.npz",
+ "n_dates": 2845,
+ "first": "2015-02-18",
+ "last": "2026-06-10",
+ "support_set": [
+  "ITA",
+  "SOXX",
+  "XRT",
+  "TLT",
+  "AGG",
+  "MUB",
+  "FXE",
+  "USO",
+  "FXI",
+  "RSP",
+  "IYR",
+  "SHY",
+  "KRE"
+ ],
+ "slices": [
+  "y_rot_raw",
+  "y_rot_rank",
+  "y_disp",
+  "disp_lags",
+  "cal_dummies",
+  "y_evt",
+  "evt_thresh",
+  "evt_ctl",
+  "m6_feat",
+  "m2_slow",
+  "r1f_raw",
+  "delta_disp"
+ ],
+ "evt_threshold": {
+  "pct": 0.8,
+  "trailing_days": 252,
+  "min_periods": 126,
+  "lag_td": 6,
+  "note": "trailing window/minp/lag are builder forced choices (spec gives pct only) \u2014 ledgered"
+ },
+ "fomc_calendar": {
+  "n_dates": 93,
+  "provenance": "builder-supplied scheduled decision dates (2020 emergency moves included) \u2014 flagged, not exchange-sourced"
+ },
+ "m6_note": "cols overnight_ret_1d and gap_open_pct are numerically identical by construction (spec lists both) \u2014 disclosed",
+ "wall_clock_s": 1.8
+}

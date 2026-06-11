@@ -1,0 +1,695 @@
+{
+ "generated": "2026-06-11T01:23:55",
+ "rule_text_provenance": "BUILD_SPEC_007 \u00a72.3 + TOURNAMENT \u00a74.4.1/\u00a74.4.6 (frozen); 5/6-folds-positive transcribed as all-but-one of 5",
+ "production_masks_frozen_phase0": {
+  "M1": {
+   "ITA": 1.0,
+   "SOXX": 1.0,
+   "TLT": 1.0,
+   "AGG": 1.0,
+   "MUB": 1.0,
+   "FXE": 1.0,
+   "USO": 1.0,
+   "FXI": 1.0,
+   "RSP": 1.0,
+   "XRT": 0.5,
+   "IYR": 0.5,
+   "SHY": 0.5,
+   "KRE": 0.0
+  },
+  "M2": {
+   "XRT": 1.0,
+   "KRE": 0.5,
+   "IYR": 0.5
+  },
+  "M5": {
+   "ITA": 1.0,
+   "SOXX": 1.0,
+   "XRT": 1.0,
+   "TLT": 1.0,
+   "AGG": 1.0,
+   "MUB": 1.0,
+   "FXE": 1.0,
+   "USO": 1.0,
+   "FXI": 1.0,
+   "RSP": 1.0,
+   "IYR": 1.0,
+   "SHY": 1.0,
+   "KRE": 1.0
+  }
+ },
+ "shrinkage_sentence": "honest expected true core IC ~ 0.04-0.06 (inverse-Mills selection bound, G15)",
+ "rotations": {
+  "rotation_1": {
+   "held_out_fold": 1,
+   "training_folds": [
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "masks": {
+    "M1": {
+     "RSP": 0.0,
+     "FXI": 1.0,
+     "IYR": 0.0,
+     "SOXX": 0.0,
+     "KRE": 0.0,
+     "XRT": 0.5,
+     "ITA": 0.5,
+     "TLT": 1.0,
+     "SHY": 0.5,
+     "AGG": 0.5,
+     "MUB": 0.5,
+     "USO": 0.0,
+     "FXE": 0.5
+    },
+    "M2": {
+     "RSP": 0.0,
+     "FXI": 0.0,
+     "IYR": 1.0,
+     "SOXX": 0.5,
+     "KRE": 0.0,
+     "XRT": 0.5,
+     "ITA": 0.0,
+     "TLT": 0.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.0,
+     "USO": 0.0,
+     "FXE": 0.0
+    },
+    "M5": {
+     "ITA": 1.0,
+     "SOXX": 1.0,
+     "XRT": 1.0,
+     "TLT": 1.0,
+     "AGG": 1.0,
+     "MUB": 1.0,
+     "FXE": 1.0,
+     "USO": 1.0,
+     "FXI": 1.0,
+     "RSP": 1.0,
+     "IYR": 1.0,
+     "SHY": 1.0,
+     "KRE": 1.0
+    }
+   },
+   "gates": {
+    "M1": {
+     "weekly_ic": 0.1074439349149279,
+     "delta_vs_z0": 0.043338881930486406,
+     "net_edge_ratio": 3.8409014999999997,
+     "pass": true
+    },
+    "M2": {
+     "rot_ic": 0.0321133470780189,
+     "net_edge_ratio": 4.035725527566519,
+     "pass": false
+    },
+    "M3": {
+     "hac_wald_p": 3.4694723575181045e-05,
+     "conv_bp_day": 0.01177001762747577,
+     "pass": false
+    },
+    "M4": {
+     "auc": 0.6000984859620756,
+     "auc_control": 0.6043804423421625,
+     "delta_bar": 0.0025373479724217544,
+     "pass": false,
+     "variant": "M4-A"
+    },
+    "M5": {
+     "episodes": 13,
+     "wins": 8,
+     "p": 0.29052734375,
+     "pass": false
+    }
+   },
+   "c2_pooled_only": {
+    "Z0-M1": {
+     "signal": 0.1837748076213583,
+     "book": 0.8814837244955182,
+     "bar": 0.8,
+     "breach": false,
+     "book_breach_instrument_artifact": true
+    }
+   },
+   "c2_demotions": [],
+   "roster": {
+    "directional": [
+     "M1"
+    ],
+    "M3": "B-disp",
+    "M4_variant": "M4-A",
+    "M5": "disabled"
+   }
+  },
+  "rotation_2": {
+   "held_out_fold": 2,
+   "training_folds": [
+    1,
+    3,
+    4,
+    5,
+    6
+   ],
+   "masks": {
+    "M1": {
+     "RSP": 0.0,
+     "FXI": 1.0,
+     "IYR": 0.0,
+     "SOXX": 1.0,
+     "KRE": 0.0,
+     "XRT": 0.0,
+     "ITA": 0.0,
+     "TLT": 1.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.5,
+     "USO": 0.0,
+     "FXE": 1.0
+    },
+    "M2": {
+     "RSP": 0.0,
+     "FXI": 0.0,
+     "IYR": 0.0,
+     "SOXX": 0.5,
+     "KRE": 0.0,
+     "XRT": 1.0,
+     "ITA": 0.0,
+     "TLT": 0.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.0,
+     "USO": 0.0,
+     "FXE": 0.0
+    },
+    "M5": {
+     "ITA": 1.0,
+     "SOXX": 1.0,
+     "XRT": 1.0,
+     "TLT": 1.0,
+     "AGG": 1.0,
+     "MUB": 1.0,
+     "FXE": 1.0,
+     "USO": 1.0,
+     "FXI": 1.0,
+     "RSP": 1.0,
+     "IYR": 1.0,
+     "SHY": 1.0,
+     "KRE": 1.0
+    }
+   },
+   "gates": {
+    "M1": {
+     "weekly_ic": 0.11367219602517578,
+     "delta_vs_z0": 0.0346613312572146,
+     "net_edge_ratio": 4.141032857142857,
+     "pass": true
+    },
+    "M2": {
+     "rot_ic": 0.037732022012832565,
+     "net_edge_ratio": 3.3807553715123784,
+     "pass": false
+    },
+    "M3": {
+     "hac_wald_p": 1.411907324381492e-11,
+     "conv_bp_day": 0.010979237909328228,
+     "pass": false
+    },
+    "M4": {
+     "auc": 0.6191184232546764,
+     "auc_control": 0.6187605657143755,
+     "delta_bar": 0.0021104345017332925,
+     "pass": false,
+     "variant": "M4-A"
+    },
+    "M5": {
+     "episodes": 17,
+     "wins": 11,
+     "p": 0.1661529541015625,
+     "pass": false
+    }
+   },
+   "c2_pooled_only": {
+    "Z0-M1": {
+     "signal": 0.20910120261245269,
+     "book": 0.9216256325424922,
+     "bar": 0.8,
+     "breach": false,
+     "book_breach_instrument_artifact": true
+    }
+   },
+   "c2_demotions": [],
+   "roster": {
+    "directional": [
+     "M1"
+    ],
+    "M3": "B-disp",
+    "M4_variant": "M4-A",
+    "M5": "disabled"
+   }
+  },
+  "rotation_3": {
+   "held_out_fold": 3,
+   "training_folds": [
+    1,
+    2,
+    4,
+    5,
+    6
+   ],
+   "masks": {
+    "M1": {
+     "RSP": 0.0,
+     "FXI": 1.0,
+     "IYR": 0.5,
+     "SOXX": 0.0,
+     "KRE": 0.0,
+     "XRT": 0.0,
+     "ITA": 0.0,
+     "TLT": 1.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.5,
+     "USO": 0.0,
+     "FXE": 0.5
+    },
+    "M2": {
+     "RSP": 0.0,
+     "FXI": 0.0,
+     "IYR": 1.0,
+     "SOXX": 0.0,
+     "KRE": 0.5,
+     "XRT": 0.5,
+     "ITA": 0.0,
+     "TLT": 0.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.0,
+     "USO": 0.0,
+     "FXE": 0.0
+    },
+    "M5": {
+     "ITA": 1.0,
+     "SOXX": 1.0,
+     "XRT": 1.0,
+     "TLT": 1.0,
+     "AGG": 1.0,
+     "MUB": 1.0,
+     "FXE": 1.0,
+     "USO": 1.0,
+     "FXI": 1.0,
+     "RSP": 1.0,
+     "IYR": 1.0,
+     "SHY": 1.0,
+     "KRE": 1.0
+    }
+   },
+   "gates": {
+    "M1": {
+     "weekly_ic": 0.10916663631371763,
+     "delta_vs_z0": 0.03742500940742273,
+     "net_edge_ratio": 3.3466815,
+     "pass": true
+    },
+    "M2": {
+     "rot_ic": 0.04283472760306983,
+     "net_edge_ratio": 4.176530811365975,
+     "pass": true
+    },
+    "M3": {
+     "hac_wald_p": 7.394646794195933e-10,
+     "conv_bp_day": 0.010623725159923332,
+     "pass": false
+    },
+    "M4": {
+     "auc": 0.6142328190223386,
+     "auc_control": 0.6166779572501624,
+     "delta_bar": 0.0022960036921918156,
+     "pass": false,
+     "variant": "M4-A"
+    },
+    "M5": {
+     "episodes": 15,
+     "wins": 10,
+     "p": 0.15087890624999997,
+     "pass": false
+    }
+   },
+   "c2_pooled_only": {
+    "Z0-M1": {
+     "signal": 0.19159436530878768,
+     "book": 0.90638922391884,
+     "bar": 0.8,
+     "breach": false,
+     "book_breach_instrument_artifact": true
+    },
+    "Z0-M2": {
+     "signal": 0.04789707955707461,
+     "book": 0.8979815004147523,
+     "bar": 0.7,
+     "breach": false,
+     "book_breach_instrument_artifact": true
+    },
+    "M1-M2": {
+     "signal": 0.1500983310527906,
+     "book": 0.9454762561980966,
+     "bar": 0.7,
+     "breach": false,
+     "book_breach_instrument_artifact": true
+    }
+   },
+   "c2_demotions": [],
+   "roster": {
+    "directional": [
+     "M1",
+     "M2"
+    ],
+    "M3": "B-disp",
+    "M4_variant": "M4-A",
+    "M5": "disabled"
+   }
+  },
+  "rotation_4": {
+   "held_out_fold": 4,
+   "training_folds": [
+    1,
+    2,
+    3,
+    5,
+    6
+   ],
+   "masks": {
+    "M1": {
+     "RSP": 0.0,
+     "FXI": 1.0,
+     "IYR": 0.5,
+     "SOXX": 0.0,
+     "KRE": 0.0,
+     "XRT": 0.5,
+     "ITA": 0.0,
+     "TLT": 1.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.5,
+     "USO": 0.5,
+     "FXE": 1.0
+    },
+    "M2": {
+     "RSP": 0.0,
+     "FXI": 0.0,
+     "IYR": 0.0,
+     "SOXX": 0.0,
+     "KRE": 0.5,
+     "XRT": 0.5,
+     "ITA": 0.0,
+     "TLT": 0.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.0,
+     "USO": 0.0,
+     "FXE": 0.0
+    },
+    "M5": {
+     "ITA": 1.0,
+     "SOXX": 1.0,
+     "XRT": 1.0,
+     "TLT": 1.0,
+     "AGG": 1.0,
+     "MUB": 1.0,
+     "FXE": 1.0,
+     "USO": 1.0,
+     "FXI": 1.0,
+     "RSP": 1.0,
+     "IYR": 1.0,
+     "SHY": 1.0,
+     "KRE": 1.0
+    }
+   },
+   "gates": {
+    "M1": {
+     "weekly_ic": 0.10566344088578536,
+     "delta_vs_z0": 0.03902422924484518,
+     "net_edge_ratio": 3.272314642857143,
+     "pass": true
+    },
+    "M2": {
+     "rot_ic": 0.045638654803141096,
+     "net_edge_ratio": NaN,
+     "pass": false
+    },
+    "M3": {
+     "hac_wald_p": 3.6255931912422247e-09,
+     "conv_bp_day": 0.011156748392024893,
+     "pass": false
+    },
+    "M4": {
+     "auc": 0.6131942125845249,
+     "auc_control": 0.6161193803151888,
+     "delta_bar": 0.0022047757834069777,
+     "pass": false,
+     "variant": "M4-A"
+    },
+    "M5": {
+     "episodes": 16,
+     "wins": 10,
+     "p": 0.2272491455078125,
+     "pass": false
+    }
+   },
+   "c2_pooled_only": {
+    "Z0-M1": {
+     "signal": 0.20934335469909277,
+     "book": 0.9207826313597851,
+     "bar": 0.8,
+     "breach": false,
+     "book_breach_instrument_artifact": true
+    }
+   },
+   "c2_demotions": [],
+   "roster": {
+    "directional": [
+     "M1"
+    ],
+    "M3": "B-disp",
+    "M4_variant": "M4-A",
+    "M5": "disabled"
+   }
+  },
+  "rotation_5": {
+   "held_out_fold": 5,
+   "training_folds": [
+    1,
+    2,
+    3,
+    4,
+    6
+   ],
+   "masks": {
+    "M1": {
+     "RSP": 0.0,
+     "FXI": 1.0,
+     "IYR": 0.0,
+     "SOXX": 0.0,
+     "KRE": 0.0,
+     "XRT": 0.0,
+     "ITA": 0.5,
+     "TLT": 1.0,
+     "SHY": 0.5,
+     "AGG": 1.0,
+     "MUB": 0.5,
+     "USO": 0.5,
+     "FXE": 1.0
+    },
+    "M2": {
+     "RSP": 0.0,
+     "FXI": 0.0,
+     "IYR": 0.0,
+     "SOXX": 0.0,
+     "KRE": 0.0,
+     "XRT": 0.5,
+     "ITA": 0.0,
+     "TLT": 0.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.0,
+     "USO": 0.0,
+     "FXE": 0.0
+    },
+    "M5": {
+     "ITA": 1.0,
+     "SOXX": 1.0,
+     "XRT": 1.0,
+     "TLT": 1.0,
+     "AGG": 1.0,
+     "MUB": 1.0,
+     "FXE": 1.0,
+     "USO": 1.0,
+     "FXI": 1.0,
+     "RSP": 1.0,
+     "IYR": 1.0,
+     "SHY": 1.0,
+     "KRE": 1.0
+    }
+   },
+   "gates": {
+    "M1": {
+     "weekly_ic": 0.10578076047773924,
+     "delta_vs_z0": 0.046439639319599775,
+     "net_edge_ratio": 3.072884117647059,
+     "pass": true
+    },
+    "M2": {
+     "rot_ic": 0.02787524326795806,
+     "net_edge_ratio": NaN,
+     "pass": false
+    },
+    "M3": {
+     "hac_wald_p": 2.327727071236862e-13,
+     "conv_bp_day": 0.010928271063417417,
+     "pass": false
+    },
+    "M4": {
+     "auc": 0.6304176446115151,
+     "auc_control": 0.6307480463866295,
+     "delta_bar": 0.0019887941535383655,
+     "pass": false,
+     "variant": "M4-A"
+    },
+    "M5": {
+     "episodes": 18,
+     "wins": 11,
+     "p": 0.2403411865234375,
+     "pass": false
+    }
+   },
+   "c2_pooled_only": {
+    "Z0-M1": {
+     "signal": 0.1824802996354736,
+     "book": 0.9183340973820234,
+     "bar": 0.8,
+     "breach": false,
+     "book_breach_instrument_artifact": true
+    }
+   },
+   "c2_demotions": [],
+   "roster": {
+    "directional": [
+     "M1"
+    ],
+    "M3": "B-disp",
+    "M4_variant": "M4-A",
+    "M5": "disabled"
+   }
+  },
+  "rotation_6": {
+   "held_out_fold": 6,
+   "training_folds": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "masks": {
+    "M1": {
+     "RSP": 0.0,
+     "FXI": 1.0,
+     "IYR": 0.0,
+     "SOXX": 1.0,
+     "KRE": 0.0,
+     "XRT": 0.0,
+     "ITA": 0.0,
+     "TLT": 1.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.5,
+     "USO": 0.0,
+     "FXE": 1.0
+    },
+    "M2": {
+     "RSP": 0.0,
+     "FXI": 0.0,
+     "IYR": 0.0,
+     "SOXX": 0.0,
+     "KRE": 0.0,
+     "XRT": 0.5,
+     "ITA": 0.0,
+     "TLT": 0.0,
+     "SHY": 0.0,
+     "AGG": 0.0,
+     "MUB": 0.0,
+     "USO": 0.0,
+     "FXE": 0.0
+    },
+    "M5": {
+     "ITA": 1.0,
+     "SOXX": 1.0,
+     "XRT": 1.0,
+     "TLT": 1.0,
+     "AGG": 1.0,
+     "MUB": 1.0,
+     "FXE": 1.0,
+     "USO": 1.0,
+     "FXI": 1.0,
+     "RSP": 1.0,
+     "IYR": 1.0,
+     "SHY": 1.0,
+     "KRE": 1.0
+    }
+   },
+   "gates": {
+    "M1": {
+     "weekly_ic": 0.104152485157374,
+     "delta_vs_z0": 0.05098090732438741,
+     "net_edge_ratio": 3.836495714285714,
+     "pass": true
+    },
+    "M2": {
+     "rot_ic": 0.0346958409343844,
+     "net_edge_ratio": NaN,
+     "pass": false
+    },
+    "M3": {
+     "hac_wald_p": 3.3148112520326546e-12,
+     "conv_bp_day": 0.01108590555694709,
+     "pass": false
+    },
+    "M4": {
+     "auc": 0.6144788171306351,
+     "auc_control": 0.6162471203277171,
+     "delta_bar": 0.0024208706005056494,
+     "pass": false,
+     "variant": "M4-A"
+    },
+    "M5": {
+     "episodes": 16,
+     "wins": 9,
+     "p": 0.4018096923828125,
+     "pass": false
+    }
+   },
+   "c2_pooled_only": {
+    "Z0-M1": {
+     "signal": 0.1983516111920041,
+     "book": 0.9211457144896521,
+     "bar": 0.8,
+     "breach": false,
+     "book_breach_instrument_artifact": true
+    }
+   },
+   "c2_demotions": [],
+   "roster": {
+    "directional": [
+     "M1"
+    ],
+    "M3": "B-disp",
+    "M4_variant": "M4-A",
+    "M5": "disabled"
+   }
+  }
+ }
+}

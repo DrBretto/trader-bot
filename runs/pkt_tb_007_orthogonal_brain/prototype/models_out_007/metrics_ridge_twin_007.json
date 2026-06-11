@@ -1,0 +1,38 @@
+{
+ "F1": {
+  "purged_spearman": -0.05363759223390111,
+  "weekly_rank_ic": -0.011272108411798007,
+  "lambda": 1.0,
+  "wall_s": 0.5
+ },
+ "F2": {
+  "purged_spearman": -0.025243383543724084,
+  "weekly_rank_ic": -0.0023514060367649543,
+  "lambda": 1.0,
+  "wall_s": 0.6
+ },
+ "F3": {
+  "purged_spearman": 0.009556902708336274,
+  "weekly_rank_ic": -0.03801134477854671,
+  "lambda": 1.0,
+  "wall_s": 0.8
+ },
+ "F4": {
+  "purged_spearman": 0.019388757362576812,
+  "weekly_rank_ic": 0.005305156077291285,
+  "lambda": 10000.0,
+  "wall_s": 0.8
+ },
+ "F5": {
+  "purged_spearman": 0.01864774458855177,
+  "weekly_rank_ic": -0.02484111947083104,
+  "lambda": 1000.0,
+  "wall_s": 0.8
+ },
+ "F6": {
+  "purged_spearman": -0.021860896451682377,
+  "weekly_rank_ic": 0.010887833998784138,
+  "lambda": 1000.0,
+  "wall_s": 1.0
+ }
+}

@@ -1,0 +1,55 @@
+{
+ "rotation": 3,
+ "withheld_fold": 3,
+ "derived_from_folds": [
+  1,
+  2,
+  4,
+  5,
+  6
+ ],
+ "roster": [
+  "M1",
+  "M2",
+  "M5"
+ ],
+ "masks": {
+  "M1": {
+   "ITA": 1.0,
+   "SOXX": 1.0,
+   "TLT": 1.0,
+   "AGG": 1.0,
+   "MUB": 1.0,
+   "FXE": 1.0,
+   "USO": 1.0,
+   "FXI": 1.0,
+   "RSP": 1.0,
+   "XRT": 0.5,
+   "IYR": 0.5,
+   "SHY": 0.5,
+   "KRE": 0.0
+  },
+  "M2": {
+   "XRT": 1.0,
+   "KRE": 0.5,
+   "IYR": 0.5
+  },
+  "M5": {
+   "ITA": 1.0,
+   "SOXX": 1.0,
+   "XRT": 1.0,
+   "TLT": 1.0,
+   "AGG": 1.0,
+   "MUB": 1.0,
+   "FXE": 1.0,
+   "USO": 1.0,
+   "FXI": 1.0,
+   "RSP": 1.0,
+   "IYR": 1.0,
+   "SHY": 1.0,
+   "KRE": 1.0
+  }
+ },
+ "synthetic": true,
+ "note": "SMOKE placeholder = frozen production masks; wave-2a replaces with per-rotation re-derived masks (\u00a74.6/L1)"
+}

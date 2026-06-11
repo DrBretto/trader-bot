@@ -1,0 +1,89 @@
+{
+ "date": "2022-12-08",
+ "schema_version": "organ_inputs_007.v1",
+ "organs": {
+  "M1": {
+   "mu": {
+    "ITA": 0.108593,
+    "SOXX": 0.256563,
+    "XRT": -0.490831,
+    "TLT": -0.711848,
+    "AGG": -0.661776,
+    "MUB": -0.578221,
+    "FXE": -0.659605,
+    "USO": 0.558705,
+    "FXI": 0.23372,
+    "RSP": -0.047218,
+    "IYR": -0.004971,
+    "SHY": -0.482502,
+    "KRE": 0.515461
+   },
+   "q": 0.9603
+  },
+  "M2": {
+   "mu": {
+    "ITA": -1.547469,
+    "SOXX": 0.608484,
+    "XRT": 0.608484,
+    "TLT": 0.608484,
+    "AGG": -0.654394,
+    "MUB": 0.885223,
+    "FXE": -1.270473,
+    "USO": 0.382986,
+    "FXI": 0.479996,
+    "RSP": 0.608484,
+    "IYR": 0.291873,
+    "SHY": 1.233053,
+    "KRE": 0.420238
+   },
+   "q": 0.4206
+  },
+  "M5": {
+   "mu": {
+    "ITA": 0.09528,
+    "SOXX": 0.09528,
+    "XRT": 0.09528,
+    "FXI": 0.09528,
+    "RSP": 0.09528,
+    "IYR": 0.09528,
+    "KRE": 0.09528
+   },
+   "q": 0.1098
+  }
+ },
+ "disp_z": 1.397945,
+ "p_exceed": {
+  "ITA": 0.2194,
+  "SOXX": 0.2592,
+  "XRT": 0.2478,
+  "TLT": 0.2504,
+  "AGG": 0.2504,
+  "MUB": 0.2504,
+  "FXE": 0.2549,
+  "USO": 0.1945,
+  "FXI": 0.2347,
+  "RSP": 0.234,
+  "IYR": 0.2876,
+  "SHY": 0.2504,
+  "KRE": 0.228
+ },
+ "manifest": {
+  "schema": "organ_inputs_007.v1",
+  "oof_true": true,
+  "generated": "2026-06-11T01:24:27",
+  "code_sha": "d3aa8d8ed5ce",
+  "seeds": {
+   "m1": [
+    4242,
+    4243
+   ],
+   "master": 4242
+  },
+  "roster": [
+   "M1"
+  ],
+  "m4_variant_shipped": "M4-A",
+  "emission_policy": "all organs emitted; genome/arm config decides what is listened to (ledgered)",
+  "provenance": "walk-forward OOF matrices (oof/fold_<f>_<member>.npz); q/disp_z trailing windows over the concatenated OOF series"
+ }
+}

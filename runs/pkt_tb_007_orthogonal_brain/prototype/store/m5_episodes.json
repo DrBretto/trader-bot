@@ -1,0 +1,307 @@
+{
+ "constants": {
+  "z_window_weeks": 156,
+  "threshold": 2.0,
+  "decay_td": 21,
+  "fresh_days": 10
+ },
+ "episodes": [
+  {
+   "complex": "es",
+   "start": 165,
+   "end": 204,
+   "sign": -1.0,
+   "mag": 0.05723013921035092,
+   "start_date": "2015-10-13",
+   "end_date": "2015-12-08"
+  },
+  {
+   "complex": "es",
+   "start": 477,
+   "end": 502,
+   "sign": 1.0,
+   "mag": 0.4708288533251932,
+   "start_date": "2017-01-09",
+   "end_date": "2017-02-14"
+  },
+  {
+   "complex": "es",
+   "start": 520,
+   "end": 550,
+   "sign": 1.0,
+   "mag": 0.2741543780918705,
+   "start_date": "2017-03-13",
+   "end_date": "2017-04-25"
+  },
+  {
+   "complex": "es",
+   "start": 642,
+   "end": 666,
+   "sign": 1.0,
+   "mag": 0.1181289570118178,
+   "start_date": "2017-09-05",
+   "end_date": "2017-10-09"
+  },
+  {
+   "complex": "es",
+   "start": 747,
+   "end": 781,
+   "sign": 1.0,
+   "mag": 0.1582319653784081,
+   "start_date": "2018-02-05",
+   "end_date": "2018-03-26"
+  },
+  {
+   "complex": "es",
+   "start": 785,
+   "end": 835,
+   "sign": 1.0,
+   "mag": 0.5188636497257191,
+   "start_date": "2018-04-02",
+   "end_date": "2018-06-12"
+  },
+  {
+   "complex": "es",
+   "start": 970,
+   "end": 997,
+   "sign": 1.0,
+   "mag": 0.9796761311963267,
+   "start_date": "2018-12-24",
+   "end_date": "2019-02-04"
+  },
+  {
+   "complex": "es",
+   "start": 1330,
+   "end": 1374,
+   "sign": -1.0,
+   "mag": 0.35872310374033,
+   "start_date": "2020-06-01",
+   "end_date": "2020-08-03"
+  },
+  {
+   "complex": "es",
+   "start": 1379,
+   "end": 1419,
+   "sign": -1.0,
+   "mag": 0.06128406380049567,
+   "start_date": "2020-08-10",
+   "end_date": "2020-10-06"
+  },
+  {
+   "complex": "es",
+   "start": 1708,
+   "end": 1805,
+   "sign": 1.0,
+   "mag": 0.01804720004668603,
+   "start_date": "2021-11-29",
+   "end_date": "2022-04-19"
+  },
+  {
+   "complex": "es",
+   "start": 1866,
+   "end": 1935,
+   "sign": -1.0,
+   "mag": 0.4998270815355288,
+   "start_date": "2022-07-18",
+   "end_date": "2022-10-24"
+  },
+  {
+   "complex": "es",
+   "start": 1940,
+   "end": 1979,
+   "sign": -1.0,
+   "mag": 0.1921856940146749,
+   "start_date": "2022-10-31",
+   "end_date": "2022-12-27"
+  },
+  {
+   "complex": "es",
+   "start": 2040,
+   "end": 2084,
+   "sign": -1.0,
+   "mag": 0.23680674597060847,
+   "start_date": "2023-03-27",
+   "end_date": "2023-05-30"
+  },
+  {
+   "complex": "es",
+   "start": 2669,
+   "end": 2719,
+   "sign": -1.0,
+   "mag": 0.024624323826853534,
+   "start_date": "2025-09-29",
+   "end_date": "2025-12-09"
+  },
+  {
+   "complex": "ust10y",
+   "start": 47,
+   "end": 82,
+   "sign": -1.0,
+   "mag": 0.04362393575602308,
+   "start_date": "2015-04-27",
+   "end_date": "2015-06-16"
+  },
+  {
+   "complex": "ust10y",
+   "start": 120,
+   "end": 145,
+   "sign": -1.0,
+   "mag": 0.016109370206220053,
+   "start_date": "2015-08-10",
+   "end_date": "2015-09-15"
+  },
+  {
+   "complex": "ust10y",
+   "start": 790,
+   "end": 942,
+   "sign": -1.0,
+   "mag": 0.335210259251415,
+   "start_date": "2018-04-09",
+   "end_date": "2018-11-12"
+  },
+  {
+   "complex": "ust10y",
+   "start": 943,
+   "end": 967,
+   "sign": -1.0,
+   "mag": 0.16578036446374522,
+   "start_date": "2018-11-13",
+   "end_date": "2018-12-19"
+  },
+  {
+   "complex": "ust10y",
+   "start": 970,
+   "end": 993,
+   "sign": -1.0,
+   "mag": 0.044414404614937286,
+   "start_date": "2018-12-24",
+   "end_date": "2019-01-29"
+  },
+  {
+   "complex": "ust10y",
+   "start": 1448,
+   "end": 1655,
+   "sign": 1.0,
+   "mag": 0.015684461026372443,
+   "start_date": "2020-11-16",
+   "end_date": "2021-09-14"
+  },
+  {
+   "complex": "ust10y",
+   "start": 1675,
+   "end": 1704,
+   "sign": 1.0,
+   "mag": 0.10711331665785906,
+   "start_date": "2021-10-12",
+   "end_date": "2021-11-22"
+  },
+  {
+   "complex": "ust10y",
+   "start": 2059,
+   "end": 2136,
+   "sign": -1.0,
+   "mag": 0.00919158058824543,
+   "start_date": "2023-04-24",
+   "end_date": "2023-08-14"
+  },
+  {
+   "complex": "ust10y",
+   "start": 2654,
+   "end": 2679,
+   "sign": -1.0,
+   "mag": 0.2918978690412164,
+   "start_date": "2025-09-08",
+   "end_date": "2025-10-13"
+  },
+  {
+   "complex": "vix",
+   "start": 0,
+   "end": 28,
+   "sign": 1.0,
+   "mag": 0.03054309895464602,
+   "start_date": "2015-02-18",
+   "end_date": "2015-03-30"
+  },
+  {
+   "complex": "vix",
+   "start": 140,
+   "end": 199,
+   "sign": 1.0,
+   "mag": 0.24317775072627068,
+   "start_date": "2015-09-08",
+   "end_date": "2015-12-01"
+  },
+  {
+   "complex": "vix",
+   "start": 1306,
+   "end": 1331,
+   "sign": -1.0,
+   "mag": 0.2612720334673604,
+   "start_date": "2020-04-27",
+   "end_date": "2020-06-02"
+  },
+  {
+   "complex": "vix",
+   "start": 1354,
+   "end": 1379,
+   "sign": -1.0,
+   "mag": 0.11332602466087138,
+   "start_date": "2020-07-06",
+   "end_date": "2020-08-10"
+  },
+  {
+   "complex": "vix",
+   "start": 1443,
+   "end": 1468,
+   "sign": -1.0,
+   "mag": 0.3235179418870202,
+   "start_date": "2020-11-09",
+   "end_date": "2020-12-15"
+  },
+  {
+   "complex": "vix",
+   "start": 1945,
+   "end": 1970,
+   "sign": 1.0,
+   "mag": 0.20357134427719492,
+   "start_date": "2022-11-07",
+   "end_date": "2022-12-13"
+  },
+  {
+   "complex": "vix",
+   "start": 1974,
+   "end": 2031,
+   "sign": 1.0,
+   "mag": 0.09513553108281503,
+   "start_date": "2022-12-19",
+   "end_date": "2023-03-14"
+  },
+  {
+   "complex": "vix",
+   "start": 2045,
+   "end": 2079,
+   "sign": 1.0,
+   "mag": 0.4403008706540832,
+   "start_date": "2023-04-03",
+   "end_date": "2023-05-22"
+  },
+  {
+   "complex": "vix",
+   "start": 2334,
+   "end": 2358,
+   "sign": 1.0,
+   "mag": 0.054730378806036484,
+   "start_date": "2024-05-28",
+   "end_date": "2024-07-02"
+  },
+  {
+   "complex": "vix",
+   "start": 2615,
+   "end": 2704,
+   "sign": -1.0,
+   "mag": 0.03665721791378962,
+   "start_date": "2025-07-14",
+   "end_date": "2025-11-17"
+  }
+ ]
+}

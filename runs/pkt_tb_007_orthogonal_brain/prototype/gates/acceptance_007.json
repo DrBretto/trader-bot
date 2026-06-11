@@ -1,0 +1,420 @@
+{
+ "generated": "2026-06-11T01:18:50",
+ "gates": {
+  "M1": {
+   "existence": {
+    "weekly_rank_ic": 0.10764428442225327,
+    "se": 0.019459413900089793,
+    "n_weeks": 305,
+    "bar": 0.033,
+    "member_zero_weekly_ic": 0.06566004801422098,
+    "ic_delta_vs_member_zero": 0.04198423640803228,
+    "p_one_sided": 1.5854104251644685e-08,
+    "pass": true
+   },
+   "materiality": {
+    "net_edge_ratio_masked_core": 2.601007808219178,
+    "core_names": [
+     "ITA",
+     "SOXX",
+     "TLT",
+     "AGG",
+     "MUB",
+     "FXE",
+     "USO",
+     "FXI",
+     "RSP"
+    ],
+    "bar": 1.0,
+    "pass": true,
+    "convention": "sum(IC_s x sigma5_s)/sum(RT_s), Phase-0 per-symbol table units"
+   },
+   "power_pair": {
+    "p_pass_null": "2.3% (x~50% for the delta conjunct)",
+    "p_pass_effect": "~99.9% at receipt 0.105",
+    "note": "near-formality; LABELED as such \u2014 does not count as evidence"
+   },
+   "PASS": true
+  },
+  "M2": {
+   "status": "OPEN (FM6)",
+   "existence": {
+    "rot_rank_ic_16d": 0.03681497261656748,
+    "se": 0.025449257934807047,
+    "t": 1.446602989795451,
+    "n_windows": 96,
+    "bar": 0.041,
+    "registered_equivalence": "0.041 <=> t 1.64 at se 0.025",
+    "p_one_sided": 0.07400407418332589,
+    "pass": false
+   },
+   "materiality": {
+    "net_edge_ratio_masked_core": 0.5451005650453294,
+    "core_names": [
+     "XRT"
+    ],
+    "sigma_rot_bps": {
+     "XRT": 515.0556520113349
+    },
+    "bar": 1.0,
+    "pass": false,
+    "convention": "21d-window conversion: sigma = pooled sd of the rotation target per name"
+   },
+   "power_pair": {
+    "p_pass_null": "5.0%",
+    "p_pass_effect": "62% at IC 0.049 (no decay); 29% at half-decay 0.025",
+    "note": "status OPEN (FM6): a fail at 29% power reads 'not measurable yet', not 'rotation is dead'"
+   },
+   "PASS": false
+  },
+  "M3": {
+   "existence": {
+    "hac_wald_chi2": 71.72745756691683,
+    "df": 10,
+    "p": 2.054710943195078e-11,
+    "bar": 0.05,
+    "n_days": 1507,
+    "n_eff_5d_overlap": 560.2230483271376,
+    "pass": true
+   },
+   "oof_increment_supporting": {
+    "mse_full": 0.18293322112963334,
+    "mse_lags_twin": 0.1833894957471407,
+    "mse_trailing21_mean": 0.8192535849092549,
+    "var_y": 0.21018921612931069,
+    "oof_r2_full": 0.12967361266959176,
+    "oof_r2_twin": 0.12750283233219017
+   },
+   "materiality": {
+    "conversion_bp_day": 0.01120805292106756,
+    "bar": 0.2,
+    "pass": false,
+    "factors": {
+     "disp_t_swing_sd": 0.21025443975962513,
+     "dc_ddisp": 0.125,
+     "typ_tilt_gain": 0.5,
+     "T_max": 0.08,
+     "honest_core_ic": 0.05,
+     "mean_daily_support_dispersion": 0.010661418549716473
+    },
+    "sentence": "forecastable dispersion swing (sd of squashed forecast 0.210) x gain swing (0.125 x 0.5 x 0.08) converts to ~0.01 bp/day on the fold-pool instrument at honest core IC 0.05"
+   },
+   "power_pair": {
+    "p_pass_null": "5%",
+    "p_pass_effect": "moderate (unmeasured increment \u2014 first measurement)"
+   },
+   "PASS": false,
+   "fail_consequence": "dispersion term in c_t becomes the constant = trailing-21d mean (arm B-disp)"
+  },
+  "M4": {
+   "existence": {
+    "pooled_auc_A": 0.6157005186071738,
+    "bar": 0.526,
+    "se_day_cluster": 0.006278829427545085,
+    "auc_vol_control": 0.6176048543462336,
+    "delta_vs_control": -0.0019043357390597926,
+    "se_delta": 0.0012478398125718496,
+    "delta_bar": 0.0020464572926178334,
+    "p_one_sided_auc": 0.0,
+    "pass": false
+   },
+   "ab_decision": {
+    "auc_A_F5F6": 0.5832337804825107,
+    "auc_B_F5F6": 0.5627475665954965,
+    "delta_B_minus_A": -0.020486213887014215,
+    "se_delta": 0.005486615893432956,
+    "bar_2se": 0.010973231786865913,
+    "ships": "M4-A",
+    "llm_columns_zero_printed": true
+   },
+   "materiality": {
+    "base_rate": 0.21091695544250288,
+    "top_quintile_exceed_rate_minus_base": 0.12983015687010463,
+    "sentence": "top-quintile p-hat days exceed at 0.341 vs base 0.211 \u2014 avoided-loss conversion at the 20% base rate",
+    "pass": true
+   },
+   "power_pair": {
+    "p_pass_null": "~5% x ~5%",
+    "p_pass_effect": "~50% if true AUC 0.55; >90% if 0.58"
+   },
+   "PASS": false
+  },
+  "M5": {
+   "existence": {
+    "n_episodes_F1F6": 19,
+    "n_wins": 12,
+    "binomial_p_one_sided": 0.1796417236328125,
+    "bar": 0.05,
+    "pass": false,
+    "d3_vindication_line": null
+   },
+   "materiality": {
+    "mean_conv_bps_per_unit_gross": 82.86921733787898,
+    "mean_sleeve_rt_bps": 6.819548872180452,
+    "pass": true
+   },
+   "tally": [
+    {
+     "complex": "es",
+     "start_date": "2020-06-01",
+     "end_date": "2020-08-03",
+     "n_days": 45,
+     "pnl_unit_book": 0.4126773483709462,
+     "conv_bps_per_unit_gross": 1375.1483197706805,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    },
+    {
+     "complex": "es",
+     "start_date": "2020-08-10",
+     "end_date": "2020-10-06",
+     "n_days": 41,
+     "pnl_unit_book": -0.009580214067770614,
+     "conv_bps_per_unit_gross": -95.48235963522679,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": false
+    },
+    {
+     "complex": "es",
+     "start_date": "2021-11-29",
+     "end_date": "2022-04-19",
+     "n_days": 98,
+     "pnl_unit_book": 0.027873917060359632,
+     "conv_bps_per_unit_gross": 39.81988151479948,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    },
+    {
+     "complex": "es",
+     "start_date": "2022-07-18",
+     "end_date": "2022-10-24",
+     "n_days": 70,
+     "pnl_unit_book": -0.30150849091916765,
+     "conv_bps_per_unit_gross": -430.72641559881095,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": false
+    },
+    {
+     "complex": "es",
+     "start_date": "2022-10-31",
+     "end_date": "2022-12-27",
+     "n_days": 40,
+     "pnl_unit_book": -0.0037046578283209466,
+     "conv_bps_per_unit_gross": -12.35449228655274,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": false
+    },
+    {
+     "complex": "es",
+     "start_date": "2023-03-27",
+     "end_date": "2023-05-30",
+     "n_days": 45,
+     "pnl_unit_book": 0.008953138950881318,
+     "conv_bps_per_unit_gross": 34.98854631986254,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    },
+    {
+     "complex": "es",
+     "start_date": "2025-09-29",
+     "end_date": "2025-12-09",
+     "n_days": 51,
+     "pnl_unit_book": 0.006477870165614345,
+     "conv_bps_per_unit_gross": 28.775510400103226,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    },
+    {
+     "complex": "ust10y",
+     "start_date": "2020-11-16",
+     "end_date": "2021-09-14",
+     "n_days": 208,
+     "pnl_unit_book": 0.09944213139847866,
+     "conv_bps_per_unit_gross": 209.25766582139175,
+     "sleeve_rt_bps": 4.0,
+     "win": true
+    },
+    {
+     "complex": "ust10y",
+     "start_date": "2021-10-12",
+     "end_date": "2021-11-22",
+     "n_days": 30,
+     "pnl_unit_book": -0.0020663334429264443,
+     "conv_bps_per_unit_gross": -48.227743930447005,
+     "sleeve_rt_bps": 4.0,
+     "win": false
+    },
+    {
+     "complex": "ust10y",
+     "start_date": "2023-04-24",
+     "end_date": "2023-08-14",
+     "n_days": 78,
+     "pnl_unit_book": -0.024469331749808546,
+     "conv_bps_per_unit_gross": -139.23305628495774,
+     "sleeve_rt_bps": 4.0,
+     "win": false
+    },
+    {
+     "complex": "ust10y",
+     "start_date": "2025-09-08",
+     "end_date": "2025-10-13",
+     "n_days": 26,
+     "pnl_unit_book": 0.0158846830526793,
+     "conv_bps_per_unit_gross": 50.41626716014515,
+     "sleeve_rt_bps": 4.0,
+     "win": true
+    },
+    {
+     "complex": "vix",
+     "start_date": "2020-04-27",
+     "end_date": "2020-06-02",
+     "n_days": 26,
+     "pnl_unit_book": 0.13871466230473556,
+     "conv_bps_per_unit_gross": 462.2333538511805,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    },
+    {
+     "complex": "vix",
+     "start_date": "2020-07-06",
+     "end_date": "2020-08-10",
+     "n_days": 26,
+     "pnl_unit_book": -0.008582219399198229,
+     "conv_bps_per_unit_gross": -30.781291356486065,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": false
+    },
+    {
+     "complex": "vix",
+     "start_date": "2020-11-09",
+     "end_date": "2020-12-15",
+     "n_days": 26,
+     "pnl_unit_book": 0.030202934803576865,
+     "conv_bps_per_unit_gross": 63.55651823899725,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    },
+    {
+     "complex": "vix",
+     "start_date": "2022-11-07",
+     "end_date": "2022-12-13",
+     "n_days": 26,
+     "pnl_unit_book": 0.0051353165334155695,
+     "conv_bps_per_unit_gross": 54.738339162167385,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    },
+    {
+     "complex": "vix",
+     "start_date": "2022-12-19",
+     "end_date": "2023-03-14",
+     "n_days": 58,
+     "pnl_unit_book": -0.11108553571892973,
+     "conv_bps_per_unit_gross": -370.45402241888246,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": false
+    },
+    {
+     "complex": "vix",
+     "start_date": "2023-04-03",
+     "end_date": "2023-05-22",
+     "n_days": 35,
+     "pnl_unit_book": 0.005848038756762049,
+     "conv_bps_per_unit_gross": 22.853925985497938,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    },
+    {
+     "complex": "vix",
+     "start_date": "2024-05-28",
+     "end_date": "2024-07-02",
+     "n_days": 25,
+     "pnl_unit_book": 0.0013606828049900546,
+     "conv_bps_per_unit_gross": 71.03303945496631,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    },
+    {
+     "complex": "vix",
+     "start_date": "2025-07-14",
+     "end_date": "2025-11-17",
+     "n_days": 90,
+     "pnl_unit_book": 0.09104063740066648,
+     "conv_bps_per_unit_gross": 288.95314325127265,
+     "sleeve_rt_bps": 7.571428571428571,
+     "win": true
+    }
+   ],
+   "power_pair": {
+    "p_pass_null": "2.1%",
+    "p_pass_effect": "low at n~15-25 \u2014 expected DISABLED"
+   },
+   "PASS": false,
+   "expected": "DISABLED with tally printed (pre-registered)"
+  },
+  "M6": {
+   "forecast_falsifier": {
+    "pooled_1d_rank_ic": 0.022413879584954954,
+    "se": 0.006575156367182866,
+    "se_clustering_haircut_x1.4": 0.009205218914056013,
+    "n_days": 1507,
+    "fold_means": {
+     "1": 0.026971393894548987,
+     "2": 0.017341262951482042,
+     "3": 0.011059177823056475,
+     "4": 0.04823043078645046,
+     "5": 0.017553435172345862,
+     "6": 0.013331812604101238
+    },
+    "n_sign_positive_folds": 6,
+    "bar": "IC >= 0.02 AND >= 4/6 folds positive",
+    "p_one_sided_haircut": 0.007447747042038433,
+    "PASS": true
+   },
+   "utility_line": "structurally unresolvable at this T_max \u2014 forecast-altitude verdict only",
+   "power_pair": {
+    "p_pass_null": "~1%",
+    "p_pass_effect": "~89% at true IC 0.03",
+    "note": "forecast-altitude verdict line, never a roster gate"
+   },
+   "no_tilt_path": true,
+   "no_organ_inputs_entry": true
+  }
+ },
+ "bh_fdr_family": {
+  "M4": {
+   "p": 0.0,
+   "bh_threshold_10pct": 0.02,
+   "rejected": true
+  },
+  "M3": {
+   "p": 2.054710943195078e-11,
+   "bh_threshold_10pct": 0.04,
+   "rejected": true
+  },
+  "M1": {
+   "p": 1.5854104251644685e-08,
+   "bh_threshold_10pct": 0.06000000000000001,
+   "rejected": true
+  },
+  "M2": {
+   "p": 0.07400407418332589,
+   "bh_threshold_10pct": 0.08,
+   "rejected": true
+  },
+  "M5": {
+   "p": 0.1796417236328125,
+   "bh_threshold_10pct": 0.1,
+   "rejected": false
+  }
+ },
+ "roster": {
+  "M1": "SHIPS",
+  "M2": "CHALLENGER (OPEN)",
+  "M3": "B-disp constant (LOO control arm)",
+  "M4": "CHALLENGER (M4-A trained)",
+  "M5": "DISABLED (tally printed)",
+  "M6": "forecast-altitude line only (never a roster member)"
+ },
+ "shrinkage_sentence": "honest expected true core IC ~ 0.04-0.06, not the displayed per-name OOF values (inverse-Mills selection bound, G15)"
+}

@@ -1,0 +1,156 @@
+[
+ {
+  "ts": "2026-06-11T01:18:50",
+  "phase": "C-wave2a",
+  "kind": "ledger_look",
+  "family": "M4-A/B",
+  "look": "TOURNAMENT 4.4.8 (the ONE look)",
+  "delta_auc_B_minus_A_F5F6": -0.020486213887014215,
+  "se_delta": 0.005486615893432956,
+  "bar": 0.010973231786865913,
+  "decision": "ship M4-A"
+ },
+ {
+  "ts": "2026-06-11T01:18:50",
+  "phase": "C-wave2a",
+  "kind": "gate_result",
+  "family": "acceptance",
+  "organ": "M1",
+  "pass": true,
+  "power_pair": {
+   "p_pass_null": "2.3% (x~50% for the delta conjunct)",
+   "p_pass_effect": "~99.9% at receipt 0.105",
+   "note": "near-formality; LABELED as such \u2014 does not count as evidence"
+  },
+  "p_existence": 1.5854104251644685e-08,
+  "roster": "SHIPS"
+ },
+ {
+  "ts": "2026-06-11T01:18:50",
+  "phase": "C-wave2a",
+  "kind": "gate_result",
+  "family": "acceptance",
+  "organ": "M2",
+  "pass": false,
+  "power_pair": {
+   "p_pass_null": "5.0%",
+   "p_pass_effect": "62% at IC 0.049 (no decay); 29% at half-decay 0.025",
+   "note": "status OPEN (FM6): a fail at 29% power reads 'not measurable yet', not 'rotation is dead'"
+  },
+  "p_existence": 0.07400407418332589,
+  "roster": "CHALLENGER (OPEN)"
+ },
+ {
+  "ts": "2026-06-11T01:18:50",
+  "phase": "C-wave2a",
+  "kind": "gate_result",
+  "family": "acceptance",
+  "organ": "M3",
+  "pass": false,
+  "power_pair": {
+   "p_pass_null": "5%",
+   "p_pass_effect": "moderate (unmeasured increment \u2014 first measurement)"
+  },
+  "p_existence": 2.054710943195078e-11,
+  "roster": "B-disp constant (LOO control arm)"
+ },
+ {
+  "ts": "2026-06-11T01:18:50",
+  "phase": "C-wave2a",
+  "kind": "gate_result",
+  "family": "acceptance",
+  "organ": "M4",
+  "pass": false,
+  "power_pair": {
+   "p_pass_null": "~5% x ~5%",
+   "p_pass_effect": "~50% if true AUC 0.55; >90% if 0.58"
+  },
+  "p_existence": 0.0,
+  "roster": "CHALLENGER (M4-A trained)"
+ },
+ {
+  "ts": "2026-06-11T01:18:50",
+  "phase": "C-wave2a",
+  "kind": "gate_result",
+  "family": "acceptance",
+  "organ": "M5",
+  "pass": false,
+  "power_pair": {
+   "p_pass_null": "2.1%",
+   "p_pass_effect": "low at n~15-25 \u2014 expected DISABLED"
+  },
+  "p_existence": 0.1796417236328125,
+  "roster": "DISABLED (tally printed)"
+ },
+ {
+  "ts": "2026-06-11T01:18:50",
+  "phase": "C-wave2a",
+  "kind": "gate_result",
+  "family": "forecast_battery",
+  "organ": "M6",
+  "pass": true,
+  "power_pair": {
+   "p_pass_null": "~1%",
+   "p_pass_effect": "~89% at true IC 0.03",
+   "note": "forecast-altitude verdict line, never a roster gate"
+  },
+  "note": "forecast-altitude only; report row, not a roster gate"
+ },
+ {
+  "ts": "2026-06-11T01:18:50",
+  "phase": "C-wave2a",
+  "kind": "multiplicity",
+  "family": "acceptance BH-FDR(10%)",
+  "result": {
+   "M4": {
+    "p": 0.0,
+    "bh_threshold_10pct": 0.02,
+    "rejected": true
+   },
+   "M3": {
+    "p": 2.054710943195078e-11,
+    "bh_threshold_10pct": 0.04,
+    "rejected": true
+   },
+   "M1": {
+    "p": 1.5854104251644685e-08,
+    "bh_threshold_10pct": 0.06000000000000001,
+    "rejected": true
+   },
+   "M2": {
+    "p": 0.07400407418332589,
+    "bh_threshold_10pct": 0.08,
+    "rejected": true
+   },
+   "M5": {
+    "p": 0.1796417236328125,
+    "bh_threshold_10pct": 0.1,
+    "rejected": false
+   }
+  }
+ },
+ {
+  "ts": "2026-06-11T01:23:55",
+  "phase": "C-wave2a",
+  "kind": "build_artifact",
+  "component": "crossfit_masks",
+  "decision": "store/rotation_masks_007.json written",
+  "provenance": "TOURNAMENT \u00a74.4.6 frozen rule text"
+ },
+ {
+  "ts": "2026-06-11T01:23:55",
+  "phase": "C-wave2a",
+  "kind": "deviation",
+  "component": "crossfit_masks per-rotation C2",
+  "decision": "rotation demotion keys on SIGNAL space; book-space breaches recorded with instrument-artifact flag (fold-invariant market-beta loading of the long-only solo-book rule; demoting on it zeroes every rotation roster mechanically)",
+  "provenance": "designs/c2_gate_matrix.json measurement_validity_finding; mirrors the production C2 escalation disposition"
+ },
+ {
+  "ts": "2026-06-11T01:23:55",
+  "phase": "C-wave2a",
+  "kind": "build_artifact",
+  "component": "crossfit_masks",
+  "decision": "EA contract files written: 6 rotation files + roster_007.json (roster=['M1'], demotions=[])",
+  "provenance": "TOURNAMENT \u00a74.4.1 mechanical map + \u00a74.4.6"
+ }
+]
