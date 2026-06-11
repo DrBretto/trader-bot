@@ -1,0 +1,113 @@
+{
+ "book_overlap_vs_chassis": 0.9799,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.030878,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.7859,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "FXI": 0.00114,
+  "GLD": -0.003099,
+  "KRE": -0.005012,
+  "SLV": -0.000267,
+  "SMH": -0.005694,
+  "SOXX": 0.00726,
+  "USO": 0.005671
+ },
+ "conviction": {
+  "agree": 0.5992,
+  "c": 0.7719486100366452,
+  "disp_forecast_z": 0.083837,
+  "organ_q": {
+   "M1": 0.5992
+  }
+ },
+ "date": "2026-02-20",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "FXI",
+   "GLD",
+   "SLV"
+  ],
+  "rounding_absorber": "SOXX",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {
+  "FXE": 0.986437,
+  "SOXX": 0.995875,
+  "USO": 0.987375
+ },
+ "marks_source": "features",
+ "nav": 104288.67,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "FXI": 0.0011404,
+   "GLD": -0.0030987,
+   "KRE": -0.00501236,
+   "SLV": -0.0002669,
+   "SMH": -0.00569354,
+   "SOXX": 0.00725984,
+   "USO": 0.00567128
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.5659,
+   "FXE": -0.7916,
+   "FXI": 0.7916,
+   "ITA": 0.5659,
+   "IYR": -0.18,
+   "MUB": -1.0676,
+   "RSP": 0.18,
+   "SHY": -0.3661,
+   "SOXX": 1.4652,
+   "TLT": -1.4652,
+   "USO": 1.0676,
+   "XRT": 0.3661
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 0.0,
+  "cash_resid": 0.0,
+  "clipped": [
+   "AGG",
+   "FXE",
+   "IYR",
+   "MUB",
+   "RSP",
+   "SHY",
+   "TLT",
+   "XRT"
+  ],
+  "eps_sigma": 6.590531183822961e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": -1.996255322144055e-05
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "FXI": 0.0011404,
+  "GLD": -0.0030987,
+  "KRE": -0.00501236,
+  "SLV": -0.0002669,
+  "SMH": -0.00569354,
+  "SOXX": 0.00725984,
+  "USO": 0.00567128
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

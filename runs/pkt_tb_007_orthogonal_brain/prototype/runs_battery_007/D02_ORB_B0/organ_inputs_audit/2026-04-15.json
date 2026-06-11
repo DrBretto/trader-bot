@@ -1,0 +1,87 @@
+{
+ "date": "2026-04-15",
+ "schema_version": "organ_inputs_007.v1",
+ "organs": {
+  "M1": {
+   "mu": {
+    "ITA": 0.079493,
+    "SOXX": 0.109164,
+    "XRT": 0.092627,
+    "TLT": -0.100092,
+    "AGG": -0.062528,
+    "MUB": -0.099052,
+    "FXE": -0.106666,
+    "USO": 0.078264,
+    "FXI": -0.1505,
+    "RSP": 0.162604,
+    "IYR": 0.006781,
+    "SHY": -0.060857,
+    "KRE": 0.137583
+   },
+   "q": 0.0238
+  },
+  "M2": {
+   "mu": {
+    "ITA": 0.048988,
+    "SOXX": 0.020875,
+    "XRT": 0.032918,
+    "TLT": 0.03052,
+    "AGG": -0.12478,
+    "MUB": -0.12478,
+    "FXE": -0.044423,
+    "USO": -0.180445,
+    "FXI": 0.051387,
+    "RSP": 0.03052,
+    "IYR": 0.03052,
+    "SHY": -0.12478,
+    "KRE": 0.048988
+   },
+   "q": 0.6627
+  }
+ },
+ "disp_z": 1.193088,
+ "p_exceed": {
+  "ITA": 0.2939,
+  "SOXX": 0.2632,
+  "XRT": 0.2286,
+  "TLT": 0.2579,
+  "AGG": 0.2579,
+  "MUB": 0.2579,
+  "FXE": 0.2294,
+  "USO": 0.3241,
+  "FXI": 0.2265,
+  "RSP": 0.2802,
+  "IYR": 0.2453,
+  "SHY": 0.2579,
+  "KRE": 0.2051
+ },
+ "manifest": {
+  "schema": "organ_inputs_007.v1",
+  "generated": "2026-06-11T01:24:21",
+  "code_sha": "d3aa8d8ed5ce",
+  "seeds": {
+   "m1": [
+    4242,
+    4243
+   ],
+   "master": 4242
+  },
+  "roster": {
+   "M1": "SHIPS",
+   "M2": "CHALLENGER (OPEN)",
+   "M3": "B-disp constant (LOO control arm)",
+   "M4": "CHALLENGER (M4-A trained)",
+   "M5": "DISABLED (tally printed)",
+   "M6": "forecast-altitude line only (never a roster member)"
+  },
+  "m4_variant_shipped": "M4-A",
+  "emission_policy": "all organs emitted; genome/arm config decides what is listened to (ledgered)",
+  "deploy_cutoffs": {
+   "m1": "2026-03-03",
+   "m2": "~2026-02-06 (h=21)",
+   "m3": "2026-03-03",
+   "m4": "2026-03-03",
+   "m5": "rule (no training)"
+  }
+ }
+}

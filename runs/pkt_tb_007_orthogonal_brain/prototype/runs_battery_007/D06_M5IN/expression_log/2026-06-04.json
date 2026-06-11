@@ -1,0 +1,124 @@
+{
+ "book_overlap_vs_chassis": 0.9593,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.027687,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.8919,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "DBC": -0.000818,
+  "EWZ": -0.003106,
+  "RSP": 0.008525,
+  "SOXX": 0.001914,
+  "VUG": -0.00469,
+  "XBI": -0.000698,
+  "XLE": -0.000199,
+  "XLF": -0.001151,
+  "XRT": 0.000224
+ },
+ "conviction": {
+  "agree": 0.3492,
+  "c": 0.6921661002185234,
+  "disp_forecast_z": 0.455161,
+  "organ_q": {
+   "M1": 0.3492
+  }
+ },
+ "date": "2026-06-04",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "DBC",
+   "SOXX",
+   "XBI",
+   "XLE",
+   "XLF",
+   "XRT"
+  ],
+  "rounding_absorber": "RSP",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {},
+ "marks_source": "features",
+ "nav": 110443.14,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "DBC": -0.00081844,
+   "EWZ": -0.00310564,
+   "RSP": 0.00852451,
+   "SOXX": 0.00191413,
+   "VUG": -0.00469029,
+   "XBI": -0.00069758,
+   "XLE": -0.00019915,
+   "XLF": -0.0011515,
+   "XRT": 0.00022395
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.7916,
+   "FXE": -0.3661,
+   "ITA": 0.18,
+   "IYR": 0.3661,
+   "KRE": 1.0676,
+   "MUB": -1.4652,
+   "RSP": 1.4652,
+   "SHY": -0.5659,
+   "SOXX": 0.5659,
+   "TLT": -1.0676,
+   "USO": -0.18,
+   "XRT": 0.7916
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 1.734723475976807e-18,
+  "cash_resid": 2.710505431213761e-20,
+  "clipped": [
+   "AGG",
+   "DBC",
+   "FXE",
+   "FXI",
+   "ITA",
+   "KRE",
+   "MUB",
+   "RSP",
+   "SHY",
+   "TLT",
+   "USO",
+   "XBI",
+   "XLE",
+   "XLF"
+  ],
+  "eps_sigma": 2.3945040723608813e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": -1.9325239147271304e-05
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "DBC": -0.00081844,
+  "EWZ": -0.00310564,
+  "RSP": 0.00852451,
+  "SOXX": 0.00191413,
+  "VUG": -0.00469029,
+  "XBI": -0.00069758,
+  "XLE": -0.00019915,
+  "XLF": -0.0011515,
+  "XRT": 0.00022395
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

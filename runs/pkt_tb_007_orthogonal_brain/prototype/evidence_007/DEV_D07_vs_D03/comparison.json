@@ -1,0 +1,166 @@
+{
+ "a": "R-LLM width (deviation: a-priori genome, instrument-failed EA)",
+ "b": "apriori (deviation: a-priori genome, instrument-failed EA)",
+ "run_dir_a": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/D07_RLLM",
+ "run_dir_b": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/D03_APRIORI",
+ "holdout_start": "2026-03-11",
+ "manifest_a": {
+  "arm": "orb1",
+  "window": "live",
+  "n_decision_dates": 67,
+  "first_date": "2026-02-02",
+  "last_date": "2026-06-10",
+  "start_value": 100769.82,
+  "final_value_raw": 109662.86,
+  "final_value_cost_adjusted": 109291.98397803213,
+  "n_executed_actions": 238,
+  "actions_per_decision_date": 3.552,
+  "total_traded_dollars": 1058631.82,
+  "total_cost_dollars": 370.876,
+  "cost_drag_bps_of_start_nav": 36.804,
+  "cost_bps_of_traded": 3.503,
+  "sha256_timeline": "a595c31927937f77eddca66015e4380deba686e7751a9d8deb8e0aaf4ab1e5f3",
+  "sha256_daily_series": "3051063c0d434384099ab7192c4a6a56c029afa86f1be815a93011d21a8c7b2d"
+ },
+ "manifest_b": {
+  "arm": "orb1",
+  "window": "live",
+  "n_decision_dates": 67,
+  "first_date": "2026-02-02",
+  "last_date": "2026-06-10",
+  "start_value": 100766.47,
+  "final_value_raw": 109635.0,
+  "final_value_cost_adjusted": 109286.5366010158,
+  "n_executed_actions": 246,
+  "actions_per_decision_date": 3.672,
+  "total_traded_dollars": 1065404.41,
+  "total_cost_dollars": 348.4634,
+  "cost_drag_bps_of_start_nav": 34.581,
+  "cost_bps_of_traded": 3.271,
+  "sha256_timeline": "38d3c6096eafe35af654b539c1836bf32ae9b252e836a890c9c33ab1c25bc9a0",
+  "sha256_daily_series": "6f86c4e397fe63feb668460f1493d89ec51ba0cbddd3ed4e424a8cf429f3c481"
+ },
+ "genome_a": "952a2f5a565e",
+ "genome_b": "952a2f5a565e",
+ "full_period": {
+  "metrics_a": {
+   "window_start": "2026-02-02",
+   "window_end": "2026-06-10",
+   "n_days": 67,
+   "total_return": 0.08457267996257345,
+   "cagr": 0.3634021560634144,
+   "sharpe": 3.563481380243368,
+   "max_drawdown": 0.026920809885134567,
+   "win_rate": 0.5757575757575758,
+   "realized_round_trips": 157,
+   "cumulative_transaction_costs": 370.68261979400995,
+   "avg_gross_exposure": 0.3464896033716967
+  },
+  "metrics_b": {
+   "window_start": "2026-02-02",
+   "window_end": "2026-06-10",
+   "n_days": 67,
+   "total_return": 0.08455586296238038,
+   "cagr": 0.36332143981625564,
+   "sharpe": 3.548242997416904,
+   "max_drawdown": 0.02750401856324236,
+   "win_rate": 0.5606060606060606,
+   "realized_round_trips": 164,
+   "cumulative_transaction_costs": 348.15983923383465,
+   "avg_gross_exposure": 0.3467927517378129
+  },
+  "delta": {
+   "total_return": 1.6817000193070086e-05,
+   "cagr": 8.071624715877412e-05,
+   "sharpe": 0.015238382826463948,
+   "max_drawdown": -0.0005832086781077939,
+   "win_rate": 0.015151515151515249,
+   "realized_round_trips": -7,
+   "cumulative_transaction_costs": 22.522780560175306,
+   "avg_gross_exposure": -0.00030314836611616824
+  },
+  "paired_daily": {
+   "n": 66,
+   "mean": 1.078743296356599e-07,
+   "sd": 0.00014773429484709398,
+   "t": 0.005932103969098811,
+   "mean_bp_day": 0.001078743296356599,
+   "sd_bp_day": 1.47734294847094,
+   "first_date": "2026-02-03",
+   "last_date": "2026-06-10",
+   "hac_t": 0.010181519162787507,
+   "hac_se": 1.0595111388674728e-05,
+   "ci95": [
+    -2.0658543992166808e-05,
+    2.0874292651438128e-05
+   ],
+   "mde": 2.1190222777349457e-05,
+   "ci90": [
+    -1.7321083904734268e-05,
+    1.7536832564005587e-05
+   ]
+  }
+ },
+ "holdout_only": {
+  "metrics_a": {
+   "window_start": "2026-03-11",
+   "window_end": "2026-06-10",
+   "n_days": 45,
+   "total_return": 0.03478954645802723,
+   "cagr": 0.2163586342558741,
+   "sharpe": 2.4596202353419976,
+   "max_drawdown": 0.018680789891103,
+   "win_rate": 0.6136363636363636,
+   "realized_round_trips": 110,
+   "cumulative_transaction_costs": 128.0817467476445,
+   "avg_gross_exposure": 0.2963642621582231
+  },
+  "metrics_b": {
+   "window_start": "2026-03-11",
+   "window_end": "2026-06-10",
+   "n_days": 45,
+   "total_return": 0.034575584027617845,
+   "cagr": 0.21491889864239644,
+   "sharpe": 2.426738281591185,
+   "max_drawdown": 0.01919854771285734,
+   "win_rate": 0.5909090909090909,
+   "realized_round_trips": 116,
+   "cumulative_transaction_costs": 114.85676267574308,
+   "avg_gross_exposure": 0.2969322882641436
+  },
+  "delta": {
+   "total_return": 0.00021396243040938678,
+   "cagr": 0.001439735613477655,
+   "sharpe": 0.03288195375081271,
+   "max_drawdown": -0.0005177578217543388,
+   "win_rate": 0.022727272727272707,
+   "realized_round_trips": -6,
+   "cumulative_transaction_costs": 13.224984071901417,
+   "avg_gross_exposure": -0.0005680261059204939
+  },
+  "paired_daily": {
+   "n": 44,
+   "mean": 4.506606499128778e-06,
+   "sd": 0.000178479624392262,
+   "t": 0.1674894026282507,
+   "mean_bp_day": 0.04506606499128778,
+   "sd_bp_day": 1.7847962439226202,
+   "first_date": "2026-03-12",
+   "last_date": "2026-06-10",
+   "hac_t": 0.29731475006982655,
+   "hac_se": 1.5157695667875101e-05,
+   "ci95": [
+    -2.5202477009906418e-05,
+    3.421569000816397e-05
+   ],
+   "mde": 3.0315391335750203e-05,
+   "ci90": [
+    -2.0427802874525763e-05,
+    2.944101587278332e-05
+   ]
+  }
+ },
+ "cmp_id": "DEV_D07_vs_D03",
+ "label": "**R-LLM FALSIFIER ARM** (TOURNAMENT \u00a74.4.9) (deviation: a-priori genome, instrument-failed EA) \u2014 llm_disag 252d-z \u2192 T_t \u00d7 clip(1+0.25\u00b7tanh z, 0.75, 1.25) on top of the a-priori genome. KILL pre-registered at E1 paired t < +2.0 vs the unconditioned arm; expected effect O(0.1\u20130.5) bp/day; expected outcome: not promoted.",
+ "generated": "2026-06-11T01:57:50"
+}

@@ -1,0 +1,127 @@
+{
+ "book_overlap_vs_chassis": 0.8481,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.029227,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.9014,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "FXI": 0.002036,
+  "RSP": 0.010231,
+  "SOXX": 0.005008,
+  "USO": 0.000384,
+  "VUG": -0.00532,
+  "XBI": -0.005432,
+  "XLF": -0.001054,
+  "XRT": -0.005851
+ },
+ "conviction": {
+  "agree": 0.3929,
+  "c": 0.7306725957025579,
+  "disp_forecast_z": 0.906277,
+  "organ_q": {
+   "M1": 0.3929
+  }
+ },
+ "date": "2026-05-28",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "FXI",
+   "SOXX",
+   "USO",
+   "XLF"
+  ],
+  "rounding_absorber": "XRT",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {
+  "AGG": 0.98575,
+  "FXI": 0.988063,
+  "ITA": 0.961313,
+  "IYR": 0.996437,
+  "MUB": 0.98575,
+  "RSP": 0.997938,
+  "SHY": 0.98575,
+  "SOXX": 0.948937,
+  "TLT": 0.98575,
+  "USO": 0.954438,
+  "XRT": 0.995437
+ },
+ "marks_source": "features",
+ "nav": 109852.26,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "FXI": 0.00203572,
+   "RSP": 0.01023057,
+   "SOXX": 0.00500768,
+   "USO": 0.00038391,
+   "VUG": -0.00532044,
+   "XBI": -0.00543248,
+   "XLF": -0.0010536,
+   "XRT": -0.00585137
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.7916,
+   "FXE": -0.3661,
+   "FXI": 0.5659,
+   "ITA": 0.3661,
+   "IYR": 0.18,
+   "KRE": 0.7916,
+   "MUB": -1.0676,
+   "RSP": 1.4652,
+   "SHY": -0.5659,
+   "SOXX": 1.0676,
+   "TLT": -1.4652,
+   "XRT": -0.18
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": -8.673617379884035e-19,
+  "cash_resid": -2.6020852139652106e-18,
+  "clipped": [
+   "AGG",
+   "FXE",
+   "ITA",
+   "IYR",
+   "KRE",
+   "MUB",
+   "RSP",
+   "SHY",
+   "TLT",
+   "XLF"
+  ],
+  "eps_sigma": 5.039265499741363e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": 3.337321046450931e-05
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "FXI": 0.00203572,
+  "RSP": 0.01023057,
+  "SOXX": 0.00500768,
+  "USO": 0.00038391,
+  "VUG": -0.00532044,
+  "XBI": -0.00543248,
+  "XLF": -0.0010536,
+  "XRT": -0.00585137
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

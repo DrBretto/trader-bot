@@ -1,0 +1,115 @@
+{
+ "book_overlap_vs_chassis": 0.9506,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.033138,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.6015,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "ARKK": -0.006695,
+  "DBC": -0.003776,
+  "ITA": 0.011608,
+  "RSP": 0.005477,
+  "SOXX": 0.004604,
+  "VUG": -0.004159,
+  "XBI": -0.003859,
+  "XLF": -0.00278,
+  "XRT": -0.00042
+ },
+ "conviction": {
+  "agree": 0.9643,
+  "c": 0.9087339593005374,
+  "disp_forecast_z": 1.898076,
+  "organ_q": {
+   "M1": 0.9643
+  }
+ },
+ "date": "2026-04-30",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "XRT"
+  ],
+  "rounding_absorber": "ARKK",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {},
+ "marks_source": "prices_fallback",
+ "nav": 108117.89,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "ARKK": -0.00669539,
+   "DBC": -0.00377625,
+   "ITA": 0.01160817,
+   "RSP": 0.00547671,
+   "SOXX": 0.00460404,
+   "VUG": -0.00415894,
+   "XBI": -0.00385855,
+   "XLF": -0.00278014,
+   "XRT": -0.00041965
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.3661,
+   "FXI": -0.18,
+   "ITA": 1.4652,
+   "IYR": 0.18,
+   "KRE": 0.3661,
+   "MUB": -0.7916,
+   "RSP": 0.7916,
+   "SHY": -0.5659,
+   "SOXX": 1.0676,
+   "TLT": -1.0676,
+   "USO": -1.4652,
+   "XRT": 0.5659
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 1.734723475976807e-18,
+  "cash_resid": 2.168404344971009e-19,
+  "clipped": [
+   "AGG",
+   "DBC",
+   "FXE",
+   "FXI",
+   "IYR",
+   "KRE",
+   "MUB",
+   "SHY",
+   "TLT",
+   "USO"
+  ],
+  "eps_sigma": 7.511122357740359e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": -2.0679816543910594e-05
+ },
+ "rllm": {
+  "g": 0.91166,
+  "z": -0.369278
+ },
+ "tilt": {
+  "ARKK": -0.00669539,
+  "DBC": -0.00377625,
+  "ITA": 0.01160817,
+  "RSP": 0.00547671,
+  "SOXX": 0.00460404,
+  "VUG": -0.00415894,
+  "XBI": -0.00385855,
+  "XLF": -0.00278014,
+  "XRT": -0.00041965
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

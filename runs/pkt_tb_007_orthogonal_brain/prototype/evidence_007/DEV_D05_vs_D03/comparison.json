@@ -1,0 +1,166 @@
+{
+ "a": "M4A-in (deviation: a-priori genome, instrument-failed EA)",
+ "b": "apriori (deviation: a-priori genome, instrument-failed EA)",
+ "run_dir_a": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/D05_M4AIN",
+ "run_dir_b": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/D03_APRIORI",
+ "holdout_start": "2026-03-11",
+ "manifest_a": {
+  "arm": "orb1",
+  "window": "live",
+  "n_decision_dates": 67,
+  "first_date": "2026-02-02",
+  "last_date": "2026-06-10",
+  "start_value": 100766.47,
+  "final_value_raw": 109695.73,
+  "final_value_cost_adjusted": 109347.3541586113,
+  "n_executed_actions": 247,
+  "actions_per_decision_date": 3.687,
+  "total_traded_dollars": 1066436.85,
+  "total_cost_dollars": 348.3758,
+  "cost_drag_bps_of_start_nav": 34.573,
+  "cost_bps_of_traded": 3.267,
+  "sha256_timeline": "67e5ba0f2e059bc7d4c3cce382d7fbadf93f1a3b95b974cfe99c13a3ddd444ab",
+  "sha256_daily_series": "586951dd3e849554bb634c07ec76543b8c553312032158aacef16f91bd29bdbc"
+ },
+ "manifest_b": {
+  "arm": "orb1",
+  "window": "live",
+  "n_decision_dates": 67,
+  "first_date": "2026-02-02",
+  "last_date": "2026-06-10",
+  "start_value": 100766.47,
+  "final_value_raw": 109635.0,
+  "final_value_cost_adjusted": 109286.5366010158,
+  "n_executed_actions": 246,
+  "actions_per_decision_date": 3.672,
+  "total_traded_dollars": 1065404.41,
+  "total_cost_dollars": 348.4634,
+  "cost_drag_bps_of_start_nav": 34.581,
+  "cost_bps_of_traded": 3.271,
+  "sha256_timeline": "38d3c6096eafe35af654b539c1836bf32ae9b252e836a890c9c33ab1c25bc9a0",
+  "sha256_daily_series": "6f86c4e397fe63feb668460f1493d89ec51ba0cbddd3ed4e424a8cf429f3c481"
+ },
+ "genome_a": "c9b8ee96c859",
+ "genome_b": "952a2f5a565e",
+ "full_period": {
+  "metrics_a": {
+   "window_start": "2026-02-02",
+   "window_end": "2026-06-10",
+   "n_days": 67,
+   "total_return": 0.08515941433030472,
+   "cagr": 0.3662205032421768,
+   "sharpe": 3.5720571157996686,
+   "max_drawdown": 0.02750401856324236,
+   "win_rate": 0.5606060606060606,
+   "realized_round_trips": 163,
+   "cumulative_transaction_costs": 348.07228163833497,
+   "avg_gross_exposure": 0.34734427192270784
+  },
+  "metrics_b": {
+   "window_start": "2026-02-02",
+   "window_end": "2026-06-10",
+   "n_days": 67,
+   "total_return": 0.08455586296238038,
+   "cagr": 0.36332143981625564,
+   "sharpe": 3.548242997416904,
+   "max_drawdown": 0.02750401856324236,
+   "win_rate": 0.5606060606060606,
+   "realized_round_trips": 164,
+   "cumulative_transaction_costs": 348.15983923383465,
+   "avg_gross_exposure": 0.3467927517378129
+  },
+  "delta": {
+   "total_return": 0.0006035513679243376,
+   "cagr": 0.0028990634259211667,
+   "sharpe": 0.023814118382764704,
+   "max_drawdown": 0.0,
+   "win_rate": 0.0,
+   "realized_round_trips": -1,
+   "cumulative_transaction_costs": -0.08755759549967479,
+   "avg_gross_exposure": 0.0005515201848949602
+  },
+  "paired_daily": {
+   "n": 66,
+   "mean": 8.441820911778395e-06,
+   "sd": 2.35409985310489e-05,
+   "t": 2.9132866731159384,
+   "mean_bp_day": 0.08441820911778394,
+   "sd_bp_day": 0.235409985310489,
+   "first_date": "2026-02-03",
+   "last_date": "2026-06-10",
+   "hac_t": 1.8424908205885897,
+   "hac_se": 4.5817438097638e-06,
+   "ci95": [
+    -5.383969553586531e-07,
+    1.7422038778915443e-05
+   ],
+   "mde": 9.1634876195276e-06,
+   "ci90": [
+    9.048523447169443e-07,
+    1.5978789478839845e-05
+   ]
+  }
+ },
+ "holdout_only": {
+  "metrics_a": {
+   "window_start": "2026-03-11",
+   "window_end": "2026-06-10",
+   "n_days": 45,
+   "total_return": 0.0351513215532584,
+   "cagr": 0.21879619265794958,
+   "sharpe": 2.46501587405128,
+   "max_drawdown": 0.01919854771285734,
+   "win_rate": 0.5909090909090909,
+   "realized_round_trips": 115,
+   "cumulative_transaction_costs": 114.76920508024341,
+   "avg_gross_exposure": 0.29775344053943165
+  },
+  "metrics_b": {
+   "window_start": "2026-03-11",
+   "window_end": "2026-06-10",
+   "n_days": 45,
+   "total_return": 0.034575584027617845,
+   "cagr": 0.21491889864239644,
+   "sharpe": 2.426738281591185,
+   "max_drawdown": 0.01919854771285734,
+   "win_rate": 0.5909090909090909,
+   "realized_round_trips": 116,
+   "cumulative_transaction_costs": 114.85676267574308,
+   "avg_gross_exposure": 0.2969322882641436
+  },
+  "delta": {
+   "total_return": 0.0005757375256405517,
+   "cagr": 0.0038772940155531455,
+   "sharpe": 0.0382775924600951,
+   "max_drawdown": 0.0,
+   "win_rate": 0.0,
+   "realized_round_trips": -1,
+   "cumulative_transaction_costs": -0.08755759549967479,
+   "avg_gross_exposure": 0.0008211522752880618
+  },
+  "paired_daily": {
+   "n": 44,
+   "mean": 1.2662731367667591e-05,
+   "sd": 2.7982505556071342e-05,
+   "t": 3.00169894961426,
+   "mean_bp_day": 0.1266273136766759,
+   "sd_bp_day": 0.2798250555607134,
+   "first_date": "2026-03-12",
+   "last_date": "2026-06-10",
+   "hac_t": 2.1780261200602182,
+   "hac_se": 5.81385652405192e-06,
+   "ci95": [
+    1.2675725805258275e-06,
+    2.4057890154809357e-05
+   ],
+   "mde": 1.162771304810384e-05,
+   "ci90": [
+    3.0989373856021825e-06,
+    2.2226525349733002e-05
+   ]
+  }
+ },
+ "cmp_id": "DEV_D05_vs_D03",
+ "label": "**CHALLENGER-IN ARM (M4-A)** (deviation: a-priori genome, instrument-failed EA) \u2014 event_damp_strength 0.5 (mid-range, value-blind), trust M4:+1; the adapter's M4 damp pathway with M4-A exceedance scores.",
+ "generated": "2026-06-11T01:57:50"
+}

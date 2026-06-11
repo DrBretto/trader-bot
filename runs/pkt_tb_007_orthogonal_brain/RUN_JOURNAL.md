@@ -106,3 +106,22 @@
   this adjudication. Deviation battery: incumbent / B0-hash-check / apriori pair (the M1 attribution
   IS apriori-vs-B0 since roster=[M1]) / challenger-in arms (M2, M4-A, M5 at apriori trust) /
   LLM-width falsifier / cost-seed sensitivity x2; PERM-DESC contingency cut (not run, reported).
+- 2026-06-11 :: PHASE D EXECUTED (battery executor; PKT_TB_007_HOLDOUT_AUTHORIZED=1; every replay
+  ledgered in holdout_looks_007.jsonl BEFORE its run; registered E2 look 1/1 in ledgers/looks_holdout.json).
+  9 arms (D01-D09, 37.2s wall): REGISTERED VERDICT = `TIES (degenerate: brain ships neutral;
+  evolution = instrument-failed)` -- D02(ORB-1@B0) sha256-equal to D01 on timeline + daily_series
+  (raw & cost-adj) + cost_overlay; E1/E2 paired deltas identically 0. DEVIATION BATTERY (labeled,
+  never averaged into the registered verdict): D03 apriori-vs-incumbent (the M1 utility read,
+  roster=[M1]) full n=66 mean -1.98bp/day t=-1.26 (HAC -0.96) MDE 4.13bp; holdout n=44 -3.13bp/day
+  t=-1.33, dSharpe -0.42 -> TIES (straddling), negative-pointing, uncertifiable; exposure-parity
+  beta-gap trigger FIRED and disclosed (21d |dBeta| mean .069 max .217; gross gap mean 4.4pp --
+  path divergence, projection exact ex-ante). Challenger-ins vs D03: M2 -0.05bp HAC t -0.14
+  (indeterminate, stays OPEN); M4-A +0.08bp HAC t +1.84<+2 (indeterminate; multiplicity +
+  width-of-losing-tilt cautions printed); M5 degenerate (0 live episodes -- timeline sha = D03).
+  R-LLM falsifier KILLED at the pre-registered bar (t +0.01 < +2.0, MDE 0.21bp printed; expected
+  zero realized). Cost-seed 4243/4244: raw byte-identical to D03, cost-adj spread +-0.02bp/day.
+  Caps: replays 10/18, retrains 0/9, EA 0/3, remediation 1/4. R-LLM conditioner pathway added to
+  tilt_adapter/run_replay (BUILD_SPEC 2.6 implementation, default OFF -- B0-EXPR chain untouched,
+  41/41 tests green). Artifacts: prototype/evidence_007/ (8 comparisons + scorecard + final line),
+  BAKEOFF_007.md, ATTRIBUTION_007.md, COST_WORKSHEET_007.md (Bedrock this run $0 confirmed;
+  one-time compute ~$0). PERM-DESC: cut, reported not-run. Packet stop condition met.

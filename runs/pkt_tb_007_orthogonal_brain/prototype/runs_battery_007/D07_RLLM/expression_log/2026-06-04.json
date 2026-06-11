@@ -1,0 +1,122 @@
+{
+ "book_overlap_vs_chassis": 0.9614,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.024534,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.8919,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "DBC": -0.000839,
+  "EWZ": -0.003244,
+  "RSP": 0.008154,
+  "SOXX": 0.001651,
+  "VUG": -0.004729,
+  "XBI": 8.6e-05,
+  "XLE": -0.000274,
+  "XLF": -0.000806
+ },
+ "conviction": {
+  "agree": 0.3492,
+  "c": 0.6921661002185234,
+  "disp_forecast_z": 0.455161,
+  "organ_q": {
+   "M1": 0.3492
+  }
+ },
+ "date": "2026-06-04",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "DBC",
+   "SOXX",
+   "XBI",
+   "XLE",
+   "XLF"
+  ],
+  "rounding_absorber": "RSP",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {},
+ "marks_source": "features",
+ "nav": 110477.24,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "DBC": -0.00083906,
+   "EWZ": -0.00324352,
+   "RSP": 0.00815438,
+   "SOXX": 0.00165059,
+   "VUG": -0.00472871,
+   "XBI": 8.578e-05,
+   "XLE": -0.00027367,
+   "XLF": -0.0008058
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.7916,
+   "FXE": -0.3661,
+   "ITA": 0.18,
+   "IYR": 0.3661,
+   "KRE": 1.0676,
+   "MUB": -1.4652,
+   "RSP": 1.4652,
+   "SHY": -0.5659,
+   "SOXX": 0.5659,
+   "TLT": -1.0676,
+   "USO": -0.18,
+   "XRT": 0.7916
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": -1.734723475976807e-18,
+  "cash_resid": -1.0842021724855044e-18,
+  "clipped": [
+   "AGG",
+   "DBC",
+   "FXE",
+   "FXI",
+   "ITA",
+   "IYR",
+   "KRE",
+   "MUB",
+   "RSP",
+   "SHY",
+   "SOXX",
+   "TLT",
+   "USO",
+   "XBI",
+   "XLE",
+   "XLF"
+  ],
+  "eps_sigma": 2.155498628761e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": -1.876567878865712e-05
+ },
+ "rllm": {
+  "g": 0.88612,
+  "z": -0.491646
+ },
+ "tilt": {
+  "DBC": -0.00083906,
+  "EWZ": -0.00324352,
+  "RSP": 0.00815438,
+  "SOXX": 0.00165059,
+  "VUG": -0.00472871,
+  "XBI": 8.578e-05,
+  "XLE": -0.00027367,
+  "XLF": -0.0008058
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

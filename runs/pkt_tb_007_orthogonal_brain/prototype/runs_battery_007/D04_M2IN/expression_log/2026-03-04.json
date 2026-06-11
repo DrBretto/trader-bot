@@ -1,0 +1,15 @@
+{
+ "channel": "tilt",
+ "conviction": {
+  "agree": 0.3128931093873719,
+  "c": 0.7336125529165599,
+  "disp_forecast_z": 1.510843,
+  "organ_q": {
+   "M1": 0.6944,
+   "M2": 0.0675
+  }
+ },
+ "date": "2026-03-04",
+ "neutral": true,
+ "neutral_reason": "no_tilt_capacity"
+}

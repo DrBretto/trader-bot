@@ -1,0 +1,128 @@
+{
+ "book_overlap_vs_chassis": 0.9477,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.036349,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.6208,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "ARKK": -0.007117,
+  "DBC": -0.003785,
+  "FXI": -0.00042,
+  "ITA": 0.011706,
+  "RSP": 0.006051,
+  "SOXX": 0.005182,
+  "VUG": -0.00438,
+  "XBI": -0.004056,
+  "XLF": -0.002892,
+  "XRT": -0.000287
+ },
+ "conviction": {
+  "agree": 0.9643,
+  "c": 0.9087339593005374,
+  "disp_forecast_z": 1.898076,
+  "organ_q": {
+   "M1": 0.9643
+  }
+ },
+ "date": "2026-04-30",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "FXI",
+   "XRT"
+  ],
+  "rounding_absorber": "ARKK",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {
+  "ITA": 0.947625,
+  "IYR": 0.988688,
+  "KRE": 0.990375,
+  "RSP": 0.974688,
+  "SOXX": 0.979313,
+  "USO": 0.914875,
+  "XRT": 0.989
+ },
+ "marks_source": "prices_fallback",
+ "nav": 108117.7,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "ARKK": -0.00711724,
+   "DBC": -0.00378543,
+   "FXI": -0.00042049,
+   "ITA": 0.01170569,
+   "RSP": 0.00605117,
+   "SOXX": 0.00518215,
+   "VUG": -0.00438024,
+   "XBI": -0.00405611,
+   "XLF": -0.00289243,
+   "XRT": -0.00028707
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.3661,
+   "FXI": -0.18,
+   "ITA": 1.4652,
+   "IYR": 0.18,
+   "KRE": 0.3661,
+   "MUB": -0.7916,
+   "RSP": 0.7916,
+   "SHY": -0.5659,
+   "SOXX": 1.0676,
+   "TLT": -1.0676,
+   "USO": -1.4652,
+   "XRT": 0.5659
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 6.938893903907228e-18,
+  "cash_resid": 7.589415207398531e-19,
+  "clipped": [
+   "AGG",
+   "DBC",
+   "FXE",
+   "FXI",
+   "ITA",
+   "IYR",
+   "KRE",
+   "MUB",
+   "SHY",
+   "TLT",
+   "USO"
+  ],
+  "eps_sigma": 7.919979160516455e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": -2.2779339919244235e-05
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "ARKK": -0.00711724,
+  "DBC": -0.00378543,
+  "FXI": -0.00042049,
+  "ITA": 0.01170569,
+  "RSP": 0.00605117,
+  "SOXX": 0.00518215,
+  "VUG": -0.00438024,
+  "XBI": -0.00405611,
+  "XLF": -0.00289243,
+  "XRT": -0.00028707
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

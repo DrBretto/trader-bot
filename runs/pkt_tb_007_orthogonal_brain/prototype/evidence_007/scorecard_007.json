@@ -1,0 +1,321 @@
+{
+ "generated": "2026-06-11T01:57:50",
+ "registered_verdict": {
+  "cell": "TIES (degenerate: brain ships neutral; evolution = instrument-failed)",
+  "claim": "registered TIES (straddling) permitted claim, quoted: \"no certifiable difference at available power; MDE \u27e8printed\u27e9\" \u2014 here the pair is DEGENERATE: paired deltas identically zero (sha256-equal series), MDE n/a.",
+  "paired_full": {
+   "n": 66,
+   "mean": 0.0,
+   "sd": 0.0,
+   "t": NaN,
+   "mean_bp_day": 0.0,
+   "sd_bp_day": 0.0,
+   "first_date": "2026-02-03",
+   "last_date": "2026-06-10",
+   "hac_t": NaN,
+   "hac_se": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "mde": 0.0,
+   "ci90": [
+    0.0,
+    0.0
+   ]
+  },
+  "paired_holdout": {
+   "n": 44,
+   "mean": 0.0,
+   "sd": 0.0,
+   "t": NaN,
+   "mean_bp_day": 0.0,
+   "sd_bp_day": 0.0,
+   "first_date": "2026-03-12",
+   "last_date": "2026-06-10",
+   "hac_t": NaN,
+   "hac_se": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "mde": 0.0,
+   "ci90": [
+    0.0,
+    0.0
+   ]
+  },
+  "hash_equality": {
+   "sha256_timeline.json": {
+    "D01": "4f06fcb1974f81a4df52e75388a2524f263e4e9fefe9bd5e754b4c3ec2b35874",
+    "D02": "4f06fcb1974f81a4df52e75388a2524f263e4e9fefe9bd5e754b4c3ec2b35874",
+    "equal": true
+   },
+   "sha256_daily_series.csv": {
+    "D01": "71dc554a269355f2fec83cf80b376a66bb65b818b64602a77378513cde091a08",
+    "D02": "71dc554a269355f2fec83cf80b376a66bb65b818b64602a77378513cde091a08",
+    "equal": true
+   },
+   "sha256_cost_overlay.json": {
+    "D01": "ce36d76e7635746482232759f10cf39688dc37ba0ed68d7ae92044a5f33d7450",
+    "D02": "ce36d76e7635746482232759f10cf39688dc37ba0ed68d7ae92044a5f33d7450",
+    "equal": true
+   },
+   "D08_SEED4243_raw_identical_to_D03": {
+    "raw_col": true,
+    "timeline_sha": true
+   },
+   "D09_SEED4244_raw_identical_to_D03": {
+    "raw_col": true,
+    "timeline_sha": true
+   },
+   "D06_timeline_equals_D03": true
+  }
+ },
+ "deviation_verdict": {
+  "label": "(deviation: a-priori genome, instrument-failed EA)",
+  "cell": "TIES (straddling)",
+  "claim": "no certifiable difference at available power; MDE printed",
+  "paired_full": {
+   "n": 66,
+   "mean": -0.00019833387354824893,
+   "sd": 0.0012808745725155497,
+   "t": -1.2579467499942318,
+   "mean_bp_day": -1.9833387354824892,
+   "sd_bp_day": 12.808745725155497,
+   "first_date": "2026-02-03",
+   "last_date": "2026-06-10",
+   "hac_t": -0.9610172079823344,
+   "hac_se": 0.0002063791073675496,
+   "ci95": [
+    -0.0006028369239886462,
+    0.00020616917689214828
+   ],
+   "mde": 0.0004127582147350992,
+   "ci90": [
+    -0.000537827505167868,
+    0.00014115975807137016
+   ]
+  },
+  "paired_holdout": {
+   "n": 44,
+   "mean": -0.0003128450651125729,
+   "sd": 0.0015548184565948309,
+   "t": -1.3346763335510023,
+   "mean_bp_day": -3.128450651125729,
+   "sd_bp_day": 15.548184565948308,
+   "first_date": "2026-03-12",
+   "last_date": "2026-06-10",
+   "hac_t": -1.0881216798213493,
+   "hac_se": 0.0002875092656585398,
+   "ci95": [
+    -0.000876363225803311,
+    0.0002506730955781651
+   ],
+   "mde": 0.0005750185313170796,
+   "ci90": [
+    -0.0007857978071208709,
+    0.00016010767689572506
+   ]
+  },
+  "delta_sharpe_full": -0.14798150415472433,
+  "delta_sharpe_holdout": -0.4243838400850941,
+  "delta_return_full": -0.014009641579052712,
+  "delta_return_holdout": -0.014080935336101996,
+  "exposure_parity": {
+   "gross_gap_mean": 0.043897211833978295,
+   "gross_gap_max": 0.16281778429016325,
+   "beta_gap_21d_mean": 0.06931840007861415,
+   "beta_gap_21d_max": 0.21720761352643436,
+   "beta_gap_trigger_0p05_5d": true
+  }
+ },
+ "organs": {
+  "M1": {
+   "roster": "SHIPS (sole member)",
+   "acceptance": {
+    "weekly_rank_ic": 0.10764428442225327,
+    "ic_delta_vs_member_zero": 0.04198423640803228,
+    "net_edge": 2.601007808219178,
+    "label": "near-formality; does not count as evidence"
+   },
+   "utility_read": {
+    "verdict": {
+     "tag": "indeterminate at available power",
+     "reason": "HAC t=-0.96, CI not inside \u00b1MDE (4.13 bp/day)"
+    },
+    "full": {
+     "n": 66,
+     "mean_bp_day": -1.9833387354824892,
+     "t": -1.2579467499942318,
+     "hac_t": -0.9610172079823344,
+     "sd_bp_day": 12.808745725155497,
+     "mde_bp": 4.127582147350992
+    },
+    "holdout": {
+     "n": 44,
+     "mean_bp_day": -3.128450651125729,
+     "t": -1.3346763335510023,
+     "hac_t": -1.0881216798213493
+    },
+    "label": "(deviation: a-priori genome, instrument-failed EA)",
+    "note": "D03-vs-D02 \u2261 D03-vs-D01 (D02 hash-equal)"
+   }
+  },
+  "M2": {
+   "roster": "challenger, status OPEN (FM6)",
+   "acceptance": {
+    "rot_rank_ic": 0.03681497261656748,
+    "t": 1.446602989795451,
+    "power_note": "29% power at half-decay \u2014 'not measurable yet'"
+   },
+   "utility_read": {
+    "verdict": {
+     "tag": "indeterminate at available power",
+     "reason": "HAC t=-0.14, CI not inside \u00b1MDE (0.77 bp/day)"
+    },
+    "full": {
+     "n": 66,
+     "mean_bp_day": -0.05353386437916207,
+     "t": -0.12291608247431747,
+     "hac_t": -0.13879750469368737,
+     "sd_bp_day": 3.5382771839946785,
+     "mde_bp": 0.7713951990319439
+    },
+    "holdout": {
+     "n": 44,
+     "mean_bp_day": -0.1239814965127302,
+     "t": -0.19146115714219403,
+     "hac_t": -0.21851242081506303
+    },
+    "label": "(deviation: a-priori genome, instrument-failed EA)"
+   }
+  },
+  "M3": {
+   "roster": "B-disp constant (no gene)",
+   "gate": {
+    "existence_p": 2.054710943195078e-11,
+    "materiality_bp_day": 0.01120805292106756,
+    "bar": 0.2,
+    "pass": false
+   },
+   "note": "dispersion enters conviction as the B-disp sigmoid; utility line pre-printed `indeterminate` (TR \u00a71.2)"
+  },
+  "M4": {
+   "roster": "challenger (M4-A shipped variant)",
+   "acceptance": {
+    "auc": 0.6157005186071738,
+    "delta_vs_vol_control": -0.0019043357390597926,
+    "ab_look": "M4-A (dAUC(B\u2212A) \u2212.020 < bar +.011; 1 ledger look)"
+   },
+   "utility_read": {
+    "verdict": {
+     "tag": "indeterminate at available power",
+     "reason": "HAC t=+1.84, CI not inside \u00b1MDE (0.09 bp/day)"
+    },
+    "full": {
+     "n": 66,
+     "mean_bp_day": 0.08441820911778394,
+     "t": 2.9132866731159384,
+     "hac_t": 1.8424908205885897,
+     "sd_bp_day": 0.235409985310489,
+     "mde_bp": 0.091634876195276
+    },
+    "holdout": {
+     "n": 44,
+     "mean_bp_day": 0.1266273136766759,
+     "t": 3.00169894961426,
+     "hac_t": 2.1780261200602182
+    },
+    "label": "(deviation: a-priori genome, instrument-failed EA)",
+    "caution": "damping a losing tilt mechanically scores positive; cannot separate M4 skill from less-of-a-losing-tilt; multiplicity \u00a74.6.5"
+   }
+  },
+  "M5": {
+   "roster": "DISABLED (12/19 sign tally, p=.18, tally printed)",
+   "utility_read": {
+    "verdict": {
+     "tag": "zero (measured)",
+     "reason": "degenerate: M5 fired 0 episodes in the live window \u2014 paired deltas identically 0 (CI = {0} \u2282 \u00b1MDE trivially)"
+    },
+    "full": {
+     "n": 66,
+     "mean_bp_day": 0.0,
+     "t": NaN,
+     "hac_t": NaN,
+     "sd_bp_day": 0.0,
+     "mde_bp": 0.0
+    },
+    "holdout": {
+     "n": 44,
+     "mean_bp_day": 0.0,
+     "t": NaN,
+     "hac_t": NaN
+    },
+    "label": "(deviation: a-priori genome, instrument-failed EA)"
+   }
+  },
+  "M6": {
+   "line": "forecast-altitude PASS \u2014 pooled OOF 1d rank-IC 0.0224 (bar 0.02), sign-positive 6/6 folds; structurally unresolvable at this T_max \u2014 forecast-altitude verdict only (no expression channel, no gene, no replay arm)"
+  },
+  "LLM": {
+   "line": "retired from the decision path with receipts (46 pre-registered screens, 0 BH-FDR(10%) survivors); monitoring emission stays ($0.14/mo); 900-day re-test trigger live",
+   "falsifier": {
+    "label": "(deviation: a-priori genome, instrument-failed EA)",
+    "kill_bar": "E1 paired t < +2.0",
+    "e1_t": 0.005932103969098811,
+    "e1_hac_t": 0.010181519162787507,
+    "mean_bp_day": 0.001078743296356599,
+    "mde_bp_day": 0.21190222777349457,
+    "n": 66,
+    "expected_zero": "pre-registered expected effect O(0.1\u20130.5) bp/day; expected outcome: not promoted",
+    "killed": true
+   }
+  },
+  "evolution": {
+   "line": "instrument-failed: anchor Pearson 0.282 < 0.5 at representative scale \u21d2 B0 ships outright (chair adjudication 2, pre-stated); EA production sequence NOT RUN (no certified fitness instrument); ea_cycles 0/3",
+   "ship_decision": "B0 SHIPS OUTRIGHT"
+  },
+  "C2": {
+   "line": "PASS on the binding signal-space leg (max pooled |rho| 0.202 \u2264 .70); registered G-book instrument mechanically inapplicable (saturates on the market factor) \u2014 pre-registration defect, chair adjudication 1; remediation ladder NOT fired; market-residualized book diagnostic .498 \u2264 .70 printed"
+  }
+ },
+ "ledgers": {
+  "holdout_looks_battery_jsonl": 9,
+  "registered_e2_reads": [
+   {
+    "ts": "2026-06-11T01:57:41",
+    "look": 1,
+    "budget": "exactly 1 registered E2 read (TOURNAMENT 4.1)",
+    "what": "E2 confirmation read of the REGISTERED verdict pair (D02_ORB_B0 vs D01_INC), subset >= 2026-03-11 of the live runs",
+    "fired_by": "orchestrator (PKT_TB_007_HOLDOUT_AUTHORIZED=1, Phase D battery executor)",
+    "artifacts": [
+     "runs_battery_007/E2_D01_INC",
+     "runs_battery_007/E2_D02_ORB_B0"
+    ],
+    "result": "DEGENERATE: pair is sha256-equal; paired holdout deltas identically 0",
+    "note": "deviation-battery holdout exposure ledgered per-replay in holdout_looks_007.jsonl (9 entries), every entry written BEFORE its run, all labeled"
+   }
+  ],
+  "replay_arms_used": 10,
+  "replay_cap": 18,
+  "retrains_used": 0,
+  "retrain_cap": 9,
+  "ea_cycles": "0/3",
+  "perm_desc": "CUT \u2014 reported not-run (chair adjudication 3); the pre-committed forfeit sentence applies: selection intelligence (channel 1a) is forfeited on this window because it cannot be certified, not because the question is settled"
+ },
+ "multiplicity": {
+  "pre_registered": "with 5 per-organ utility arms read one-sided at t \u2265 +2: P(\u22651 spurious positive) \u2248 11%; across all ~12\u201314 arms \u2248 25\u201330% (TOURNAMENT \u00a74.6.5)",
+  "realized_deviation_comparisons": 7,
+  "note": "no deviation read is averaged with, or substituted for, the registered verdict"
+ },
+ "boundary": {
+  "window": [
+   "2026-02-03",
+   "2026-06-10"
+  ],
+  "n_full": 66,
+  "n_holdout": 44,
+  "disclosed_exclusions": "Monday/cadence gaps; 2026-03-30..31; 2026-05-11..20 outage hole (7 td, inside the holdout) \u2014 identical in both arms"
+ }
+}

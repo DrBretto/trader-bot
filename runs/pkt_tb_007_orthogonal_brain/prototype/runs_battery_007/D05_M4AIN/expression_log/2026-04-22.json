@@ -1,0 +1,131 @@
+{
+ "book_overlap_vs_chassis": 0.9598,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.032779,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.6165,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "ARKK": -0.005614,
+  "DBC": -0.000169,
+  "FXI": -0.004544,
+  "ITA": 0.011453,
+  "RSP": 0.001347,
+  "SOXX": 0.005589,
+  "VUG": -0.003482,
+  "XBI": -0.003346,
+  "XLF": -0.002438,
+  "XRT": 0.001205
+ },
+ "conviction": {
+  "agree": 0.619,
+  "c": 0.8194710969818231,
+  "disp_forecast_z": 1.235434,
+  "organ_q": {
+   "M1": 0.619
+  }
+ },
+ "date": "2026-04-22",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "DBC",
+   "RSP",
+   "XRT"
+  ],
+  "rounding_absorber": "ARKK",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {
+  "AGG": 0.985313,
+  "FXI": 0.993313,
+  "ITA": 0.940562,
+  "IYR": 0.98775,
+  "KRE": 0.9935,
+  "MUB": 0.985313,
+  "RSP": 0.9585,
+  "SHY": 0.985313,
+  "SOXX": 0.96225,
+  "TLT": 0.985313,
+  "USO": 0.914188,
+  "XRT": 0.964875
+ },
+ "marks_source": "features",
+ "nav": 109198.18,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "ARKK": -0.00561419,
+   "DBC": -0.00016935,
+   "FXI": -0.00454431,
+   "ITA": 0.01145288,
+   "RSP": 0.0013469,
+   "SOXX": 0.00558934,
+   "VUG": -0.00348245,
+   "XBI": -0.00334603,
+   "XLF": -0.00243793,
+   "XRT": 0.00120515
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.3661,
+   "FXI": -0.18,
+   "ITA": 1.4652,
+   "IYR": 0.18,
+   "KRE": 0.5659,
+   "MUB": -1.0676,
+   "RSP": 0.3661,
+   "SHY": -0.5659,
+   "SOXX": 1.0676,
+   "TLT": -0.7916,
+   "USO": -1.4652,
+   "XRT": 0.7916
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 3.469446951953614e-18,
+  "cash_resid": -2.168404344971009e-19,
+  "clipped": [
+   "AGG",
+   "FXE",
+   "IYR",
+   "KRE",
+   "MUB",
+   "SHY",
+   "TLT",
+   "USO"
+  ],
+  "eps_sigma": 7.742673253331076e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": 3.3705841662292084e-05
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "ARKK": -0.00561419,
+  "DBC": -0.00016935,
+  "FXI": -0.00454431,
+  "ITA": 0.01145288,
+  "RSP": 0.0013469,
+  "SOXX": 0.00558934,
+  "VUG": -0.00348245,
+  "XBI": -0.00334603,
+  "XLF": -0.00243793,
+  "XRT": 0.00120515
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

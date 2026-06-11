@@ -1,0 +1,136 @@
+{
+ "book_overlap_vs_chassis": 0.9027,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.032728,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.5696,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "ITA": -0.000277,
+  "RSP": 0.002587,
+  "SOXX": 0.002372,
+  "VUG": -0.005619,
+  "XBI": -0.005464,
+  "XLF": -0.003179,
+  "XRT": 0.00958
+ },
+ "conviction": {
+  "agree": 0.583286069294513,
+  "c": 0.818210711656798,
+  "disp_forecast_z": 0.395415,
+  "organ_q": {
+   "M1": 0.6508,
+   "M2": 0.996
+  }
+ },
+ "date": "2026-05-08",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "ITA",
+   "RSP",
+   "SOXX"
+  ],
+  "rounding_absorber": "VUG",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {},
+ "marks_source": "features",
+ "nav": 109451.67,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "ITA": 0.00354662,
+   "KRE": -0.00534549,
+   "RSP": 0.0065857,
+   "SOXX": 0.00099377,
+   "VUG": -0.00187331,
+   "XBI": -0.00168765,
+   "XRT": -0.00221964
+  },
+  "M2": {
+   "ITA": -0.00173586,
+   "RSP": -0.00254035,
+   "SOXX": 4.864e-05,
+   "VUG": -0.00071247,
+   "XBI": -0.00079631,
+   "XLF": -0.00015228,
+   "XRT": 0.00588863
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.7916,
+   "FXI": -0.3661,
+   "ITA": 0.5659,
+   "IYR": 0.18,
+   "KRE": 0.3661,
+   "MUB": -0.5659,
+   "RSP": 0.7916,
+   "SHY": -0.18,
+   "SOXX": 1.0676,
+   "TLT": -1.0676,
+   "USO": -1.4652,
+   "XRT": 1.4652
+  },
+  "M2": {
+   "AGG": -0.7916,
+   "FXE": -0.3661,
+   "FXI": 0.9208,
+   "ITA": 0.9208,
+   "IYR": 0.18,
+   "KRE": 0.9208,
+   "MUB": -0.7916,
+   "RSP": 0.18,
+   "SHY": -0.7916,
+   "SOXX": -0.18,
+   "TLT": 0.18,
+   "USO": -1.4652,
+   "XRT": 0.9208
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 1.734723475976807e-18,
+  "cash_resid": -3.469446951953614e-18,
+  "clipped": [
+   "AGG",
+   "FXE",
+   "FXI",
+   "IYR",
+   "MUB",
+   "SOXX",
+   "TLT",
+   "USO",
+   "XLF"
+  ],
+  "eps_sigma": 3.654829543895316e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": 1.4918167107330654e-05
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "ITA": -0.00027697,
+  "RSP": 0.00258672,
+  "SOXX": 0.00237226,
+  "VUG": -0.00561932,
+  "XBI": -0.00546422,
+  "XLF": -0.00317853,
+  "XRT": 0.00958005
+ },
+ "trust": {
+  "M1": 0.5,
+  "M2": 0.5
+ }
+}

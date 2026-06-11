@@ -1,0 +1,145 @@
+{
+ "book_overlap_vs_chassis": 0.9182,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.033365,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.5078,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "ARKK": -0.002376,
+  "DBC": -0.001859,
+  "ITA": 0.007084,
+  "RSP": 0.003346,
+  "SOXX": 0.001229,
+  "VUG": -0.004103,
+  "XBI": -0.004274,
+  "XLF": -0.005044,
+  "XRT": 0.005997
+ },
+ "conviction": {
+  "agree": 0.7095968730749328,
+  "c": 0.8341144249951419,
+  "disp_forecast_z": 0.363864,
+  "organ_q": {
+   "M1": 0.6429,
+   "M2": 0.9881
+  }
+ },
+ "date": "2026-05-06",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "ARKK",
+   "DBC",
+   "RSP",
+   "SOXX"
+  ],
+  "rounding_absorber": "XLF",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {},
+ "marks_source": "prices_fallback",
+ "nav": 109122.01,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "ARKK": -0.00146229,
+   "ITA": 0.01017756,
+   "IYR": -0.00178282,
+   "KRE": -0.00513576,
+   "RSP": 0.00707184,
+   "SOXX": 0.00093561,
+   "VUG": -0.00138362,
+   "XBI": -0.00137583,
+   "XLF": -0.00134076,
+   "XRT": -0.00570393
+  },
+  "M2": {
+   "ARKK": -0.00013933,
+   "ITA": -0.00318492,
+   "RSP": -0.0026208,
+   "SOXX": -1.807e-05,
+   "VUG": -0.00041074,
+   "XBI": -0.00043762,
+   "XLF": -0.00055858,
+   "XRT": 0.00737006
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.7916,
+   "FXI": -0.5659,
+   "ITA": 1.4652,
+   "IYR": 0.7916,
+   "KRE": 0.3661,
+   "MUB": -0.3661,
+   "RSP": 1.0676,
+   "SHY": -0.18,
+   "SOXX": 0.18,
+   "TLT": -1.0676,
+   "USO": -1.4652,
+   "XRT": 0.5659
+  },
+  "M2": {
+   "AGG": -0.7916,
+   "FXE": -0.3661,
+   "FXI": 0.18,
+   "ITA": 1.0676,
+   "IYR": 0.5659,
+   "KRE": 1.0676,
+   "MUB": -0.7916,
+   "RSP": 0.18,
+   "SHY": -0.7916,
+   "SOXX": -0.18,
+   "TLT": 0.18,
+   "USO": -1.4652,
+   "XRT": 1.0676
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": -1.734723475976807e-18,
+  "cash_resid": -2.6020852139652106e-18,
+  "clipped": [
+   "AGG",
+   "DBC",
+   "FXE",
+   "FXI",
+   "MUB",
+   "SHY",
+   "SOXX",
+   "TLT",
+   "USO"
+  ],
+  "eps_sigma": 4.817865871204617e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": 2.1279265159327828e-05
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "ARKK": -0.00237554,
+  "DBC": -0.00185877,
+  "ITA": 0.00708404,
+  "RSP": 0.00334587,
+  "SOXX": 0.00122873,
+  "VUG": -0.00410299,
+  "XBI": -0.00427405,
+  "XLF": -0.00504395,
+  "XRT": 0.00599666
+ },
+ "trust": {
+  "M1": 0.5,
+  "M2": 0.5
+ }
+}

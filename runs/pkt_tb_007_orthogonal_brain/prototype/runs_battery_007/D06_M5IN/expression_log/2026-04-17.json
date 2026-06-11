@@ -1,0 +1,128 @@
+{
+ "book_overlap_vs_chassis": 0.9727,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.022454,
+  "defensive_share_post": 0.2435,
+  "defensive_share_pre": 0.2435,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "ARKK": -0.00306,
+  "DBC": 0.001207,
+  "FXI": -0.008709,
+  "ITA": 0.004829,
+  "IYR": 0.000549,
+  "RSP": 0.002659,
+  "SHY": 0.000804,
+  "SOXX": 0.005233,
+  "VUG": -0.00134,
+  "XBI": -0.001218,
+  "XLF": -0.000549,
+  "XRT": -0.000406
+ },
+ "conviction": {
+  "agree": 0.0556,
+  "c": 0.5613444397269258,
+  "disp_forecast_z": 0.555541,
+  "organ_q": {
+   "M1": 0.0556
+  }
+ },
+ "date": "2026-04-17",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "DBC",
+   "IYR",
+   "RSP",
+   "SHY",
+   "VUG",
+   "XBI",
+   "XLF",
+   "XRT"
+  ],
+  "rounding_absorber": "FXI",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {},
+ "marks_source": "features",
+ "nav": 108624.06,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "ARKK": -0.00305996,
+   "DBC": 0.00120695,
+   "FXI": -0.00870867,
+   "ITA": 0.00482859,
+   "IYR": 0.00054852,
+   "RSP": 0.00265919,
+   "SHY": 0.00080433,
+   "SOXX": 0.00523349,
+   "VUG": -0.0013395,
+   "XBI": -0.00121764,
+   "XLF": -0.000549,
+   "XRT": -0.00040631
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.18,
+   "FXE": -1.0676,
+   "FXI": -1.4652,
+   "ITA": 1.0676,
+   "IYR": 0.18,
+   "KRE": 0.7916,
+   "MUB": -0.5659,
+   "RSP": 0.5659,
+   "SOXX": 1.4652,
+   "TLT": -0.3661,
+   "USO": -0.7916,
+   "XRT": 0.3661
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 0.0,
+  "cash_resid": -7.589415207398531e-19,
+  "clipped": [
+   "AGG",
+   "FXE",
+   "KRE",
+   "MUB",
+   "TLT",
+   "USO",
+   "XRT"
+  ],
+  "eps_sigma": 5.585542047905892e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": 1.5282798338390953e-05
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "ARKK": -0.00305996,
+  "DBC": 0.00120695,
+  "FXI": -0.00870867,
+  "ITA": 0.00482859,
+  "IYR": 0.00054852,
+  "RSP": 0.00265919,
+  "SHY": 0.00080433,
+  "SOXX": 0.00523349,
+  "VUG": -0.0013395,
+  "XBI": -0.00121764,
+  "XLF": -0.000549,
+  "XRT": -0.00040631
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

@@ -1,0 +1,15 @@
+{
+ "channel": "tilt",
+ "conviction": {
+  "agree": 0.4564847498826623,
+  "c": 0.7981136282033965,
+  "disp_forecast_z": 0.846399,
+  "organ_q": {
+   "M1": 0.4921,
+   "M2": 0.9444
+  }
+ },
+ "date": "2026-05-29",
+ "neutral": true,
+ "neutral_reason": "dead_zone_quantized"
+}

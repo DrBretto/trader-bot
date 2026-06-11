@@ -1,0 +1,115 @@
+{
+ "book_overlap_vs_chassis": 0.8926,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.023539,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.8665,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "FXI": 0.001531,
+  "ITA": -0.000758,
+  "IYR": 0.000691,
+  "RSP": 0.009915,
+  "SOXX": 0.003571,
+  "VUG": -0.004268,
+  "XBI": -0.004359,
+  "XLF": -0.003389,
+  "XRT": -0.002935
+ },
+ "conviction": {
+  "agree": 0.1587,
+  "c": 0.5884664460483487,
+  "disp_forecast_z": 0.161266,
+  "organ_q": {
+   "M1": 0.1587
+  }
+ },
+ "date": "2026-05-22",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "FXI",
+   "ITA",
+   "IYR",
+   "SOXX",
+   "XRT"
+  ],
+  "rounding_absorber": "VUG",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {},
+ "marks_source": "features",
+ "nav": 109569.72,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "FXI": 0.00153053,
+   "ITA": -0.00075822,
+   "IYR": 0.00069125,
+   "RSP": 0.0099151,
+   "SOXX": 0.0035713,
+   "VUG": -0.00426792,
+   "XBI": -0.00435851,
+   "XLF": -0.0033886,
+   "XRT": -0.00293494
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -1.0676,
+   "FXE": -0.3661,
+   "FXI": 0.5659,
+   "ITA": 0.3661,
+   "IYR": 0.7916,
+   "MUB": -0.5659,
+   "RSP": 1.4652,
+   "SHY": -0.7916,
+   "SOXX": 1.0676,
+   "TLT": -1.4652,
+   "USO": -0.18,
+   "XRT": 0.18
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 1.734723475976807e-18,
+  "cash_resid": 8.673617379884035e-19,
+  "clipped": [
+   "AGG",
+   "FXE",
+   "KRE",
+   "MUB",
+   "SHY",
+   "TLT"
+  ],
+  "eps_sigma": 3.969625656104314e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": 3.3144417170671075e-06
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "FXI": 0.00153053,
+  "ITA": -0.00075822,
+  "IYR": 0.00069125,
+  "RSP": 0.0099151,
+  "SOXX": 0.0035713,
+  "VUG": -0.00426792,
+  "XBI": -0.00435851,
+  "XLF": -0.0033886,
+  "XRT": -0.00293494
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

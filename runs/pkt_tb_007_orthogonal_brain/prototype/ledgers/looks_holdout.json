@@ -1,1 +1,15 @@
-[]
+[
+ {
+  "ts": "2026-06-11T01:57:41",
+  "look": 1,
+  "budget": "exactly 1 registered E2 read (TOURNAMENT 4.1)",
+  "what": "E2 confirmation read of the REGISTERED verdict pair (D02_ORB_B0 vs D01_INC), subset >= 2026-03-11 of the live runs",
+  "fired_by": "orchestrator (PKT_TB_007_HOLDOUT_AUTHORIZED=1, Phase D battery executor)",
+  "artifacts": [
+   "runs_battery_007/E2_D01_INC",
+   "runs_battery_007/E2_D02_ORB_B0"
+  ],
+  "result": "DEGENERATE: pair is sha256-equal; paired holdout deltas identically 0",
+  "note": "deviation-battery holdout exposure ledgered per-replay in holdout_looks_007.jsonl (9 entries), every entry written BEFORE its run, all labeled"
+ }
+]

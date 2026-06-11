@@ -1,0 +1,2612 @@
+{
+ "date_value_map": {
+  "2026-02-02": 100766.47,
+  "2026-02-03": 101655.16,
+  "2026-02-04": 102168.0,
+  "2026-02-05": 101549.32,
+  "2026-02-06": 101832.58,
+  "2026-02-10": 102046.92,
+  "2026-02-11": 102959.42,
+  "2026-02-12": 102653.72,
+  "2026-02-13": 102508.32,
+  "2026-02-17": 102438.55,
+  "2026-02-18": 104166.39,
+  "2026-02-19": 104288.67,
+  "2026-02-20": 106170.37,
+  "2026-02-24": 106127.91,
+  "2026-02-25": 106127.91,
+  "2026-02-26": 106597.28,
+  "2026-02-27": 106093.78,
+  "2026-03-03": 106723.35,
+  "2026-03-04": 106600.05,
+  "2026-03-05": 106281.62,
+  "2026-03-06": 106330.46,
+  "2026-03-10": 105992.82,
+  "2026-03-11": 105867.78,
+  "2026-03-12": 105131.18,
+  "2026-03-13": 105166.01,
+  "2026-03-17": 105133.77,
+  "2026-03-18": 104755.99,
+  "2026-03-19": 104122.11,
+  "2026-03-20": 104030.46,
+  "2026-03-24": 103862.84,
+  "2026-03-25": 103925.97,
+  "2026-03-26": 103960.96,
+  "2026-03-27": 104052.95,
+  "2026-04-01": 104205.35,
+  "2026-04-02": 104189.67,
+  "2026-04-07": 104489.63,
+  "2026-04-08": 105942.15,
+  "2026-04-09": 106085.88,
+  "2026-04-10": 105658.12,
+  "2026-04-14": 107823.1,
+  "2026-04-15": 108587.5,
+  "2026-04-16": 108624.49,
+  "2026-04-17": 109686.48,
+  "2026-04-21": 109198.18,
+  "2026-04-22": 109764.61,
+  "2026-04-23": 108951.17,
+  "2026-04-24": 108946.66,
+  "2026-04-28": 108531.55,
+  "2026-04-29": 108117.7,
+  "2026-04-30": 108886.57,
+  "2026-05-01": 108928.23,
+  "2026-05-05": 109218.57,
+  "2026-05-06": 109754.7,
+  "2026-05-07": 109608.14,
+  "2026-05-08": 109693.89,
+  "2026-05-21": 109600.17,
+  "2026-05-22": 109691.15,
+  "2026-05-26": 109811.49,
+  "2026-05-27": 109852.26,
+  "2026-05-28": 109981.54,
+  "2026-05-29": 109996.97,
+  "2026-06-02": 110440.81,
+  "2026-06-03": 110495.11,
+  "2026-06-04": 110197.62,
+  "2026-06-05": 109633.73,
+  "2026-06-09": 109579.15,
+  "2026-06-10": 109695.73
+ },
+ "actions": [
+  {
+   "date": "2026-02-02",
+   "symbol": "VEA",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 66.025,
+   "dollars": 330.12,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-02",
+   "symbol": "VLUE",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 146.61,
+   "dollars": 439.83,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-02",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 197.69,
+   "dollars": 395.38,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-02",
+   "symbol": "SOXX",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 342.37,
+   "dollars": 342.37,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-03",
+   "symbol": "VEA",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 66.58,
+   "dollars": 332.9,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-03",
+   "symbol": "XLB",
+   "action": "SELL",
+   "shares": 7.0,
+   "price": 50.12,
+   "dollars": 350.84,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-03",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 198.72,
+   "dollars": 596.16,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "SCHD",
+   "action": "REDUCE",
+   "shares": 368.5,
+   "price": 30.595,
+   "dollars": 11274.26,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "XLB",
+   "action": "REDUCE",
+   "shares": 219.5,
+   "price": 51.04,
+   "dollars": 11203.28,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "VEA",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 67.35,
+   "dollars": 336.75,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "XLB",
+   "action": "SELL",
+   "shares": 7.0,
+   "price": 51.04,
+   "dollars": 357.28,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-04",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 199.12,
+   "dollars": 398.24,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "SCHD",
+   "action": "REDUCE",
+   "shares": 184.25,
+   "price": 30.995,
+   "dollars": 5710.83,
+   "reason": "REGIME_SHIFT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "XLB",
+   "action": "REDUCE",
+   "shares": 106.25,
+   "price": 51.475,
+   "dollars": 5469.22,
+   "reason": "REGIME_SHIFT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "VLUE",
+   "action": "REDUCE",
+   "shares": 73.0,
+   "price": 148.1,
+   "dollars": 10811.3,
+   "reason": "REGIME_SHIFT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "VEA",
+   "action": "REDUCE",
+   "shares": 158.5,
+   "price": 66.06,
+   "dollars": 10470.51,
+   "reason": "REGIME_SHIFT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "RSP",
+   "action": "REDUCE",
+   "shares": 3.5,
+   "price": 199.64,
+   "dollars": 698.74,
+   "reason": "REGIME_SHIFT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-05",
+   "symbol": "SOXX",
+   "action": "REDUCE",
+   "shares": 0.5,
+   "price": 326.54,
+   "dollars": 163.27,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-06",
+   "symbol": "SCHD",
+   "action": "SELL",
+   "shares": 184.25,
+   "price": 31.085,
+   "dollars": 5727.41,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-06",
+   "symbol": "XLB",
+   "action": "SELL",
+   "shares": 106.25,
+   "price": 50.95,
+   "dollars": 5413.44,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-06",
+   "symbol": "VLUE",
+   "action": "SELL",
+   "shares": 73.0,
+   "price": 149.22,
+   "dollars": 10893.06,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-06",
+   "symbol": "VEA",
+   "action": "SELL",
+   "shares": 158.5,
+   "price": 66.705,
+   "dollars": 10572.74,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-06",
+   "symbol": "RSP",
+   "action": "SELL",
+   "shares": 3.5,
+   "price": 200.065,
+   "dollars": 700.23,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-06",
+   "symbol": "SOXX",
+   "action": "SELL",
+   "shares": 0.5,
+   "price": 337.395,
+   "dollars": 168.7,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-10",
+   "symbol": "XLP",
+   "action": "BUY",
+   "shares": 288.0,
+   "price": 87.35,
+   "dollars": 25156.8,
+   "reason": "SCORE_0.76_HEALTH_0.80",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-10",
+   "symbol": "XLB",
+   "action": "BUY",
+   "shares": 434.0,
+   "price": 52.2,
+   "dollars": 22654.8,
+   "reason": "SCORE_0.71_HEALTH_0.81",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-10",
+   "symbol": "SCHD",
+   "action": "BUY",
+   "shares": 724.0,
+   "price": 31.35,
+   "dollars": 22697.4,
+   "reason": "SCORE_0.70_HEALTH_0.83",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-11",
+   "symbol": "SCHD",
+   "action": "SELL",
+   "shares": 8.0,
+   "price": 31.415,
+   "dollars": 251.32,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-12",
+   "symbol": "SCHD",
+   "action": "SELL",
+   "shares": 10.0,
+   "price": 31.62,
+   "dollars": 316.2,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-13",
+   "symbol": "XLP",
+   "action": "SELL",
+   "shares": 288.0,
+   "price": 89.035,
+   "dollars": 25642.08,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-13",
+   "symbol": "XLB",
+   "action": "SELL",
+   "shares": 434.0,
+   "price": 52.5879,
+   "dollars": 22823.15,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-13",
+   "symbol": "SCHD",
+   "action": "SELL",
+   "shares": 706.0,
+   "price": 31.3,
+   "dollars": 22097.8,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-13",
+   "symbol": "GLD",
+   "action": "BUY",
+   "shares": 15.0,
+   "price": 459.73,
+   "dollars": 6895.95,
+   "reason": "SCORE_0.80_HEALTH_0.86",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-13",
+   "symbol": "USO",
+   "action": "BUY",
+   "shares": 110.0,
+   "price": 76.12,
+   "dollars": 8373.2,
+   "reason": "SCORE_0.76_HEALTH_0.77",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-17",
+   "symbol": "SLV",
+   "action": "BUY",
+   "shares": 223.0,
+   "price": 67.27,
+   "dollars": 15001.21,
+   "reason": "SCORE_0.78_HEALTH_1.00",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-17",
+   "symbol": "KRE",
+   "action": "BUY",
+   "shares": 206.0,
+   "price": 71.43,
+   "dollars": 14714.58,
+   "reason": "SCORE_0.75_HEALTH_0.84",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-17",
+   "symbol": "SOXX",
+   "action": "BUY",
+   "shares": 42.0,
+   "price": 349.805,
+   "dollars": 14691.81,
+   "reason": "SCORE_0.73_HEALTH_0.88",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-17",
+   "symbol": "SMH",
+   "action": "BUY",
+   "shares": 42.0,
+   "price": 402.705,
+   "dollars": 16913.61,
+   "reason": "SCORE_0.71_HEALTH_0.85",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-18",
+   "symbol": "KRE",
+   "action": "SELL",
+   "shares": 7.0,
+   "price": 71.52,
+   "dollars": 500.64,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-18",
+   "symbol": "SMH",
+   "action": "SELL",
+   "shares": 1.0,
+   "price": 411.44,
+   "dollars": 411.44,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-19",
+   "symbol": "USO",
+   "action": "REDUCE",
+   "shares": 55.0,
+   "price": 80.435,
+   "dollars": 4423.93,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-19",
+   "symbol": "KRE",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 70.995,
+   "dollars": 354.98,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-19",
+   "symbol": "SOXX",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 354.225,
+   "dollars": 354.23,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-20",
+   "symbol": "KRE",
+   "action": "SELL",
+   "shares": 7.0,
+   "price": 70.9825,
+   "dollars": 496.88,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-20",
+   "symbol": "SMH",
+   "action": "SELL",
+   "shares": 1.0,
+   "price": 407.625,
+   "dollars": 407.62,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-20",
+   "symbol": "USO",
+   "action": "BUY",
+   "shares": 7.0,
+   "price": 80.53,
+   "dollars": 563.71,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-24",
+   "symbol": "GLD",
+   "action": "SELL",
+   "shares": 15.0,
+   "price": 470.085,
+   "dollars": 7051.27,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-24",
+   "symbol": "USO",
+   "action": "SELL",
+   "shares": 62.0,
+   "price": 81.195,
+   "dollars": 5034.09,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-24",
+   "symbol": "SLV",
+   "action": "SELL",
+   "shares": 223.0,
+   "price": 78.23,
+   "dollars": 17445.29,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-24",
+   "symbol": "KRE",
+   "action": "SELL",
+   "shares": 187.0,
+   "price": 68.62,
+   "dollars": 12831.94,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-24",
+   "symbol": "SOXX",
+   "action": "SELL",
+   "shares": 43.0,
+   "price": 361.6,
+   "dollars": 15548.8,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-24",
+   "symbol": "SMH",
+   "action": "SELL",
+   "shares": 40.0,
+   "price": 416.88,
+   "dollars": 16675.2,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-26",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 53.0,
+   "price": 239.1,
+   "dollars": 12672.3,
+   "reason": "SCORE_0.78_HEALTH_0.90",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-26",
+   "symbol": "XLB",
+   "action": "BUY",
+   "shares": 270.0,
+   "price": 53.0,
+   "dollars": 14310.0,
+   "reason": "SCORE_0.76_HEALTH_0.86",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-26",
+   "symbol": "XLE",
+   "action": "BUY",
+   "shares": 263.0,
+   "price": 54.4,
+   "dollars": 14307.2,
+   "reason": "SCORE_0.72_HEALTH_0.78",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-26",
+   "symbol": "SOXX",
+   "action": "BUY",
+   "shares": 36.0,
+   "price": 356.8,
+   "dollars": 12844.8,
+   "reason": "SCORE_0.71_HEALTH_0.78",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-26",
+   "symbol": "VLUE",
+   "action": "BUY",
+   "shares": 93.0,
+   "price": 151.12,
+   "dollars": 14054.16,
+   "reason": "SCORE_0.71_HEALTH_0.78",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-26",
+   "symbol": "IYT",
+   "action": "BUY",
+   "shares": 166.0,
+   "price": 81.61,
+   "dollars": 13547.26,
+   "reason": "SCORE_0.70_HEALTH_0.79",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-27",
+   "symbol": "ITA",
+   "action": "SELL",
+   "shares": 53.0,
+   "price": 241.2,
+   "dollars": 12783.6,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-27",
+   "symbol": "XLB",
+   "action": "SELL",
+   "shares": 270.0,
+   "price": 52.87,
+   "dollars": 14274.9,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-27",
+   "symbol": "XLE",
+   "action": "SELL",
+   "shares": 263.0,
+   "price": 55.6963,
+   "dollars": 14648.13,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-27",
+   "symbol": "SOXX",
+   "action": "SELL",
+   "shares": 36.0,
+   "price": 349.67,
+   "dollars": 12588.12,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-27",
+   "symbol": "VLUE",
+   "action": "SELL",
+   "shares": 93.0,
+   "price": 149.73,
+   "dollars": 13924.89,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-27",
+   "symbol": "IYT",
+   "action": "SELL",
+   "shares": 166.0,
+   "price": 81.24,
+   "dollars": 13485.84,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-02-27",
+   "symbol": "USO",
+   "action": "BUY",
+   "shares": 97.0,
+   "price": 81.99,
+   "dollars": 7953.03,
+   "reason": "SCORE_0.75_HEALTH_0.77",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-03",
+   "symbol": "XLP",
+   "action": "BUY",
+   "shares": 286.0,
+   "price": 88.35,
+   "dollars": 25268.1,
+   "reason": "SCORE_0.71_HEALTH_0.67",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-04",
+   "symbol": "USO",
+   "action": "SELL",
+   "shares": 97.0,
+   "price": 90.18,
+   "dollars": 8747.46,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-04",
+   "symbol": "XLP",
+   "action": "SELL",
+   "shares": 286.0,
+   "price": 87.81,
+   "dollars": 25113.66,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-04",
+   "symbol": "GLD",
+   "action": "BUY",
+   "shares": 15.0,
+   "price": 474.8,
+   "dollars": 7122.0,
+   "reason": "SCORE_0.89_HEALTH_0.98",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-04",
+   "symbol": "SLV",
+   "action": "BUY",
+   "shares": 92.0,
+   "price": 76.34,
+   "dollars": 7023.28,
+   "reason": "SCORE_0.85_HEALTH_1.00",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-05",
+   "symbol": "XLP",
+   "action": "BUY",
+   "shares": 147.0,
+   "price": 86.335,
+   "dollars": 12691.24,
+   "reason": "SCORE_0.72_HEALTH_0.70",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-06",
+   "symbol": "GLD",
+   "action": "SELL",
+   "shares": 15.0,
+   "price": 469.04,
+   "dollars": 7035.6,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-06",
+   "symbol": "SLV",
+   "action": "SELL",
+   "shares": 92.0,
+   "price": 75.13,
+   "dollars": 6911.96,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-06",
+   "symbol": "XLP",
+   "action": "SELL",
+   "shares": 147.0,
+   "price": 84.91,
+   "dollars": 12481.77,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-10",
+   "symbol": "GLD",
+   "action": "BUY",
+   "shares": 26.0,
+   "price": 479.74,
+   "dollars": 12473.24,
+   "reason": "SCORE_0.77_HEALTH_0.94",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-10",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 49.0,
+   "price": 240.84,
+   "dollars": 11801.16,
+   "reason": "SCORE_0.75_HEALTH_0.87",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-10",
+   "symbol": "XLE",
+   "action": "BUY",
+   "shares": 229.0,
+   "price": 56.055,
+   "dollars": 12836.59,
+   "reason": "SCORE_0.73_HEALTH_0.87",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-10",
+   "symbol": "SLV",
+   "action": "BUY",
+   "shares": 159.0,
+   "price": 80.92,
+   "dollars": 12866.28,
+   "reason": "SCORE_0.67_HEALTH_0.94",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-11",
+   "symbol": "SLV",
+   "action": "SELL",
+   "shares": 6.0,
+   "price": 78.0636,
+   "dollars": 468.38,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-12",
+   "symbol": "XLE",
+   "action": "REDUCE",
+   "shares": 114.5,
+   "price": 57.13,
+   "dollars": 6541.39,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-13",
+   "symbol": "GLD",
+   "action": "SELL",
+   "shares": 26.0,
+   "price": 469.31,
+   "dollars": 12202.06,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-13",
+   "symbol": "ITA",
+   "action": "SELL",
+   "shares": 49.0,
+   "price": 232.34,
+   "dollars": 11384.66,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-13",
+   "symbol": "XLE",
+   "action": "SELL",
+   "shares": 114.5,
+   "price": 57.5,
+   "dollars": 6583.75,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-13",
+   "symbol": "SLV",
+   "action": "SELL",
+   "shares": 153.0,
+   "price": 76.03,
+   "dollars": 11632.59,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-17",
+   "symbol": "GLD",
+   "action": "BUY",
+   "shares": 26.0,
+   "price": 460.51,
+   "dollars": 11973.26,
+   "reason": "SCORE_0.73_HEALTH_0.86",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-19",
+   "symbol": "GLD",
+   "action": "SELL",
+   "shares": 26.0,
+   "price": 420.36,
+   "dollars": 10929.36,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-20",
+   "symbol": "GLD",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 428.09,
+   "dollars": 1284.27,
+   "reason": "SCORE_0.89_HEALTH_0.96",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-20",
+   "symbol": "USO",
+   "action": "BUY",
+   "shares": 13.0,
+   "price": 118.97,
+   "dollars": 1546.61,
+   "reason": "SCORE_0.83_HEALTH_0.97",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-20",
+   "symbol": "SLV",
+   "action": "BUY",
+   "shares": 26.0,
+   "price": 64.73,
+   "dollars": 1682.98,
+   "reason": "SCORE_0.82_HEALTH_0.97",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-20",
+   "symbol": "DBC",
+   "action": "BUY",
+   "shares": 66.0,
+   "price": 28.88,
+   "dollars": 1906.08,
+   "reason": "SCORE_0.82_HEALTH_0.78",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "GLD",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 400.24,
+   "dollars": 1200.72,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "USO",
+   "action": "SELL",
+   "shares": 13.0,
+   "price": 115.225,
+   "dollars": 1497.92,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "SLV",
+   "action": "SELL",
+   "shares": 26.0,
+   "price": 61.57,
+   "dollars": 1600.82,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-24",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 66.0,
+   "price": 28.2,
+   "dollars": 1861.2,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-25",
+   "symbol": "DBC",
+   "action": "BUY",
+   "shares": 55.0,
+   "price": 27.805,
+   "dollars": 1529.28,
+   "reason": "SCORE_0.85_HEALTH_0.82",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-25",
+   "symbol": "USO",
+   "action": "BUY",
+   "shares": 13.0,
+   "price": 109.29,
+   "dollars": 1420.77,
+   "reason": "SCORE_0.81_HEALTH_0.98",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-25",
+   "symbol": "GLD",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 419.705,
+   "dollars": 1259.12,
+   "reason": "SCORE_0.78_HEALTH_0.83",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-26",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 55.0,
+   "price": 28.44,
+   "dollars": 1564.2,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-26",
+   "symbol": "USO",
+   "action": "SELL",
+   "shares": 13.0,
+   "price": 116.73,
+   "dollars": 1517.49,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-26",
+   "symbol": "GLD",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 408.53,
+   "dollars": 1225.59,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-27",
+   "symbol": "GLD",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 406.2,
+   "dollars": 1218.6,
+   "reason": "SCORE_0.89_HEALTH_0.95",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-27",
+   "symbol": "DBC",
+   "action": "BUY",
+   "shares": 59.0,
+   "price": 28.85,
+   "dollars": 1702.15,
+   "reason": "SCORE_0.86_HEALTH_0.82",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-03-27",
+   "symbol": "SLV",
+   "action": "BUY",
+   "shares": 26.0,
+   "price": 61.45,
+   "dollars": 1597.7,
+   "reason": "SCORE_0.79_HEALTH_0.85",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-01",
+   "symbol": "GLD",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 435.0,
+   "dollars": 1305.0,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-01",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 59.0,
+   "price": 28.67,
+   "dollars": 1691.53,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-01",
+   "symbol": "SLV",
+   "action": "SELL",
+   "shares": 26.0,
+   "price": 67.935,
+   "dollars": 1766.31,
+   "reason": "REGIME_PANIC",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-02",
+   "symbol": "DBC",
+   "action": "BUY",
+   "shares": 112.0,
+   "price": 29.47,
+   "dollars": 3300.64,
+   "reason": "SCORE_0.75_HEALTH_0.70",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "ARKK",
+   "action": "BUY",
+   "shares": 139.0,
+   "price": 68.1,
+   "dollars": 9465.9,
+   "reason": "SCORE_0.80_HEALTH_0.86",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "VUG",
+   "action": "BUY",
+   "shares": 25.0,
+   "price": 442.46,
+   "dollars": 11061.5,
+   "reason": "SCORE_0.71_HEALTH_0.81",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "FXI",
+   "action": "BUY",
+   "shares": 312.0,
+   "price": 35.355,
+   "dollars": 11030.76,
+   "reason": "SCORE_0.71_HEALTH_0.79",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "XBI",
+   "action": "BUY",
+   "shares": 92.0,
+   "price": 128.13,
+   "dollars": 11787.96,
+   "reason": "SCORE_0.70_HEALTH_0.89",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "XLF",
+   "action": "BUY",
+   "shares": 239.0,
+   "price": 49.61,
+   "dollars": 11856.79,
+   "reason": "SCORE_0.70_HEALTH_0.82",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "XRT",
+   "action": "BUY",
+   "shares": 144.0,
+   "price": 81.555,
+   "dollars": 11743.92,
+   "reason": "SCORE_0.69_HEALTH_0.85",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-07",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 193.5,
+   "dollars": 387.0,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-08",
+   "symbol": "ARKK",
+   "action": "SELL",
+   "shares": 8.0,
+   "price": 73.17,
+   "dollars": 585.36,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-08",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 14.0,
+   "price": 36.545,
+   "dollars": 511.63,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-08",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 2.0,
+   "price": 132.405,
+   "dollars": 264.81,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-09",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 11.0,
+   "price": 28.79,
+   "dollars": 316.69,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-09",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 25.0,
+   "price": 36.045,
+   "dollars": 901.12,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-09",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 197.255,
+   "dollars": 789.02,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-10",
+   "symbol": "FXI",
+   "action": "REDUCE",
+   "shares": 136.5,
+   "price": 36.43,
+   "dollars": 4972.69,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-10",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 21.0,
+   "price": 36.43,
+   "dollars": 765.03,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-10",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 198.33,
+   "dollars": 594.99,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-14",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 28.0,
+   "price": 36.53,
+   "dollars": 1022.84,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-14",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 199.2,
+   "dollars": 398.4,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-15",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 21.0,
+   "price": 36.68,
+   "dollars": 770.28,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-15",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 199.73,
+   "dollars": 599.19,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-16",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 21.0,
+   "price": 37.36,
+   "dollars": 784.56,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-16",
+   "symbol": "SOXX",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 400.71,
+   "dollars": 400.71,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-17",
+   "symbol": "XRT",
+   "action": "REDUCE",
+   "shares": 72.0,
+   "price": 85.695,
+   "dollars": 6170.04,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-17",
+   "symbol": "ARKK",
+   "action": "SELL",
+   "shares": 4.0,
+   "price": 79.13,
+   "dollars": 316.52,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-17",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 14.0,
+   "price": 37.62,
+   "dollars": 526.68,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-21",
+   "symbol": "ARKK",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 79.45,
+   "dollars": 397.25,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-21",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 16.0,
+   "price": 37.52,
+   "dollars": 600.32,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-22",
+   "symbol": "XLF",
+   "action": "REDUCE",
+   "shares": 119.5,
+   "price": 52.485,
+   "dollars": 6271.96,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-22",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 13.0,
+   "price": 37.005,
+   "dollars": 481.07,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-22",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 4.0,
+   "price": 82.24,
+   "dollars": 328.96,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-22",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 2.0,
+   "price": 137.775,
+   "dollars": 275.55,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-22",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 52.485,
+   "dollars": 262.43,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-22",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 225.2,
+   "dollars": 900.8,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-23",
+   "symbol": "FXI",
+   "action": "REDUCE",
+   "shares": 1.25,
+   "price": 36.755,
+   "dollars": 45.94,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-23",
+   "symbol": "ARKK",
+   "action": "SELL",
+   "shares": 4.0,
+   "price": 78.49,
+   "dollars": 313.96,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-23",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 11.0,
+   "price": 29.59,
+   "dollars": 325.49,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-23",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 2.0,
+   "price": 137.01,
+   "dollars": 274.02,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-23",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 6.0,
+   "price": 52.11,
+   "dollars": 312.66,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-23",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 219.0,
+   "dollars": 876.0,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-23",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 202.435,
+   "dollars": 607.31,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-24",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 11.0,
+   "price": 29.78,
+   "dollars": 327.58,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-24",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 4.0,
+   "price": 82.34,
+   "dollars": 329.36,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-24",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 2.0,
+   "price": 134.79,
+   "dollars": 269.58,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-24",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 7.0,
+   "price": 51.62,
+   "dollars": 361.34,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-24",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 5.0,
+   "price": 217.41,
+   "dollars": 1087.05,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-28",
+   "symbol": "ARKK",
+   "action": "SELL",
+   "shares": 8.0,
+   "price": 75.02,
+   "dollars": 600.16,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-28",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 82.605,
+   "dollars": 413.03,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-28",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 132.8,
+   "dollars": 398.4,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-28",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 7.0,
+   "price": 52.215,
+   "dollars": 365.5,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-28",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 215.715,
+   "dollars": 862.86,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-28",
+   "symbol": "SOXX",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 437.2,
+   "dollars": 437.2,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-29",
+   "symbol": "RSP",
+   "action": "REDUCE",
+   "shares": 8.5,
+   "price": 200.81,
+   "dollars": 1706.88,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-29",
+   "symbol": "ARKK",
+   "action": "SELL",
+   "shares": 9.0,
+   "price": 74.355,
+   "dollars": 669.2,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-29",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 82.46,
+   "dollars": 412.3,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-29",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 2.0,
+   "price": 130.05,
+   "dollars": 260.1,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-29",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 216.53,
+   "dollars": 433.06,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-30",
+   "symbol": "DBC",
+   "action": "REDUCE",
+   "shares": 39.5,
+   "price": 30.805,
+   "dollars": 1216.8,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-30",
+   "symbol": "ARKK",
+   "action": "SELL",
+   "shares": 8.0,
+   "price": 74.085,
+   "dollars": 592.68,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-30",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 13.0,
+   "price": 30.805,
+   "dollars": 400.46,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-30",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 83.155,
+   "dollars": 415.77,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-30",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 129.875,
+   "dollars": 389.62,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-30",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 6.0,
+   "price": 51.52,
+   "dollars": 309.12,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-30",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 215.205,
+   "dollars": 860.82,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-04-30",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 200.7,
+   "dollars": 401.4,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-01",
+   "symbol": "ARKK",
+   "action": "SELL",
+   "shares": 4.0,
+   "price": 75.89,
+   "dollars": 303.56,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-01",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 83.67,
+   "dollars": 418.35,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-01",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 130.91,
+   "dollars": 392.73,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-01",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 6.0,
+   "price": 52.41,
+   "dollars": 314.46,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-01",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 204.01,
+   "dollars": 816.04,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-01",
+   "symbol": "SOXX",
+   "action": "BUY",
+   "shares": 1.0,
+   "price": 458.215,
+   "dollars": 458.21,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "DBC",
+   "action": "REDUCE",
+   "shares": 13.25,
+   "price": 31.205,
+   "dollars": 413.47,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "ARKK",
+   "action": "REDUCE",
+   "shares": 44.5,
+   "price": 78.065,
+   "dollars": 3473.89,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "VUG",
+   "action": "REDUCE",
+   "shares": 61.0,
+   "price": 84.22,
+   "dollars": 5137.42,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "FXI",
+   "action": "REDUCE",
+   "shares": 0.625,
+   "price": 36.645,
+   "dollars": 22.9,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "XBI",
+   "action": "REDUCE",
+   "shares": 36.5,
+   "price": 135.155,
+   "dollars": 4933.16,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "XLF",
+   "action": "REDUCE",
+   "shares": 41.25,
+   "price": 51.57,
+   "dollars": 2127.26,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "XRT",
+   "action": "REDUCE",
+   "shares": 36.0,
+   "price": 83.845,
+   "dollars": 3018.42,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "RSP",
+   "action": "REDUCE",
+   "shares": 7.25,
+   "price": 202.42,
+   "dollars": 1467.54,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "SOXX",
+   "action": "REDUCE",
+   "shares": 1.5,
+   "price": 471.855,
+   "dollars": 707.78,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-05",
+   "symbol": "ITA",
+   "action": "REDUCE",
+   "shares": 11.5,
+   "price": 216.48,
+   "dollars": 2489.52,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-06",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 13.0,
+   "price": 30.41,
+   "dollars": 395.33,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-06",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 84.795,
+   "dollars": 254.38,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-06",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 2.0,
+   "price": 134.915,
+   "dollars": 269.83,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-06",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 7.0,
+   "price": 51.905,
+   "dollars": 363.34,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-06",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 220.45,
+   "dollars": 440.9,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-06",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 204.58,
+   "dollars": 409.16,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-07",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 0.25,
+   "price": 29.74,
+   "dollars": 7.43,
+   "reason": "HEALTH_COLLAPSE",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-07",
+   "symbol": "ARKK",
+   "action": "SELL",
+   "shares": 44.5,
+   "price": 79.435,
+   "dollars": 3534.86,
+   "reason": "HEALTH_COLLAPSE",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-07",
+   "symbol": "XBI",
+   "action": "REDUCE",
+   "shares": 17.25,
+   "price": 136.9,
+   "dollars": 2361.53,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-07",
+   "symbol": "SOXX",
+   "action": "SELL",
+   "shares": 1.5,
+   "price": 503.35,
+   "dollars": 755.03,
+   "reason": "HEALTH_COLLAPSE",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-07",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 11.0,
+   "price": 51.76,
+   "dollars": 569.36,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-07",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 205.145,
+   "dollars": 410.29,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-08",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 134.02,
+   "dollars": 402.06,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-08",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 6.0,
+   "price": 51.665,
+   "dollars": 309.99,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-08",
+   "symbol": "XRT",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 84.53,
+   "dollars": 253.59,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-21",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 87.08,
+   "dollars": 435.4,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-21",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 130.595,
+   "dollars": 391.78,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-21",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 8.0,
+   "price": 51.495,
+   "dollars": 411.96,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-21",
+   "symbol": "ITA",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 222.05,
+   "dollars": 444.1,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-21",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 202.95,
+   "dollars": 811.8,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-22",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 87.85,
+   "dollars": 263.55,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-22",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 132.865,
+   "dollars": 398.6,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-22",
+   "symbol": "XLF",
+   "action": "SELL",
+   "shares": 7.0,
+   "price": 51.9,
+   "dollars": 363.3,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-22",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 4.0,
+   "price": 205.71,
+   "dollars": 822.84,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-26",
+   "symbol": "FXI",
+   "action": "SELL",
+   "shares": 0.625,
+   "price": 35.62,
+   "dollars": 22.26,
+   "reason": "HEALTH_COLLAPSE",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-26",
+   "symbol": "ITA",
+   "action": "SELL",
+   "shares": 15.5,
+   "price": 228.16,
+   "dollars": 3536.48,
+   "reason": "HEALTH_COLLAPSE",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-26",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 4.0,
+   "price": 88.12,
+   "dollars": 352.48,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-26",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 3.0,
+   "price": 132.475,
+   "dollars": 397.42,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-26",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 3.0,
+   "price": 207.63,
+   "dollars": 622.89,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-28",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 6.0,
+   "price": 88.235,
+   "dollars": 529.41,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-28",
+   "symbol": "XBI",
+   "action": "SELL",
+   "shares": 4.0,
+   "price": 134.41,
+   "dollars": 537.64,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-28",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 5.0,
+   "price": 207.38,
+   "dollars": 1036.9,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-05-29",
+   "symbol": "XRT",
+   "action": "SELL",
+   "shares": 39.0,
+   "price": 85.11,
+   "dollars": 3319.29,
+   "reason": "HEALTH_COLLAPSE",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-02",
+   "symbol": "XLE",
+   "action": "BUY",
+   "shares": 179.0,
+   "price": 57.11,
+   "dollars": 10222.69,
+   "reason": "SCORE_0.78_HEALTH_0.86",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-02",
+   "symbol": "DBC",
+   "action": "BUY",
+   "shares": 305.0,
+   "price": 30.02,
+   "dollars": 9156.1,
+   "reason": "SCORE_0.74_HEALTH_0.85",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-02",
+   "symbol": "USO",
+   "action": "BUY",
+   "shares": 68.0,
+   "price": 135.06,
+   "dollars": 9184.08,
+   "reason": "SCORE_0.72_HEALTH_0.98",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-02",
+   "symbol": "EWZ",
+   "action": "BUY",
+   "shares": 285.0,
+   "price": 35.54,
+   "dollars": 10128.9,
+   "reason": "SCORE_0.70_HEALTH_0.73",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-02",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 4.0,
+   "price": 90.06,
+   "dollars": 360.24,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-02",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 209.105,
+   "dollars": 418.21,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-03",
+   "symbol": "EWZ",
+   "action": "SELL",
+   "shares": 10.0,
+   "price": 35.04,
+   "dollars": 350.4,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-03",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 4.0,
+   "price": 89.915,
+   "dollars": 359.66,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-03",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 209.34,
+   "dollars": 418.68,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-04",
+   "symbol": "XLE",
+   "action": "REDUCE",
+   "shares": 89.5,
+   "price": 58.43,
+   "dollars": 5229.48,
+   "reason": "REGIME_SHIFT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-04",
+   "symbol": "DBC",
+   "action": "REDUCE",
+   "shares": 152.5,
+   "price": 29.95,
+   "dollars": 4567.38,
+   "reason": "REGIME_SHIFT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-04",
+   "symbol": "USO",
+   "action": "REDUCE",
+   "shares": 34.0,
+   "price": 136.75,
+   "dollars": 4649.5,
+   "reason": "REGIME_SHIFT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-04",
+   "symbol": "EWZ",
+   "action": "REDUCE",
+   "shares": 137.5,
+   "price": 34.925,
+   "dollars": 4802.19,
+   "reason": "REGIME_SHIFT",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-04",
+   "symbol": "EWZ",
+   "action": "SELL",
+   "shares": 9.0,
+   "price": 34.925,
+   "dollars": 314.32,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-04",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 88.28,
+   "dollars": 441.4,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-04",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 210.015,
+   "dollars": 420.03,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-05",
+   "symbol": "XLE",
+   "action": "REDUCE",
+   "shares": 44.75,
+   "price": 58.665,
+   "dollars": 2625.26,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-05",
+   "symbol": "EWZ",
+   "action": "SELL",
+   "shares": 15.0,
+   "price": 34.3,
+   "dollars": 514.5,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-05",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 88.35,
+   "dollars": 441.75,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-05",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 5.0,
+   "price": 209.925,
+   "dollars": 1049.62,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-09",
+   "symbol": "XLF",
+   "action": "REDUCE",
+   "shares": 1.125,
+   "price": 52.18000030517578,
+   "dollars": 58.7,
+   "reason": "HEALTH_DROP",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-09",
+   "symbol": "DBC",
+   "action": "SELL",
+   "shares": 11.0,
+   "price": 29.270000457763672,
+   "dollars": 321.97,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-09",
+   "symbol": "EWZ",
+   "action": "SELL",
+   "shares": 10.0,
+   "price": 33.9900016784668,
+   "dollars": 339.9,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-09",
+   "symbol": "VUG",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 86.72000122070312,
+   "dollars": 433.6,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-09",
+   "symbol": "XLE",
+   "action": "SELL",
+   "shares": 5.0,
+   "price": 58.08000183105469,
+   "dollars": 290.4,
+   "reason": "ORB1_TILT_TRIM",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-09",
+   "symbol": "FXI",
+   "action": "BUY",
+   "shares": 15.0,
+   "price": 34.970001220703125,
+   "dollars": 524.55,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  },
+  {
+   "date": "2026-06-09",
+   "symbol": "RSP",
+   "action": "BUY",
+   "shares": 2.0,
+   "price": 208.63999938964844,
+   "dollars": 417.28,
+   "reason": "ORB1_TILT_BUY",
+   "variant": "hybrid"
+  }
+ ],
+ "final_holdings": [
+  {
+   "symbol": "VUG",
+   "shares": 17.0,
+   "entry_price": 73.74333333333333,
+   "peak_price": 90.295,
+   "close_price": 85.07499694824219
+  },
+  {
+   "symbol": "XBI",
+   "shares": 1.25,
+   "entry_price": 128.13,
+   "peak_price": 138.65,
+   "close_price": 133.52000427246094
+  },
+  {
+   "symbol": "XLF",
+   "shares": 1.125,
+   "entry_price": 49.61,
+   "peak_price": 52.63,
+   "close_price": 52.61000061035156
+  },
+  {
+   "symbol": "RSP",
+   "shares": 40.25,
+   "entry_price": 205.972701833026,
+   "peak_price": 210.8,
+   "close_price": 209.38499450683594
+  },
+  {
+   "symbol": "XLE",
+   "shares": 39.75,
+   "entry_price": 57.11,
+   "peak_price": 58.77,
+   "close_price": 58.09000015258789
+  },
+  {
+   "symbol": "DBC",
+   "shares": 141.5,
+   "entry_price": 30.02,
+   "peak_price": 30.295,
+   "close_price": 29.149999618530273
+  },
+  {
+   "symbol": "USO",
+   "shares": 34.0,
+   "entry_price": 135.06,
+   "peak_price": 140.89,
+   "close_price": 132.86500549316406
+  },
+  {
+   "symbol": "EWZ",
+   "shares": 103.5,
+   "entry_price": 35.54,
+   "peak_price": 35.785,
+   "close_price": 34.04999923706055
+  },
+  {
+   "symbol": "FXI",
+   "shares": 15.0,
+   "entry_price": 34.970001220703125,
+   "peak_price": 35.029998779296875,
+   "close_price": 35.029998779296875
+  }
+ ],
+ "final_cash": 84594.79,
+ "final_value": 109695.73,
+ "final_date": "2026-06-10",
+ "provisional_date": "2026-06-10"
+}

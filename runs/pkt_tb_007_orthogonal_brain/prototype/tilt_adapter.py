@@ -636,7 +636,12 @@ def make_tilt_strategy(genome: Genome007 | dict | str | Path,
                        masks: Optional[Dict[str, Dict[str, float]]] = None,
                        universe_csv: Path | str = REPO / "config" / "universe.csv",
                        risk: Optional[RiskStats] = None,
-                       min_order: float = MIN_ORDER_DEFAULT) -> Strategy:
+                       min_order: float = MIN_ORDER_DEFAULT,
+                       rllm: Optional[Dict[str, dict]] = None) -> Strategy:
+    """rllm: the R-LLM falsifier conditioner (BUILD_SPEC §2.6, BATTERY ARM
+    ONLY, never in ORB): {date: {"z": float|None, "g": float}} from
+    rllm_disag_007.py; T_t <- T_t * g. Default None => pathway absent
+    (B0-EXPR exactness chain untouched)."""
     if isinstance(genome, (str, Path)):
         genome = Genome007.from_json(Path(genome))
     elif isinstance(genome, dict):
@@ -682,6 +687,12 @@ def make_tilt_strategy(genome: Genome007 | dict | str | Path,
             _neutral(D, conv["neutral_reason"], conv)
             return incumbent_intents                       # UNCHANGED object
         T_t = conv["T_t"]
+        rllm_z, rllm_g = None, None
+        if rllm is not None:                               # §2.6 battery arm only
+            rec = rllm.get(D) or {}
+            rllm_z = rec.get("z")
+            rllm_g = float(rec.get("g", 1.0))
+            T_t *= rllm_g
         active, tau = conv["active"], conv["tau"]
 
         # ---- book state (lot-aggregated, C5 site 1) ------------------------
@@ -827,7 +838,7 @@ def make_tilt_strategy(genome: Genome007 | dict | str | Path,
               "organ_attribution": attribution,
               "intents_edits": edits,
               "marks_source": mark_src, "nav": round(nav, 2),
-              "rllm": {"z": None, "g": None},
+              "rllm": {"z": rllm_z, "g": rllm_g},
               "book_overlap_vs_chassis": round(overlap, 4),
               "parity_expost": {"gross_gap": None, "beta_gap_21d": None}})
         return new_intents
@@ -840,5 +851,6 @@ def make_tilt_strategy(genome: Genome007 | dict | str | Path,
         post_decision=post,
         params={"genome": genome.to_dict(), "genome_hash": genome.hash(),
                 "nightly_dir": str(nightly_dir), "min_order": min_order,
-                "masks": masks, "t_max": T_MAX},
+                "masks": masks, "t_max": T_MAX,
+                "rllm_conditioner": rllm is not None},
     )

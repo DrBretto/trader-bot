@@ -1,0 +1,42 @@
+{
+ "bounds_hi_sum": 0.14375000000000002,
+ "bounds_lo_sum": -0.0036624368896278807,
+ "channel": "tilt",
+ "conviction": {
+  "agree": 0.4735835389339087,
+  "c": 0.8197968518848318,
+  "organ_q": {
+   "M1": 0.7341,
+   "M2": 0.5516
+  }
+ },
+ "date": "2026-04-01",
+ "neutral": true,
+ "neutral_reason": "dead_zone_quantized",
+ "projection": {
+  "beta_resid": 5.772281339025974e-07,
+  "cash_resid": 6.971386693986653e-07,
+  "clipped": [
+   "AGG",
+   "DBC",
+   "FXE",
+   "FXI",
+   "GLD",
+   "ITA",
+   "IYR",
+   "KRE",
+   "MUB",
+   "SHY",
+   "SLV",
+   "TLT"
+  ],
+  "eps_sigma": 1.1321919886278618e-09,
+  "infeasible": true,
+  "iters": 5,
+  "sigma_resid": 1.1321919886278617e-08,
+  "sigma_shrink_passes": 50,
+  "sigma_shrunk": true
+ },
+ "residual_tilt_dollars": 0.04,
+ "support_n": 16
+}

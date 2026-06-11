@@ -1,0 +1,118 @@
+{
+ "book_overlap_vs_chassis": 0.9778,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.033005,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.8923,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "GLD": -0.00187,
+  "ITA": -0.001934,
+  "RSP": 0.001798,
+  "SLV": -0.004708,
+  "SOXX": 0.003863,
+  "USO": 0.004726,
+  "XLE": -0.001875
+ },
+ "conviction": {
+  "agree": 0.5833,
+  "c": 0.8251177423587961,
+  "disp_forecast_z": 2.038821,
+  "organ_q": {
+   "M1": 0.5833
+  }
+ },
+ "date": "2026-03-11",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "GLD",
+   "ITA",
+   "RSP",
+   "XLE"
+  ],
+  "rounding_absorber": "USO",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {
+  "AGG": 0.996188,
+  "KRE": 0.989313,
+  "MUB": 0.996188,
+  "SHY": 0.996188,
+  "TLT": 0.996188,
+  "USO": 0.952438
+ },
+ "marks_source": "features",
+ "nav": 105992.82,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "GLD": -0.00187019,
+   "ITA": -0.00193351,
+   "RSP": 0.00179783,
+   "SLV": -0.00470796,
+   "SOXX": 0.00386302,
+   "USO": 0.00472611,
+   "XLE": -0.0018753
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.7916,
+   "FXE": -0.3661,
+   "FXI": -0.18,
+   "ITA": 0.3661,
+   "KRE": 1.0676,
+   "MUB": -1.4652,
+   "RSP": 0.5659,
+   "SHY": -0.5659,
+   "SOXX": 1.4652,
+   "TLT": -1.0676,
+   "USO": 0.18,
+   "XRT": 0.7916
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 0.0,
+  "cash_resid": -2.168404344971009e-19,
+  "clipped": [
+   "AGG",
+   "FXE",
+   "FXI",
+   "IYR",
+   "KRE",
+   "MUB",
+   "SHY",
+   "TLT",
+   "XRT"
+  ],
+  "eps_sigma": 5.955717162948414e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": -5.464120972502944e-05
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "GLD": -0.00187019,
+  "ITA": -0.00193351,
+  "RSP": 0.00179783,
+  "SLV": -0.00470796,
+  "SOXX": 0.00386302,
+  "USO": 0.00472611,
+  "XLE": -0.0018753
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

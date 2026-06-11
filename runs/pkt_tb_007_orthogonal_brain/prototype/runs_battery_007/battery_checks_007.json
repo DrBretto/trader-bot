@@ -1,0 +1,30 @@
+{
+ "generated": "2026-06-11T01:50:39",
+ "checks": {
+  "sha256_timeline.json": {
+   "D01": "4f06fcb1974f81a4df52e75388a2524f263e4e9fefe9bd5e754b4c3ec2b35874",
+   "D02": "4f06fcb1974f81a4df52e75388a2524f263e4e9fefe9bd5e754b4c3ec2b35874",
+   "equal": true
+  },
+  "sha256_daily_series.csv": {
+   "D01": "71dc554a269355f2fec83cf80b376a66bb65b818b64602a77378513cde091a08",
+   "D02": "71dc554a269355f2fec83cf80b376a66bb65b818b64602a77378513cde091a08",
+   "equal": true
+  },
+  "sha256_cost_overlay.json": {
+   "D01": "ce36d76e7635746482232759f10cf39688dc37ba0ed68d7ae92044a5f33d7450",
+   "D02": "ce36d76e7635746482232759f10cf39688dc37ba0ed68d7ae92044a5f33d7450",
+   "equal": true
+  },
+  "D08_SEED4243_raw_identical_to_D03": {
+   "raw_col": true,
+   "timeline_sha": true
+  },
+  "D09_SEED4244_raw_identical_to_D03": {
+   "raw_col": true,
+   "timeline_sha": true
+  },
+  "D06_timeline_equals_D03": true
+ },
+ "wall_clock_total_s": 37.2
+}

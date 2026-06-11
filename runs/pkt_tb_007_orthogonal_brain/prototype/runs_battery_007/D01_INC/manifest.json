@@ -1,0 +1,50 @@
+{
+ "generated": "2026-06-11T01:50:05",
+ "command": "python /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/run_replay_007.py --arm incumbent --window live --out /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/D01_INC --cost-seed 4242",
+ "arm": "incumbent",
+ "window": "live",
+ "code_sha": {
+  "git": "85b0572312b2+dirty"
+ },
+ "genome": null,
+ "genome_hash": null,
+ "masks_hash": null,
+ "variant_params_hash": "3023921c7bc7",
+ "snapshot_range": [
+  "2026-01-31",
+  "2026-06-10"
+ ],
+ "n_trading_dates": 86,
+ "start_portfolio_date_used": "2026-01-31",
+ "native_start_portfolio_date": "2026-03-11",
+ "lot_patch": "lot_fix_007._execute_intents_lotfix (both arms)",
+ "cost_model": {
+  "seed": 4242,
+  "version_sha": "bf8b77716f74"
+ },
+ "nightly_dir": null,
+ "rllm_conditioner": null,
+ "organ_inputs_audited": null,
+ "holdout_guard_env_set": true,
+ "wall_clock_s": 3.1,
+ "summary": {
+  "arm": "incumbent",
+  "window": "live",
+  "n_decision_dates": 67,
+  "first_date": "2026-02-02",
+  "last_date": "2026-06-10",
+  "start_value": 100764.57,
+  "final_value_raw": 111052.58,
+  "final_value_cost_adjusted": 110696.48068195056,
+  "n_executed_actions": 121,
+  "actions_per_decision_date": 1.806,
+  "total_traded_dollars": 1066290.77,
+  "total_cost_dollars": 356.0993,
+  "cost_drag_bps_of_start_nav": 35.34,
+  "cost_bps_of_traded": 3.34,
+  "sha256_timeline": "4f06fcb1974f81a4df52e75388a2524f263e4e9fefe9bd5e754b4c3ec2b35874",
+  "sha256_daily_series": "71dc554a269355f2fec83cf80b376a66bb65b818b64602a77378513cde091a08"
+ },
+ "evidence_protocol": "committee/EVIDENCE_PROTOCOL.md V1",
+ "pre_registration": "runs/pkt_tb_007_orthogonal_brain/TOURNAMENT_007.md \u00a74"
+}

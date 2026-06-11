@@ -1,0 +1,11 @@
+{
+  "tilt_gain": 0.5,
+  "conviction_temp": 1.0,
+  "dead_zone": 0.05,
+  "disp_gain": 1.0,
+  "cap_core": 0.0125,
+  "cap_conditional": 0.00625,
+  "defensive_fraction": 0.25,
+  "event_damp_strength": 0.0,
+  "organ_trust": {"M1": 1.0, "M2": 1.0}
+}

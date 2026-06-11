@@ -1,0 +1,166 @@
+{
+ "a": "apriori@seed4244 (deviation: a-priori genome, instrument-failed EA)",
+ "b": "apriori@4242 (deviation: a-priori genome, instrument-failed EA)",
+ "run_dir_a": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/D09_SEED4244",
+ "run_dir_b": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/D03_APRIORI",
+ "holdout_start": "2026-03-11",
+ "manifest_a": {
+  "arm": "orb1",
+  "window": "live",
+  "n_decision_dates": 67,
+  "first_date": "2026-02-02",
+  "last_date": "2026-06-10",
+  "start_value": 100766.47,
+  "final_value_raw": 109635.0,
+  "final_value_cost_adjusted": 109299.31523174058,
+  "n_executed_actions": 246,
+  "actions_per_decision_date": 3.672,
+  "total_traded_dollars": 1065404.41,
+  "total_cost_dollars": 335.6848,
+  "cost_drag_bps_of_start_nav": 33.313,
+  "cost_bps_of_traded": 3.151,
+  "sha256_timeline": "38d3c6096eafe35af654b539c1836bf32ae9b252e836a890c9c33ab1c25bc9a0",
+  "sha256_daily_series": "8e7ee198ba42ca5406f88367e4b48ee609462f4321310ca42b9f0e4bfb69ac6d"
+ },
+ "manifest_b": {
+  "arm": "orb1",
+  "window": "live",
+  "n_decision_dates": 67,
+  "first_date": "2026-02-02",
+  "last_date": "2026-06-10",
+  "start_value": 100766.47,
+  "final_value_raw": 109635.0,
+  "final_value_cost_adjusted": 109286.5366010158,
+  "n_executed_actions": 246,
+  "actions_per_decision_date": 3.672,
+  "total_traded_dollars": 1065404.41,
+  "total_cost_dollars": 348.4634,
+  "cost_drag_bps_of_start_nav": 34.581,
+  "cost_bps_of_traded": 3.271,
+  "sha256_timeline": "38d3c6096eafe35af654b539c1836bf32ae9b252e836a890c9c33ab1c25bc9a0",
+  "sha256_daily_series": "6f86c4e397fe63feb668460f1493d89ec51ba0cbddd3ed4e424a8cf429f3c481"
+ },
+ "genome_a": "952a2f5a565e",
+ "genome_b": "952a2f5a565e",
+ "full_period": {
+  "metrics_a": {
+   "window_start": "2026-02-02",
+   "window_end": "2026-06-10",
+   "n_days": 67,
+   "total_return": 0.08468281688459389,
+   "cagr": 0.36393086542401454,
+   "sharpe": 3.5556893450136426,
+   "max_drawdown": 0.027448883271893654,
+   "win_rate": 0.5606060606060606,
+   "realized_round_trips": 164,
+   "cumulative_transaction_costs": 335.3682744687976,
+   "avg_gross_exposure": 0.3467927517378129
+  },
+  "metrics_b": {
+   "window_start": "2026-02-02",
+   "window_end": "2026-06-10",
+   "n_days": 67,
+   "total_return": 0.08455586296238038,
+   "cagr": 0.36332143981625564,
+   "sharpe": 3.548242997416904,
+   "max_drawdown": 0.02750401856324236,
+   "win_rate": 0.5606060606060606,
+   "realized_round_trips": 164,
+   "cumulative_transaction_costs": 348.15983923383465,
+   "avg_gross_exposure": 0.3467927517378129
+  },
+  "delta": {
+   "total_return": 0.00012695392221351298,
+   "cagr": 0.0006094256077588955,
+   "sharpe": 0.007446347596738789,
+   "max_drawdown": -5.513529134870687e-05,
+   "win_rate": 0.0,
+   "realized_round_trips": 0,
+   "cumulative_transaction_costs": -12.791564765037037,
+   "avg_gross_exposure": 0.0
+  },
+  "paired_daily": {
+   "n": 66,
+   "mean": 1.7545974006527913e-06,
+   "sd": 1.8394423144974254e-05,
+   "t": 0.7749314319472049,
+   "mean_bp_day": 0.017545974006527913,
+   "sd_bp_day": 0.18394423144974253,
+   "first_date": "2026-02-03",
+   "last_date": "2026-06-10",
+   "hac_t": 0.9882468993024726,
+   "hac_se": 1.7754646150584703e-06,
+   "ci95": [
+    -1.7253132448618103e-06,
+    5.2345080461673925e-06
+   ],
+   "mde": 3.5509292301169406e-06,
+   "ci90": [
+    -1.1660418911183923e-06,
+    4.675236692423975e-06
+   ]
+  }
+ },
+ "holdout_only": {
+  "metrics_a": {
+   "window_start": "2026-03-11",
+   "window_end": "2026-06-10",
+   "n_days": 45,
+   "total_return": 0.0345345506685113,
+   "cagr": 0.21464294935005213,
+   "sharpe": 2.4245010890696794,
+   "max_drawdown": 0.01918132647189308,
+   "win_rate": 0.5909090909090909,
+   "realized_round_trips": 116,
+   "cumulative_transaction_costs": 118.62002094178752,
+   "avg_gross_exposure": 0.2969322882641436
+  },
+  "metrics_b": {
+   "window_start": "2026-03-11",
+   "window_end": "2026-06-10",
+   "n_days": 45,
+   "total_return": 0.034575584027617845,
+   "cagr": 0.21491889864239644,
+   "sharpe": 2.426738281591185,
+   "max_drawdown": 0.01919854771285734,
+   "win_rate": 0.5909090909090909,
+   "realized_round_trips": 116,
+   "cumulative_transaction_costs": 114.85676267574308,
+   "avg_gross_exposure": 0.2969322882641436
+  },
+  "delta": {
+   "total_return": -4.103335910654593e-05,
+   "cagr": -0.000275949292344313,
+   "sharpe": -0.002237192521505449,
+   "max_drawdown": -1.7221240964260254e-05,
+   "win_rate": 0.0,
+   "realized_round_trips": 0,
+   "cumulative_transaction_costs": 3.7632582660444314,
+   "avg_gross_exposure": 0.0
+  },
+  "paired_daily": {
+   "n": 44,
+   "mean": -9.081643938989682e-07,
+   "sd": 7.9287181655792e-06,
+   "t": -0.7597799491977205,
+   "mean_bp_day": -0.009081643938989682,
+   "sd_bp_day": 0.079287181655792,
+   "first_date": "2026-03-12",
+   "last_date": "2026-06-10",
+   "hac_t": -1.215016170184007,
+   "hac_se": 7.474504588374589e-07,
+   "ci95": [
+    -2.3731672932203876e-06,
+    5.568385054224514e-07
+   ],
+   "mde": 1.4949009176749179e-06,
+   "ci90": [
+    -2.1377203986865884e-06,
+    3.2139161088865187e-07
+   ]
+  }
+ },
+ "cmp_id": "DEV_D09_SEED4244_vs_D03",
+ "label": "**COST-SEED SENSITIVITY** (deviation: a-priori genome, instrument-failed EA) \u2014 same config, cost seed 4244. Raw series + timeline asserted byte-identical to D03; only the cost overlay moves.",
+ "generated": "2026-06-11T01:57:50"
+}

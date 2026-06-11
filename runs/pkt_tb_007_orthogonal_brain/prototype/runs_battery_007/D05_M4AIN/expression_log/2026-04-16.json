@@ -1,0 +1,167 @@
+{
+ "book_overlap_vs_chassis": 0.976,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.022047,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.3855,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "AGG": 0.000432,
+  "ARKK": -0.002292,
+  "DBC": -2.2e-05,
+  "FXE": 0.000408,
+  "FXI": -0.00941,
+  "ITA": 0.00175,
+  "IYR": 0.000241,
+  "KRE": 0.000278,
+  "MUB": 0.000427,
+  "RSP": 0.004637,
+  "SHY": 0.00049,
+  "SOXX": 0.005221,
+  "TLT": 0.000322,
+  "USO": 0.000376,
+  "VUG": -0.001157,
+  "XBI": -0.001333,
+  "XLF": -0.00064,
+  "XRT": 0.000271
+ },
+ "conviction": {
+  "agree": 0.0159,
+  "c": 0.5511779014857845,
+  "disp_forecast_z": 0.724654,
+  "organ_q": {
+   "M1": 0.0159
+  }
+ },
+ "date": "2026-04-16",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "AGG",
+   "ARKK",
+   "DBC",
+   "FXE",
+   "ITA",
+   "IYR",
+   "KRE",
+   "MUB",
+   "SHY",
+   "TLT",
+   "USO",
+   "VUG",
+   "XBI",
+   "XLF",
+   "XRT"
+  ],
+  "rounding_absorber": "FXI",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {
+  "AGG": 0.96275,
+  "FXE": 0.98975,
+  "FXI": 0.983437,
+  "ITA": 0.942063,
+  "IYR": 0.965437,
+  "KRE": 0.999687,
+  "MUB": 0.96275,
+  "RSP": 0.948375,
+  "SHY": 0.96275,
+  "SOXX": 0.961625,
+  "TLT": 0.96275,
+  "USO": 0.925375,
+  "XRT": 0.982313
+ },
+ "marks_source": "features",
+ "nav": 108587.5,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "AGG": 0.00043212,
+   "ARKK": -0.00229155,
+   "DBC": -2.173e-05,
+   "FXE": 0.00040769,
+   "FXI": -0.00940982,
+   "ITA": 0.00175043,
+   "IYR": 0.00024081,
+   "KRE": 0.00027819,
+   "MUB": 0.00042733,
+   "RSP": 0.00463697,
+   "SHY": 0.00048969,
+   "SOXX": 0.00522075,
+   "TLT": 0.00032161,
+   "USO": 0.0003759,
+   "VUG": -0.00115712,
+   "XBI": -0.00133285,
+   "XLF": -0.00063953,
+   "XRT": 0.0002711
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.18,
+   "FXE": -1.0676,
+   "FXI": -1.4652,
+   "ITA": 0.5659,
+   "KRE": 0.7916,
+   "MUB": -0.7916,
+   "RSP": 1.0676,
+   "SHY": -0.3661,
+   "SOXX": 1.4652,
+   "TLT": -0.5659,
+   "USO": 0.18,
+   "XRT": 0.3661
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 0.0,
+  "cash_resid": -2.8189256484623115e-18,
+  "clipped": [
+   "AGG",
+   "FXE",
+   "IYR",
+   "KRE",
+   "MUB",
+   "SHY",
+   "TLT"
+  ],
+  "eps_sigma": 5.094861436745571e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": 0.0
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "AGG": 0.00043212,
+  "ARKK": -0.00229155,
+  "DBC": -2.173e-05,
+  "FXE": 0.00040769,
+  "FXI": -0.00940982,
+  "ITA": 0.00175043,
+  "IYR": 0.00024081,
+  "KRE": 0.00027819,
+  "MUB": 0.00042733,
+  "RSP": 0.00463697,
+  "SHY": 0.00048969,
+  "SOXX": 0.00522075,
+  "TLT": 0.00032161,
+  "USO": 0.0003759,
+  "VUG": -0.00115712,
+  "XBI": -0.00133285,
+  "XLF": -0.00063953,
+  "XRT": 0.0002711
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "channel": "tilt",
+ "conviction": {
+  "agree": null,
+  "c": 0.0,
+  "disp_forecast_z": null,
+  "organ_q": {}
+ },
+ "date": "2026-04-22",
+ "neutral": true,
+ "neutral_reason": "no_active_directional_organ"
+}

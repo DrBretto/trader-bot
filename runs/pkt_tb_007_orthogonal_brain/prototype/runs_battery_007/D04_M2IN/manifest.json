@@ -1,0 +1,63 @@
+{
+ "generated": "2026-06-11T01:50:17",
+ "command": "python /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/run_replay_007.py --arm orb1 --window live --out /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/runs_battery_007/D04_M2IN --cost-seed 4242 --genome /Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/genomes_007/apriori_m2in.json",
+ "arm": "orb1",
+ "window": "live",
+ "code_sha": {
+  "git": "85b0572312b2+dirty"
+ },
+ "genome": {
+  "tilt_gain": 0.5,
+  "conviction_temp": 1.0,
+  "dead_zone": 0.05,
+  "disp_gain": 1.0,
+  "cap_core": 0.0125,
+  "cap_conditional": 0.00625,
+  "defensive_fraction": 0.25,
+  "event_damp_strength": 0.0,
+  "organ_trust": {
+   "M1": 1.0,
+   "M2": 1.0
+  }
+ },
+ "genome_hash": "fd0ff602ac7b",
+ "masks_hash": "507988de6101",
+ "variant_params_hash": "3023921c7bc7",
+ "snapshot_range": [
+  "2026-01-31",
+  "2026-06-10"
+ ],
+ "n_trading_dates": 86,
+ "start_portfolio_date_used": "2026-01-31",
+ "native_start_portfolio_date": "2026-03-11",
+ "lot_patch": "lot_fix_007._execute_intents_lotfix (both arms)",
+ "cost_model": {
+  "seed": 4242,
+  "version_sha": "bf8b77716f74"
+ },
+ "nightly_dir": "/Users/drbretto/Desktop/Projects/trader-bot/runs/pkt_tb_007_orthogonal_brain/prototype/store/nightly_007",
+ "rllm_conditioner": null,
+ "organ_inputs_audited": 66,
+ "holdout_guard_env_set": true,
+ "wall_clock_s": 4.2,
+ "summary": {
+  "arm": "orb1",
+  "window": "live",
+  "n_decision_dates": 67,
+  "first_date": "2026-02-02",
+  "last_date": "2026-06-10",
+  "start_value": 100759.19,
+  "final_value_raw": 109603.76,
+  "final_value_cost_adjusted": 109240.96491736776,
+  "n_executed_actions": 266,
+  "actions_per_decision_date": 3.97,
+  "total_traded_dollars": 1076308.92,
+  "total_cost_dollars": 362.7951,
+  "cost_drag_bps_of_start_nav": 36.006,
+  "cost_bps_of_traded": 3.371,
+  "sha256_timeline": "0f65659438943f76ab99170021e57ed9c66af8eee2c2224857eead4e6e1bd33b",
+  "sha256_daily_series": "6d6f79293504ec0785b4aa71a31b40d61a170df7e09513da01aad0535345fd1f"
+ },
+ "evidence_protocol": "committee/EVIDENCE_PROTOCOL.md V1",
+ "pre_registration": "runs/pkt_tb_007_orthogonal_brain/TOURNAMENT_007.md \u00a74"
+}

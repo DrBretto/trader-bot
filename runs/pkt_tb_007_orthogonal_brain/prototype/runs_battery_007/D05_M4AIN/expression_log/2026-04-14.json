@@ -1,0 +1,138 @@
+{
+ "book_overlap_vs_chassis": 0.976,
+ "budget": {
+  "T_max": 0.08,
+  "T_t": 0.022538,
+  "defensive_share_post": 0.25,
+  "defensive_share_pre": 0.3848,
+  "tilt_gain": 0.5
+ },
+ "channel": "tilt",
+ "combined": {
+  "ARKK": -0.001986,
+  "DBC": -6.6e-05,
+  "FXI": -0.009731,
+  "ITA": 0.001001,
+  "RSP": 0.007717,
+  "SOXX": 0.004257,
+  "USO": 0.000557,
+  "VUG": -0.001201,
+  "XBI": -0.001089,
+  "XLF": -0.000831,
+  "XRT": 0.001371
+ },
+ "conviction": {
+  "agree": 0.0079,
+  "c": 0.5634470999828266,
+  "disp_forecast_z": 1.042665,
+  "organ_q": {
+   "M1": 0.0079
+  }
+ },
+ "date": "2026-04-14",
+ "intents_edits": {
+  "added": [],
+  "dropped_sub_min_order": [
+   "ARKK",
+   "DBC",
+   "ITA",
+   "USO",
+   "VUG",
+   "XBI",
+   "XLF",
+   "XRT"
+  ],
+  "rounding_absorber": "RSP",
+  "scaled": [],
+  "suppressed": []
+ },
+ "m4_damp": {
+  "AGG": 0.95775,
+  "FXE": 0.971875,
+  "FXI": 0.969313,
+  "ITA": 0.928813,
+  "IYR": 0.963187,
+  "KRE": 0.992625,
+  "MUB": 0.95775,
+  "RSP": 0.94475,
+  "SHY": 0.95775,
+  "SOXX": 0.952438,
+  "TLT": 0.95775,
+  "USO": 0.91475,
+  "XRT": 0.974063
+ },
+ "marks_source": "features",
+ "nav": 106758.32,
+ "neutral": false,
+ "organ_attribution": {
+  "M1": {
+   "ARKK": -0.00198602,
+   "DBC": -6.635e-05,
+   "FXI": -0.0097307,
+   "ITA": 0.00100127,
+   "RSP": 0.00771721,
+   "SOXX": 0.0042572,
+   "USO": 0.00055718,
+   "VUG": -0.00120107,
+   "XBI": -0.00108881,
+   "XLF": -0.00083078,
+   "XRT": 0.00137087
+  }
+ },
+ "organ_mu": {
+  "M1": {
+   "AGG": -0.18,
+   "FXE": -1.0676,
+   "FXI": -1.4652,
+   "ITA": 0.3661,
+   "IYR": 0.18,
+   "KRE": 0.5659,
+   "MUB": -0.7916,
+   "RSP": 1.4652,
+   "SHY": -0.3661,
+   "SOXX": 1.0676,
+   "TLT": -0.5659,
+   "XRT": 0.7916
+  }
+ },
+ "parity_expost": {
+  "beta_gap_21d": null,
+  "gross_gap": null
+ },
+ "projection": {
+  "beta_resid": 1.734723475976807e-18,
+  "cash_resid": 2.168404344971009e-19,
+  "clipped": [
+   "AGG",
+   "FXE",
+   "KRE",
+   "MUB",
+   "SHY",
+   "TLT"
+  ],
+  "eps_sigma": 5.028452662607133e-05,
+  "infeasible": false,
+  "iters": 5,
+  "sigma_resid": 8.288412296945512e-06
+ },
+ "rllm": {
+  "g": null,
+  "z": null
+ },
+ "tilt": {
+  "ARKK": -0.00198602,
+  "DBC": -6.635e-05,
+  "FXI": -0.0097307,
+  "ITA": 0.00100127,
+  "RSP": 0.00771721,
+  "SOXX": 0.0042572,
+  "USO": 0.00055718,
+  "VUG": -0.00120107,
+  "XBI": -0.00108881,
+  "XLF": -0.00083078,
+  "XRT": 0.00137087
+ },
+ "trust": {
+  "M1": 1.0
+ }
+}

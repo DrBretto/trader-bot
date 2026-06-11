@@ -1,0 +1,10 @@
+{
+ "generated": "2026-06-11T01:57:23",
+ "window": "holdout_subset",
+ "holdout_start": "2026-03-11",
+ "from_live_run": "runs_battery_007/D02_ORB_B0",
+ "from_live_manifest_sha": "cf2672a92bbd",
+ "n_decision_dates": 45,
+ "first_date": "2026-03-11",
+ "last_date": "2026-06-10"
+}

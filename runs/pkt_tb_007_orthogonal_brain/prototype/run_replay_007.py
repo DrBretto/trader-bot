@@ -205,6 +205,9 @@ def build_parser() -> argparse.ArgumentParser:
                     help="masks json path (cross-fit interface; default: "
                          "frozen production masks)")
     ap.add_argument("--cost-seed", type=int, default=COST_SEED)
+    ap.add_argument("--rllm", default="",
+                    help="R-LLM falsifier arm ONLY (§4.4.9/BUILD_SPEC §2.6): "
+                         "path to store/rllm_disag_007.json; T_t scaled by g")
     return ap
 
 
@@ -248,10 +251,12 @@ def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
                   else Genome007.b0())
         masks = (json.loads(Path(args.masks).read_text()) if args.masks
                  else PRODUCTION_MASKS)
+        rllm = (json.loads(Path(args.rllm).read_text())["dates"]
+                if args.rllm else None)
         out_dir.mkdir(parents=True, exist_ok=True)
         strategy = make_tilt_strategy(genome, args.nightly_dir,
                                       log_dir=out_dir, cache=cache,
-                                      masks=masks)
+                                      masks=masks, rllm=rllm)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     native_start = RE.START_PORTFOLIO_DATE
@@ -326,6 +331,7 @@ def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
         "cost_model": {"seed": args.cost_seed,
                        "version_sha": _sha_obj(get_cost_config_snapshot())},
         "nightly_dir": args.nightly_dir if args.arm == "orb1" else None,
+        "rllm_conditioner": (args.rllm or None) if args.arm == "orb1" else None,
         "organ_inputs_audited": n_audit if args.arm == "orb1" else None,
         "holdout_guard_env_set": os.environ.get(ENV_FLAG) == "1",
         "wall_clock_s": round(time.time() - t0, 1),
