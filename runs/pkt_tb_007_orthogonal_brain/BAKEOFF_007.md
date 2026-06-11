@@ -76,9 +76,22 @@ identically the D03-vs-D02 read.
 **Deviation verdict cell (mechanical, §4.2): `TIES (straddling)`** — *"no certifiable
 difference at available power; MDE printed"* (4.1 bp/day full, 5.8 bp/day holdout). The
 point estimates are **negative** at roughly −1.3t; the holdout 90% CI still straddles
-zero, so the LOSES cell does not fire. Printed plainly: on this window the value-blind
-M1 tilt **cost** an uncertifiable ~2 bp/day; nothing here is evidence the tilt works,
-and the registered verdict above is unaffected.
+zero, so the LOSES cell does not fire. Nothing here is evidence the tilt works, and the
+registered verdict above is unaffected.
+
+### 3.1a Exposure decomposition of the D03 deficit (Skeptic Phase-D review F8 — repair 1)
+
+Regressing the daily paired deltas on the incumbent's daily return: slope −0.118 in a
+window whose mean incumbent day is +14.4 bp — the tilted arm ran systematically lower
+realized gross (34.68% vs 39.07% average; one-signed, not symmetric noise). That
+exposure term accounts for **≈86% of the −1.98 bp/day** point estimate. The
+**exposure-stripped selection residual is −0.29 bp/day, t ≈ −0.22 — indistinguishable
+from zero.** Honest reading: the deviation read is substantially an exposure read (the
+path-divergence channel above, one-signed in an up-window); the M1 tilt's *selection*
+content measured zero, not negative. This cuts both ways and certifies nothing; it is
+printed so the deficit is not misread as selection failure. It also makes the M4-A
+damping arm's positive read (+1.84 HAC) mechanically suspect — damping a
+gross-leaking tilt restores exposure.
 
 Expression-channel facts (D03 logs): 41/67 days non-neutral; neutral reasons:
 no_tilt_capacity 14 (the ledgered cash-neutral bandwidth ceiling — zero-funding-capacity

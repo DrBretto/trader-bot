@@ -125,3 +125,20 @@
   41/41 tests green). Artifacts: prototype/evidence_007/ (8 comparisons + scorecard + final line),
   BAKEOFF_007.md, ATTRIBUTION_007.md, COST_WORKSHEET_007.md (Bedrock this run $0 confirmed;
   one-time compute ~$0). PERM-DESC: cut, reported not-run. Packet stop condition met.
+- 2026-06-11 :: Phase D reviews in. SKEPTIC: return PASSES acceptance test; adjudications 1-2 CLEAN;
+  adjudication 3 CONCERN-but-credible with a CORRECTION the chair accepts: the value-blind attestation
+  was OVERDRAWN AS WORDED -- the anchor artifact (01:33) had stored the a-priori genome's 20-day
+  pre-holdout mean (+0.32 bp/day) before adjudication 3 was journaled (01:40). Corrected wording: no
+  full-window or holdout read existed pre-freeze; the one peekable number was positive while the
+  dossier leads with the negative result (leak hypothesis predicts the opposite); genome values trace
+  to mechanical provenance committed the prior evening (dead_zone 0.05 = smoke carryover, flagged).
+  SKEPTIC F8 (headline): ~86% of D03's deficit is a one-signed exposure leak; exposure-stripped
+  selection residual -0.29 bp/day t -0.22 = ZERO. Repairs applied: BAKEOFF 3.1a decomposition added;
+  ATTRIBUTION directional vindication sentence struck. CARRIED OBLIGATION: holdout 2026-03-11->06-10
+  is spent for the a-priori genome family; successors need fresh holdout. REALIST: power-starvation is
+  the dominant established fact (MDE 4-14x the predicted effect); the surviving hypothesis is a
+  0.2-1 bp/day net edge untestable in this window; perception = ONE finding measured twice (shared
+  panel; stale-close inflation channel named); gates working as designed (M3/M4 = no-signal verdicts,
+  M2/M5 = data-volume verdicts); follow-on ranking: (1) costless dual forward shadow (~7mo IC leg,
+  8-14mo utility leg), (2) M4-A confirmation inside it (15-25% prior real), (3) real-replay expression
+  search only after 125-250 accrued days, (4) fold-pool extension forecast-space only.

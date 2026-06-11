@@ -120,9 +120,12 @@ instrument ⇒ the EA production sequence (GA, rotation gate, B1, adoption gate,
 boundary-pin audit) **did not run**; ea_cycles 0/3; every surrogate number remains
 "(surrogate space), diagnostics only." Scorecard: **evolution≈0, honestly**
 (pre-committed §4.8.1). The deviation battery exists precisely because this failure left
-the registered pair degenerate — and its read came back negative-pointing, which is
-information FOR the instrument-failure rule, not against it: an EA searched on the
-uncertified surrogate would have shipped tilt_gain > 0 into a window where the tilt lost.
+the registered pair degenerate. [Revised per Skeptic Phase-D review repair 2: the original
+sentence here claimed the tilt "lost" in this window — a directional claim an uncertifiable
+read does not license, used to grade the chair's own rule; struck. Per the review's F8
+decomposition, ~86% of the deviation read's deficit is a one-signed exposure leak and the
+exposure-stripped selection residual is −0.29 bp/day (t ≈ −0.22), i.e. zero. The
+instrument-failure rule stands on the anchor arithmetic alone (Pearson 0.282 < 0.5).]
 
 ## C2 — orthogonality gate
 
