@@ -142,3 +142,7 @@
   M2/M5 = data-volume verdicts); follow-on ranking: (1) costless dual forward shadow (~7mo IC leg,
   8-14mo utility leg), (2) M4-A confirmation inside it (15-25% prior real), (3) real-replay expression
   search only after 125-250 accrued days, (4) fold-pool extension forecast-space only.
+- 2026-06-11 :: COMMITTEE_REPORT_007 converged (PKT-TB-002 field set, panel effectiveness, cross-packet
+  synthesis, final line). STOP CONDITION REACHED: dossier complete; brain built; bake-off + per-organ
+  battery run under pre-registered criteria; report converged; committed on ai/orthogonal-brain.
+  No production integration, no deploy.
