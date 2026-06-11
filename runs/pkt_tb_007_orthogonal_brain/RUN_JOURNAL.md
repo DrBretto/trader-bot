@@ -90,3 +90,19 @@
   .5-.8 -> EA fitness restricted to the live-era real-record pack (fold-era surrogate demoted to
   rotation-sanity only, restriction printed); < .5 -> B0 ships. Either restriction is a reported
   limitation, never silently absorbed.
+- 2026-06-11 :: Anchor re-run at representative scale: Pearson 0.282 (worse at scale; cost-rng theory
+  eliminated -- raw 0.286). Binding infidelity measured: surrogate's carried tilt never feeds back into
+  chassis decisions. Branch <0.5 fires mechanically: B0 SHIPS; EA not run (no certified fitness
+  instrument at any level); ea_cycles 0/3. ship_decision_007.json printed everywhere.
+- 2026-06-11 :: CHAIR ADJUDICATION 3 (deviation arm; frozen BEFORE reading any performance number for
+  the genome): the registered B0-ship verdict pair is degenerate (B0 == incumbent bit-for-bit; every
+  LOO arm likewise). Registered path EXECUTES AS REGISTERED (hash-equality verdict, evolution =
+  instrument-failed). ADDITIONALLY a deviation battery runs at the A-PRIORI genome (the anchor
+  re-run's representative values: tilt_gain 0.5, trust {M1:+1}, disp_gain 1.0, dead_zone 0.05, caps
+  at B0 mids), labeled "(deviation: a-priori genome, instrument-failed EA)" on every artifact, never
+  replacing the registered verdict. VALUE-BLIND ATTESTATION: these values were fixed by the
+  remediation rule (mid-range example) for a fidelity purpose; no panel role and not the chair has
+  read the genome's pre-holdout or holdout P&L as of this entry. The Skeptic's Phase D review grades
+  this adjudication. Deviation battery: incumbent / B0-hash-check / apriori pair (the M1 attribution
+  IS apriori-vs-B0 since roster=[M1]) / challenger-in arms (M2, M4-A, M5 at apriori trust) /
+  LLM-width falsifier / cost-seed sensitivity x2; PERM-DESC contingency cut (not run, reported).
