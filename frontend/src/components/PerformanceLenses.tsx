@@ -124,17 +124,21 @@ function buildExcessSpreadData(equityCurve: EquityCurvePoint[]) {
 export function PerformanceLenses({ equityCurve, shadow }: Props) {
   const shadowComparison = buildShadowComparisonData(equityCurve, shadow);
   const usingShadowLens = shadowComparison.length > 0;
+  // Shadow JSON present but no settled paper points yet: show the NEW lens
+  // explicitly in its armed state rather than silently falling back — the
+  // operator should see the panel has changed the day the shadow arms.
+  const shadowArmed = !!shadow && !usingShadowLens;
   const modelComparison = usingShadowLens
     ? shadowComparison
     : buildModelComparisonData(equityCurve);
   const excessSpread = buildExcessSpreadData(equityCurve);
 
-  if (modelComparison.length === 0 || excessSpread.length === 0) {
+  if ((modelComparison.length === 0 && !shadowArmed) || excessSpread.length === 0) {
     return null;
   }
 
-  const lensTitle = usingShadowLens ? 'New Brain (paper) vs Current Model' : 'Current Model vs Previous';
-  const lensSubtitle = usingShadowLens
+  const lensTitle = usingShadowLens || shadowArmed ? 'New Brain (paper) vs Current Model' : 'Current Model vs Previous';
+  const lensSubtitle = usingShadowLens || shadowArmed
     ? 'Rebased to 100 at the shadow start — the new brain tilt running on paper vs the live champion.'
     : 'Rebased to 100 so the active canon and prior model are directly comparable.';
   const lensNewLabel = usingShadowLens ? 'New Brain (paper)' : 'Previous Model';
@@ -158,6 +162,31 @@ export function PerformanceLenses({ equityCurve, shadow }: Props) {
               <p>{lensSubtitle}</p>
             </div>
           </div>
+          {shadowArmed ? (
+            <div
+              style={{
+                height: 220,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                color: '#94a3b8',
+                fontSize: 13,
+              }}
+            >
+              <div style={{ color: '#f59e0b', fontSize: 15, fontWeight: 600 }}>
+                Shadow armed — accruing
+              </div>
+              <div style={{ textAlign: 'center', maxWidth: 360, lineHeight: 1.5 }}>
+                The new brain's paper book starts tonight. Both lines appear here,
+                rebased to 100 at the same start, as soon as the first day settles.
+              </div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>
+                Verdict reads pre-registered: 2027-01-27 (forecast skill) · 2027-08-10 (P&amp;L)
+              </div>
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={modelComparison} margin={{ top: 8, right: 12, bottom: 8, left: -8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.12)" />
@@ -209,6 +238,7 @@ export function PerformanceLenses({ equityCurve, shadow }: Props) {
               />
             </LineChart>
           </ResponsiveContainer>
+          )}
         </div>
 
         <div className="card performance-lens-card">
