@@ -24,3 +24,16 @@
   (backfill), live labels flip 20x/28d. COVERAGE CORRECTION: store/llm covers the 2025 replay
   leg fully (178 artifacts); only the chassis's llm_risk.json is absent there (both arms).
   Probes: prototype/llm_role_probe.py(.json), regime_labels_probe.py.
+- 2026-06-10 :: Phase A specialist proposals in. ORTHOGONALITY: 5 axes (A1 5d rel-strength/transformer,
+  A2 slow rotation on D+5->D+21 horizon-disjoint target/GBM, A3 dispersion-pays/HAR, A4 event
+  decoupling/elastic net, A5 positioning-crowding/z-rule), disjoint feature partitions, C2 gate with
+  deployed RankingMLP as member zero. EXPRESSION: post-decision tilt with hard projection
+  {sum dw=0, beta-neutral, vol-budget<=eps}; neutral recovery bit-for-bit; MDE 1.5-3.7 bp/day;
+  HONEST CEILING FLAG: paired t is T-invariant -- BEATS at t>=2 on n=66 needs overlay Sharpe ~3.9 vs
+  Grinold ceiling 1.2-1.8; socket demoted to secondary (6-15 bits/day, +30bp/day sd when diverged);
+  lot fix = 2 sites (adapter AND harness duplicate-lot/SELL-clamp, monkeypatched identically).
+  LLM ROLE: 46 ledgered screens, ZERO BH-FDR survivors; R5 honest retirement (features out of members,
+  $0.14/mo artifact stays, re-test trigger at 900 days); one admissible falsifier arm
+  (disagreement-z -> tilt width). EVOLUTION_007: floored paired-IR fitness on tilt series (de-risking
+  removed from action space), LOFO-rotation gate on the SEARCH, median-of-top-8 champion, <=17 genes,
+  ballast cap fixed 0, B0 = bit-for-bit incumbent (FITNESS(B0)=0 identically).
