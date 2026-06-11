@@ -71,3 +71,22 @@
   (P=8 G=2 + 2 rotations, synthetic organs): fitness improves over B0, gates exercise, B1 ran.
   8 findings ledgered in prototype/validation_looks_007.jsonl. Production entrypoint:
   ea_007.py --mode full (after wave-2a organs/masks/roster + champion-scale anchor re-run).
+- 2026-06-11 :: Wave 2a complete (66b596f). ACCEPTANCE GATES: M1 SHIPS (pooled weekly IC .1076,
+  +.042 over member zero, NetEdge 2.6); M2 OPEN->challenger (IC .037 t1.45, 29% power vs half-decay);
+  M3 existence PASS materiality FAIL (.011 bp/day) -> B-disp constant; M4 AUC .616 but dAUC vs
+  vol-control -.002 -> challenger (GDELT events = noisy vol proxy, echoes TB-006); M5 12/19 p=.18
+  -> disabled, tally printed; M6 forecast-altitude PASS (IC .0224, 6/6 folds). Verdict-arm roster
+  = [M1]. C2: signal space max |rho| .202 (vs TB-006 .941 -- orthogonality engineering worked);
+  book-space instrument saturates on market factor (all pairs .88-.97 incl. rho=.004 signal pairs).
+- 2026-06-11 :: CHAIR ADJUDICATION 1 (C2 instrument): registered G-book leg mechanically inapplicable
+  to long-only books; gate verdict read from the binding signal-space leg = PASS (.202 <= .70), with
+  market-residualized book diagnostic printed (.498 <= .70) and the instrument defect reported as a
+  pre-registration defect in the dossier. The ladder is NOT fired (10 simultaneous instrument-driven
+  breaches are not 10 redundancies). Vindication path: if Phase D shows the M1-tilt and any challenger
+  tilt producing near-identical books, the instrument's purpose was real and this call was wrong.
+- 2026-06-11 :: CHAIR ADJUDICATION 2 (anchor remediation, pre-stated before re-run): anchor re-runs at
+  champion-representative tilt scale (test genome starved the statistic; cost-rng noise floor ~0.35bp
+  vs 0.8bp delta sd). Disposition: Pearson >= .8 -> surrogate fold-era fitness proceeds as registered;
+  .5-.8 -> EA fitness restricted to the live-era real-record pack (fold-era surrogate demoted to
+  rotation-sanity only, restriction printed); < .5 -> B0 ships. Either restriction is a reported
+  limitation, never silently absorbed.
