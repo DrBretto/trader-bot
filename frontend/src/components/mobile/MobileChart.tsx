@@ -3,17 +3,20 @@ import {
   Tooltip, ResponsiveContainer, ReferenceArea, TooltipProps,
 } from 'recharts';
 import { EquityCurvePoint, TimeseriesPoint } from '../../types';
+import { ShadowTimeseries } from '../../hooks/useShadowData';
 import { format, parseISO } from 'date-fns';
 
 interface Props {
   equityData: EquityCurvePoint[];
   timeseries: TimeseriesPoint[];
+  shadow?: ShadowTimeseries | null;
 }
 
 interface MergedPoint {
   date: string;
   value: number;
   benchmark: number;
+  shadowA?: number | null;
   regimeLabel?: string | null;
 }
 
@@ -44,8 +47,14 @@ function MobileTooltip({ active, payload }: TooltipProps<number, string>) {
   );
 }
 
-export function MobileChart({ equityData, timeseries }: Props) {
+export function MobileChart({ equityData, timeseries, shadow }: Props) {
   const regimeByDate = new Map(timeseries.map(pt => [pt.date, pt.final_regime_label]));
+
+  // Dual forward shadow (paper book A). Absent/armed payloads draw nothing;
+  // the caption below the chart reports the armed state.
+  const shadowAByDate = new Map(shadow?.shadow_A ?? []);
+  const hasShadowA = shadowAByDate.size > 0;
+  const shadowArmed = !!shadow && !hasShadowA;
 
   const startVal = equityData[0]?.value ?? 0;
   const firstMoveIdx = equityData.findIndex(p => Math.abs(p.value - startVal) / (startVal || 1) > 0.001);
@@ -55,6 +64,7 @@ export function MobileChart({ equityData, timeseries }: Props) {
     date: p.date,
     value: p.value,
     benchmark: p.benchmark,
+    shadowA: shadowAByDate.get(p.date) ?? null,
     regimeLabel: regimeByDate.get(p.date) ?? null,
   }));
 
@@ -123,9 +133,20 @@ export function MobileChart({ equityData, timeseries }: Props) {
           ))}
           <Area yAxisId="eq" type="monotone" dataKey="value" fill="url(#mobileEquityGlow)" stroke="none" />
           <Line yAxisId="eq" type="monotone" dataKey="benchmark" stroke="#64748b" strokeWidth={1.5} strokeDasharray="6 4" dot={false} />
+          {hasShadowA && (
+            <Line yAxisId="eq" type="monotone" dataKey="shadowA" stroke="#f59e0b" strokeWidth={1.5} dot={false} connectNulls />
+          )}
           <Line yAxisId="eq" type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={false} activeDot={{ r: 3, fill: '#3b82f6', stroke: '#0f172a', strokeWidth: 2 }} />
         </ComposedChart>
       </ResponsiveContainer>
+      {(hasShadowA || shadowArmed) && (
+        <div style={{ fontSize: 10, color: '#94a3b8', padding: '2px 8px 0' }}>
+          <span style={{ color: '#f59e0b' }}>—</span>{' '}
+          {hasShadowA
+            ? 'Shadow: new brain tilt (paper), accruing'
+            : 'Shadow (paper): armed — accruing from tonight'}
+        </div>
+      )}
     </div>
   );
 }

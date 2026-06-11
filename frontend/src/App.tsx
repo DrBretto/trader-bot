@@ -103,7 +103,7 @@ export function App() {
   if (!data) return <div className="error">No data available</div>;
 
   if (isMobile) {
-    return <MobileDashboard data={data} timeseries={timeseries ?? []} />;
+    return <MobileDashboard data={data} timeseries={timeseries ?? []} shadow={shadow} />;
   }
 
   const m = data.metrics;

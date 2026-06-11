@@ -7,9 +7,12 @@ import { MobileChart } from './MobileChart';
 import { MobileExpandableSection } from './MobileExpandableSection';
 import { MobileHoldingCard } from './MobileHoldingCard';
 
+import { ShadowTimeseries } from '../../hooks/useShadowData';
+
 interface Props {
   data: DashboardData;
   timeseries: TimeseriesPoint[];
+  shadow?: ShadowTimeseries | null;
 }
 
 function formatCurrency(v: number): string {
@@ -29,7 +32,7 @@ function computeVsSpySpread(equityCurve: { value: number; benchmark: number }[])
   return (last.value / first.value - 1) - (last.benchmark / first.benchmark - 1);
 }
 
-export function MobileDashboard({ data, timeseries }: Props) {
+export function MobileDashboard({ data, timeseries, shadow }: Props) {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -95,6 +98,7 @@ export function MobileDashboard({ data, timeseries }: Props) {
         <MobileChart
           equityData={data.equity_curve}
           timeseries={timeseries}
+          shadow={shadow}
         />
 
         <div className="mobile-sections">
