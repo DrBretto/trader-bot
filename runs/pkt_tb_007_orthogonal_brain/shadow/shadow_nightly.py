@@ -343,14 +343,21 @@ def build_payload(ctx: Ctx, state: dict, provisional_row: Optional[dict]
 
     payload: Dict[str, Any] = {
         "as_of": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-        "schema": "shadow_timeseries.v1",
+        "schema": "shadow_timeseries.v2",
         "prereg_pointer": PREREG_POINTER,
+        "live_prereg_pointer": "LIVE_PREREG.md (the LIVE-arm forward contract; PKT-TB-010)",
         "start_date": state.get("start_date"),
         "forward_boundary": FORWARD_BOUNDARY,
         "live_line": live_line,
-        "shadow_I": [], "shadow_A": [], "shadow_B": [],
+        # ladder lines (PKT-TB-011): I,R,F,E,U; U = the deployed New Brain line
+        "shadow_I": [], "shadow_R": [], "shadow_F": [], "shadow_E": [],
+        "shadow_U": [],
+        # legacy display aliases kept for the existing PerformanceChart overlay
+        "shadow_A": [], "shadow_B": [],
         "provisional_date": None,
         "ic_series": [[r["date"], r["ic"], r["n"]] for r in ic_rows],
+        "organ_ledger": [],          # the 5-rung rent ledger (RentLedger.tsx)
+        "forecast_leg": {},          # IC-only certified-skill card
         "stats": {},
     }
 
@@ -379,12 +386,44 @@ def build_payload(ctx: Ctx, state: dict, provisional_row: Optional[dict]
                 line.append([provisional_row["date"], round(pv, 2)])
                 payload["provisional_date"] = provisional_row["date"]
             payload[f"shadow_{b}"] = line
+        # legacy display aliases (PerformanceChart overlay): A=F (M1 tilt), B=E
+        payload["shadow_A"] = payload.get("shadow_F", [])
+        payload["shadow_B"] = payload.get("shadow_E", [])
     elif provisional_row is not None:
         payload["provisional_date"] = provisional_row["date"]
 
-    payload["stats"] = compute_stats(ic_rows, dates, series)
+    factor_prices = factor_price_series(ctx, dates)
+    payload["stats"] = SL.compute_ladder_stats(
+        ic_rows, dates, series, factor_prices=factor_prices,
+        selected_universe_active=bool(ctx.extras.get("selected_universe")))
     payload["stats"]["n_settled"] = int(state.get("n_settled", 0))
+    # surface the two v2 additions at the top level for the frontend
+    payload["organ_ledger"] = payload["stats"].get("organ_ledger", [])
+    payload["forecast_leg"] = payload["stats"].get("forecast_leg", {})
     return payload
+
+
+def factor_price_series(ctx: Ctx, dates: List[str]
+                        ) -> Dict[str, List[float]]:
+    """Close-price series for the multi-factor exposure strip (C6), aligned to
+    ``dates``: mkt=SPY, duration=TLT, commodity=USO. A factor with incomplete
+    coverage over the window is dropped (the strip flags the missing factor)."""
+    import pandas as pd
+    factor_syms = {"mkt": "SPY", "duration": "TLT", "commodity": "USO"}
+    out: Dict[str, List[float]] = {}
+    if not dates:
+        return out
+    for fname, sym in factor_syms.items():
+        p = ctx.ohlcv_dir / f"{sym}.parquet"
+        if not p.exists():
+            continue
+        df = pd.read_parquet(p, columns=["date", "close"])
+        ds = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+        by_date = {d: float(c) for d, c in zip(ds, df["close"]) if c == c}
+        series = [by_date.get(d) for d in dates]
+        if all(v is not None for v in series):
+            out[fname] = series
+    return out
 
 
 def mirror_to_s3(ctx: Ctx, payload: dict) -> List[str]:

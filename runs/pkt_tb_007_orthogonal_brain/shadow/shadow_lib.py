@@ -104,7 +104,70 @@ DAILY_FILES_OPTIONAL = ["morning_prices.parquet"]
 
 GENOME_A = SHADOW / "genomes" / "shadow_A.json"
 GENOME_B = SHADOW / "genomes" / "shadow_B.json"
-BOOKS = ("I", "A", "B")
+
+# ---------------------------------------------------------------- rent ladder
+# PKT-TB-011: the 2-organ A/B side-car (I, A=M1 tilt, B=A+M4 damp) is
+# generalized into the 5-rung leave-one-organ-out ladder
+# (DESIGN_DOSSIER §2 STAGE 4; reports/04 §1.2). Each ADJACENT pair is a clean
+# single-organ marginal:
+#   I  raw chassis intents                              baseline    --
+#   R  I + regime gate (exposure throttle)              R-I  regime
+#   F  R + M1 forecast tilt                             F-R  forecast (signal)
+#   E  F + M4 event-damp                                E-F  event-damping
+#   U  E + universe-choice (selected vs full)           U-E  universe-choice
+# U is the deployed New Brain line. The decomposition is additive in
+# LOG-return space: (U-I) = (R-I)+(F-R)+(E-F)+(U-E)  (C8).
+LADDER = (
+    {"book": "I", "parent": None, "organs": (),                                 "component": None},
+    {"book": "R", "parent": "I",  "organs": ("regime",),                        "component": "regime"},
+    {"book": "F", "parent": "R",  "organs": ("regime", "M1"),                   "component": "forecast"},
+    {"book": "E", "parent": "F",  "organs": ("regime", "M1", "M4"),             "component": "event"},
+    {"book": "U", "parent": "E",  "organs": ("regime", "M1", "M4", "universe"), "component": "universe"},
+)
+BOOKS = tuple(r["book"] for r in LADDER)            # ("I","R","F","E","U")
+RUNGS = tuple(r for r in LADDER if r["parent"] is not None)
+# back-compat aliases: the old A/B books map onto the ladder (A->F, B->E).
+LEGACY_BOOK_ALIAS = {"A": "F", "B": "E"}
+
+# Per-rung tilt genome. R carries NO per-name tilt (regime is a book-level
+# exposure throttle applied in process_book_date, not a gene). F carries the
+# frozen a-priori M1 genome (= old shadow_A); E adds the M4-A damp (= old
+# shadow_B); U reuses E's genome and adds a universe-restriction post-filter.
+LADDER_GENOMES = {
+    "M1": {"tilt_gain": 0.5, "conviction_temp": 1.0, "dead_zone": 0.05,
+           "disp_gain": 1.0, "cap_core": 0.0125, "cap_conditional": 0.00625,
+           "defensive_fraction": 0.25, "event_damp_strength": 0.0,
+           "organ_trust": {"M1": 1.0}},
+    "M1_M4": {"tilt_gain": 0.5, "conviction_temp": 1.0, "dead_zone": 0.05,
+              "disp_gain": 1.0, "cap_core": 0.0125, "cap_conditional": 0.00625,
+              "defensive_fraction": 0.25, "event_damp_strength": 0.5,
+              "organ_trust": {"M1": 1.0, "M4": 1.0}},
+}
+# book -> genome key (None = no tilt strategy)
+RUNG_GENOME = {"I": None, "R": None, "F": "M1", "E": "M1_M4", "U": "M1_M4"}
+
+# Regime -> book-level gross-exposure multiplier (the regime GATE as an
+# exposure throttle). Identity (1.0) for unlisted regimes so the R rung is
+# honestly ~zero when the regime does not bite. Frozen by hand.
+REGIME_EXPOSURE = {"panic": 0.50, "force_sell": 0.50, "defensive": 0.75,
+                   "caution": 0.85, "neutral": 1.0, "constructive": 1.0,
+                   "risk_on": 1.0}
+
+# Multi-factor exposure-strip basis (C6): SPY + duration + broad-commodity.
+# The strip uses REALIZED multi-factor regression betas of each rung's daily
+# return-difference on these factor returns -- NOT the static gross-weighted
+# beta_proxy the Analyst proved misses the duration/FX/commodity sleeve where
+# the F8 leak lives -- and also prints the realized gross-differential term.
+STRIP_FACTORS = (("mkt", "SPY"), ("duration", "TLT"), ("commodity", "USO"))
+# rungs whose marginal is intrinsically an exposure move: the regime throttle
+# changes gross exposure by construction, so its GROSS column is the
+# meaningful one and a full strip is not claimed (C7 non-strippable label).
+EXPOSURE_RUNGS = {"regime"}
+
+# three-valued verdict band (SHADOW_PREREG §2 / TB-006 §7) + BH-FDR target
+MATERIALITY_BP = 1.5
+FDR_Q = 0.10
+BOOKS_LEGACY = ("I", "A", "B")      # the pre-PKT-011 payload books (display compat)
 
 
 # ---------------------------------------------------------------- small utils
@@ -348,16 +411,63 @@ def robust_value(book, ohlc: Dict[str, Dict[str, float]]
 
 
 def make_strategies(organ_dir: Path, risk, cache, log_dir: Optional[Path]):
-    """Books A and B tilt strategies over the frozen shadow genomes."""
+    """Tilt strategies for the ladder rungs that carry a per-name tilt.
+
+    PKT-TB-011: generalized from the 2-book (A,B) case to the 5-rung ladder.
+    Only F (M1), E (M1+M4) and U (M1+M4, universe-restricted) carry a tilt
+    genome; I and R carry none (R is a book-level regime throttle applied in
+    ``process_book_date``). The genomes are the frozen a-priori M1 / M1+M4
+    values (identical to the old shadow_A / shadow_B), passed inline.
+    """
     from tilt_adapter import make_tilt_strategy
     strats = {}
-    for name, gpath in (("A", GENOME_A), ("B", GENOME_B)):
-        ld = (log_dir / f"expression_{name}") if log_dir else None
+    for book, gkey in RUNG_GENOME.items():
+        if gkey is None:
+            continue
+        ld = (log_dir / f"expression_{book}") if log_dir else None
         if ld:
             ld.mkdir(parents=True, exist_ok=True)
-        strats[name] = make_tilt_strategy(
-            gpath, organ_dir, log_dir=ld, cache=cache, risk=risk)
+        strats[book] = make_tilt_strategy(
+            LADDER_GENOMES[gkey], organ_dir, log_dir=ld, cache=cache, risk=risk)
     return strats
+
+
+def _regime_throttle(intents: List[dict], regime: Optional[str]) -> List[dict]:
+    """The regime GATE as a book-level exposure throttle (the R rung organ).
+
+    Scales the size of risk-ADDING legs (BUY/ADD/INCREASE) by the frozen
+    ``REGIME_EXPOSURE`` multiplier for the day's regime. Identity (mult 1.0)
+    for unlisted / neutral regimes, so R == I exactly when the regime does not
+    bite and the R-I rung is honestly ~zero. This is an EXPOSURE move by
+    construction (its gross column is the meaningful one; C7 labels it
+    'exposure-strip incomplete')."""
+    mult = REGIME_EXPOSURE.get((regime or "").lower(), 1.0)
+    if mult == 1.0:
+        return [dict(it) for it in intents]
+    add = {"BUY", "ADD", "INCREASE", "OPEN"}
+    out = []
+    for it in intents:
+        it = dict(it)
+        if str(it.get("action", "")).upper() in add:
+            for fld in ("shares", "dollars", "target_shares", "target_dollars",
+                        "weight", "target_weight"):
+                if isinstance(it.get(fld), (int, float)):
+                    it[fld] = it[fld] * mult
+        out.append(it)
+    return out
+
+
+def _restrict_universe(intents: List[dict],
+                       selected_universe: Optional[set]) -> List[dict]:
+    """The universe-choice organ (the U rung): keep only legs whose symbol is
+    in the engine's SELECTED set (the New Brain universe) vs the full set E
+    trades. ``selected_universe is None`` => identity (the live engine's
+    selected_set is wired at the PKT-TB-012 cutover; until then U==E and the
+    U-E rung is honestly ~zero, labeled on the surface)."""
+    if not selected_universe:
+        return [dict(it) for it in intents]
+    return [dict(it) for it in intents
+            if it.get("symbol") in selected_universe]
 
 
 class LocalDailyCache:
@@ -373,13 +483,25 @@ class LocalDailyCache:
         return pd.read_parquet(p)
 
 
+_BOOK_ORGANS = {r["book"]: r["organs"] for r in LADDER}
+
+
 def process_book_date(books: Dict[str, Any], date: str,
                       intents: List[dict], ohlc: Dict[str, Dict[str, float]],
                       features_df, decision_params: dict,
                       strategies: Dict[str, Any], universe_df,
-                      regime: Optional[str]) -> Dict[str, Any]:
-    """One settled decision date across the three books. Mutates books.
-    Returns the equity-ledger row (raw NAVs; costs overlaid separately)."""
+                      regime: Optional[str],
+                      selected_universe: Optional[set] = None) -> Dict[str, Any]:
+    """One settled decision date across the FIVE ladder books. Mutates books.
+    Returns the equity-ledger row (raw NAVs; costs overlaid separately).
+
+    PKT-TB-011: generalized from (I,A,B) to the leave-one-organ-out ladder.
+    Per book the organs in its ``LADDER`` row are stacked, in order:
+      regime  -> book-level exposure throttle (``_regime_throttle``)
+      M1/M4   -> the tilt strategy (``strategies[book]``; F=M1, E/U=M1+M4)
+      universe-> restrict to the engine's selected set (``_restrict_universe``)
+    so I<R<F<E<U nest and each adjacent pair is one clean organ marginal.
+    """
     import pandas as pd
     RE = _replay_engine()
     from lot_fix_007 import _execute_intents_lotfix
@@ -391,8 +513,11 @@ def process_book_date(books: Dict[str, Any], date: str,
     actions_by_book: Dict[str, List[dict]] = {}
     for bname in BOOKS:
         book = books[bname]
+        organs = _BOOK_ORGANS.get(bname, ())
         my_intents = [dict(it) for it in intents]
-        if bname in strategies:
+        if "regime" in organs:                      # R rung organ (and above)
+            my_intents = _regime_throttle(my_intents, regime)
+        if bname in strategies:                      # M1 / M4 tilt organs
             ctx = StrategyContext(
                 inputs_date=date, portfolio=book,
                 variant_config={"decision_params": dict(decision_params)},
@@ -400,6 +525,8 @@ def process_book_date(books: Dict[str, Any], date: str,
                 panic_streak=0, last_regime=None,
                 features_df=features_df, inference={}, llm_risks={})
             my_intents = strategies[bname].post_decision(ctx, my_intents)
+        if "universe" in organs:                     # U rung organ
+            my_intents = _restrict_universe(my_intents, selected_universe)
         marks_ohlc = {s: {"close": v} for s, v in current_marks.items()}
         nav_pre, _ = robust_value(book, marks_ohlc)
         my_intents = RE._apply_cluster_cap(
@@ -476,9 +603,14 @@ def compute_stats(ic_rows: List[dict], dates: List[str],
     else:
         stats["mean_ic"] = None
         stats["ic_t"] = None
-    for key, (x, y) in {"utility_diff_bp_day": ("A", "I"),
-                        "m4a_diff_bp_day": ("B", "A")}.items():
-        d = daily_diff_bp(dates, series.get(x, []), series.get(y, []))
+    # Legacy 2-organ fields, remapped onto the ladder for display back-compat:
+    #   utility_diff_bp_day = U-I (the deployed New Brain vs incumbent)
+    #   m4a_diff_bp_day     = E-F (the M4 event-damp marginal, old B-A)
+    for key, (x, y) in {"utility_diff_bp_day": ("U", "I"),
+                        "m4a_diff_bp_day": ("E", "F")}.items():
+        sx = series.get(x, series.get(LEGACY_BOOK_ALIAS.get(x, x), []))
+        sy = series.get(y, series.get(LEGACY_BOOK_ALIAS.get(y, y), []))
+        d = daily_diff_bp(dates, sx, sy)
         if len(d) >= 3:
             m = float(np.mean(d))
             se = hac_se(d)
@@ -492,4 +624,314 @@ def compute_stats(ic_rows: List[dict], dates: List[str],
             stats[key + "_ci"] = None
             if key == "utility_diff_bp_day":
                 stats["ci"] = None
+    return stats
+
+
+# ============================================================ rent ladder math
+# PKT-TB-011 attribution spine. Every function here operates on the per-book
+# cost-adjusted NAV series the overlay produces; none reaches into the engine.
+def _simple_returns(navs: List[float]) -> List[float]:
+    out = []
+    for i in range(1, len(navs)):
+        out.append(navs[i] / navs[i - 1] - 1.0 if navs[i - 1] else 0.0)
+    return out
+
+
+def _log_returns(navs: List[float]) -> List[float]:
+    import numpy as np
+    out = []
+    for i in range(1, len(navs)):
+        if navs[i - 1] and navs[i] and navs[i] > 0 and navs[i - 1] > 0:
+            out.append(float(np.log(navs[i] / navs[i - 1])))
+        else:
+            out.append(0.0)
+    return out
+
+
+def _norm_sf(z: float) -> float:
+    """One-sided upper-tail standard-normal survival function."""
+    import math
+    return 0.5 * math.erfc(z / math.sqrt(2.0))
+
+
+def _ols(y, X):
+    """Least-squares fit of y on [1, X]; returns (intercept, slope_vector)."""
+    import numpy as np
+    y = np.asarray(y, dtype=float)
+    X = np.asarray(X, dtype=float)
+    if X.ndim == 1:
+        X = X.reshape(-1, 1)
+    A = np.column_stack([np.ones(len(y)), X])
+    coef, *_ = np.linalg.lstsq(A, y, rcond=None)
+    return float(coef[0]), [float(c) for c in coef[1:]]
+
+
+def multifactor_strip(gross_daily: List[float],
+                      factor_daily: Dict[str, List[float]]) -> Dict[str, Any]:
+    """C6: strip a rung's daily GROSS return-difference (bp) of its REALIZED
+    multi-factor exposure (SPY + duration + broad-commodity), using realized
+    regression betas -- NOT the static gross-weighted beta_proxy the Analyst
+    proved misses the duration/FX/commodity sleeve where the F8 leak lives --
+    and report the realized gross-differential (exposure) term explicitly.
+
+    Returns the stripped daily series (selection skill), the per-factor betas,
+    and the exposure vs stripped bp/day split so the F8 leak is visible: if
+    gross is dominated by exposure and stripped straddles zero, the surface
+    says so.
+    """
+    import numpy as np
+    g = np.asarray(gross_daily, dtype=float)
+    names = [n for n, v in factor_daily.items() if len(v) == len(g)]
+    if len(g) < 3 or not names:
+        return {"stripped_daily": list(g), "betas": {}, "exposure_daily": [0.0] * len(g),
+                "exposure_bp_day": 0.0, "stripped_bp_day": (float(g.mean()) if len(g) else None),
+                "factors_used": names}
+    X = np.column_stack([np.asarray(factor_daily[n], dtype=float) for n in names])
+    _intercept, slopes = _ols(g, X)                 # realized multi-factor betas
+    betas = {n: round(b, 4) for n, b in zip(names, slopes)}
+    exposure = X @ np.asarray(slopes, dtype=float)   # realized exposure term/day
+    stripped = g - exposure                          # selection skill residual+alpha
+    return {"stripped_daily": [float(s) for s in stripped],
+            "betas": betas,
+            "exposure_daily": [float(e) for e in exposure],
+            "exposure_bp_day": round(float(exposure.mean()), 4),
+            "stripped_bp_day": round(float(stripped.mean()), 4),
+            "gross_diff_bp_day": round(float(g.mean()), 4),
+            "factors_used": names}
+
+
+def bh_fdr(pvals: List[Optional[float]], q: float = FDR_Q) -> List[bool]:
+    """Benjamini-Hochberg survivors at false-discovery rate ``q``. None p-values
+    (no power yet) never survive. Returns a survivor flag per input position."""
+    idx = [i for i, p in enumerate(pvals) if p is not None]
+    survivors = [False] * len(pvals)
+    if not idx:
+        return survivors
+    ordered = sorted(idx, key=lambda i: pvals[i])
+    m = len(ordered)
+    kmax = 0
+    for rank, i in enumerate(ordered, start=1):
+        if pvals[i] <= (rank / m) * q:
+            kmax = rank
+    for rank, i in enumerate(ordered, start=1):
+        if rank <= kmax:
+            survivors[i] = True
+    return survivors
+
+
+def three_valued_verdict(mean: Optional[float], ci: Optional[List[float]],
+                         t_onesided: Optional[float]) -> str:
+    """positive | zero (measured) | indeterminate at available power.
+
+    Never 'paying rent' on a point estimate alone (SHADOW_PREREG §2 band)."""
+    if mean is None or ci is None:
+        return "indeterminate at available power"
+    if t_onesided is not None and t_onesided >= 2.0:
+        return "positive"
+    if ci[0] > -MATERIALITY_BP and ci[1] < MATERIALITY_BP:
+        return "zero (measured at materiality scale)"
+    return "indeterminate at available power"
+
+
+def _stat_block(d: List[float]) -> Dict[str, Any]:
+    """mean / HAC(5) 95% CI / one-sided t / two-sided p for a daily-diff series."""
+    import numpy as np
+    if len(d) < 3:
+        return {"mean": None, "ci": None, "t": None, "p": None, "n": len(d)}
+    m = float(np.mean(d))
+    se = hac_se(d)
+    t = (m / se) if se and se > 0 else None
+    import math
+    p = (math.erfc(abs(t) / math.sqrt(2.0)) if t is not None else None)  # two-sided
+    return {"mean": round(m, 4),
+            "ci": [round(m - 1.96 * se, 4), round(m + 1.96 * se, 4)],
+            "t": (round(t, 3) if t is not None else None),
+            "p": (round(p, 5) if p is not None else None),
+            "n": len(d)}
+
+
+def _m4_subwindow(dates: List[str], series: Dict[str, List[float]]) -> Dict[str, Any]:
+    """C9: the M4-A event-damp read (E-F, the old B-A) computed ONLY on the
+    largest contiguous sub-window where the base tilt's running estimate
+    (F-I) is positive -- the discriminating condition that excludes the
+    'damping a losing tilt scores positive by construction' confound
+    (SHADOW_PREREG §3, carried verbatim into LIVE_PREREG)."""
+    import numpy as np
+    base = daily_diff_bp(dates, series.get("F", []), series.get("I", []))
+    m4 = daily_diff_bp(dates, series.get("E", []), series.get("F", []))
+    n = min(len(base), len(m4))
+    if n < 1:
+        return {"valid": False, "reason": "no settled days", **_stat_block([])}
+    cum = np.cumsum(base[:n])
+    best_a = best_b = -1
+    a = None
+    for i in range(n):
+        if cum[i] > 0:
+            if a is None:
+                a = i
+            if best_a < 0 or (i - a) > (best_b - best_a):
+                best_a, best_b = a, i
+        else:
+            a = None
+    if best_a < 0:
+        return {"valid": False,
+                "reason": "no sub-window with base tilt (F-I) > 0",
+                **_stat_block([])}
+    sub = m4[best_a:best_b + 1]
+    blk = _stat_block(sub)
+    return {"valid": True,
+            "window": [dates[best_a + 1], dates[best_b + 1]],
+            "base_tilt_positive": True, **blk}
+
+
+def compute_ladder_stats(ic_rows: List[dict], dates: List[str],
+                         series: Dict[str, List[float]],
+                         factor_prices: Optional[Dict[str, List[float]]] = None,
+                         selected_universe_active: bool = False) -> dict:
+    """The PKT-TB-011 attribution spine: the 5-rung leave-one-organ-out ladder
+    with GROSS + multi-factor-STRIPPED columns (C6), log-space additivity +
+    printed bp/day residual (C8), per-rung divergence ledger + caveats (C7),
+    and BH-FDR(10%) three-valued verdicts incl. the M4 sub-window (C9).
+
+    Superset of ``compute_stats`` -- carries the legacy flat fields too.
+    """
+    import numpy as np
+    stats = compute_stats(ic_rows, dates, series)   # legacy fields + IC leg
+
+    # factor daily returns (aligned to dates[1:]); missing factor -> dropped.
+    factor_daily: Dict[str, List[float]] = {}
+    if factor_prices:
+        for fname, px in factor_prices.items():
+            if px and len(px) == len(dates):
+                factor_daily[fname] = _simple_returns([p * 1e4 for p in px])
+    mkt_daily = factor_daily.get("mkt", [])
+
+    organ_ledger: List[dict] = []
+    pvals: List[Optional[float]] = []
+    sum_bp = 0.0
+    sum_log_bp = 0.0
+    per_rung_divergence: Dict[str, float] = {}
+    for rung in RUNGS:
+        P, Q, comp = rung["book"], rung["parent"], rung["component"]
+        sp, sq = series.get(P, []), series.get(Q, [])
+        gross = daily_diff_bp(dates, sp, sq)
+        gblk = _stat_block(gross)
+        # multi-factor strip (C6)
+        strip = multifactor_strip(gross, factor_daily) if len(gross) >= 3 else \
+            {"stripped_daily": gross, "betas": {}, "exposure_bp_day": None,
+             "stripped_bp_day": gblk["mean"], "gross_diff_bp_day": gblk["mean"],
+             "factors_used": []}
+        sblk = _stat_block(strip["stripped_daily"])
+        # log-space additive marginal (C8): exact-telescoping cumulative
+        lP, lQ = _log_returns(sp), _log_returns(sq)
+        cum_log_bp = (float(np.sum(lP) - np.sum(lQ)) * 1e4
+                      if lP and lQ and len(lP) == len(lQ) else None)
+        if gblk["mean"] is not None:
+            sum_bp += gblk["mean"]
+        if cum_log_bp is not None:
+            sum_log_bp += cum_log_bp
+        # divergence ledger (C7): cumulative |path| of the rung's daily diff
+        per_rung_divergence[comp] = (round(float(np.sum(np.abs(gross))), 4)
+                                     if gross else 0.0)
+        strippable = comp not in EXPOSURE_RUNGS
+        caveat = []
+        if not strippable:
+            caveat.append("exposure-strip incomplete -- this rung is an "
+                          "exposure move by construction; the GROSS column is "
+                          "the meaningful one (residual factor risk).")
+        if comp == "universe" and not selected_universe_active:
+            caveat.append("universe restriction not yet wired to the live "
+                          "engine's selected_set (PKT-TB-012); U==E until then "
+                          "-- this rung reads ~0 and is shown for completeness.")
+        if strip["factors_used"] and len(strip["factors_used"]) < len(STRIP_FACTORS):
+            missing = [n for n, _ in STRIP_FACTORS if n not in strip["factors_used"]]
+            caveat.append(f"strip missing factor(s) {missing} this window "
+                          "-- residual factor risk.")
+        # verdict on the STRIPPED column (selection skill), one-sided t
+        t1 = (sblk["t"] if sblk["t"] is not None else None)
+        verdict = three_valued_verdict(sblk["mean"], sblk["ci"], t1)
+        pvals.append(sblk["p"])
+        organ_ledger.append({
+            "component": comp, "book_pair": f"{P}-{Q}",
+            "gross_bp_day": gblk["mean"], "gross_ci": gblk["ci"],
+            "stripped_bp_day": sblk["mean"], "stripped_ci": sblk["ci"],
+            "t": sblk["t"], "n_days": sblk["n"],
+            "exposure_bp_day": strip.get("exposure_bp_day"),
+            "gross_diff_bp_day": strip.get("gross_diff_bp_day"),
+            "betas": strip.get("betas", {}),
+            "factors_used": strip.get("factors_used", []),
+            "cum_log_rent_bp": (round(cum_log_bp, 4) if cum_log_bp is not None else None),
+            "verdict": verdict, "strippable": strippable,
+            "caveat": " ".join(caveat) if caveat else None,
+        })
+
+    # M4 sub-window read -- an FDR family member (C9)
+    m4 = _m4_subwindow(dates, series)
+    m4_verdict = three_valued_verdict(m4.get("mean"), m4.get("ci"), m4.get("t"))
+    pvals.append(m4.get("p"))
+
+    # BH-FDR across the family = 4 stripped rungs + the M4 sub-window
+    survivors = bh_fdr(pvals, FDR_Q)
+    n_members = sum(1 for p in pvals if p is not None)
+    for i, row in enumerate(organ_ledger):
+        row["fdr_survivor"] = bool(survivors[i])
+        row["fdr_p"] = pvals[i]
+    m4_survivor = survivors[-1] if survivors else False
+    # "1 of N" badge: a lone positive line not yet an FDR survivor
+    positives = [r for r in organ_ledger if r["verdict"] == "positive"]
+    if len(positives) == 1 and not positives[0].get("fdr_survivor"):
+        positives[0]["badge"] = ("1 of N -- not narratable as a discovery "
+                                 "alone (awaiting BH-FDR survival)")
+
+    # additivity (C8): exact in log space; bp/day residual printed
+    total_bp = stats.get("utility_diff_bp_day")     # U-I
+    lU, lI = _log_returns(series.get("U", [])), _log_returns(series.get("I", []))
+    log_total_bp = (float(np.sum(lU) - np.sum(lI)) * 1e4
+                    if lU and lI and len(lU) == len(lI) else None)
+
+    stats["organ_ledger"] = organ_ledger
+    stats["forecast_leg"] = {
+        "mean_ic": stats.get("mean_ic"), "ic_t": stats.get("ic_t"),
+        "n_weeks": stats.get("n_weeks_ic", 0),
+        "certified": False,
+        "note": ("forecast skill receipt (realized weekly rank-IC); conversion "
+                 "is the F-R rung, reported separately and pre-registered, never "
+                 "IC x notional."),
+    }
+    stats["m4_subwindow"] = {**m4, "verdict": m4_verdict,
+                             "fdr_survivor": bool(m4_survivor),
+                             "in_fdr_family": True}
+    stats["additivity"] = {
+        "bp_day_total_U_minus_I": total_bp,
+        "sum_bp_day_rungs": round(sum_bp, 4),
+        "bp_day_residual": (round((total_bp - sum_bp), 4)
+                            if total_bp is not None else None),
+        "bp_day_note": ("bp/day rung-sums are APPROXIMATE: daily-return "
+                        "differences do not telescope across pairs with "
+                        "different denominators; the residual is the one-signed "
+                        "path-divergence term. Use the log-space columns for "
+                        "exact additivity."),
+        "log_total_U_minus_I_bp": (round(log_total_bp, 4)
+                                   if log_total_bp is not None else None),
+        "sum_log_rungs_bp": round(sum_log_bp, 4),
+        "log_residual_bp": (round((log_total_bp - sum_log_bp), 4)
+                            if log_total_bp is not None else None),
+        "log_note": "cumulative log-return rungs telescope exactly: residual ~ 0.",
+    }
+    stats["divergence"] = {
+        "order": [r["component"] for r in RUNGS],
+        "order_dependence_note": ("the ladder is a NESTED leave-one-organ-out "
+                                  "decomposition in the fixed order "
+                                  "regime->forecast->event->universe; a "
+                                  "different organ order yields different "
+                                  "single-organ marginals. The counterfactual "
+                                  "books (R,F,E) path-diverge from U exactly as "
+                                  "the TB-007 tilt diverged from the incumbent "
+                                  "(C7); each rung carries a stripped-column "
+                                  "caveat above."),
+        "per_rung_path_bp": per_rung_divergence,
+    }
+    stats["fdr"] = {"q": FDR_Q, "family": [r["component"] for r in RUNGS] + ["m4_subwindow"],
+                    "n_members": n_members, "n_survivors": sum(1 for s in survivors if s)}
+    stats["materiality_bp"] = MATERIALITY_BP
     return stats

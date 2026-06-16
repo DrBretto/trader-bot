@@ -129,7 +129,10 @@ def stub_infer_factory(fixed_ts: str = None):
 
 
 def stub_strategies_factory(ctx, log_dir=None):
-    """Deterministic tilt stubs: A adds a $600 BBB buy, B adds $300."""
+    """Deterministic tilt stubs over the ladder rungs that carry a tilt:
+    F (forecast) adds a $600 BBB buy, E/U add $300 (E=F+M4 damp, U=E+universe).
+    I and R carry no tilt (R is the regime throttle, identity in this fixture's
+    'calm_uptrend' regime), so R==I exactly."""
     def make(amount):
         def post(c, intents):
             out = [dict(it) for it in intents]
@@ -142,7 +145,7 @@ def stub_strategies_factory(ctx, log_dir=None):
                         "leverage_flag": 0, "reason": "STUB_TILT"})
             return out
         return SimpleNamespace(post_decision=post)
-    return {"A": make(600.0), "B": make(300.0)}
+    return {"F": make(600.0), "E": make(300.0), "U": make(300.0)}
 
 
 def make_ctx(tmp: Path, publish: bool = False) -> SN.Ctx:
@@ -244,13 +247,15 @@ def test_books_diverge_and_costs(tmp_path):
     rows = [r for r in SL.read_jsonl(ctx.ledgers / "equity_ledger.jsonl")
             if not r.get("skipped")]
     assert len(rows) == 3
-    # A bought more BBB than B than I; BBB drifts down in the fixture
-    assert rows[-1]["nav_A"] != rows[-1]["nav_I"]
-    assert rows[-1]["nav_B"] != rows[-1]["nav_I"]
-    acts_A = SL.read_jsonl(ctx.ledgers / "actions_A.jsonl")
+    # F (forecast rung) bought more BBB than E than I; BBB drifts down here.
+    assert rows[-1]["nav_F"] != rows[-1]["nav_I"]
+    assert rows[-1]["nav_E"] != rows[-1]["nav_I"]
+    # R (regime throttle) is identity in 'calm_uptrend' -> R == I exactly
+    assert rows[-1]["nav_R"] == rows[-1]["nav_I"]
+    acts_F = SL.read_jsonl(ctx.ledgers / "actions_F.jsonl")
     acts_I = SL.read_jsonl(ctx.ledgers / "actions_I.jsonl")
-    assert len(acts_A) > len(acts_I)
-    assert any(a["reason"] == "STUB_TILT" for a in acts_A)
+    assert len(acts_F) > len(acts_I)
+    assert any(a["reason"] == "STUB_TILT" for a in acts_F)
 
 
 def test_timestamp_before_outcome_invariant(tmp_path):
