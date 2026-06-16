@@ -1,0 +1,91 @@
+{
+  "schema": "freeze_orb1.v1",
+  "meta": {
+    "packet": "PKT-TB-010-LIVE-PREREG-V1-20260616",
+    "frozen_on": "2026-06-16",
+    "decision_authority": "D-AUTO-20260616",
+    "design_source": "book-factory/runs/20260616_trader-bot-new-brain-overhaul-committee-v1/DESIGN_DOSSIER.md (committee-governed, Infotropy spine)",
+    "purpose": "Forward-only freeze of the LIVE brain. These hashes are asserted at cold start (PKT-TB-012). The LIVE brain is the native two-stage engine, NOT tilt_adapter. No artifact below may move without terminating the LIVE_PREREG reads and opening a fresh pre-registration (LIVE_PREREG.md §3).",
+    "non_assertion": "Freezing these artifacts asserts only that the forward measurement runs against a fixed instrument. It does NOT assert the brain has a dollar edge. The exposure-stripped selection residual is measured at zero (-0.29 bp/day, t≈-0.22)."
+  },
+  "engine": {
+    "name": "native_two_stage",
+    "module": "src/brain/engine/",
+    "git_commit": "c4242c4",
+    "engine_sha": "0e1d22ecec1cf56bf32b319e7f82b957bf6277a79f6b6d1afb8c41b869f077ba",
+    "engine_sha_method": "sha256 over each src/brain/engine/*.py (filename + bytes), files in sorted order; __pycache__ excluded",
+    "files": {
+      "src/brain/engine/__init__.py": "fd46c8cceb55d1e1504194aa51e3e0a0a32171b8843a22612c22d83d6be3b899",
+      "src/brain/engine/allocation.py": "7e7c446e72bdc5a5a9046ba7ba780d03de93aa816ce409fb83a2715cd6d39705",
+      "src/brain/engine/contracts.py": "c3782d5316d35c6d8f833a28abb8f76177e76d78d8568511087019f510875ca3",
+      "src/brain/engine/engine.py": "760564c296e73f8ef8eb2b4f4eeefdf9186d212af4e2dcd3ad54fa48ee3e7023",
+      "src/brain/engine/parity.py": "96acf7bbb838c030a8919b7829894cad43d3949b828d4cc82cddcaa83aa04602",
+      "src/brain/engine/selection.py": "b9ab7a6589246459fc2e0dc22c7c1f21c76cc247a76afd1f773f1395da24cd22"
+    },
+    "live_brain_note": "tilt_adapter (TB-007, T_max 0.08, hash 952a2f5a565e) is NOT the live brain. Per the Attack-5 ruling (DESIGN_DOSSIER §3) nothing is branded 'New Brain' until this two-stage engine writes trade_intents.json with a green invariant self-check."
+  },
+  "model_artifacts": {
+    "no_retraining": true,
+    "model_sha": "5b2428c66c14",
+    "model_sha_method": "sha256 over the concatenated bytes of the four files below, in this exact order; first 12 hex chars (forward_inference.model_sha convention). Asserted: forward_inference.model_sha() == FREEZE_ORB1.model_artifacts.model_sha at cold start.",
+    "root": "runs/pkt_tb_007_orthogonal_brain/prototype/models_out_007",
+    "files": {
+      "m1_cast/seed_4242.pt": {"sha256": "c04ba2278e93a22461b95a880754f2146452b556f7a25a874eb47b291dca50eb", "bytes": 74255, "role": "M1 CAST-XS forecast, seed 4242 (2-seed mean) — PRIMARY selection signal"},
+      "m1_cast/seed_4243.pt": {"sha256": "8369da078c77a5ddd6b98147c9ccf1866f146b2ba4a58bad765b63e92a0b977a", "bytes": 74255, "role": "M1 CAST-XS forecast, seed 4243 (2-seed mean)"},
+      "m4_evt_a/model.pkl": {"sha256": "9e39ba4bfb355b773cd831608edfe62dbf8fbab233c028c0af17baede29651e5", "bytes": 2903, "role": "M4-A event net — hard-exclusion gate (event_block)"},
+      "m3_disp/coefs.npz": {"sha256": "92e4cb58265dda3385f376d41bbcec86c024476291d6f56edf0f1c5479ddd166", "bytes": 666, "role": "M3 dispersion coefficients (B-disp conviction input)"}
+    }
+  },
+  "theta_sel": {
+    "content_hash": "f154f3ce33328b87ad79cff4addaf4dd79bfc2b50a08b984ff242c60cbd24b5e",
+    "content_hash_method": "SelectionParams.content_hash() — sha256 over dataclasses.asdict(theta_sel) JSON-canonicalised (sort_keys, default=str)",
+    "frozen_by_hand": true,
+    "values": {
+      "N": 10,
+      "h_min": 0.60,
+      "core_fraction": 0.55,
+      "regime_admissibility": {},
+      "tiebreak": ["mu_M1_desc", "idio_vol_asc", "symbol_asc"],
+      "lot_policy": {"min_order": 250.0, "reference_nav": 100000.0}
+    },
+    "provenance": {
+      "N": "10. Pre-committed from the pre-holdout ENB 4.48 + Friedman separability finding (FREEZE_ORB1 §2/§4). Prior to falsify, not fit to any forward read.",
+      "h_min": "0.60. Health is a binary Stage-1 eligibility gate; structural floor chosen by hand before any forward read. Prior to falsify, not fit to any forward read.",
+      "core_fraction": "0.55. Rank-based Core/Satellite tier edge (Core = top round(N*0.55) by mu_M1). Replaces the tilt-adapter CORE/COND support-tier table with a sizing-independent rank rule. Prior to falsify, not fit to any forward read.",
+      "regime_admissibility": "{} (empty). An empty map admits all asset classes in every regime: the regime label enters the live book ONLY as a Stage-2 book-level exposure multiplier (theta_size), never as a Stage-1 per-name multiplier. Frozen inert by hand. Prior to falsify, not fit to any forward read.",
+      "tiebreak": "Frozen ordering after mu_M1 desc: lower idiosyncratic vol first, then symbol ascending. Deterministic, sizing-independent. Prior to falsify, not fit to any forward read.",
+      "lot_policy": "min_order $250 at a frozen reference_nav of $100,000 — the theta_size-INDEPENDENT min-order notional hoisted to Stage-1 (C5). The lot-infeasibility partition is therefore byte-identical across the whole theta_size grid. Prior to falsify, not fit to any forward read."
+    },
+    "no_mid_stream_bound": "Any change to any theta_sel value (which changes content_hash) terminates the LIVE_PREREG reads and requires a fresh pre-registration with a fresh start date (LIVE_PREREG.md §3). 'Frozen by hand' is leakage-safe ONLY under this bound (Analyst C4 — closes defect-B-via-the-human)."
+  },
+  "theta_size": {
+    "content_hash": "4c4844ae82500ff3c818be01cbf3e2624ac1e1a2d26c7d5ade489e270d4d7a47",
+    "content_hash_method": "SizingParams.content_hash() — sha256 over dataclasses.asdict(theta_size) JSON-canonicalised",
+    "values": {
+      "gross_target": 1.0,
+      "max_position_weight": 0.20,
+      "max_cluster_weight": 0.35,
+      "cash_reserve_pct": 0.10,
+      "regime_exposure_multiplier": {},
+      "parity_gain": 0.5
+    },
+    "parity_controller_gain": 0.5,
+    "note": "theta_size is frozen alongside theta_sel. parity_gain is the closed-loop ex-post parity controller gain (F8 fix). theta_size NEVER reaches Stage-1 Select (enforced by assert_no_dollar_surface); freezing it pins the realized book, not the held set."
+  },
+  "universe": {
+    "go_live_artifacts": {
+      "config/universe.csv": {"sha256": "438abff0adf32380a44332097cb03a106c0be995124c19b8b1e56ebed4aead18", "bytes": 1861, "role": "go-live eligibility/membership contract — 64 names, all eligible; feeds ForecastBundle.eligible (sizing-independent universe/tradability gate)"},
+      "runs/pkt_tb_007_orthogonal_brain/universe_exploitability.json": {"sha256": "c3cf5abee3db93d9af0aeddb75bc2588bbbe4c101b0fd6df54e912fa2b1d9243", "bytes": 59364, "role": "forecast-skill / tradability derivation that justifies the go-live set (PKT-TB-007)"}
+    },
+    "forward_confirmed": false,
+    "forward_confirmed_note": "Every name in the go-live universe is forward_confirmed:false. No forward fold has confirmed these names; the set is a strong in-sample prior to falsify, tilted live before any forward fold confirms it (DESIGN_DOSSIER Attack 2, operator-accepted residual). The U−E universe-choice rung is displayed (PKT-TB-011) so this is visible.",
+    "min_fresh_fold_end_floor": "The C2 floor (min_fresh_fold_end ≥ 2026-06-11) governs the FIRST FORWARD re-derivation (UNIVERSE_DERIVE(T), PKT-TB-013, sequenced after PKT-TB-012). It is NOT applied to this frozen go-live universe, which is the existing in-sample-derived set, not a forward re-derivation. The forward-derived universe_manifest_{T}.json does not yet exist at LIVE_PREREG time.",
+    "executor_concern_ref": "PKT-TB-010 BUILD_RECEIPT, executor_concern — §0 names 'the go-live universe_manifest content hash'; the forward manifest is a PKT-TB-013 artifact not yet built, so the existing go-live universe artifacts are frozen instead."
+  },
+  "start_boundary": {
+    "first_decision_date": "strictly after the freeze commit AND after the two-stage engine writes trade_intents.json with a green invariant self-check",
+    "invariant_self_check": "held_symbols_invariant() must be True (frozenset equality of held_symbols across the theta_size grid) before any forward write; a False result ABORTS the night (abort-never-degrade)",
+    "champion_artifact": "the displayed champion line is frozen-as-artifact ≤ 2026-06-11; never spliced for computation, never justifying the forward line",
+    "assert_forward_only": "extended to the publish path — the engine refuses any decision date ≤ the go-live boundary"
+  }
+}
