@@ -95,3 +95,8 @@ frontend/public/data/timeseries.json
 
 # Local config overrides
 config/local_*.json
+
+# PKT-TB-012 brain bake staging (assembled at build time)
+build/brain_bake/
+brain/models_out_007/
+brain/seed_caches/

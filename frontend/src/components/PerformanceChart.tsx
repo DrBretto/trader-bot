@@ -42,6 +42,8 @@ interface MergedPoint {
   preHybridValue: number | null;
   optimizedValue: number | null;
   hybridValue: number | null;
+  championFrozen: number | null;
+  newBrain: number | null;
   shadowA: number | null;
   shadowB: number | null;
   benchmark: number;
@@ -49,6 +51,11 @@ interface MergedPoint {
   peak: number;
   regimeLabel?: string | null;
 }
+
+// PKT-TB-012: the champion line is frozen byte-immutable through this date; the
+// New Brain (native two-stage engine) is the primary line forward of it,
+// re-anchored C0-continuous to the frozen terminal.
+const NEW_BRAIN_BOUNDARY = '2026-06-11';
 
 const REGIME_SHADER_COLORS: Record<string, string> = {
   calm_uptrend: 'rgba(34, 197, 94, 0.03)',
@@ -217,6 +224,10 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
     // the corrected/hybrid value so historical periods (pre-2026-05-06) and
     // any rows missing optimized_value stay connected.
     const primaryValue = optimizedValue ?? correctedValue;
+    // PKT-TB-012 fields: the frozen champion line (ends at the boundary) and the
+    // re-anchored New Brain forward line.
+    const championFrozen = (point as { champion_frozen_value?: number | null }).champion_frozen_value ?? null;
+    const newBrain = (point as { new_brain_value?: number | null }).new_brain_value ?? null;
     peak = Math.max(peak, primaryValue);
     return {
       date: point.date,
@@ -226,6 +237,8 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
       preHybridValue,
       optimizedValue,
       hybridValue,
+      championFrozen,
+      newBrain,
       shadowA: shadowAByDate.get(point.date) ?? null,
       shadowB: shadowBByDate.get(point.date) ?? null,
       benchmark: point.benchmark,
@@ -236,6 +249,20 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
   });
 
   const merged = allMerged;
+
+  // PKT-TB-012: the New Brain line is the primary stroke once it exists; the
+  // brand is gated on the engine having written intents (which the cutover gates
+  // on the green PKT-TB-009 invariant), so its mere presence authorizes the name.
+  const hasNewBrain = merged.some((p) => p.date > NEW_BRAIN_BOUNDARY && p.newBrain !== null);
+  const hasChampionFrozen = merged.some((p) => p.championFrozen !== null);
+  const newBrainGoLiveDate = merged.find((p) => p.date > NEW_BRAIN_BOUNDARY)?.date;
+
+  // Standing exposure-stripped forecast-rung rent (F-R) + CI, read from the
+  // PKT-TB-011 rent ladder the shadow publishes. Carried onto the surface so a
+  // viewer sees the brain's selection contribution (a zero-straddling band), not
+  // just a market-driven equity curve (Skeptic closing condition 1).
+  const organLedger = shadow?.organ_ledger ?? shadow?.stats?.organ_ledger ?? [];
+  const forecastRung = organLedger.find((r) => r.component === 'forecast');
 
   const hybridIdx = merged.findIndex((p) => p.date >= HYBRID_PROMOTION_DATE);
   const hybridDate = hybridIdx >= 0 ? merged[hybridIdx]?.date : undefined;
@@ -459,18 +486,17 @@ Background color bands show the detected market regime at each point in time.`}
             connectNulls
           />
 
-          {/* Hybrid configuration counterfactual — DOTTED GRAY comparison
-              line. After the 2026-05-16 canon promotion this carries the
-              live-config (hybrid-ranking-035-v1) values so viewers can see
-              what the prior canon would have shown. Rendered neutrally so
-              it reads as a reference, not a second primary. */}
+          {/* PKT-TB-012: the in-sample optimized champion line, FROZEN
+              byte-immutable through 2026-06-11 (retired as the live algorithm).
+              Rendered as a neutral dashed reference that ends at the boundary —
+              it is never recomputed and never extended forward. */}
           <Line
             yAxisId="equity"
             type="monotone"
-            dataKey="hybridValue"
+            dataKey="championFrozen"
             stroke="#94a3b8"
             strokeWidth={1}
-            strokeOpacity={0.38}
+            strokeOpacity={0.45}
             strokeDasharray="2 4"
             dot={false}
             legendType="none"
@@ -508,12 +534,12 @@ Background color bands show the detected market regime at each point in time.`}
             />
           )}
 
-          {/* PRIMARY canonical line — single continuous solid blue across the
-              entire date range. After the 2026-05-16 canon promotion, `value`
-              carries the optimized champion values where they exist (from
-              2026-03-12 onward) and the prior canonical hybrid replay values
-              for the pre-replay backtest segment. One line, one color, no
-              cut-off. */}
+          {/* PRIMARY line (PKT-TB-012) — single continuous solid blue. `value`
+              carries the FROZEN champion through 2026-06-11, then the New Brain
+              (native two-stage engine), re-anchored C0-continuous to the frozen
+              terminal. The New Brain owns the stroke forward of the boundary;
+              the brand is gated on the engine having written intents (green
+              PKT-TB-009 invariant). One line, one color, no cut-off. */}
           <Line
             yAxisId="equity"
             type="monotone"
@@ -564,11 +590,14 @@ Background color bands show the detected market regime at each point in time.`}
       {/* Legend */}
       <div className="performance-legend">
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio
+          <span className="legend-swatch" style={{ background: '#3b82f6' }} />{' '}
+          {hasNewBrain ? 'New Brain (native engine)' : 'Portfolio (frozen champion)'}
         </span>
-        <span className="legend-item">
-          <span className="legend-swatch legend-swatch-dashed" style={{ background: '#94a3b8' }} /> Previous champion
-        </span>
+        {hasChampionFrozen && (
+          <span className="legend-item">
+            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#94a3b8' }} /> Champion (frozen, retired Jun 11)
+          </span>
+        )}
         <span className="legend-item">
           <span className="legend-swatch legend-swatch-dashed" style={{ background: '#64748b' }} /> SPY
         </span>
@@ -603,6 +632,26 @@ Background color bands show the detected market regime at each point in time.`}
           ))}
         </span>
       </div>
+
+      {/* PKT-TB-012 New Brain surface note. The live primary line CARRIES the
+          standing exposure-stripped forecast-rung rent + CI so the line does not
+          read as a market-driven equity curve (Skeptic closing condition 1).
+          No surface implies a dollar edge: the stripped residual is ~zero. */}
+      {(hasNewBrain || hasChampionFrozen) && (
+        <div className="shadow-note">
+          <strong style={{ color: '#93c5fd' }}>New Brain</strong> (native two-stage engine)
+          {hasNewBrain
+            ? <> — primary line forward of {newBrainGoLiveDate ?? 'go-live'}, re-anchored C0-continuous to the frozen champion ($114.9k, Jun 11).</>
+            : <> — pending engine go-live; the champion line is frozen through Jun 11 and the New Brain begins when the engine ships.</>}
+          {' '}
+          {forecastRung
+            ? <>Forecast-rung rent (exposure-stripped): <strong>{formatShadowStat(forecastRung.stripped_bp_day)}</strong> bp/day
+                {forecastRung.stripped_ci ? ` (95% CI [${forecastRung.stripped_ci.map((v) => v.toFixed(2)).join(', ')}])` : ''}
+                {forecastRung.verdict ? ` — ${forecastRung.verdict}` : ''}.</>
+            : <>Forecast-rung rent: accruing (armed).</>}
+          {' '}<span style={{ color: '#64748b' }}>Selection edge currently measured at zero; this line measures dollar conversion <em>forward</em> (LIVE_PREREG). Go-live universe <strong>forward_confirmed: false</strong>.</span>
+        </div>
+      )}
 
       {/* Dual forward shadow accrual note — neutral status only, no verdict
           language before the pre-registered read dates. */}

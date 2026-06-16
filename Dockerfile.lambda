@@ -1,4 +1,19 @@
 # Lambda container image with PyTorch for ensemble model inference
+#
+# PKT-TB-012: the live New Brain runs INSIDE this night Lambda. Before building,
+# extract the brain's runtime subset out of the 4.2 GB research trees into the
+# small, deployable staging dir this image bakes:
+#
+#     python -m src.brain.bake_runtime_subset      # -> build/brain_bake/
+#     docker build -f Dockerfile.lambda -t trader-bot:latest .
+#
+# The bake carves the runtime CODE (forward_inference + its imports), the four
+# frozen model files (320 KB), the frozen seed caches (~108 MB), and the parity
+# reference out of the prototype trees (DESIGN_DOSSIER reports/03 §0/§2). torch
+# 2.1.2 + sklearn 1.3.2 are already in the image, so the brain's inference deps
+# need no new heavy layer. At cold start src/brain/freeze.assert_cold_start()
+# asserts engine_sha + model_sha against brain/FREEZE_ORB1.json BEFORE any
+# inference; a mismatch ABORTS the night (abort-never-degrade).
 FROM public.ecr.aws/lambda/python:3.11
 
 # Upgrade pip first
@@ -21,11 +36,33 @@ RUN pip install --no-cache-dir --only-binary=:all: scikit-learn==1.3.2
 COPY requirements-lambda.txt ./
 RUN pip install --no-cache-dir -r requirements-lambda.txt
 
-# Copy application code
+# Copy application code (includes src/brain: the two-stage engine + the live
+# cutover runtime — the live brain is the engine, NOT tilt_adapter).
 COPY src/ ${LAMBDA_TASK_ROOT}/src/
 COPY training/models/ ${LAMBDA_TASK_ROOT}/training/models/
-# Configuration files read by publish_artifacts (chart_markers, etc.)
+# Configuration files read by publish_artifacts (chart_markers, etc.) and the
+# cutover switch config/brain.active.json (live/shadow) + the frozen champion
+# static table config/champion_freeze_20260611.json.
 COPY config/ ${LAMBDA_TASK_ROOT}/config/
+
+# The frozen brain contract (PKT-TB-010) — asserted at cold start.
+COPY brain/FREEZE_ORB1.json ${LAMBDA_TASK_ROOT}/brain/FREEZE_ORB1.json
+
+# PKT-TB-012: bake the extracted runtime subset (run `python -m
+# src.brain.bake_runtime_subset` first). brain/code is the forward-inference
+# import path; brain/models_out_007 (320 KB) is the cold-start sha-asserted
+# weight set; brain/seed_caches (~108 MB) are the frozen seed caches; the parity
+# reference is baked under src/brain/reference for the abort-on-divergence gate.
+COPY build/brain_bake/code/ ${LAMBDA_TASK_ROOT}/brain/code/
+COPY build/brain_bake/models_out_007/ ${LAMBDA_TASK_ROOT}/brain/models_out_007/
+COPY build/brain_bake/seed_caches/ ${LAMBDA_TASK_ROOT}/brain/seed_caches/
+COPY build/brain_bake/reference/nightly_007/ ${LAMBDA_TASK_ROOT}/src/brain/reference/nightly_007/
+
+# Forward-inference import path (production_forecaster honors this).
+ENV BRAIN_RUNTIME_SUBSET=${LAMBDA_TASK_ROOT}/brain/code
+# Deterministic inference (the 2e-3 mu parity tolerance absorbs benign FP drift).
+ENV OMP_NUM_THREADS=1
+ENV MKL_NUM_THREADS=1
 
 # Set the handler
 CMD ["src.handler.lambda_handler"]

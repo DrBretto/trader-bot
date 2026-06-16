@@ -1,0 +1,15 @@
+{
+  "schema": "brain_active.v1",
+  "mode": "live",
+  "genome": "native_two_stage",
+  "engine": "native_two_stage",
+  "engine_sha": "0e1d22ecec1cf56bf32b319e7f82b957bf6277a79f6b6d1afb8c41b869f077ba",
+  "model_sha": "5b2428c66c14",
+  "effective_from": "2026-06-12",
+  "forward_boundary": "2026-06-11",
+  "freeze": "brain/FREEZE_ORB1.json",
+  "authority": "D-AUTO-20260616 (operator); DESIGN_DOSSIER.md §3 (Attack-5 ruling, BINDING); PKT-TB-012",
+  "live_brain": "The live brain is the native two-stage engine (src/brain/engine, PKT-TB-008), NOT tilt_adapter. Per the Attack-5 ruling nothing renders branded 'New Brain' unless this engine writes daily/<D>/trade_intents.json AND the nightly invariant self-check (held_symbols_invariant, the PKT-TB-009 spine) is green. 009 is green as of the cutover.",
+  "rollback": "Flip mode to 'shadow' (one config change) -> the next night writes incumbent intents again; atomic at the night boundary, no redeploy. Automatic fail-safe to incumbent on freeze-mismatch / invariant-red / inference-fail / engine-exception (abort-never-degrade).",
+  "non_assertion": "Going live authorizes forward measurement of dollar conversion; it does NOT assert the brain has a dollar edge. The exposure-stripped selection residual is measured at zero (LIVE_PREREG.md)."
+}

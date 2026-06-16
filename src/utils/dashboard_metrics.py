@@ -12,6 +12,103 @@ from src.utils.cutover_bridge import extract_cutover_date_from_marker
 from src.utils.historical_corrections import apply_split_corrections_to_fills
 
 
+def attach_new_brain_surface(
+    dashboard_data: Dict[str, Any],
+    shadow_payload: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Carry the standing exposure-stripped FORECAST-RUNG rent + CI onto the
+    live primary-line surface (PKT-TB-012; Skeptic closing condition 1 / Attack 1).
+
+    The live New Brain line must not read as "a market-driven equity curve": a
+    viewer has to see the brain's selection contribution — the multi-factor
+    exposure-stripped forecast-rung rent (F-R), a zero-straddling band — right on
+    the surface. Also surfaces the certified IC skill receipt, the U-E universe
+    rung, the three-valued verdict + BH-FDR state, and the ``forward_confirmed:
+    false`` tag. Reads the PKT-TB-011 rent ladder from the shadow payload; never
+    computes rent here. Idempotent + defensive: a missing/!=v2 payload leaves a
+    'pending' block so the surface still carries the standing-fact framing.
+
+    None of this asserts a dollar edge: the stripped residual is measured at zero.
+    """
+    metrics = dashboard_data.setdefault("metrics", {})
+    block: Dict[str, Any] = {
+        "forward_confirmed": False,
+        "forward_confirmed_note": (
+            "Every New Brain go-live universe name is forward_confirmed:false — a "
+            "strong in-sample prior to falsify, tilted live before any forward "
+            "fold confirms it (DESIGN_DOSSIER Attack 2)."),
+        "non_assertion": (
+            "Dollar conversion is measured forward, pre-registered, never an "
+            "in-sample replay. The exposure-stripped selection residual is "
+            "currently measured at zero (LIVE_PREREG.md). No surface implies the "
+            "live brain has a dollar edge."),
+        "live_prereg": "LIVE_PREREG.md (the forward read contract)",
+    }
+
+    stats = (shadow_payload or {}).get("stats", {}) if shadow_payload else {}
+    organ_ledger = (
+        (shadow_payload or {}).get("organ_ledger")
+        or stats.get("organ_ledger")
+        or []
+    )
+    forecast_rung = next(
+        (r for r in organ_ledger if r.get("component") == "forecast"), None)
+    universe_rung = next(
+        (r for r in organ_ledger if r.get("component") == "universe"), None)
+    forecast_leg = (
+        (shadow_payload or {}).get("forecast_leg")
+        or stats.get("forecast_leg")
+        or {})
+
+    if forecast_rung is not None:
+        block["forecast_rung_rent"] = {
+            "stripped_bp_day": forecast_rung.get("stripped_bp_day"),
+            "stripped_ci": forecast_rung.get("stripped_ci"),
+            "gross_bp_day": forecast_rung.get("gross_bp_day"),
+            "t": forecast_rung.get("t"),
+            "n_days": forecast_rung.get("n_days"),
+            "verdict": forecast_rung.get("verdict"),
+            "fdr_survivor": forecast_rung.get("fdr_survivor"),
+            "book_pair": forecast_rung.get("book_pair"),
+            "caveat": forecast_rung.get("caveat"),
+            "label": "Forecast-rung rent (exposure-stripped, F-R) bp/day",
+        }
+    else:
+        block["forecast_rung_rent"] = {
+            "status": "accruing",
+            "label": "Forecast-rung rent (exposure-stripped, F-R) bp/day",
+            "note": "shadow rent ladder not yet available (armed; accruing).",
+        }
+
+    if universe_rung is not None:
+        block["universe_rung"] = {
+            "stripped_bp_day": universe_rung.get("stripped_bp_day"),
+            "stripped_ci": universe_rung.get("stripped_ci"),
+            "verdict": universe_rung.get("verdict"),
+            "caveat": universe_rung.get("caveat"),
+            "book_pair": universe_rung.get("book_pair"),
+            "label": "Universe-choice rung (U-E) bp/day",
+        }
+
+    if forecast_leg:
+        block["forecast_skill"] = {
+            "mean_ic": forecast_leg.get("mean_ic"),
+            "ic_t": forecast_leg.get("ic_t"),
+            "n_weeks": forecast_leg.get("n_weeks"),
+            "certified": forecast_leg.get("certified", False),
+            "note": "Certified skill receipt (realized weekly rank-IC); NEVER "
+                    "multiplied by a notional. Conversion is the forecast rung above.",
+        }
+
+    if stats.get("materiality_bp") is not None:
+        block["materiality_bp"] = stats.get("materiality_bp")
+    if stats.get("fdr") is not None:
+        block["fdr"] = stats.get("fdr")
+
+    metrics["new_brain"] = block
+    return dashboard_data
+
+
 def _parse_date(value: str) -> datetime:
     """Parse YYYY-MM-DD strings safely for sorting/grouping."""
     return datetime.strptime(value, "%Y-%m-%d")
@@ -188,7 +285,13 @@ def _load_daily_states(
         if not state:
             continue
         try:
-            value = float(state.get("portfolio_value", 0.0) or 0.0)
+            # Fresh states publish the internal sim book under `sim_book_value`
+            # (PKT-TB-001 boundary rename); historical states are records and
+            # keep `portfolio_value`. Either provides the date-scaffolding
+            # value (the extender overwrites it with the canon line for dates
+            # in the replay span).
+            value_raw = state.get("sim_book_value", state.get("portfolio_value", 0.0))
+            value = float(value_raw or 0.0)
         except (TypeError, ValueError):
             continue
 

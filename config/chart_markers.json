@@ -37,6 +37,18 @@
             "label": "Regime model retrained (forward)",
             "category": "model",
             "description": "Regime ensemble retrained on 11yr corpus (out-of-sample accuracy 9%% -> 73%%, replacing models trained on ~11 rows). Applies to decisions from this date FORWARD; prior history is unchanged (continuity preserved). Also: champion config tuned (position weight 0.20->0.30, topup 1.2->1.1) lifting the line from +12.5%% to +15.0%% whole-period."
+        },
+        {
+            "date": "2026-06-11",
+            "label": "Champion frozen",
+            "category": "milestone",
+            "description": "In-sample optimized champion RETIRED as the live algorithm (D-AUTO-20260616). Its displayed line through 2026-06-11 is frozen byte-immutable ($114.9k terminal) and never recomputed."
+        },
+        {
+            "date": "2026-06-12",
+            "label": "New Brain go-live",
+            "category": "model",
+            "description": "Native two-stage engine (PKT-TB-008, Select-then-Allocate) becomes the live algorithm and the primary displayed line, re-anchored C0-continuous to the frozen champion terminal. The engine — NOT the TB-007 tilt — writes live trade_intents.json, gated on the green PKT-TB-009 invariant self-check (Attack-5 ruling). Forward-only, freshly pre-registered (LIVE_PREREG.md); dollar conversion measured at zero and being measured forward — no dollar edge asserted."
         }
     ]
 }

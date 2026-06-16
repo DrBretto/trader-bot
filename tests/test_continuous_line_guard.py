@@ -174,12 +174,13 @@ class TestNewestPriceableDate:
 # --------------------------------------------------------------------------
 
 def _stamped_dash(champion_frontier):
+    # PKT-TB-012: the advance guard now expects the New-Brain canon stamp.
     return {
         'timeline_correction': {
-            'version': 'lambda-three-line-replay-v2-optimized-canon',
+            'version': 'lambda-new-brain-canon-v1',
             'champion_frontier': champion_frontier,
         },
-        'metrics': {'canon_source': 'optimized_champion'},
+        'metrics': {'canon_source': 'new_brain'},
     }
 
 

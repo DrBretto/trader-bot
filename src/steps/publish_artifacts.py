@@ -9,6 +9,7 @@ import pandas as pd
 
 from src.utils.s3_client import S3Client
 from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
+from src.steps import paper_trader
 
 
 def _invalidate_dashboard_cache() -> None:
@@ -58,6 +59,140 @@ def _load_chart_markers() -> List[Dict[str, Any]]:
 
 DUST_SHARE_EPSILON = 0.001
 DUST_VALUE_EPSILON = 0.01
+
+
+def run_brain_cutover_night(
+    s3: S3Client,
+    run_date: str,
+    features_df: pd.DataFrame,
+    inference_output: Dict[str, Any],
+    decisions: Dict[str, Any],
+    portfolio_state: Dict[str, Any],
+) -> Dict[str, Any]:
+    """PKT-TB-012 cutover seam: when ``config/brain.active.json`` is live and the
+    date is forward of the boundary, the native two-stage engine (PKT-TB-008 — NOT
+    tilt_adapter) writes the live ``daily/<D>/trade_intents.json``.
+
+    The incumbent intents are ALREADY at that key (handler wrote them before the
+    publish step), so the fail-safe is structural: on success we overwrite with
+    the engine's intents and keep the incumbent as ``trade_intents.incumbent.json``;
+    on ANY failure (freeze mismatch / invariant-red / inference-fail / engine
+    exception) we leave the incumbent intents untouched (fail-safe to incumbent)
+    and raise an SNS CRITICAL. abort-never-degrade — never a silent partial.
+
+    The morning executor consumes whatever sits at ``trade_intents.json`` with
+    byte-identical validation, so the morning path needs ZERO change (the clean
+    seam, DESIGN_DOSSIER reports/03 §5).
+    """
+    status: Dict[str, Any] = {
+        "date": run_date, "engine_wrote_intents": False, "mode": None,
+        "enabled": False, "reason": "", "invariant_green": False,
+    }
+    try:
+        from src.brain import is_live, load_brain_config, production_forecaster, run_cutover
+    except Exception as e:  # noqa: BLE001 — brain package unavailable: stay incumbent
+        status["reason"] = f"brain package import failed: {type(e).__name__}: {e}"
+        return status
+
+    try:
+        cfg = load_brain_config()
+    except Exception as e:  # noqa: BLE001 — missing switch: stay incumbent, do not crash
+        status["reason"] = f"brain.active.json unavailable: {type(e).__name__}: {e}"
+        return status
+
+    status["mode"] = cfg.get("mode")
+    enabled, why = is_live(cfg, run_date)
+    status["enabled"] = enabled
+    status["reason"] = why
+    if not enabled:
+        # mode=shadow OR date <= forward boundary (frozen champion owns it).
+        return status
+
+    # The incumbent intents handler just wrote — the structural fail-safe target.
+    incumbent = s3.read_json(f"daily/{run_date}/trade_intents.json") or {}
+
+    # Universe contract + health/regime from the chassis run.
+    try:
+        universe_df = s3.read_csv('config/universe.csv')
+    except Exception:  # noqa: BLE001
+        universe_df = None
+    if universe_df is None or len(universe_df) == 0:
+        status["reason"] = "universe.csv unavailable — staying incumbent"
+        _alert_cutover_fallback(run_date, status["reason"])
+        return status
+
+    health_map: Dict[str, float] = {}
+    for c in decisions.get('buy_candidates', []) or []:
+        sym = c.get('symbol')
+        if sym and c.get('health_score') is not None:
+            health_map[sym] = float(c['health_score'])
+    for h in portfolio_state.get('holdings', []) or []:
+        sym = h.get('symbol')
+        if sym and h.get('health_score') is not None:
+            health_map[sym] = float(h['health_score'])
+
+    regime_label = (
+        decisions.get('expert_metrics', {}).get('final_regime_label')
+        or inference_output.get('regime', {}).get('label', 'neutral')
+    )
+
+    res = run_cutover(
+        run_date, features_df, regime_label, universe_df, portfolio_state,
+        production_forecaster, health_map=health_map, config=cfg,
+        now_iso=datetime.now().isoformat(), incumbent_intents=incumbent,
+    )
+
+    if res.ok and res.trade_intents:
+        # The cutover: the two-stage engine's intents become the live intents.
+        s3.write_json(res.trade_intents, f"daily/{run_date}/trade_intents.json")
+        s3.write_json(incumbent, f"daily/{run_date}/trade_intents.incumbent.json")
+        # The engine's selected set — wired into the attribution ladder's
+        # universe rung (the U-E rung; PKT-TB-011 flagged it unwired).
+        s3.write_json({
+            "date": run_date,
+            "engine": res.engine,
+            "selected_universe": res.selected_universe,
+            "forward_confirmed": False,
+            "invariant_green": res.invariant_green,
+            "source": "PKT-TB-012 native two-stage engine cutover",
+            "note": "Every name is forward_confirmed:false — a strong in-sample "
+                    "prior to falsify, tilted live before any forward fold "
+                    "confirms it (DESIGN_DOSSIER Attack 2).",
+        }, f"daily/{run_date}/brain_selected_universe.json")
+        status.update(
+            engine_wrote_intents=True, engine=res.engine,
+            n_selected=len(res.selected_universe or []),
+            invariant_green=res.invariant_green, reason=res.reason,
+        )
+        print(f"  New Brain cutover: engine '{res.engine}' wrote "
+              f"{len(res.trade_intents.get('actions', []))} live intents "
+              f"({len(res.selected_universe or [])} held; invariant green)")
+    else:
+        # Fail-safe: incumbent intents already in place; alarm and stay there.
+        status["reason"] = res.reason
+        print(f"  ALARM: New Brain cutover ABORTED — incumbent intents retained: {res.reason}")
+        _alert_cutover_fallback(run_date, res.reason)
+    return status
+
+
+def _alert_cutover_fallback(run_date: str, reason: str) -> None:
+    """SNS CRITICAL on a cutover abort (the brain abstained for the night; the
+    book runs the incumbent intents — honestly recorded as a forward day where
+    the brain fell back)."""
+    try:
+        from src.utils.sns_alerts import send_alert
+        send_alert(
+            subject="[TraderBot] CRITICAL: New Brain cutover ABORTED — incumbent intents retained",
+            body=(
+                f"date={run_date}\n"
+                f"reason={reason}\n\n"
+                "abort-never-degrade: the two-stage engine did not write live "
+                "intents this night; the morning executor will consume the "
+                "incumbent intents (fail-safe). Check CloudWatch / brain logs."
+            ),
+        )
+    except Exception as e:  # noqa: BLE001 — alerting must never crash the run
+        print(f"  cutover-fallback alert failed (non-fatal): {e}")
 
 
 def _build_snapshot_meta(
@@ -392,23 +527,23 @@ def _verify_extension_or_alarm(dashboard_data, s3, phase, run_date) -> tuple:
         tc = dashboard_data.get('timeline_correction', {}) or {}
         metrics = dashboard_data.get('metrics', {}) or {}
 
-        # 1. STAMP: extender actually ran and stamped optimized canon.
+        # 1. STAMP: extender ran and stamped the New-Brain canon (PKT-TB-012).
         stamp_ok = (
-            tc.get('version') == 'lambda-three-line-replay-v2-optimized-canon'
-            and metrics.get('canon_source') == 'optimized_champion'
+            tc.get('version') == 'lambda-new-brain-canon-v1'
+            and metrics.get('canon_source') == 'new_brain'
         )
         if not stamp_ok:
             return False, (
                 "STAMP check failed: timeline_correction.version="
                 f"{tc.get('version')!r}, metrics.canon_source="
-                f"{metrics.get('canon_source')!r} (expected optimized-canon stamp; "
-                "extender likely silently no-op'd)"
+                f"{metrics.get('canon_source')!r} (expected new-brain canon stamp; "
+                "extender likely silently no-op'd / champion freeze table missing)"
             )
 
-        # 2. FRONTIER PRESENT: the champion replay priced at least one date.
+        # 2. FRONTIER PRESENT: the primary line reached at least one date.
         f_new = tc.get('champion_frontier')
         if f_new is None:
-            return False, "FRONTIER check failed: champion_frontier is None (replay priced no dates)"
+            return False, "FRONTIER check failed: champion_frontier is None (primary line empty)"
 
         # 3. FORWARD-ADVANCE: the corpus must not offer a newer priceable day
         #    than the replay reached.
@@ -425,116 +560,6 @@ def _verify_extension_or_alarm(dashboard_data, s3, phase, run_date) -> tuple:
         # Never raise from the guard. A guard crash should not crash the run,
         # but it also must not silently pass — treat it as a hold.
         return False, f"guard raised (held as precaution): {e}"
-
-
-def load_recent_trades(s3: S3Client, max_days: int = 90) -> List[Dict]:
-    """Load recent trades from daily trades.jsonl files."""
-    dates = s3.list_daily_dates(max_days=max_days)
-    all_trades = []
-    for date_str in dates:
-        day_trades = s3.read_jsonl(f'daily/{date_str}/trades.jsonl')
-        all_trades.extend(day_trades)
-    # Sort newest first
-    all_trades.sort(key=lambda t: t.get('timestamp', ''), reverse=True)
-    return all_trades
-
-
-def _build_equity_curve_from_daily(s3: S3Client, max_days: int = 365) -> List[Dict]:
-    """Build equity curve from daily portfolio_state.json artifacts.
-    Returns list of {date, value, benchmark} for frontend EquityCurvePoint.
-    Only includes dates from when trading started (portfolio value changed).
-    """
-    dates = s3.list_daily_dates(max_days=max_days)
-    if not dates:
-        return []
-
-    # Build full curve first
-    full_curve = []
-    for date_str in dates:
-        state = s3.read_json(f'daily/{date_str}/portfolio_state.json')
-        if state is not None and 'portfolio_value' in state:
-            pv = state['portfolio_value']
-            full_curve.append({
-                'date': date_str,
-                'value': pv,
-                'benchmark': state.get('benchmark_value', pv),
-            })
-
-    # Find first date where portfolio value changed from initial (trading started)
-    # Use tolerance for floating point comparison
-    initial_value = 100000
-    tolerance = 1.0  # $1 tolerance
-    first_trade_idx = 0
-    for i, point in enumerate(full_curve):
-        if abs(point['value'] - initial_value) > tolerance:
-            # Include one day before first trade for context (the starting point)
-            first_trade_idx = max(0, i - 1)
-            break
-
-    return full_curve[first_trade_idx:]
-
-
-def load_historical_equity(s3: S3Client) -> List[Dict]:
-    """Load historical equity curve from portfolio history or build from daily artifacts."""
-    try:
-        history = s3.read_json('portfolio/equity_history.json')
-        if history and isinstance(history, list):
-            return history[-365:]
-    except Exception:
-        pass
-    return _build_equity_curve_from_daily(s3, max_days=365)
-
-
-def load_historical_drawdowns(s3: S3Client) -> List[Dict]:
-    """Load historical drawdowns from portfolio history or build from daily artifacts."""
-    try:
-        history = s3.read_json('portfolio/drawdown_history.json')
-        if history and isinstance(history, list):
-            return history[-365:]
-    except Exception:
-        pass
-    curve = _build_equity_curve_from_daily(s3, max_days=365)
-    if not curve:
-        return []
-    sorted_curve = sorted(curve, key=lambda x: x['date'])
-    peak = sorted_curve[0]['value']
-    drawdowns = []
-    for point in sorted_curve:
-        if point['value'] > peak:
-            peak = point['value']
-        dd = (point['value'] - peak) / peak if peak > 0 else 0.0
-        drawdowns.append({'date': point['date'], 'drawdown': dd})
-    return drawdowns
-
-
-def load_monthly_returns(s3: S3Client) -> List[Dict]:
-    """Load monthly returns from portfolio history or build from daily artifacts."""
-    try:
-        returns = s3.read_json('portfolio/monthly_returns.json')
-        if returns and isinstance(returns, list):
-            return returns
-    except Exception:
-        pass
-    curve = _build_equity_curve_from_daily(s3, max_days=730)
-    if not curve:
-        return []
-    by_month = {}
-    for point in curve:
-        date_str = point['date']
-        ym = date_str[:7]
-        if ym not in by_month:
-            by_month[ym] = []
-        by_month[ym].append(point['value'])
-    monthly = []
-    for ym in sorted(by_month.keys()):
-        vals = by_month[ym]
-        if len(vals) >= 2:
-            ret = (vals[-1] / vals[0]) - 1.0
-        else:
-            ret = 0.0
-        year, month = int(ym[:4]), int(ym[5:7])
-        monthly.append({'year': year, 'month': month, 'return_pct': ret})
-    return monthly
 
 
 def _build_timeseries_row(
@@ -597,7 +622,8 @@ def _build_timeseries_row(
         'position_size_modifier': expert_metrics.get('position_size_modifier', 1.0),
         'risk_throttle_factor': expert_metrics.get('risk_throttle_factor', 0.0),
         'spy_close': float(ctx.get('spy_return_1d', 0)) if hasattr(ctx, 'get') else 0.0,
-        'portfolio_value': portfolio_state.get('portfolio_value', 100000),
+        # No portfolio_value here (PKT-TB-001): the sim book's value must not be
+        # published; the canon line's value lives in dashboard.json metrics.
     }
 
 
@@ -651,6 +677,19 @@ def run(
 
     published = []
     failed = []
+
+    # 0. PKT-TB-012 NEW-BRAIN CUTOVER (night only). The native two-stage engine
+    #    (not tilt_adapter) overwrites daily/<D>/trade_intents.json with its
+    #    intents when brain.active is live and the date is forward of the frozen
+    #    champion boundary; on any failure the incumbent intents (already written
+    #    by the handler) stay in place (fail-safe). Never crashes the night.
+    try:
+        brain_cutover = run_brain_cutover_night(
+            s3, run_date, features_df, inference_output, decisions, portfolio_state,
+        )
+    except Exception as e:
+        print(f"Brain cutover step crashed (non-fatal, incumbent retained): {e}")
+        brain_cutover = {"engine_wrote_intents": False, "reason": f"cutover crashed: {e}"}
 
     # 1. Prices parquet
     try:
@@ -712,9 +751,13 @@ def run(
         print(f"Failed to publish decisions.json: {e}")
         failed.append("decisions.json")
 
-    # 7. Portfolio State JSON
+    # 7. Portfolio State JSON (internal sim book — published under renamed,
+    #    role-marked fields so it can never read as a second live portfolio)
     try:
-        s3.write_json(portfolio_state, f"{base_path}/portfolio_state.json")
+        s3.write_json(
+            paper_trader.to_published_state(portfolio_state),
+            f"{base_path}/portfolio_state.json",
+        )
         published.append("portfolio_state.json")
     except Exception as e:
         print(f"Failed to publish portfolio_state.json: {e}")
@@ -748,7 +791,8 @@ def run(
             'actions_count': len(decisions.get('actions', [])),
             'trades_count': len(trades),
             'artifacts_published': published,
-            'artifacts_failed': failed
+            'artifacts_failed': failed,
+            'brain_cutover': brain_cutover,
         }
         s3.write_json(run_report, f"{base_path}/run_report.json")
         published.append("run_report.json")
@@ -784,6 +828,12 @@ def run(
                 # Remove any existing row for today (idempotent re-runs)
                 existing_ts['date'] = existing_ts['date'].astype(str)
                 existing_ts = existing_ts[existing_ts['date'] != run_date]
+                # The rolling timeseries is produced fresh daily — strip the
+                # legacy dead-book column so it stops being republished
+                # (dated daily/<date>/signals.parquet records keep theirs).
+                existing_ts = existing_ts.drop(
+                    columns=['portfolio_value'], errors='ignore'
+                )
                 ts_df = pd.concat([existing_ts, pd.DataFrame([ts_row])], ignore_index=True)
             else:
                 ts_df = pd.DataFrame([ts_row])
@@ -811,6 +861,7 @@ def run(
     # 13. Generate dashboard.json for frontend
     dashboard_publishable = _can_publish_dashboard(expert_signals)
     dashboard_held = False
+    canon_total_value = None
     try:
         dashboard_data = build_dashboard_data(
             portfolio_state, inference_output, decisions, weather, s3,
@@ -825,6 +876,15 @@ def run(
         # failure), so this degrades gracefully to the raw canonical line.
         from src.utils.three_line_replay.extender import extend_dashboard
         dashboard_data = extend_dashboard(s3.s3, dashboard_data)
+        # PKT-TB-012: carry the exposure-stripped forecast-rung rent + CI, the
+        # U-E universe rung, the IC skill receipt, and forward_confirmed:false
+        # onto the live primary-line surface (Skeptic closing condition 1).
+        try:
+            _shadow_payload = s3.read_json('dashboard/shadow_timeseries.json')
+        except Exception:
+            _shadow_payload = None
+        from src.utils.dashboard_metrics import attach_new_brain_surface
+        dashboard_data = attach_new_brain_surface(dashboard_data, _shadow_payload)
         # Publish guard: do not overwrite a valid dashboard with broken data.
         # When expert_signals is None the frontend shows "unknown" posture and
         # hides Today's Story.  Preserving the last known good dashboard.json
@@ -857,6 +917,7 @@ def run(
                 s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
                 s3.write_json(dashboard_data, "dashboard/dashboard.json")
                 published.append("dashboard.json")
+                canon_total_value = dashboard_data.get('metrics', {}).get('total_value')
     except Exception as e:
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")
@@ -869,14 +930,15 @@ def run(
                 'final_regime_label',
                 inference_output.get('regime', {}).get('label', 'unknown')
             )
+            # Pointer file only — no book values (PKT-TB-001 single-book
+            # invariant: the dead sim book's portfolio_value/positions_count
+            # were the primary two-books confusion source here).
             latest = {
                 'date': run_date,
                 'intents_date': run_date,
                 'timestamp': snapshot_meta['timestamp'],
                 'snapshot_id': snapshot_meta['id'],
                 'regime': fused_regime,
-                'portfolio_value': portfolio_state.get('portfolio_value', 0),
-                'positions_count': len(portfolio_state.get('holdings', [])),
                 'actions_count': len(decisions.get('actions', [])),
                 'phase': 'night'
             }
@@ -902,7 +964,12 @@ def run(
         'success': len(failed) == 0,
         'published': published,
         'failed': failed,
-        'base_path': base_path
+        'base_path': base_path,
+        # Canon line value (optimized champion) when the dashboard published;
+        # None when the advance guard held or the snapshot was unpublishable.
+        'canon_total_value': canon_total_value,
+        # PKT-TB-012: who wrote the live intents this night (engine vs incumbent).
+        'brain_cutover': brain_cutover,
     }
 
 
@@ -943,9 +1010,13 @@ def publish_morning_artifacts(
     published = []
     failed = []
 
-    # 1. Portfolio state (overwrite night's valuation-only snapshot)
+    # 1. Portfolio state (overwrite night's valuation-only snapshot).
+    #    Internal sim book — renamed/role-marked at the write boundary.
     try:
-        s3.write_json(portfolio_state, f"{base_path}/portfolio_state.json")
+        s3.write_json(
+            paper_trader.to_published_state(portfolio_state),
+            f"{base_path}/portfolio_state.json",
+        )
         published.append("portfolio_state.json")
     except Exception as e:
         print(f"Failed to publish portfolio_state.json: {e}")
@@ -1000,6 +1071,7 @@ def publish_morning_artifacts(
     # 5. Rebuild and publish dashboard.json with post-trade portfolio.
     dashboard_publishable = _can_publish_dashboard(expert_signals)
     dashboard_held = False
+    canon_total_value = None
     try:
         dashboard_data = build_dashboard_data(
             portfolio_state, night_inference, night_decisions, night_weather, s3,
@@ -1011,6 +1083,14 @@ def publish_morning_artifacts(
         # durability; extend_dashboard degrades gracefully on failure.
         from src.utils.three_line_replay.extender import extend_dashboard
         dashboard_data = extend_dashboard(s3.s3, dashboard_data)
+        # PKT-TB-012: carry forecast-rung rent + CI + U-E rung + IC receipt +
+        # forward_confirmed:false onto the live primary-line surface.
+        try:
+            _shadow_payload = s3.read_json('dashboard/shadow_timeseries.json')
+        except Exception:
+            _shadow_payload = None
+        from src.utils.dashboard_metrics import attach_new_brain_surface
+        dashboard_data = attach_new_brain_surface(dashboard_data, _shadow_payload)
         # Publish guard: do not overwrite a valid dashboard with broken data.
         if not dashboard_publishable:
             print("  WARNING: Skipping morning dashboard.json publish — expert_signals is null. "
@@ -1038,6 +1118,7 @@ def publish_morning_artifacts(
                 s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
                 s3.write_json(dashboard_data, "dashboard/dashboard.json")
                 published.append("dashboard.json")
+                canon_total_value = dashboard_data.get('metrics', {}).get('total_value')
     except Exception as e:
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")
@@ -1049,14 +1130,17 @@ def publish_morning_artifacts(
             latest = s3.read_json('daily/latest.json') or {}
             latest.update({
                 'date': run_date,
-                'portfolio_value': portfolio_state.get('portfolio_value', 0),
-                'positions_count': len(portfolio_state.get('holdings', [])),
                 'morning_executed': True,
                 'trades_count': len(trades),
                 'phase': 'morning',
                 'timestamp': snapshot_meta['timestamp'],
                 'snapshot_id': snapshot_meta['id'],
             })
+            # Pointer file only — and scrub legacy dead-book fields a
+            # pre-purge latest.json may still carry (merge-update preserves
+            # unknown keys, so an explicit pop is required once).
+            latest.pop('portfolio_value', None)
+            latest.pop('positions_count', None)
             s3.write_json(latest, 'daily/latest.json')
             published.append("latest.json")
         elif dashboard_held:
@@ -1079,5 +1163,8 @@ def publish_morning_artifacts(
         'success': len(failed) == 0,
         'published': published,
         'failed': failed,
-        'base_path': base_path
+        'base_path': base_path,
+        # Canon line value (optimized champion) when the dashboard published;
+        # None when the advance guard held or the snapshot was unpublishable.
+        'canon_total_value': canon_total_value,
     }

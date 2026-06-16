@@ -1,19 +1,20 @@
-"""Regression tests for the optimized-canon promotion inside three_line_replay.
+"""Regression tests for the PKT-TB-012 New-Brain canon (freeze + re-anchor).
 
-If the mobile chart, mobile sticky bar, mobile hero metrics, or desktop
-hero metrics ever silently fall back to the old hybrid line again, these
-tests fail. They pin two contracts the extender must keep stable:
+This file previously pinned the optimized-champion canon promotion. PKT-TB-012
+RETIRES that canon: per D-AUTO-20260616 and the DESIGN_DOSSIER §3 Attack-5 ruling
+the in-sample optimized champion is no longer the live algorithm and no longer
+the displayed canon line. The champion line through 2026-06-11 is frozen
+byte-immutable (config/champion_freeze_20260611.json, never recomputed) and the
+New Brain (native two-stage engine) is the primary line forward, re-anchored
+C0-continuous to the frozen terminal.
 
-1. `equity_curve[i].value` == `equity_curve[i].optimized_value` on every row
-   where the champion replay has a value. `value` is what the mobile chart
-   and `metrics.total_value` derivations read.
-2. `equity_curve[i].hybrid_value` is preserved on every row where the
-   hybrid replay has a value, distinct from `value` on rows where the
-   champion diverges. Desktop chart and tooltip read `hybrid_value`.
+These tests pin the new contract the extender must keep stable:
 
-Plus the metadata contract:
-- `metrics.canon_source` == 'optimized_champion'
-- `timeline_correction.main_line_label` == 'Portfolio (optimized champion)'
+1. `equity_curve[i].value` == the frozen champion table on every row <= the
+   boundary (byte-immutable; never recomputed).
+2. `equity_curve[i].value` forward of the boundary is the New Brain line,
+   re-anchored to the frozen terminal (`new_brain_value` populated).
+3. `metrics.canon_source` == 'new_brain'; the line is no longer branded champion.
 """
 
 from __future__ import annotations
@@ -21,187 +22,87 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
-from unittest.mock import patch
-
-import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.utils.three_line_replay import extender
-
-
-HYBRID_MAP = {
-    "2026-03-12": 102422.19,
-    "2026-04-07": 102672.00,
-    "2026-04-08": 103864.86,
-    "2026-05-05": 107235.83,
-    "2026-05-08": 108420.63,
-}
-PRE_MAP = {
-    "2026-03-12": 102422.19,
-    "2026-04-07": 102513.24,
-    "2026-04-08": 103912.84,
-    "2026-05-05": 107047.10,
-    "2026-05-08": 108240.54,
-}
-CHAMP_MAP = {
-    "2026-03-12": 102422.19,
-    "2026-04-07": 102832.60,
-    "2026-04-08": 104317.08,
-    "2026-05-05": 111356.43,
-    "2026-05-08": 113000.79,
-}
-
-
-def _fake_run_variant(cache, cfg, strategy, trading_dates, universe):
-    """Return one of the three pinned variant results based on identity."""
-    label = getattr(cfg, "label", None)
-    if strategy is not None:
-        m = CHAMP_MAP
-        actions = [
-            {"date": "2026-04-07", "symbol": "DBC", "action": "BUY", "shares": 74, "price": 29.47, "reason": "regime"},
-            {"date": "2026-04-09", "symbol": "DBC", "action": "BUY", "shares": 20, "price": 29.85, "reason": "topup"},
-        ]
-        holdings = [
-            {"symbol": "DBC", "shares": 94, "entry_price": 29.47, "close_price": 30.32, "entry_date": "2026-04-07"},
-        ]
-        final_value = m["2026-05-08"]
-    elif label == "pre_hybrid":
-        m = PRE_MAP
-        actions = []
-        holdings = []
-        final_value = m["2026-05-08"]
-    else:
-        m = HYBRID_MAP
-        actions = [
-            {"date": "2026-04-07", "symbol": "DBC", "action": "BUY", "shares": 74, "price": 29.47, "reason": "regime"},
-        ]
-        holdings = [
-            {"symbol": "DBC", "shares": 74, "entry_price": 29.47, "close_price": 30.32, "entry_date": "2026-04-07"},
-        ]
-        final_value = m["2026-05-08"]
-    return {
-        "date_value_map": dict(m),
-        "actions": actions,
-        "final_holdings": holdings,
-        "final_cash": 47761.19,
-        "final_value": final_value,
-        "final_date": "2026-05-08",
-    }
-
-
-def _fake_load_variant_configs(cache):
-    class Cfg:
-        label = "hybrid"
-    class PreCfg:
-        label = "pre_hybrid"
-    return Cfg(), PreCfg()
-
-
-class FakeCache:
-    def __init__(self, *args, **kwargs):
-        # Match S3Cache(s3_client, bucket=...) without binding to its signature.
-        self.universe_df = pd.DataFrame([{"symbol": "DBC"}])
-
-    def list_daily_dates(self):
-        return list(HYBRID_MAP.keys())
-
-    def get_csv(self, key):
-        return self.universe_df
+from src.utils.canonical_replay_anchor import (
+    champion_freeze_map,
+    NEW_BRAIN_BOUNDARY_DATE,
+)
 
 
 def _seed_dash() -> Dict[str, Any]:
+    """A dashboard whose <= boundary rows use real frozen-table dates plus two
+    forward realized-book continuity rows."""
+    fmap, _tdate, tval = champion_freeze_map()
+    # Pick a few real frozen dates (sorted) ending at the boundary terminal.
+    frozen_dates = sorted(d for d in fmap if d <= NEW_BRAIN_BOUNDARY_DATE)
+    sample = frozen_dates[-3:]  # ..., boundary
     rows: List[Dict[str, Any]] = []
-    for d in HYBRID_MAP.keys():
-        rows.append({
-            "date": d,
-            "value": HYBRID_MAP[d],
-            "raw_value": HYBRID_MAP[d],
-            "benchmark": 95000.0,
-            "cumulative_external_cashflow": 0.0,
-        })
+    for d in sample:
+        # Earlier frozen rows are seeded with an arbitrary pre-freeze value to
+        # prove the extender OVERWRITES them with the frozen table (byte-
+        # immutability under recompute). The boundary row carries the realized
+        # book value (~terminal) — the base the forward re-anchor chains from.
+        seed_v = tval if d == NEW_BRAIN_BOUNDARY_DATE else 1.0
+        rows.append({"date": d, "value": seed_v, "benchmark": 95000.0,
+                     "cumulative_external_cashflow": 0.0})
+    # forward realized-book continuity rows (New Brain era)
+    rows.append({"date": "2026-06-12", "value": tval * 1.01,
+                 "benchmark": 95000.0, "cumulative_external_cashflow": 0.0})
+    rows.append({"date": "2026-06-13", "value": tval * 1.01 * 0.99,
+                 "benchmark": 95000.0, "cumulative_external_cashflow": 0.0})
     return {
-        "snapshot": {"id": "stub", "date": "2026-05-08", "phase": "morning", "timestamp": "stub"},
-        "metrics": {"total_value": HYBRID_MAP["2026-05-08"], "timestamp": "stub"},
+        "snapshot": {"id": "stub", "date": "2026-06-13", "phase": "morning", "timestamp": "stub"},
+        "metrics": {"total_value": 1.0, "timestamp": "stub"},
         "equity_curve": rows,
-        "drawdowns": [],
-        "monthly_returns": [],
-        "trades": [],
-        "trade_summary": {},
-        "holdings": [],
-        "round_trips": [],
+        "drawdowns": [], "monthly_returns": [], "trades": [],
+        "trade_summary": {}, "holdings": [], "round_trips": [],
     }
 
 
-class TestOptimizedCanonPromotion:
+class TestNewBrainCanon:
     def _run(self):
-        dash = _seed_dash()
-        with patch.object(extender, "S3Cache", FakeCache), \
-             patch.object(extender, "load_variant_configs", _fake_load_variant_configs), \
-             patch.object(extender, "run_variant", _fake_run_variant):
-            return extender.extend_dashboard(s3_client=None, dash=dash)
+        return extender.extend_dashboard(s3_client=None, dash=_seed_dash())
 
-    def test_value_field_carries_optimized_champion(self):
-        """equity_curve[i].value must equal champion value on every patched row.
-
-        Mobile chart reads `point.value`. If this regression-fails, mobile
-        renders the hybrid line again.
-        """
+    def test_frozen_champion_is_byte_immutable(self):
+        """value <= boundary equals the frozen static table, never recomputed."""
+        fmap, _td, _tv = champion_freeze_map()
         out = self._run()
         for row in out["equity_curve"]:
             d = row["date"]
-            if d in CHAMP_MAP:
-                assert row["value"] == CHAMP_MAP[d], (
-                    f"equity_curve[{d}].value={row['value']} != champion {CHAMP_MAP[d]}; "
-                    f"canon promotion regressed"
-                )
+            if d <= NEW_BRAIN_BOUNDARY_DATE and d in fmap:
+                assert row["value"] == fmap[d]
+                assert row["champion_frozen_value"] == fmap[d]
+                assert row["new_brain_value"] is None
 
-    def test_hybrid_value_preserved_per_row(self):
-        """equity_curve[i].hybrid_value must carry the hybrid replay value.
-
-        Desktop chart's dotted comparison line reads `hybrid_value`. Tooltip
-        also reads it. If this regression-fails, hybrid comparison disappears.
-        """
+    def test_new_brain_line_reanchored_forward(self):
+        """Forward of the boundary the New Brain line is re-anchored C0-continuous
+        to the frozen terminal."""
+        fmap, _td, tval = champion_freeze_map()
         out = self._run()
-        rows_with_hybrid = [r for r in out["equity_curve"] if "hybrid_value" in r]
-        assert len(rows_with_hybrid) >= len(HYBRID_MAP), "hybrid_value missing from rows"
-        for row in rows_with_hybrid:
-            d = row["date"]
-            if d in HYBRID_MAP:
-                assert row["hybrid_value"] == HYBRID_MAP[d]
+        rows = {r["date"]: r for r in out["equity_curve"]}
+        # 06-12 realized return = (tval*1.01)/tval - 1 = 0.01 -> anchored to tval.
+        assert abs(rows["2026-06-12"]["new_brain_value"] - tval * 1.01) < 0.01
+        assert rows["2026-06-12"]["value"] == rows["2026-06-12"]["new_brain_value"]
+        assert rows["2026-06-12"]["champion_frozen_value"] is None
 
-    def test_metrics_total_value_uses_optimized(self):
-        """metrics.total_value must equal the optimized champion endpoint.
-
-        Both desktop and mobile hero `TOTAL VALUE` read `metrics.total_value`.
-        """
+    def test_canon_source_is_new_brain(self):
         out = self._run()
-        assert out["metrics"]["total_value"] == CHAMP_MAP["2026-05-08"]
+        assert out["metrics"]["canon_source"] == "new_brain"
+        assert out["timeline_correction"]["canon_source"] == "new_brain"
 
-    def test_canon_source_flag_present(self):
-        """metrics.canon_source must be 'optimized_champion'.
-
-        This is the machine-readable canon stamp the post-deploy verifier
-        and any future consumer (alerts, monitoring) can read.
-        """
-        out = self._run()
-        assert out["metrics"]["canon_source"] == "optimized_champion"
-
-    def test_timeline_correction_labels_promoted(self):
-        """timeline_correction must label the canon as the optimized champion."""
+    def test_brand_and_forward_confirmed(self):
         out = self._run()
         tc = out["timeline_correction"]
-        assert tc["main_line_label"] == "Portfolio (optimized champion)"
-        assert tc["canon_source"] == "optimized_champion"
-        assert tc["comparison_line_field"] == "hybrid_value"
+        assert tc["brand"] == "New Brain"           # forward line present -> authorized
+        assert tc["forward_confirmed"] is False
+        assert tc["champion_frozen"]["byte_immutable"] is True
 
     def test_optimized_value_field_still_emitted(self):
-        """`optimized_value` must remain populated for backwards compat.
-
-        Desktop chart's `optimizedValue ?? correctedValue` fallback relies
-        on it. Removing this field would break the desktop chart.
-        """
+        """`optimized_value` stays populated (mirrors `value`) for the desktop
+        chart's `optimizedValue ?? correctedValue` fallback."""
         out = self._run()
         for row in out["equity_curve"]:
-            if row["date"] in CHAMP_MAP:
-                assert row.get("optimized_value") == CHAMP_MAP[row["date"]]
+            assert row.get("optimized_value") == row["value"]

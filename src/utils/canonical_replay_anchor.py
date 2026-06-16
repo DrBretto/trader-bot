@@ -21,10 +21,60 @@ Run dir evidence: book-factory/use_lane_outputs/runs/
 20260506_trader-bot-mar11-known-bugs-fixed-algorithm-comparison-v2/
 """
 
-from typing import Dict, Any
+import json
+from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
 
 SEAM_CASHFLOW_DATE = "2026-05-06"
 SEAM_CASHFLOW_VALUE = -10131.0727
+
+# ----------------------------------------------------------- PKT-TB-012 freeze
+# The in-sample optimized champion is RETIRED as the live algorithm as of
+# 2026-06-11 (D-AUTO-20260616 call #1). Its displayed line through 2026-06-11 is
+# frozen as a byte-immutable static table and is NEVER recomputed/restarted/
+# zeroed and NEVER spliced for computation of the forward line (D-AUTO call #2;
+# DESIGN_DOSSIER §2 STAGE 4 / §4 Attack 1; LIVE_PREREG §1). The New Brain
+# (native two-stage engine) is the primary displayed line forward of 2026-06-12,
+# re-anchored C0-continuous to the 06-11 terminal (display continuity only — NOT
+# a computational splice; the forward line is the realized book's own returns
+# chained onto the frozen terminal).
+NEW_BRAIN_BOUNDARY_DATE = "2026-06-11"          # champion owns <= this; New Brain owns >
+CHAMPION_FREEZE_FILENAME = "champion_freeze_20260611.json"
+
+
+def _champion_freeze_path() -> Path:
+    # config/champion_freeze_20260611.json, resolved for repo or Lambda image.
+    here = Path(__file__).resolve()
+    repo_root = here.parents[2]
+    cand = repo_root / "config" / CHAMPION_FREEZE_FILENAME
+    return cand
+
+
+def load_champion_freeze() -> Optional[Dict[str, Any]]:
+    """Load the frozen champion static table. Returns None if absent (the
+    extender then falls back to its prior behavior rather than crashing)."""
+    p = _champion_freeze_path()
+    if not p.exists():
+        return None
+    try:
+        return json.loads(p.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def champion_freeze_map() -> Tuple[Dict[str, float], Optional[str], Optional[float]]:
+    """(date->value map, terminal_date, terminal_value) of the frozen champion.
+
+    The terminal value (~$114.9k at 2026-06-11) is the C0 anchor the New Brain
+    forward line continues from."""
+    fz = load_champion_freeze()
+    if not fz:
+        return {}, None, None
+    curve: List[Dict[str, Any]] = fz.get("curve", [])
+    m = {row["date"]: float(row["value"]) for row in curve}
+    return m, fz.get("terminal_date"), (
+        float(fz["terminal_value"]) if fz.get("terminal_value") is not None else None
+    )
 
 # Per-day override values for 2026-03-12 -> 2026-05-05.
 # value = hybrid_current_fixed.timeline[d].ending_value
