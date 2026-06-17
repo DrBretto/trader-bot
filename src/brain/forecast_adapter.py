@@ -80,7 +80,13 @@ def build_forecast_bundle(
 
     for sym, mu in mu_map.items():
         sym = str(sym)
-        mu_M1[sym] = float(mu)
+        try:
+            muf = float(mu)
+        except (TypeError, ValueError):
+            continue
+        if muf != muf:                          # drop NaN mu (never select on NaN)
+            continue
+        mu_M1[sym] = muf
         health[sym] = float(health_map.get(sym, 1.0))
         event_block[sym] = False  # no frozen M4 hard-exclusion threshold (see module docstring)
         f = feats.get(sym, {})
@@ -109,32 +115,44 @@ def build_portfolio_state(
     universe_df,
 ) -> PortfolioState:
     """Build the Stage-2 ``PortfolioState`` from the chassis portfolio + marks."""
+    def _finite(x):
+        try:
+            xf = float(x)
+        except (TypeError, ValueError):
+            return None
+        return xf if xf == xf else None        # drop NaN/inf-as-NaN
+
     feats = _features_by_symbol(features_df)
     marks: Dict[str, float] = {}
     for sym, f in feats.items():
-        c = f.get("close")
-        if c is not None and c == c:
-            marks[sym] = float(c)
+        c = _finite(f.get("close"))
+        if c is not None and c > 0:
+            marks[sym] = c
 
     positions: Dict[str, int] = {}
     for h in portfolio_state.get("holdings", []) or []:
         sym = str(h.get("symbol", ""))
         if not sym:
             continue
-        positions[sym] = int(float(h.get("shares", 0) or 0))
-        cp = h.get("current_price") or h.get("close_price") or h.get("entry_price")
-        if sym not in marks and cp:
-            marks[sym] = float(cp)
+        sh = _finite(h.get("shares")) or 0.0
+        positions[sym] = int(sh)
+        if sym not in marks:
+            # NaN current_price must NOT leak into the book (NaN is truthy) — it
+            # would make NAV NaN and crash the frozen engine's int() lot-solve.
+            cp = (_finite(h.get("current_price")) or _finite(h.get("close_price"))
+                  or _finite(h.get("entry_price")))
+            if cp is not None and cp > 0:
+                marks[sym] = cp
 
     cluster_of = {str(s): str(sec) for s, sec in
                   zip(universe_df["symbol"], universe_df["sector"])}
 
-    cash = float(portfolio_state.get("cash", 0.0) or 0.0)
+    cash = _finite(portfolio_state.get("cash")) or 0.0
     nav = cash + sum(positions.get(s, 0) * marks.get(s, 0.0) for s in positions)
-    if nav <= 0:
+    if not (nav == nav) or nav <= 0:
         # Fall back to the published portfolio_value / a frozen reference so the
-        # allocator never divides by a zero book.
-        nav = float(portfolio_state.get("portfolio_value", 0.0) or 0.0) or 100_000.0
+        # allocator never divides by a zero or NaN book.
+        nav = (_finite(portfolio_state.get("portfolio_value")) or 0.0) or 100_000.0
 
     return PortfolioState(
         nav=nav,
