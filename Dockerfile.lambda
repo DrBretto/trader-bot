@@ -29,13 +29,17 @@ RUN pip install --no-cache-dir --only-binary=:all: \
 # Install PyTorch CPU-only (pre-built wheel)
 RUN pip install --no-cache-dir torch==2.1.2 --index-url https://download.pytorch.org/whl/cpu
 
-# Install scikit-learn. PINNED to 1.8.0 (PKT-TB-012): the frozen M4 model
+# Install scikit-learn. PINNED to 1.7.2 (PKT-TB-012): the frozen M4 model
 # (models_out_007/m4_evt_a/model.pkl) was pickled under sklearn >= 1.7 (where the
 # LogisticRegression `multi_class` attribute was removed). Loading it under the
 # old 1.3.2 hit "no attribute multi_class" and aborted the brain nightly. 1.8.0
-# requires only numpy>=1.24.1 (numpy stays 1.26.4 — torch 2.1.2 compatible). We
-# re-pin numpy here so the sklearn install can never drag it to 2.x.
-RUN pip install --no-cache-dir --only-binary=:all: scikit-learn==1.8.0 "numpy==1.26.4"
+# needs python>=3.12 (would break the torch 2.1.2 cp311 wheel); 1.7.2 is the
+# newest py3.11 build and ALSO lacks multi_class, so it loads the model. 1.7.2
+# requires only numpy>=1.22 (numpy stays 1.26.4 — torch 2.1.2 compatible);
+# re-pinned here so the install can never drag numpy to 2.x. The in-Lambda parity
+# self-check (mu/disp_z/p_exceed vs the frozen reference) is the correctness gate:
+# any cross-version numeric divergence ABORTS the night (fail-safe to incumbent).
+RUN pip install --no-cache-dir --only-binary=:all: scikit-learn==1.7.2 "numpy==1.26.4"
 
 # Copy requirements and install remaining Lambda deps
 COPY requirements-lambda.txt ./
