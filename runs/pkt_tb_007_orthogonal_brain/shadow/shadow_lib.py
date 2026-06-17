@@ -53,6 +53,7 @@ import datetime as dt
 import hashlib
 import io
 import json
+import os
 import shutil
 import sys
 from copy import deepcopy
@@ -84,7 +85,11 @@ PREREG_POINTER = ("runs/pkt_tb_007_orthogonal_brain/shadow/SHADOW_PREREG.md"
                   " (mirrored at s3://investment-system-data/shadow/pkt_tb_007/"
                   "SHADOW_PREREG.md)")
 
-STATE = SHADOW / "state"
+# STATE is the brain's WRITABLE working tree. On the laptop it is SHADOW/state;
+# inside the read-only Lambda image (PKT-TB-012) it is redirected to /tmp via
+# BRAIN_STATE_DIR (set by src/brain/runtime.production_forecaster), with the
+# baked read-only seed caches copied in at cold start.
+STATE = Path(os.environ.get("BRAIN_STATE_DIR") or (SHADOW / "state"))
 CACHE_DAILY = STATE / "cache" / "daily"
 CACHE_OHLCV = STATE / "cache" / "ohlcv"
 CACHE_CBOE = STATE / "cache" / "cboe"

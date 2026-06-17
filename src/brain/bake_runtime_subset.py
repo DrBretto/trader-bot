@@ -1,26 +1,25 @@
 """Extract the live brain's *runtime subset* out of the research prototype trees
-into a small, deployable staging dir the Lambda image bakes (PKT-TB-012,
+into a deployable staging dir the Lambda image bakes (PKT-TB-012,
 DESIGN_DOSSIER reports/03 §0/§2).
 
 The frozen brain's forward inference (`forward_inference.run_inference`) imports a
-handful of modules that today live inside the 4.2 GB TB-006/TB-007 prototype
-trees (laptop-only). "Productionizing" is NOT a launchd->EventBridge swap; it is
-carving the runtime CODE + the frozen seed CACHES out of those trees into a
-deployable artifact. This script is that carve, scripted and idempotent so a
-fresh checkout reproduces the exact baked subset.
+handful of modules + frozen seed caches that live inside the TB-006/TB-007
+prototype trees (laptop-only). "Productionizing" is carving the runtime CODE +
+the frozen seed CACHES out of those trees into a deployable artifact.
 
-    python -m src.brain.bake_runtime_subset            # full bake (code + data)
+We bake the subset **mirroring its original repo-relative layout** under
+``build/brain_bake/``, because every module computes its paths from its own file
+location (e.g. ``REPO = PROTO7.parents[2]``, ``TB6_PROTO = REPO/runs/...``). Baking
+at the original paths means those constants resolve byte-for-byte inside the image
+— no monkeypatching. The only thing redirected at runtime is the WRITABLE state
+tree (``BRAIN_STATE_DIR`` → ``/tmp`` in Lambda; the read-only seeds are copied in
+at cold start by ``ensure_seed_caches``).
+
+    python -m src.brain.bake_runtime_subset            # full bake (code + seeds)
     python -m src.brain.bake_runtime_subset --code-only # CI: resolve modules only
 
-Output (default ``build/brain_bake/``, git-ignored — assembled at build time):
-    code/            the runtime .py modules + dicts/ (sys.path entry)
-    models_out_007/  the 4 frozen model files (320 KB)  [also copied to brain/]
-    seed_caches/     ohlcv / cboe / fred / cot / gdelt frozen seed caches (~108 MB)
-    reference/nightly_007/  parity reference JSONs
-    FREEZE_ORB1.json, universe.csv
-
-Dockerfile.lambda then ``COPY build/brain_bake/`` into the image and sets
-``BRAIN_RUNTIME_SUBSET=${LAMBDA_TASK_ROOT}/brain/code``. The research trees stay
+Dockerfile.lambda then ``COPY build/brain_bake/ ${LAMBDA_TASK_ROOT}/`` so the
+mirrored ``runs/...`` tree lands at ``/var/task/runs/...``. The research trees stay
 read-only and are NEVER deployed.
 """
 from __future__ import annotations
@@ -29,53 +28,68 @@ import argparse
 import shutil
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 _REPO = Path(__file__).resolve().parents[2]
-_TB7 = _REPO / "runs" / "pkt_tb_007_orthogonal_brain"
-_TB7_PROTO = _TB7 / "prototype"
-_TB7_SHADOW = _TB7 / "shadow"
-_TB6_PROTO = _REPO / "runs" / "pkt_tb_006_clean_sheet_brain" / "prototype"
+_TB7 = "runs/pkt_tb_007_orthogonal_brain"
+_TB6 = "runs/pkt_tb_006_clean_sheet_brain"
 
-# The runtime CODE subset (forward_inference + everything it imports at the
-# inference path). tilt_adapter / lot_fix_007 / run_replay_007 are pulled in by
-# shadow_lib's lazy imports; included so the import graph resolves, but the LIVE
-# brain is the two-stage engine and never calls the tilt.
-CODE_MODULES: List[Tuple[Path, str]] = [
-    (_TB7_SHADOW / "forward_inference.py", "forward_inference.py"),
-    (_TB7_SHADOW / "shadow_lib.py", "shadow_lib.py"),
-    (_TB7_PROTO / "organs_007.py", "organs_007.py"),
-    (_TB7_PROTO / "folds.py", "folds.py"),
-    (_TB7_PROTO / "make_targets_007.py", "make_targets_007.py"),
-    (_TB7_PROTO / "risk_stats_007.py", "risk_stats_007.py"),
-    (_TB7_PROTO / "genome_007.py", "genome_007.py"),
-    (_TB7_PROTO / "lot_fix_007.py", "lot_fix_007.py"),
-    (_TB7_PROTO / "run_replay_007.py", "run_replay_007.py"),
-    (_TB7_PROTO / "tilt_adapter.py", "tilt_adapter.py"),
-    (_TB7_PROTO / "precompute_nightly_007.py", "precompute_nightly_007.py"),
-    (_TB7_PROTO / "gates_007.py", "gates_007.py"),
-    (_TB7_PROTO / "stats.py", "stats.py"),
-    (_TB6_PROTO / "feature_store.py", "feature_store.py"),
-    (_TB6_PROTO / "features_gdelt.py", "features_gdelt.py"),
-    (_TB6_PROTO / "data_layer.py", "data_layer.py"),
-    (_TB6_PROTO / "gdelt_backfill.py", "gdelt_backfill.py"),
+# Repo-relative FILES copied verbatim (preserving layout).
+CODE_FILES: List[str] = [
+    f"{_TB7}/shadow/forward_inference.py",
+    f"{_TB7}/shadow/shadow_lib.py",
+    f"{_TB7}/prototype/organs_007.py",
+    f"{_TB7}/prototype/folds.py",
+    f"{_TB7}/prototype/make_targets_007.py",
+    f"{_TB7}/prototype/risk_stats_007.py",
+    f"{_TB7}/prototype/genome_007.py",
+    f"{_TB7}/prototype/lot_fix_007.py",
+    f"{_TB7}/prototype/run_replay_007.py",
+    f"{_TB7}/prototype/tilt_adapter.py",
+    f"{_TB7}/prototype/precompute_nightly_007.py",
+    f"{_TB7}/prototype/gates_007.py",
+    f"{_TB7}/prototype/stats.py",
+    f"{_TB6}/prototype/feature_store.py",
+    f"{_TB6}/prototype/features_gdelt.py",
+    f"{_TB6}/prototype/data_layer.py",
+    f"{_TB6}/prototype/gdelt_backfill.py",
+    f"{_TB6}/prototype/store/llm_features.parquet",
 ]
 
-MODELS_ROOT = _TB7_PROTO / "models_out_007"
-DICTS_DIR = _TB7_PROTO / "dicts"
-NIGHTLY_REF = _TB7_PROTO / "store" / "nightly_007"
-SEED_CACHES: List[Tuple[Path, str]] = [
-    (_TB6_PROTO / "cache" / "ohlcv", "seed_caches/ohlcv"),
-    (_TB6_PROTO / "cache" / "cboe", "seed_caches/cboe"),
-    (_TB6_PROTO / "cache" / "fred", "seed_caches/fred"),
-    (_TB6_PROTO / "cache" / "cot", "seed_caches/cot"),
-    (_TB6_PROTO / "gdelt_cache" / "daily", "seed_caches/gdelt/daily"),
+# Repo-relative DIRS copied verbatim (dicts, reference, models).
+CODE_DIRS: List[str] = [
+    f"{_TB7}/prototype/dicts",
+    f"{_TB7}/prototype/store/nightly_007",     # parity reference
+    f"{_TB7}/prototype/models_out_007",        # the frozen weights
+    f"{_TB6}/prototype/dicts",
+]
+
+# Repo-relative SEED CACHE dirs (read-only; copied to BRAIN_STATE_DIR at cold start).
+SEED_DIRS: List[str] = [
+    f"{_TB6}/prototype/cache/ohlcv",
+    f"{_TB6}/prototype/cache/cboe",
+    f"{_TB6}/prototype/cache/fred",
+    f"{_TB6}/prototype/cache/cot",
+    f"{_TB6}/prototype/gdelt_cache/daily",
 ]
 
 
-def _copy_dir(src: Path, dst: Path) -> int:
+def _copy_file(rel: str, stage: Path, missing: List[str]) -> None:
+    src = _REPO / rel
     if not src.exists():
+        missing.append(rel)
+        return
+    dst = stage / rel
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+
+
+def _copy_dir(rel: str, stage: Path, missing: List[str]) -> int:
+    src = _REPO / rel
+    if not src.exists():
+        missing.append(rel)
         return -1
+    dst = stage / rel
     if dst.exists():
         shutil.rmtree(dst)
     shutil.copytree(src, dst)
@@ -86,58 +100,36 @@ def bake(stage: Path, code_only: bool = False) -> int:
     stage.mkdir(parents=True, exist_ok=True)
     missing: List[str] = []
 
-    # 1. code modules
-    code = stage / "code"
-    code.mkdir(parents=True, exist_ok=True)
-    for src, name in CODE_MODULES:
-        if src.exists():
-            shutil.copy2(src, code / name)
-        else:
-            missing.append(str(src))
-    n_dicts = _copy_dir(DICTS_DIR, code / "dicts")
-    if n_dicts < 0:
-        missing.append(str(DICTS_DIR))
+    for rel in CODE_FILES:
+        _copy_file(rel, stage, missing)
+    code_dir_files = 0
+    for rel in CODE_DIRS:
+        n = _copy_dir(rel, stage, missing)
+        if n > 0:
+            code_dir_files += n
 
-    # 2. frozen models (also placed under brain/models_out_007 for the cold-start
-    #    assertion path that resolve_model_root() prefers).
-    n_models = _copy_dir(MODELS_ROOT, stage / "models_out_007")
-    if n_models < 0:
-        missing.append(str(MODELS_ROOT))
-    else:
-        _copy_dir(MODELS_ROOT, _REPO / "brain" / "models_out_007")
+    # Mirror the frozen weights to brain/models_out_007 too, so
+    # freeze.resolve_model_root() finds them via either path.
+    _models_src = _REPO / _TB7 / "prototype" / "models_out_007"
+    if _models_src.exists():
+        shutil.copytree(_models_src, _REPO / "brain" / "models_out_007",
+                        dirs_exist_ok=True)
 
-    # 3. parity reference
-    n_ref = _copy_dir(NIGHTLY_REF, stage / "reference" / "nightly_007")
-    if n_ref < 0:
-        missing.append(str(NIGHTLY_REF))
-
-    # 4. pointers
-    for rel in ("brain/FREEZE_ORB1.json", "config/universe.csv"):
-        src = _REPO / rel
-        if src.exists():
-            shutil.copy2(src, stage / Path(rel).name)
-        else:
-            missing.append(str(src))
-
-    # 5. seed caches (heavy; skip under --code-only)
     seed_files = 0
     if not code_only:
-        for src, rel in SEED_CACHES:
-            n = _copy_dir(src, stage / rel)
-            if n < 0:
-                missing.append(str(src))
-            else:
+        for rel in SEED_DIRS:
+            n = _copy_dir(rel, stage, missing)
+            if n > 0:
                 seed_files += n
 
-    print(f"baked code modules: {len(CODE_MODULES)} (dicts files={n_dicts})")
-    print(f"baked models: {n_models} | reference: {n_ref} | seed files: {seed_files}"
-          + (" (skipped: --code-only)" if code_only else ""))
+    print(f"baked code files: {len(CODE_FILES)} | code-dir files: {code_dir_files} "
+          f"| seed files: {seed_files}" + (" (skipped: --code-only)" if code_only else ""))
     if missing:
         print("MISSING SOURCES (bake incomplete):")
         for m in missing:
             print("  - " + m)
         return 1
-    print(f"bake OK -> {stage}")
+    print(f"bake OK -> {stage} (mirrored layout under runs/)")
     return 0
 
 
@@ -145,7 +137,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--stage", default=str(_REPO / "build" / "brain_bake"))
     ap.add_argument("--code-only", action="store_true",
-                    help="resolve/copy code modules only (skip the heavy seed caches)")
+                    help="copy code/dicts/models/reference only (skip heavy seed caches)")
     args = ap.parse_args(argv)
     return bake(Path(args.stage), code_only=args.code_only)
 

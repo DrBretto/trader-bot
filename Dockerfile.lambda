@@ -49,17 +49,18 @@ COPY config/ ${LAMBDA_TASK_ROOT}/config/
 COPY brain/FREEZE_ORB1.json ${LAMBDA_TASK_ROOT}/brain/FREEZE_ORB1.json
 
 # PKT-TB-012: bake the extracted runtime subset (run `python -m
-# src.brain.bake_runtime_subset` first). brain/code is the forward-inference
-# import path; brain/models_out_007 (320 KB) is the cold-start sha-asserted
-# weight set; brain/seed_caches (~108 MB) are the frozen seed caches; the parity
-# reference is baked under src/brain/reference for the abort-on-divergence gate.
-COPY build/brain_bake/code/ ${LAMBDA_TASK_ROOT}/brain/code/
-COPY build/brain_bake/models_out_007/ ${LAMBDA_TASK_ROOT}/brain/models_out_007/
-COPY build/brain_bake/seed_caches/ ${LAMBDA_TASK_ROOT}/brain/seed_caches/
-COPY build/brain_bake/reference/nightly_007/ ${LAMBDA_TASK_ROOT}/src/brain/reference/nightly_007/
+# src.brain.bake_runtime_subset` first). The bake MIRRORS the repo-relative
+# layout (runs/pkt_tb_007.../{shadow,prototype}, runs/pkt_tb_006.../prototype +
+# its dicts/models/reference/seed-caches), so every module's path constants
+# (REPO/PROTO7/TB6_PROTO/MODELS/…) resolve byte-for-byte inside the image. The
+# WRITABLE state tree is redirected to /tmp at runtime (BRAIN_STATE_DIR); the
+# read-only seed caches (~108 MB) are copied in at cold start.
+COPY build/brain_bake/ ${LAMBDA_TASK_ROOT}/
 
-# Forward-inference import path (production_forecaster honors this).
-ENV BRAIN_RUNTIME_SUBSET=${LAMBDA_TASK_ROOT}/brain/code
+# The frozen brain's forward-inference entry dir (production_forecaster honors this).
+ENV BRAIN_RUNTIME_SUBSET=${LAMBDA_TASK_ROOT}/runs/pkt_tb_007_orthogonal_brain/shadow
+# Writable working tree for the brain (Lambda /var/task is read-only).
+ENV BRAIN_STATE_DIR=/tmp/brain_state
 # Deterministic inference (the 2e-3 mu parity tolerance absorbs benign FP drift).
 ENV OMP_NUM_THREADS=1
 ENV MKL_NUM_THREADS=1

@@ -254,34 +254,86 @@ def run_cutover(
 
 
 # ---------------------------------------------------------- production forecaster
-def production_forecaster(pending: List[str]) -> Dict[str, dict]:
-    """Default forecaster: run the frozen brain's forward inference inside the
-    night Lambda (the baked runtime subset). Imported lazily so unit tests can
-    inject a forecaster without the heavy ML deps.
+S3_BUCKET = "investment-system-data"
 
-    The runtime subset (feature_store, organs_007, forward_inference, …) is baked
-    into the Lambda image by Dockerfile.lambda; in a checkout it resolves from
-    the PKT-TB-007 shadow tree.
+
+def _extend_ohlcv_from_s3(SL, FI) -> int:
+    """Bring the brain's OHLCV store current: fetch the chassis's published
+    daily/<D>/prices.parquet for every date newer than the seed store and splice
+    them in (extend_ohlcv). Uses the Lambda execution role's default creds (NOT
+    the laptop 'personal' profile that SL.S3Source assumes)."""
+    import boto3
+    import pandas as pd
+    s3 = boto3.client("s3", region_name=os.environ.get("AWS_REGION", "us-east-1"))
+
+    spy = SL.CACHE_OHLCV / "SPY.parquet"
+    last_ohlcv = None
+    if spy.exists():
+        df = pd.read_parquet(spy, columns=["date"])
+        last_ohlcv = pd.to_datetime(df["date"]).max().strftime("%Y-%m-%d")
+
+    pg = s3.get_paginator("list_objects_v2")
+    dates = set()
+    for page in pg.paginate(Bucket=S3_BUCKET, Prefix="daily/", Delimiter="/"):
+        for cp in page.get("CommonPrefixes", []) or []:
+            d = cp["Prefix"].split("/")[-2]
+            if len(d) == 10 and d[4] == "-":
+                dates.add(d)
+    gap = sorted(d for d in dates if last_ohlcv is None or d > last_ohlcv)
+    n = 0
+    for d in gap:
+        dst = SL.CACHE_DAILY / d / "prices.parquet"
+        if not dst.exists():
+            try:
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                s3.download_file(S3_BUCKET, f"daily/{d}/prices.parquet", str(dst))
+            except Exception:
+                continue
+        try:
+            FI.extend_ohlcv(d)
+            n += 1
+        except Exception:
+            continue
+    return n
+
+
+def production_forecaster(pending: List[str]) -> Dict[str, dict]:
+    """Run the frozen brain's forward inference INSIDE the night Lambda (the baked
+    runtime subset). Returns ``{date: {"mu": {sym: val}, ...}}``.
+
+    The runtime subset is baked mirroring the repo layout (Dockerfile.lambda) so
+    every module path constant resolves; the writable state tree is BRAIN_STATE_DIR
+    (/tmp in Lambda). Imported lazily so unit tests inject a forecaster without the
+    heavy ML deps. forward inference's parity self-check ABORTS on any divergence
+    from the frozen reference — the correctness gate.
     """
     import sys
-    # In the Lambda image the runtime subset is baked at $BRAIN_RUNTIME_SUBSET
-    # (set by Dockerfile.lambda); in a checkout it resolves from the PKT-TB-007
-    # shadow tree. See src/brain/bake_runtime_subset.py for the extraction.
     candidates = []
     env_subset = os.environ.get("BRAIN_RUNTIME_SUBSET")
     if env_subset:
         candidates.append(Path(env_subset))
-    candidates.append(_REPO_ROOT / "src" / "brain" / "runtime_subset")
     candidates.append(_REPO_ROOT / "runs" / "pkt_tb_007_orthogonal_brain" / "shadow")
     for p in candidates:
         sp = str(p)
         if Path(sp).exists() and sp not in sys.path:
             sys.path.append(sp)
+
+    import shadow_lib as SL  # type: ignore
     import forward_inference as FI  # type: ignore
+
+    # writable state tree (/tmp in Lambda) + frozen read-only seeds copied in
+    SL.STATE.mkdir(parents=True, exist_ok=True)
     FI.ensure_seed_caches()
-    for d in pending:
-        FI.extend_ohlcv(d)
-    FI.gdelt_forward()
-    FI.cboe_forward()
+    _extend_ohlcv_from_s3(SL, FI)
+    # external feeds are fail-soft (GDELT masking / CBOE staleness-null are
+    # registered honest fallbacks); never let them abort the night.
+    try:
+        FI.gdelt_forward()
+    except Exception:
+        pass
+    try:
+        FI.cboe_forward()
+    except Exception:
+        pass
     FI.build_panel(pending)
     return FI.run_inference(pending)
