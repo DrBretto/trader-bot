@@ -182,13 +182,6 @@ export function App() {
                 weather={data.weather}
               />
             </LearnModeOverlay>
-            <LearnModeOverlay paneId="rent-ledger">
-              <RentLedger
-                organ_ledger={shadow?.organ_ledger}
-                forecast_leg={shadow?.forecast_leg}
-                stats={shadow?.stats}
-              />
-            </LearnModeOverlay>
             <LearnModeOverlay paneId="system-brain">
               <SystemBrainPanel
                 ensemble={data.weather.regime.ensemble}
@@ -239,6 +232,16 @@ export function App() {
           </div>
 
           <PerformanceLenses equityCurve={data.equity_curve} shadow={shadow} />
+
+          <div style={{ marginTop: 16 }}>
+            <LearnModeOverlay paneId="rent-ledger">
+              <RentLedger
+                organ_ledger={shadow?.organ_ledger}
+                forecast_leg={shadow?.forecast_leg}
+                stats={shadow?.stats}
+              />
+            </LearnModeOverlay>
+          </div>
         </div>
 
         <LearnModeNav />
