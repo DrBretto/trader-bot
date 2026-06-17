@@ -19,12 +19,7 @@ WEATHER_BLURB_PROMPT = """You are a portfolio manager writing a daily market bri
 Date: {date}
 Regime: {regime}
 
-Portfolio State:
-- Total value: ${portfolio_value:,.0f}
-- Cash: ${cash:,.0f} ({cash_pct:.1%})
-- Positions: {num_positions}
-- Day return: {day_return:+.2%}
-
+{portfolio_block}
 Market Context:
 - SPY: {spy_return:.2%} (21d: {spy_21d:.2%})
 - VIX proxy: {vixy_return:.2%}
@@ -49,6 +44,23 @@ Respond with JSON only (no markdown):
   "blurb": "80-140 word narrative",
   "takeaways": ["bullet 1", "bullet 2", "bullet 3"]
 }}"""
+
+
+def _build_portfolio_block(canon_metrics: Dict[str, Any]) -> str:
+    """Portfolio posture for the prompt — CANON line only (PKT-TB-001).
+
+    The internal intent-sizing sim book must never steer the published
+    narrative. When canon metrics are unavailable (e.g. dashboard held),
+    the block is omitted rather than substituted.
+    """
+    if not canon_metrics or canon_metrics.get('total_value') is None:
+        return "Portfolio State: (canon metrics unavailable this run — do not invent portfolio figures)\n"
+    return (
+        "Portfolio State (canon line):\n"
+        f"- Total value: ${canon_metrics['total_value']:,.0f}\n"
+        f"- Cash: {canon_metrics.get('cash_pct', 0.0):.1%}\n"
+        f"- Positions: {canon_metrics.get('num_positions', 0)}\n"
+    )
 
 
 def generate_fallback_weather(
@@ -217,7 +229,8 @@ def run(
     context_df: 'pd.DataFrame',
     openai_key: str = '',
     region: str = 'us-east-1',
-    expert_signals: Dict[str, Any] = None
+    expert_signals: Dict[str, Any] = None,
+    canon_metrics: Dict[str, Any] = None
 ) -> Dict[str, Any]:
     """
     Generate daily weather blurb.
@@ -227,11 +240,14 @@ def run(
     Args:
         inference_output: Output from run_inference
         decisions: Output from decision_engine
-        portfolio_state: Current portfolio state
+        portfolio_state: Internal sim state (kept for signature compatibility;
+            its book values are NOT used in the prompt — PKT-TB-001)
         context_df: Market context
         openai_key: OpenAI API key (fallback)
         region: AWS region for Bedrock
         expert_signals: Expert signal outputs for context (optional)
+        canon_metrics: Canon-line posture for the prompt's portfolio block
+            (total_value/cash_pct/num_positions); block omitted when None
 
     Returns:
         Weather blurb dict
@@ -248,11 +264,9 @@ def run(
     )
     run_date = inference_output.get('date', pd.Timestamp.now().strftime('%Y-%m-%d'))
 
-    # Portfolio metrics
-    portfolio_value = portfolio_state.get('portfolio_value', 100000)
-    cash = portfolio_state.get('cash', 100000)
-    cash_pct = cash / portfolio_value if portfolio_value > 0 else 1.0
-    num_positions = len(portfolio_state.get('holdings', []))
+    # Portfolio posture: canon line only (PKT-TB-001) — the internal sim
+    # book's values are never fed to the prompt.
+    portfolio_block = _build_portfolio_block(canon_metrics or {})
 
     # Calculate day return (would need previous day's value in production)
     day_return = 0.0  # Placeholder
@@ -351,10 +365,7 @@ def run(
     snapshot = {
         'date': run_date,
         'regime': regime,
-        'portfolio_value': portfolio_value,
-        'cash': cash,
-        'cash_pct': cash_pct,
-        'num_positions': num_positions,
+        'portfolio_block': portfolio_block,
         'day_return': day_return,
         'spy_return': spy_return,
         'spy_21d': spy_21d,
