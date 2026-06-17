@@ -125,18 +125,42 @@ def _load_prev_champion_config(cache: S3Cache) -> Optional[VariantConfig]:
     )
 
 
-def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
-    """Freeze the champion <= 2026-06-11 and re-anchor the New Brain forward.
+def _detect_engine_dates(s3_client, forward_dates: List[str]) -> set:
+    """The set of forward dates the two-stage engine ACTUALLY drove — i.e. dates
+    for which the cutover wrote daily/<D>/brain_selected_universe.json. The
+    "New Brain" brand attaches ONLY to these dates; everything else forward of
+    the boundary is the incumbent (old) algorithm and must NOT wear the name
+    (DESIGN_DOSSIER §3 Attack-5: you cannot brand the old book as the rebuild)."""
+    out: set = set()
+    if s3_client is None:
+        return out
+    for d in forward_dates:
+        try:
+            s3_client.head_object(Bucket='investment-system-data',
+                                  Key=f'daily/{d}/brain_selected_universe.json')
+            out.add(d)
+        except Exception:
+            pass
+    return out
+
+
+def extend_dashboard(s3_client, dash: Dict[str, Any],
+                     engine_driven_dates: Optional[set] = None) -> Dict[str, Any]:
+    """Freeze the champion <= 2026-06-11 and re-anchor the forward line.
 
     Mutates ``dash`` in place:
       - every equity_curve row's ``value`` becomes the PRIMARY line: the frozen
-        champion through 2026-06-11, then the New Brain (re-anchored realized
-        returns) forward of 2026-06-12;
-      - ``champion_frozen_value`` carries the frozen champion (ends 06-11, the
-        historical comparison); ``new_brain_value`` carries the forward line;
+        champion through 2026-06-11, then the re-anchored realized book forward;
+      - ``champion_frozen_value`` carries the frozen champion (ends 06-11);
+        ``new_brain_value`` carries ONLY the dates the two-stage engine actually
+        drove (it wrote brain_selected_universe.json); ``incumbent_value`` carries
+        forward dates the OLD algorithm drove (before the engine went live);
       - drawdowns / monthly_returns / hero metrics are recomputed from the
-        primary line; holdings / trades are left as the real book's (no champion
-        replay).
+        primary line; holdings / trades are left as the real book's.
+
+    The "New Brain" brand is authorized ONLY when the engine has actually traded
+    (Attack-5 ruling). Until then the forward line is the incumbent algorithm and
+    is labeled as such — never branded the rebuild.
 
     On any error, logs and returns dash unchanged.
     """
@@ -148,7 +172,7 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
         frozen_map, term_date, term_value = champion_freeze_map()
         if not frozen_map or term_value is None:
             logger.warning("champion freeze table absent; dashboard left on raw "
-                           "canonical line (no New-Brain re-anchor)")
+                           "canonical line (no re-anchor)")
             return dash
 
         boundary = NEW_BRAIN_BOUNDARY_DATE
@@ -157,6 +181,10 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
             return dash
 
         dates = [r['date'] for r in equity_curve]
+        forward_dates = [d for d in dates if d > boundary]
+        if engine_driven_dates is None:
+            engine_driven_dates = _detect_engine_dates(s3_client, forward_dates)
+        new_brain_start = min(engine_driven_dates) if engine_driven_dates else None
         # Realized continuity values BEFORE we overwrite — the source of the
         # New Brain forward line's daily returns (the realized book).
         cont = {r['date']: r.get('value') for r in equity_curve}
@@ -196,14 +224,21 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
             else:
                 v = nb.get(d, row.get('value'))
                 row['value'] = v
-                row['new_brain_value'] = v
                 row['champion_frozen_value'] = None  # champion is frozen, not extended
                 row['optimized_value'] = v
+                # Brand a forward date "New Brain" ONLY if the engine actually
+                # drove it; otherwise it is the incumbent (old) algorithm.
+                if new_brain_start is not None and d >= new_brain_start:
+                    row['new_brain_value'] = v
+                    row['incumbent_value'] = None
+                else:
+                    row['new_brain_value'] = None
+                    row['incumbent_value'] = v
             row['cumulative_external_cashflow'] = 0.0
             if v is not None:
                 primary_curve.append({'date': d, 'value': v})
 
-        has_new_brain = any(d > boundary for d in dates)
+        has_new_brain = new_brain_start is not None
 
         # ---- recompute drawdowns ------------------------------------------
         peak = 0.0
@@ -285,21 +320,38 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
         dash['snapshot']['date'] = today
         dash['snapshot']['id'] = f"{today}:new_brain_canon:{now_iso}"
 
-        # Brand authorization: the New Brain forward line only EXISTS when the
-        # two-stage engine wrote intents, which the cutover gates on the green
-        # invariant self-check (PKT-TB-009). So the brand is structurally gated:
-        # no forward line => no "New Brain" stroke (Attack-5 ruling).
+        # Brand authorization: "New Brain" attaches ONLY to dates the two-stage
+        # engine ACTUALLY drove (it wrote brain_selected_universe.json). Until the
+        # engine goes live the forward line is the INCUMBENT (old) algorithm and
+        # must NOT wear the rebuild's name (DESIGN_DOSSIER §3 Attack-5: you cannot
+        # ship the old book and call it the rebuild).
         brand_authorized = has_new_brain
+        has_incumbent_forward = any(d > boundary for d in dates) and (
+            new_brain_start is None or new_brain_start > min(
+                (d for d in dates if d > boundary), default=boundary))
+
+        if brand_authorized:
+            main_line_label = 'Portfolio (New Brain — native two-stage engine, from %s)' % new_brain_start
+        elif has_incumbent_forward:
+            main_line_label = ('Portfolio (current/incumbent algorithm — New Brain '
+                               'pending engine go-live)')
+        else:
+            main_line_label = 'Portfolio (frozen champion through 2026-06-11)'
 
         dash['timeline_correction'] = {
             'version': 'lambda-new-brain-canon-v1',
             'main_line_field': 'value',
-            'main_line_label': ('Portfolio (New Brain — native two-stage engine)'
-                                if brand_authorized
-                                else 'Portfolio (frozen champion — New Brain pending engine go-live)'),
+            'main_line_label': main_line_label,
             'canon_source': 'new_brain',
             'brand_authorized': brand_authorized,
             'brand': 'New Brain' if brand_authorized else None,
+            'new_brain_start_date': new_brain_start,
+            'incumbent_forward_present': has_incumbent_forward,
+            'incumbent_forward_note': (None if not has_incumbent_forward else
+                'The line forward of 2026-06-11 is the CURRENT (incumbent) algorithm, '
+                'NOT the New Brain. The two-stage engine has not yet written live '
+                'intents (it falls back to incumbent on any abort). The New Brain '
+                'brand attaches only from its first engine-driven day.'),
             'champion_frozen': {
                 'field': 'champion_frozen_value',
                 'label': 'Champion (frozen, in-sample, retired 2026-06-11)',
@@ -311,12 +363,18 @@ def extend_dashboard(s3_client, dash: Dict[str, Any]) -> Dict[str, Any]:
             },
             'new_brain_line': {
                 'field': 'new_brain_value',
-                'label': 'New Brain (native two-stage engine, forward)',
+                'label': 'New Brain (native two-stage engine)',
                 'anchor_date': term_date,
                 'anchor_value': term_value,
+                'start_date': new_brain_start,
                 're_anchor': 'C0-continuous; realized book returns chained onto the '
                              'frozen terminal (display continuity, NOT a splice).',
                 'present': has_new_brain,
+            },
+            'incumbent_line': {
+                'field': 'incumbent_value',
+                'label': 'Current algorithm (incumbent, pre-engine-go-live)',
+                'present': has_incumbent_forward,
             },
             # Kept for the publish-time advance guard: the newest primary-line
             # date the corpus made available this run.

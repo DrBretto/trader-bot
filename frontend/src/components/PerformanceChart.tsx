@@ -44,6 +44,7 @@ interface MergedPoint {
   hybridValue: number | null;
   championFrozen: number | null;
   newBrain: number | null;
+  incumbent: number | null;
   shadowA: number | null;
   shadowB: number | null;
   benchmark: number;
@@ -228,6 +229,7 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
     // re-anchored New Brain forward line.
     const championFrozen = (point as { champion_frozen_value?: number | null }).champion_frozen_value ?? null;
     const newBrain = (point as { new_brain_value?: number | null }).new_brain_value ?? null;
+    const incumbent = (point as { incumbent_value?: number | null }).incumbent_value ?? null;
     peak = Math.max(peak, primaryValue);
     return {
       date: point.date,
@@ -239,6 +241,7 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
       hybridValue,
       championFrozen,
       newBrain,
+      incumbent,
       shadowA: shadowAByDate.get(point.date) ?? null,
       shadowB: shadowBByDate.get(point.date) ?? null,
       benchmark: point.benchmark,
@@ -250,12 +253,14 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
 
   const merged = allMerged;
 
-  // PKT-TB-012: the New Brain line is the primary stroke once it exists; the
-  // brand is gated on the engine having written intents (which the cutover gates
-  // on the green PKT-TB-009 invariant), so its mere presence authorizes the name.
-  const hasNewBrain = merged.some((p) => p.date > NEW_BRAIN_BOUNDARY && p.newBrain !== null);
+  // PKT-TB-012: "New Brain" attaches ONLY to dates the two-stage engine actually
+  // drove (the extender sets new_brain_value only for engine-traded days). Before
+  // that, the forward line is the CURRENT (incumbent) algorithm — never branded
+  // the rebuild (Attack-5 ruling).
+  const hasNewBrain = merged.some((p) => p.newBrain !== null);
+  const hasIncumbentForward = merged.some((p) => p.date > NEW_BRAIN_BOUNDARY && p.incumbent !== null);
   const hasChampionFrozen = merged.some((p) => p.championFrozen !== null);
-  const newBrainGoLiveDate = merged.find((p) => p.date > NEW_BRAIN_BOUNDARY)?.date;
+  const newBrainGoLiveDate = merged.find((p) => p.newBrain !== null)?.date;
 
   // Standing exposure-stripped forecast-rung rent (F-R) + CI, read from the
   // PKT-TB-011 rent ladder the shadow publishes. Carried onto the surface so a
@@ -591,7 +596,7 @@ Background color bands show the detected market regime at each point in time.`}
       <div className="performance-legend">
         <span className="legend-item">
           <span className="legend-swatch" style={{ background: '#3b82f6' }} />{' '}
-          {hasNewBrain ? 'New Brain (native engine)' : 'Portfolio (frozen champion)'}
+          {hasNewBrain ? 'New Brain (native engine)' : hasIncumbentForward ? 'Portfolio (current algorithm)' : 'Portfolio (frozen champion)'}
         </span>
         {hasChampionFrozen && (
           <span className="legend-item">
@@ -637,19 +642,24 @@ Background color bands show the detected market regime at each point in time.`}
           standing exposure-stripped forecast-rung rent + CI so the line does not
           read as a market-driven equity curve (Skeptic closing condition 1).
           No surface implies a dollar edge: the stripped residual is ~zero. */}
-      {(hasNewBrain || hasChampionFrozen) && (
+      {(hasNewBrain || hasIncumbentForward || hasChampionFrozen) && (
         <div className="shadow-note">
-          <strong style={{ color: '#93c5fd' }}>New Brain</strong> (native two-stage engine)
-          {hasNewBrain
-            ? <> — primary line forward of {newBrainGoLiveDate ?? 'go-live'}, re-anchored C0-continuous to the frozen champion ($114.9k, Jun 11).</>
-            : <> — pending engine go-live; the champion line is frozen through Jun 11 and the New Brain begins when the engine ships.</>}
-          {' '}
-          {forecastRung
-            ? <>Forecast-rung rent (exposure-stripped): <strong>{formatShadowStat(forecastRung.stripped_bp_day)}</strong> bp/day
-                {forecastRung.stripped_ci ? ` (95% CI [${forecastRung.stripped_ci.map((v) => v.toFixed(2)).join(', ')}])` : ''}
-                {forecastRung.verdict ? ` — ${forecastRung.verdict}` : ''}.</>
-            : <>Forecast-rung rent: accruing (armed).</>}
-          {' '}<span style={{ color: '#64748b' }}>Selection edge currently measured at zero; this line measures dollar conversion <em>forward</em> (LIVE_PREREG). Go-live universe <strong>forward_confirmed: false</strong>.</span>
+          {hasNewBrain ? (
+            <>
+              <strong style={{ color: '#93c5fd' }}>New Brain</strong> (native two-stage engine) — live from {newBrainGoLiveDate}, re-anchored C0-continuous to the frozen champion ($114.9k, Jun 11).
+              {' '}
+              {forecastRung
+                ? <>Forecast-rung rent (exposure-stripped): <strong>{formatShadowStat(forecastRung.stripped_bp_day)}</strong> bp/day
+                    {forecastRung.stripped_ci ? ` (95% CI [${forecastRung.stripped_ci.map((v) => v.toFixed(2)).join(', ')}])` : ''}
+                    {forecastRung.verdict ? ` — ${forecastRung.verdict}` : ''}.</>
+                : <>Forecast-rung rent: accruing (armed).</>}
+              {' '}<span style={{ color: '#64748b' }}>Selection edge currently measured at zero; this line measures dollar conversion <em>forward</em> (LIVE_PREREG). Go-live universe <strong>forward_confirmed: false</strong>.</span>
+            </>
+          ) : (
+            <span style={{ color: '#94a3b8' }}>
+              <strong style={{ color: '#fbbf24' }}>New Brain not yet live.</strong> The champion line is frozen through Jun 11; the line after it is the <strong>current (incumbent) algorithm</strong>, not the rebuild. The two-stage engine falls back to the incumbent until it writes its first live trades — the New Brain brand attaches only from that day.
+            </span>
+          )}
         </div>
       )}
 

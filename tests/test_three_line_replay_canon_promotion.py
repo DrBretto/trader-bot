@@ -64,7 +64,10 @@ def _seed_dash() -> Dict[str, Any]:
 
 class TestNewBrainCanon:
     def _run(self):
-        return extender.extend_dashboard(s3_client=None, dash=_seed_dash())
+        # engine actually drove the forward dates -> New Brain brand attaches.
+        return extender.extend_dashboard(
+            s3_client=None, dash=_seed_dash(),
+            engine_driven_dates={"2026-06-12", "2026-06-13"})
 
     def test_frozen_champion_is_byte_immutable(self):
         """value <= boundary equals the frozen static table, never recomputed."""

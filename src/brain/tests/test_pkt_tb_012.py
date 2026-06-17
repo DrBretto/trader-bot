@@ -161,7 +161,9 @@ def test_champion_frozen_byte_immutable_and_reanchored():
     from src.utils.three_line_replay.extender import extend_dashboard
     from src.utils.canonical_replay_anchor import champion_freeze_map
     fmap, tdate, tval = champion_freeze_map()
-    dash = extend_dashboard(None, _synthetic_dashboard())
+    # engine actually drove the forward dates -> the New Brain brand attaches.
+    dash = extend_dashboard(None, _synthetic_dashboard(),
+                            engine_driven_dates={"2026-06-12", "2026-06-13"})
     rows = {r["date"]: r for r in dash["equity_curve"]}
     # frozen <= boundary equals the static table byte-for-byte (where present).
     if "2026-06-11" in fmap:
@@ -176,6 +178,21 @@ def test_champion_frozen_byte_immutable_and_reanchored():
     assert dash["metrics"]["canon_source"] == "new_brain"
     assert dash["timeline_correction"]["brand"] == "New Brain"
     assert dash["timeline_correction"]["forward_confirmed"] is False
+
+
+def test_incumbent_forward_is_not_branded_new_brain():
+    """Attack-5: when the engine has NOT driven the forward dates, the forward
+    line is the incumbent and must NOT wear the New Brain brand."""
+    from src.utils.three_line_replay.extender import extend_dashboard
+    dash = extend_dashboard(None, _synthetic_dashboard(), engine_driven_dates=set())
+    rows = {r["date"]: r for r in dash["equity_curve"]}
+    tc = dash["timeline_correction"]
+    assert tc["brand"] is None
+    assert tc["brand_authorized"] is False
+    assert tc["incumbent_forward_present"] is True
+    # forward dates carry incumbent_value, not new_brain_value
+    assert rows["2026-06-12"]["new_brain_value"] is None
+    assert rows["2026-06-12"]["incumbent_value"] is not None
 
 
 def test_surface_carries_forward_confirmed_false():
