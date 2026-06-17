@@ -357,6 +357,34 @@ def trailing_pct(series: np.ndarray, window: int = 252, minp: int = 64):
         .to_numpy()
 
 
+def _sklearn_multiclass_compat(obj) -> None:
+    """PKT-TB-012 cross-version compat: the frozen M4 LogisticRegression was
+    pickled under sklearn >= 1.8 (where ``multi_class`` was removed); the Lambda
+    image runs the newest py3.11 build (1.7.2), whose ``LogisticRegression.predict``
+    still references ``self.multi_class``. Restore the attribute on any
+    LogisticRegression in the loaded model. M4 is a BINARY classifier, so
+    ``multi_class`` is a no-op for ``predict_proba`` (binary is always the sigmoid
+    path) — the result is identical to 1.8.0, and the parity self-check validates
+    it. The pickle bytes are untouched, so the frozen model_sha is unchanged.
+    """
+    try:
+        from sklearn.linear_model import LogisticRegression as _LR
+    except Exception:                                       # noqa: BLE001
+        return
+
+    def _walk(o):
+        if isinstance(o, _LR):
+            if not hasattr(o, "multi_class"):
+                o.multi_class = "auto"
+        elif isinstance(o, dict):
+            for v in o.values():
+                _walk(v)
+        elif isinstance(o, (list, tuple)):
+            for v in o:
+                _walk(v)
+    _walk(obj)
+
+
 def model_sha() -> str:
     import hashlib
     h = hashlib.sha256()
@@ -434,6 +462,7 @@ def run_inference(pending: List[str], logf: Optional[Path] = None,
 
     with (MODELS / "m4_evt_a" / "model.pkl").open("rb") as fh:
         m4 = pickle.load(fh)
+    _sklearn_multiclass_compat(m4)
     designs = G.m4_design({k: panel[k] for k in
                            ["B", "B_cols", "gdelt_available"]}, p7, dates)
     p4 = G.m4_predict(m4["fitted"], designs["A"], np.arange(N))
