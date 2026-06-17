@@ -883,8 +883,10 @@ def run(
             _shadow_payload = s3.read_json('dashboard/shadow_timeseries.json')
         except Exception:
             _shadow_payload = None
-        from src.utils.dashboard_metrics import attach_new_brain_surface
+        from src.utils.dashboard_metrics import attach_new_brain_surface, sanitize_nan_for_json
         dashboard_data = attach_new_brain_surface(dashboard_data, _shadow_payload)
+        # NaN/inf from incomplete bars or degraded data must not crash the publish.
+        dashboard_data = sanitize_nan_for_json(dashboard_data)
         # Publish guard: do not overwrite a valid dashboard with broken data.
         # When expert_signals is None the frontend shows "unknown" posture and
         # hides Today's Story.  Preserving the last known good dashboard.json
@@ -1089,8 +1091,10 @@ def publish_morning_artifacts(
             _shadow_payload = s3.read_json('dashboard/shadow_timeseries.json')
         except Exception:
             _shadow_payload = None
-        from src.utils.dashboard_metrics import attach_new_brain_surface
+        from src.utils.dashboard_metrics import attach_new_brain_surface, sanitize_nan_for_json
         dashboard_data = attach_new_brain_surface(dashboard_data, _shadow_payload)
+        # NaN/inf from incomplete bars or degraded data must not crash the publish.
+        dashboard_data = sanitize_nan_for_json(dashboard_data)
         # Publish guard: do not overwrite a valid dashboard with broken data.
         if not dashboard_publishable:
             print("  WARNING: Skipping morning dashboard.json publish — expert_signals is null. "

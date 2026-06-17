@@ -12,6 +12,22 @@ from src.utils.cutover_bridge import extract_cutover_date_from_marker
 from src.utils.historical_corrections import apply_split_corrections_to_fills
 
 
+def sanitize_nan_for_json(obj):
+    """Recursively replace NaN/inf floats with None so the dashboard always
+    serializes (json.dumps with allow_nan=False rejects them: "Out of range float
+    values are not JSON compliant"). PKT-TB-012: NaN can enter from incomplete
+    bars / degraded chassis data; the surface must still publish rather than crash
+    the whole dashboard. Returns a sanitized copy."""
+    import math
+    if isinstance(obj, float):
+        return None if (math.isnan(obj) or math.isinf(obj)) else obj
+    if isinstance(obj, dict):
+        return {k: sanitize_nan_for_json(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [sanitize_nan_for_json(v) for v in obj]
+    return obj
+
+
 def attach_new_brain_surface(
     dashboard_data: Dict[str, Any],
     shadow_payload: Optional[Dict[str, Any]],
@@ -779,7 +795,13 @@ def compute_canonical_dashboard_metrics(
     ytd_return = _period_return(return_rows, start_of_year)
     mtd_return = _period_return(return_rows, start_of_month)
 
-    daily_returns = [row["daily_return"] for row in return_rows if row["daily_return"] is not None]
+    # Filter non-finite (NaN/inf) returns: statistics.mean/stdev raise the cryptic
+    # "'float' object has no attribute 'numerator'" on a NaN element (PKT-TB-012).
+    daily_returns = [
+        row["daily_return"] for row in return_rows
+        if row["daily_return"] is not None and row["daily_return"] == row["daily_return"]
+        and row["daily_return"] not in (float("inf"), float("-inf"))
+    ]
     sharpe_ratio: Optional[float]
     if len(daily_returns) < min_sharpe_observations:
         sharpe_ratio = None
