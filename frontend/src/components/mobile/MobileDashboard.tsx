@@ -6,6 +6,7 @@ import { MobileStoryPreview } from './MobileStoryPreview';
 import { MobileChart } from './MobileChart';
 import { MobileExpandableSection } from './MobileExpandableSection';
 import { MobileHoldingCard } from './MobileHoldingCard';
+import { RentLedger } from '../RentLedger';
 
 import { ShadowTimeseries } from '../../hooks/useShadowData';
 
@@ -116,8 +117,21 @@ export function MobileDashboard({ data, timeseries, shadow }: Props) {
           </MobileExpandableSection>
 
           <MobileExpandableSection
+            id="rent"
+            summary={`System Brain — what's paying rent${shadow?.stats?.mean_ic != null ? ` · IC ${shadow.stats.mean_ic.toFixed(3)}` : ' · awaiting forward data'}`}
+            open={openSection === 'rent'}
+            onToggle={() => toggle('rent')}
+          >
+            <RentLedger
+              organ_ledger={shadow?.organ_ledger}
+              forecast_leg={shadow?.forecast_leg}
+              stats={shadow?.stats}
+            />
+          </MobileExpandableSection>
+
+          <MobileExpandableSection
             id="brain"
-            summary={`Brain: ${gru ? `GRU ${gru.label.replace(/_/g, ' ')} ${(gru.confidence * 100).toFixed(0)}%` : '—'} · ${trans ? `Trans ${trans.label.replace(/_/g, ' ')} ${(trans.confidence * 100).toFixed(0)}%` : '—'} · Agree ${(agreement * 100).toFixed(0)}%`}
+            summary={`Model inputs: ${gru ? `GRU ${gru.label.replace(/_/g, ' ')} ${(gru.confidence * 100).toFixed(0)}%` : '—'} · ${trans ? `Trans ${trans.label.replace(/_/g, ' ')} ${(trans.confidence * 100).toFixed(0)}%` : '—'} · Agree ${(agreement * 100).toFixed(0)}%`}
             open={openSection === 'brain'}
             onToggle={() => toggle('brain')}
           >

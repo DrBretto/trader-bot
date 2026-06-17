@@ -79,7 +79,7 @@ function SignalTooltip({ active, payload }: TooltipProps<number, string>) {
   );
 }
 
-export function SystemBrainPanel({ ensemble, fusionRules, timeseries, isHybridLive, mostFiredSignalKey }: Props) {
+export function SystemBrainPanel({ ensemble, fusionRules, timeseries, mostFiredSignalKey }: Props) {
   const gru = ensemble?.gru_prediction;
   const trans = ensemble?.transformer_prediction;
   const agreement = ensemble?.agreement ?? 0;
@@ -115,14 +115,14 @@ export function SystemBrainPanel({ ensemble, fusionRules, timeseries, isHybridLi
     <div className="card system-brain-panel">
       <div className="brain-header-row">
         <div className="card-title" style={{ marginBottom: 0 }}>
-          <span>System Brain</span>
+          <span>Live model inputs</span>
           <InfoTooltip
-            content="How the system sees the market right now. Two neural networks (GRU + Transformer) predict the regime. Fusion rules override sizing when risk signals fire. The signal chart shows the raw expert inputs — the highlighted signal is currently most active."
-            label="System brain"
+            content="The raw inputs the brain reads — not a verdict on what's working (see 'what's paying rent' above for that). Two neural nets (GRU + Transformer) predict the regime, an admissibility gate; the expert signals (macro/vol/fragility/entropy) feed the health/sizing gates. The M1 forecast is the primary selector."
+            label="Model inputs"
           />
         </div>
         <div className="brain-header-meta">
-          <span className="brain-meta-chip">{isHybridLive ? '65/35 hybrid' : 'health-only'}</span>
+          <span className="brain-meta-chip">regime gate</span>
           <span className="brain-meta-chip" data-learn-target="agreement-pct" style={{ color: agreeColor }}>
             Agree {(agreement * 100).toFixed(0)}%
           </span>
@@ -145,9 +145,9 @@ export function SystemBrainPanel({ ensemble, fusionRules, timeseries, isHybridLi
         </div>
       )}
 
-      {/* Blend info */}
+      {/* What these inputs feed — the rent ledger above is the authority on value */}
       <div className="brain-blend-line">
-        Blend: {isHybridLive ? '65% health + 35% ranking MLP' : 'health-only'} · Weights fixed from optimizer
+        Regime + expert signals are admissibility / health gates. The M1 forecast is the primary selector — see the rent ledger above for what is converting.
       </div>
 
       {/* Fusion rule dots */}

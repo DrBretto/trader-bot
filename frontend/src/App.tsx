@@ -17,6 +17,7 @@ import {
   SystemStatusBar,
   TodaysStoryCard,
   SystemBrainPanel,
+  RentLedger,
   PerformanceLenses,
 } from './components';
 import { PerformanceChart } from './components/PerformanceChart';
@@ -179,6 +180,13 @@ export function App() {
                 candidates={data.candidates}
                 fusionRules={data.expert_signals?.fusion_rules}
                 weather={data.weather}
+              />
+            </LearnModeOverlay>
+            <LearnModeOverlay paneId="rent-ledger">
+              <RentLedger
+                organ_ledger={shadow?.organ_ledger}
+                forecast_leg={shadow?.forecast_leg}
+                stats={shadow?.stats}
               />
             </LearnModeOverlay>
             <LearnModeOverlay paneId="system-brain">
