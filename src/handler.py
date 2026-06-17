@@ -441,17 +441,34 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
             portfolio_state['trades_today'] = []
             trades = []
 
-        print(f"  Portfolio value: ${portfolio_state['portfolio_value']:,.2f}")
-        print(f"  Cash: ${portfolio_state['cash']:,.2f}")
+        # Single-book invariant (PKT-TB-001): the internal sim book's dollar
+        # values stay out of log lines — only counts are logged here.
         print(f"  Holdings: {len(portfolio_state['holdings'])}")
         print(f"  Pending intents: {len(trade_intents['actions'])}")
 
-        # Step 12: LLM weather blurb (uses Bedrock/Haiku, falls back to OpenAI)
+        # Step 12: LLM weather blurb (uses Bedrock/Haiku, falls back to OpenAI).
+        # The prompt's portfolio posture comes from the CANON line (last
+        # published dashboard.json) — never from the internal sim book
+        # (PKT-TB-001). Best-effort: when unavailable, the prompt omits it.
+        canon_metrics = None
+        try:
+            _dash = s3_client.read_json('dashboard/dashboard.json') or {}
+            _m = _dash.get('metrics', {})
+            if _m.get('canon_source') in ('new_brain', 'optimized_champion') and _m.get('total_value'):
+                canon_metrics = {
+                    'total_value': float(_m['total_value']),
+                    'cash_pct': float(_m.get('cash_pct', 0.0) or 0.0),
+                    'num_positions': len(_dash.get('holdings', [])),
+                }
+        except Exception as canon_err:
+            logger.warning(f"Canon metrics unavailable for weather prompt: {canon_err}")
+
         log_step(12, 12, "Generating weather blurb...", logger)
         with StepTimer("LLM weather", logger):
             weather = llm_weather.run(
                 inference_output, decisions, portfolio_state, context_df, openai_key, region,
-                expert_signals=expert_signals
+                expert_signals=expert_signals,
+                canon_metrics=canon_metrics,
             )
 
         # Publish all artifacts to S3
@@ -470,7 +487,9 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
 
         logger.info(f"Pipeline completed in {duration:.1f}s")
 
-        # Send email alert
+        # Send email alert. The reported value is the CANON line from this
+        # run's publish (None when the advance guard held the dashboard).
+        canon_total_value = publish_result.get('canon_total_value')
         regime_label = decisions.get('expert_metrics', {}).get(
             'final_regime_label',
             inference_output.get('regime', {}).get('label', 'unknown')
@@ -479,7 +498,7 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
             subject=f"[TraderBot] Night: {regime_label}, {len(trade_intents['actions'])} intents",
             body=format_night_summary(
                 run_date, regime_label,
-                portfolio_state.get('portfolio_value', 0),
+                canon_total_value,
                 trade_intents['actions'],
                 weather.get('headline', ''),
                 duration
@@ -496,7 +515,7 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
                 'duration_seconds': duration,
                 'regime': regime_label,
                 'intents_count': len(trade_intents['actions']),
-                'portfolio_value': portfolio_state.get('portfolio_value', 0)
+                'canon_total_value': canon_total_value
             })
         }
 
@@ -612,7 +631,7 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
 
         # Publish morning artifacts
         with StepTimer("Publish morning artifacts", logger):
-            publish_artifacts.publish_morning_artifacts(
+            publish_result = publish_artifacts.publish_morning_artifacts(
                 bucket, run_date, portfolio_state, trades,
                 morning_execution_report, night_inference, night_decisions,
                 night_weather, expert_signals=expert_signals,
@@ -624,15 +643,20 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
 
         logger.info(f"Morning execution completed in {duration:.1f}s")
 
-        # Send email alert
+        # Send email alert. The morning email reports the CANON book from this
+        # run's publish (PKT-TB-001) — never the internal sim book.
+        canon_total_value = publish_result.get('canon_total_value')
+        canon_subject = (
+            f"${canon_total_value:,.0f}" if canon_total_value is not None
+            else "canon n/a"
+        )
         send_alert(
             subject=(
-                f"[TraderBot] Morning: {len(trades)} trades, "
-                f"${portfolio_state.get('portfolio_value', 0):,.0f}"
+                f"[TraderBot] Morning: {len(trades)} trades, {canon_subject}"
             ),
             body=format_morning_summary(
                 run_date,
-                portfolio_state.get('portfolio_value', 0),
+                canon_total_value,
                 trades, validation_log, duration
             ),
             region=region
@@ -646,7 +670,7 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
                 'date': run_date,
                 'duration_seconds': duration,
                 'trades_executed': len(trades),
-                'portfolio_value': portfolio_state.get('portfolio_value', 0)
+                'canon_total_value': canon_total_value
             })
         }
 
@@ -703,6 +727,17 @@ def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
 
         logger.info(f"Midday check completed in {duration:.1f}s")
 
+        # Midday does not rebuild the dashboard, so the canon value is read
+        # from the last published dashboard.json (best-effort, PKT-TB-001).
+        canon_total_value = None
+        try:
+            _dash = s3_client.read_json('dashboard/dashboard.json') or {}
+            _m = _dash.get('metrics', {})
+            if _m.get('canon_source') in ('new_brain', 'optimized_champion') and _m.get('total_value'):
+                canon_total_value = float(_m['total_value'])
+        except Exception as canon_err:
+            logger.warning(f"Canon metrics unavailable for midday email: {canon_err}")
+
         # Send email alert
         send_alert(
             subject=(
@@ -711,7 +746,7 @@ def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
             ),
             body=format_midday_summary(
                 run_date,
-                portfolio_state.get('portfolio_value', 0),
+                canon_total_value,
                 actions, check_log, circuit_breaker, duration
             ),
             region=region
@@ -726,7 +761,7 @@ def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
                 'duration_seconds': duration,
                 'actions_taken': len(actions),
                 'circuit_breaker_active': circuit_breaker,
-                'portfolio_value': portfolio_state.get('portfolio_value', 0)
+                'canon_total_value': canon_total_value
             })
         }
 

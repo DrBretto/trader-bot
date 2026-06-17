@@ -100,7 +100,10 @@ LOGS = SHADOW / "logs"
 
 DAILY_FILES_REQUIRED = ["prices.parquet", "features.parquet",
                         "trade_intents.json", "portfolio_state.json"]
-DAILY_FILES_OPTIONAL = ["morning_prices.parquet"]
+# brain_selected_universe.json (PKT-TB-012): the live engine's selected set,
+# consumed by the U rung (_restrict_universe) so the U-E universe-choice rung is
+# wired to the live selected_set instead of reading ~0 (U==E).
+DAILY_FILES_OPTIONAL = ["morning_prices.parquet", "brain_selected_universe.json"]
 
 GENOME_A = SHADOW / "genomes" / "shadow_A.json"
 GENOME_B = SHADOW / "genomes" / "shadow_B.json"

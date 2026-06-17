@@ -119,6 +119,27 @@ def successor_prices(ctx: Ctx, date: str, all_dates: List[str]):
     return None, None
 
 
+def _load_selected_universe(ctx: Ctx, date: str) -> Optional[set]:
+    """The live engine's selected set for ``date`` (PKT-TB-012), if published.
+
+    Read from daily/<D>/brain_selected_universe.json (the cutover writes it). When
+    present, the U rung restricts E's trades to this set, so the U-E universe rung
+    is wired to the live selected_set instead of reading ~0 (U==E). Sets the
+    ctx.extras flag so compute_ladder_stats clears the 'not yet wired' caveat."""
+    p = ctx.cache_daily / date / "brain_selected_universe.json"
+    if not p.exists():
+        return None
+    try:
+        doc = json.loads(p.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+    sel = doc.get("selected_universe") or []
+    if not sel:
+        return None
+    ctx.extras["selected_universe"] = True
+    return set(sel)
+
+
 def settle_dates(ctx: Ctx, state: dict, decision_dates: List[str],
                  all_dates: List[str]) -> List[str]:
     """Process decision dates in order until one cannot be priced. Mutates
@@ -173,7 +194,8 @@ def settle_dates(ctx: Ctx, state: dict, decision_dates: List[str],
             feats = pd.read_parquet(ddir / "features.parquet")
             res = process_book_date(books, D, intents, ohlc, feats,
                                     ctx.decision_params, strategies,
-                                    ctx.universe_df, regime)
+                                    ctx.universe_df, regime,
+                                    selected_universe=_load_selected_universe(ctx, D))
             append_jsonl(ctx.ledgers / "equity_ledger.jsonl", res["row"])
             for b in BOOKS:
                 for a in res["actions"][b]:
@@ -220,7 +242,8 @@ def provisional_marks(ctx: Ctx, state: dict, date: str) -> Optional[dict]:
         intents_doc = json.loads((ddir / "trade_intents.json").read_text())
         res = process_book_date(books, date, intents_doc.get("actions", []),
                                 ohlc, feats, ctx.decision_params, strategies,
-                                ctx.universe_df, intents_doc.get("regime"))
+                                ctx.universe_df, intents_doc.get("regime"),
+                                selected_universe=_load_selected_universe(ctx, date))
         row = res["row"]
         row["provisional"] = True
         return row
