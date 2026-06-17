@@ -100,6 +100,11 @@ def main():
     print(f"Max Days: {args.max_days}")
     print("=" * 60)
 
+    # Frozen ORB-1 New Brain isolation (PKT-TB-014): training retrains the OLD
+    # regime/health models only and must never touch the frozen brain weights.
+    from training.frozen_brain_guard import assert_frozen_brain_isolated
+    assert_frozen_brain_isolated(args.output_dir)
+
     # Initialize S3 client
     s3 = boto3.client('s3', region_name=region)
 

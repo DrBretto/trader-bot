@@ -1,5 +1,14 @@
 #!/bin/bash
 # Install weekly launchd schedule for local offline optimizer runs.
+#
+# RETIRED 2026-06-17 (PKT-TB-014 / D-AUTO-20260616 decision 5): the weekly
+# optimizer tuned the now-retired, entanglement-contaminated champion config.
+# The live algorithm is the native two-stage New Brain engine, which is frozen
+# (no EA optimization). Re-installing this scheduler is blocked on purpose.
+# To genuinely revive it, remove this guard in a fresh decision.
+echo "RETIRED: the weekly optimizer was retired per PKT-TB-014 (D-AUTO-20260616)." >&2
+echo "The live New Brain engine is frozen and not EA-optimized. Install blocked." >&2
+exit 1
 
 set -euo pipefail
 

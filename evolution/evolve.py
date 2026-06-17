@@ -282,6 +282,11 @@ if __name__ == '__main__':
     parser.add_argument('--output-dir', type=str, default='/tmp/evolution')
     args = parser.parse_args()
 
+    # Frozen ORB-1 New Brain isolation (PKT-TB-014): the optimizer/evolution
+    # search must never read or overwrite the frozen brain weights.
+    from training.frozen_brain_guard import assert_frozen_brain_isolated
+    assert_frozen_brain_isolated(args.output_dir)
+
     if args.local_test:
         # Run with dummy data
         print("Running local test with dummy data...")
