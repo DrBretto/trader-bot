@@ -26,17 +26,17 @@ email-summary label change ("Portfolio (canon line):").
 
 ## Plan
 
-- [ ] `src/steps/paper_trader.py`: add `SIM_BOOK_ROLE`, `to_published_state()`,
+- [x] `src/steps/paper_trader.py`: add `SIM_BOOK_ROLE`, `to_published_state()`,
       `_restore_internal_keys()`; wire `_restore_internal_keys` into
       `load_portfolio_state()` so in-memory state always carries `portfolio_value`.
-- [ ] `src/steps/midday_checker.py`: route the portfolio_state write through
+- [x] `src/steps/midday_checker.py`: route the portfolio_state write through
       `to_published_state()` (currently leaks raw `portfolio_value` — violates the
       single-book invariant).
-- [ ] `src/utils/sns_alerts.py`: rename "Portfolio Value:" → "Portfolio (canon line):"
+- [x] `src/utils/sns_alerts.py`: rename "Portfolio Value:" → "Portfolio (canon line):"
       in night/morning summaries; emit "unavailable" (no `$`) when value is None.
-- [ ] Run `tests/test_single_book_invariant.py` + full suite; all green.
-- [ ] Deploy Lambda per docs/DEPLOY.md.
-- [ ] Data repair: restore `daily/2026-06-18/portfolio_state.json` from the last
+- [x] Run `tests/test_single_book_invariant.py` + full suite; all green.
+- [x] Deploy Lambda per docs/DEPLOY.md.
+- [x] Data repair: restore `daily/2026-06-18/portfolio_state.json` from the last
       good book (06-17) so tonight's night run continues from real holdings instead
       of the empty stub.
 
@@ -45,6 +45,18 @@ email-summary label change ("Portfolio (canon line):").
 - 2026-06-18: Diagnosed. `to_published_state` referenced at publish_artifacts.py:758
   & :1019 but undefined (`hasattr` False). Confirmed via S3: 06-15/16/17 states good,
   06-18 is a 269-byte empty stub written by midday at 18:00 UTC. Test spec found.
+- 2026-06-18: Implemented all 3 file changes. `test_single_book_invariant` 4/14 ->
+  14/14; full suite 391 pass / 1 xfail / 5 pre-existing FakeS3-stub failures
+  (identical without my changes — same broken commit's test debt, not in scope).
+  Committed e2e8829 on branch `ai/fix-portfolio-state-reset`.
+- 2026-06-18: Data repair — backed up corrupt stub to
+  `daily/2026-06-18/portfolio_state.corrupt-stub.bak.json`, wrote 06-17 book forward
+  to 06-18 (7 holdings ARKK/XLK/VWO/SMH/GLD/SLV/SOXX, cash $30,608, benchmark
+  $109,156 @ SPY $694.04) via `to_published_state`. Verified the fixed loader
+  restores it (portfolio_value $98,049, 7 holdings, benchmark intact).
+- 2026-06-18: Deployed container Lambda (LastModified 19:58 UTC,
+  CodeSha256 4880a1b7...). Confirmed pure-sim (no broker env vars). Live verification
+  = tonight's scheduled night run (10 PM ET); the dashboard SPY line corrects then.
 
 ## Follow-ups
 
