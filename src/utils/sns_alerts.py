@@ -27,6 +27,14 @@ def send_alert(subject: str, body: str, region: str = 'us-east-1') -> bool:
         return False
 
 
+def _canon_value_line(portfolio_value) -> str:
+    """The single published book is the canon line. When its value is
+    unavailable (advance guard held), say so — never substitute a dead book."""
+    if portfolio_value is None:
+        return "Portfolio (canon line): unavailable"
+    return f"Portfolio (canon line): ${portfolio_value:,.2f}"
+
+
 def format_night_summary(
     run_date: str,
     regime: str,
@@ -44,7 +52,7 @@ def format_night_summary(
         f"Duration: {duration_seconds:.0f}s",
         "",
         f"Regime: {regime}",
-        f"Portfolio Value: ${portfolio_value:,.2f}",
+        _canon_value_line(portfolio_value),
         "",
         "Trade Intents for Morning Execution:",
         f"  Buys:  {len(buys)}",
@@ -77,7 +85,7 @@ def format_morning_summary(
         f"Morning Execution Complete - {run_date}",
         f"Duration: {duration_seconds:.0f}s",
         "",
-        f"Portfolio Value: ${portfolio_value:,.2f}",
+        _canon_value_line(portfolio_value),
         f"Trades Executed: {len(trades)}",
     ]
     for t in trades:

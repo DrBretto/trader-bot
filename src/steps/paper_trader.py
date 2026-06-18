@@ -21,6 +21,66 @@ TRANSIENT_ROLLOVER_KEYS = (
 )
 
 
+# PKT-TB-012 single-book invariant: the internal intent-sizing simulation keeps
+# its value under `portfolio_value` in memory, but the PUBLISHED daily artifact
+# carries it under `sim_book_value` plus role markers so the file can never be
+# read back (by a person or by code) as a second live portfolio. The only
+# published portfolio value is the canon line in dashboard.json metrics.
+SIM_BOOK_ROLE = "internal_sim_book"
+
+_SIM_BOOK_NOTE = (
+    "Internal intent-sizing simulation — NOT a portfolio. The only live book is "
+    "the canon line in dashboard.json (metrics.total_value)."
+)
+
+# Portfolio-value-shaped top-level keys that must never appear in a published
+# daily artifact (mirrors PORTFOLIO_VALUE_SHAPED in the regression lock). The
+# internal value is re-keyed to `sim_book_value`; every other variant + the
+# legacy broker-era reconciliation flag is stripped at the write boundary.
+_PUBLISH_STRIP_KEYS = (
+    'portfolio_value',
+    'account_value',
+    'broker_total_value',
+    'broker_reconciled',
+    'portfolio_total',
+    'book_value',
+    'equity',
+    'nav',
+    'total_value',
+)
+
+
+def to_published_state(state: Dict[str, Any]) -> Dict[str, Any]:
+    """Transform the internal sim book into its published, role-marked form.
+
+    Re-keys `portfolio_value` -> `sim_book_value`, strips every other
+    portfolio-value-shaped / legacy broker field, and stamps role markers.
+    Inverse of `_restore_internal_keys`. All other internals (cash, holdings,
+    benchmark_* tracking, etc.) pass through untouched.
+    """
+    value = state.get('portfolio_value')
+    published = {k: v for k, v in state.items() if k not in _PUBLISH_STRIP_KEYS}
+    if value is not None:
+        published['sim_book_value'] = value
+    published['book_role'] = SIM_BOOK_ROLE
+    published['book_note'] = _SIM_BOOK_NOTE
+    return published
+
+
+def _restore_internal_keys(state: Dict[str, Any]) -> Dict[str, Any]:
+    """Inverse of `to_published_state`: published sim-book shape -> internal shape.
+
+    Historical states already keyed `portfolio_value` (pre-PKT-TB-012 raw writes)
+    pass through unchanged.
+    """
+    restored = dict(state)
+    if 'sim_book_value' in restored:
+        restored['portfolio_value'] = restored.pop('sim_book_value')
+    restored.pop('book_role', None)
+    restored.pop('book_note', None)
+    return restored
+
+
 def _normalize_loaded_portfolio_state(
     state: Dict[str, Any],
     state_date: Optional[str],
@@ -62,6 +122,7 @@ def load_portfolio_state(s3: S3Client) -> Dict[str, Any]:
         state = s3.read_json(f'daily/{latest_date}/portfolio_state.json')
         if state:
             as_of_date = datetime.now().strftime('%Y-%m-%d')
+            state = _restore_internal_keys(state)
             return _normalize_loaded_portfolio_state(state, latest_date, as_of_date)
 
     return {

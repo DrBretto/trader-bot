@@ -367,9 +367,13 @@ def run(
         if midday_price and midday_price > holding.get('peak_price', 0):
             holding['peak_price'] = midday_price
 
-    # Save updated portfolio state to S3
+    # Save updated portfolio state to S3 (single-book invariant: published under
+    # the role-marked sim-book shape, never a raw live-portfolio shape).
     portfolio['date'] = run_date
-    s3.write_json(portfolio, f'daily/{run_date}/portfolio_state.json')
+    s3.write_json(
+        paper_trader.to_published_state(portfolio),
+        f'daily/{run_date}/portfolio_state.json',
+    )
 
     # Save midday check report
     midday_report = {
