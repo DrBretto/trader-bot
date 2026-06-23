@@ -44,13 +44,19 @@ def _recompute_drawdowns(equity_curve):
 
 
 def patch(dash):
+    # The chart's primary blue line is `optimized_value ?? corrected_value`, NOT
+    # `value` — so every canon value field on the broken dates must be patched in
+    # lockstep or the plotted line still shows the old crash. champion_frozen_value
+    # and incumbent_value are different lines (None on these dates) — left alone.
+    CANON_FIELDS = ("value", "optimized_value", "new_brain_value",
+                    "corrected_value", "hybrid_value", "actual_value")
     for row in dash.get("equity_curve", []):
         c = CORRECTED.get(row.get("date"))
         if c is None:
             continue
-        row["value"] = c
-        if row.get("new_brain_value") is not None:
-            row["new_brain_value"] = c
+        for fld in CANON_FIELDS:
+            if row.get(fld) is not None:
+                row[fld] = c
     dash["drawdowns"] = _recompute_drawdowns(dash["equity_curve"])
     max_dd = min((d["drawdown"] for d in dash["drawdowns"]), default=0.0)
     cur_dd = dash["drawdowns"][-1]["drawdown"] if dash["drawdowns"] else 0.0
@@ -98,10 +104,16 @@ def main():
     for k in KEYS:
         s3.put_object(Bucket=BUCKET, Key=k, Body=body, ContentType="application/json")
         print("wrote", k)
-    inv = s3.meta.client if False else boto3.client("cloudfront")
+    import hashlib
+    inv = boto3.client("cloudfront")
+    # CallerReference MUST be unique per distinct publish — a repeated ref makes
+    # CloudFront return the PRIOR invalidation and silently skip the new one
+    # (this bit us once: the optimized_value fix didn't invalidate). Key it on the
+    # published body hash so every real change forces a fresh edge invalidation.
+    ref = f"corrected-line-{STAMP}-{hashlib.sha256(body).hexdigest()[:12]}"
     r = inv.create_invalidation(DistributionId=DIST_ID, InvalidationBatch={
         "Paths": {"Quantity": 1, "Items": ["/*"]},
-        "CallerReference": f"corrected-line-{STAMP}"})
+        "CallerReference": ref})
     print("cloudfront invalidation:", r["Invalidation"]["Id"])
     ec = {r["date"]: r["value"] for r in patched["equity_curve"] if r["date"] in CORRECTED}
     print("patched equity_curve:", json.dumps(ec))
