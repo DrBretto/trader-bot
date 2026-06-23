@@ -136,6 +136,37 @@ def run_brain_cutover_night(
         or inference_output.get('regime', {}).get('label', 'neutral')
     )
 
+    engine_name = str(cfg.get("engine", "")).lower()
+
+    # The LIVE engine is the tilt_adapter (the intended new brain: deterministic
+    # rules + a small ML tilt — the yellow line). The native_two_stage engine is
+    # RETIRED (operator verdict 2026-06-23). Any non-tilt engine falls through to
+    # the legacy two-stage path only if explicitly configured (kept for the
+    # retired-model comparison line; never the default).
+    if engine_name == "tilt_adapter":
+        from src.brain.tilt_live import run_tilt_cutover
+        tres = run_tilt_cutover(
+            run_date, features_df, regime_label, portfolio_state,
+            incumbent.get("actions", []) if isinstance(incumbent, dict) else [],
+            config=cfg,
+        )
+        if tres.get("ok") and tres.get("trade_intents"):
+            ti = tres["trade_intents"]
+            ti["generated_timestamp"] = datetime.now().isoformat()
+            s3.write_json(ti, f"daily/{run_date}/trade_intents.json")
+            s3.write_json(incumbent, f"daily/{run_date}/trade_intents.incumbent.json")
+            status.update(engine_wrote_intents=True, engine="tilt_adapter",
+                          n_selected=len(ti.get("actions", [])), invariant_green=True,
+                          reason=tres["reason"])
+            print(f"  tilt_adapter live: {tres['reason']} "
+                  f"({len(ti.get('actions', []))} intents)")
+        else:
+            status["reason"] = tres.get("reason", "tilt cutover failed")
+            print(f"  ALARM: tilt cutover ABORTED — deterministic incumbent retained: "
+                  f"{status['reason']}")
+            _alert_cutover_fallback(run_date, status["reason"])
+        return status
+
     res = run_cutover(
         run_date, features_df, regime_label, universe_df, portfolio_state,
         production_forecaster, health_map=health_map, config=cfg,
@@ -143,34 +174,27 @@ def run_brain_cutover_night(
     )
 
     if res.ok and res.trade_intents:
-        # The cutover: the two-stage engine's intents become the live intents.
+        # Legacy two-stage path (RETIRED — only runs if explicitly configured).
         s3.write_json(res.trade_intents, f"daily/{run_date}/trade_intents.json")
         s3.write_json(incumbent, f"daily/{run_date}/trade_intents.incumbent.json")
-        # The engine's selected set — wired into the attribution ladder's
-        # universe rung (the U-E rung; PKT-TB-011 flagged it unwired).
         s3.write_json({
             "date": run_date,
             "engine": res.engine,
             "selected_universe": res.selected_universe,
             "forward_confirmed": False,
             "invariant_green": res.invariant_green,
-            "source": "PKT-TB-012 native two-stage engine cutover",
-            "note": "Every name is forward_confirmed:false — a strong in-sample "
-                    "prior to falsify, tilted live before any forward fold "
-                    "confirms it (DESIGN_DOSSIER Attack 2).",
+            "source": "PKT-TB-012 native two-stage engine cutover (RETIRED)",
+            "note": "Retired model — kept only for the comparison line.",
         }, f"daily/{run_date}/brain_selected_universe.json")
         status.update(
             engine_wrote_intents=True, engine=res.engine,
             n_selected=len(res.selected_universe or []),
             invariant_green=res.invariant_green, reason=res.reason,
         )
-        print(f"  New Brain cutover: engine '{res.engine}' wrote "
-              f"{len(res.trade_intents.get('actions', []))} live intents "
-              f"({len(res.selected_universe or [])} held; invariant green)")
     else:
         # Fail-safe: incumbent intents already in place; alarm and stay there.
         status["reason"] = res.reason
-        print(f"  ALARM: New Brain cutover ABORTED — incumbent intents retained: {res.reason}")
+        print(f"  ALARM: cutover ABORTED — incumbent intents retained: {res.reason}")
         _alert_cutover_fallback(run_date, res.reason)
     return status
 

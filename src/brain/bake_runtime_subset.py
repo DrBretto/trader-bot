@@ -61,6 +61,7 @@ CODE_DIRS: List[str] = [
     f"{_TB7}/prototype/dicts",
     f"{_TB7}/prototype/store/nightly_007",     # parity reference
     f"{_TB7}/prototype/models_out_007",        # the frozen weights
+    f"{_TB7}/shadow/genomes",                  # the tilt genomes (live tilt_adapter)
     f"{_TB6}/prototype/dicts",
 ]
 

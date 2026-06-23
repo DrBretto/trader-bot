@@ -1,16 +1,13 @@
 {
   "schema": "brain_active.v1",
   "mode": "live",
-  "genome": "native_two_stage",
-  "engine": "native_two_stage",
-  "engine_sha": "4ae7b79d9d62fa5255ba485e287d4493333225296ad9f82da6200f1413a6c51b",
-  "model_sha": "5b2428c66c14",
+  "engine": "tilt_adapter",
+  "genome": "shadow_A",
   "effective_from": "2026-06-24",
-  "engine_sha_note": "Re-frozen 2026-06-23 — regime chassis restored into the New Brain (regime_score_mult Stage-1 tilt + theta_size.regime_exposure_multiplier). See brain/FREEZE_ORB1.json meta.re_freeze_reason and docs/plans/2026-06-23-restore-regime-chassis-into-new-brain.md. Fresh forward prereg start 2026-06-24.",
+  "live_brain": "The live brain is the tilt_adapter (the intended new model: the deterministic chassis rules + a SMALL M1 ML tilt on top — the yellow line, book F). The ML's only job is to make the rules that already work a little better. Wired via src/brain/tilt_live.run_tilt_cutover, called from publish_artifacts.run_brain_cutover_night when engine=='tilt_adapter'.",
+  "retired_engine": "native_two_stage is RETIRED (operator verdict 2026-06-23: 'bunk' — it discarded the working deterministic rules and built a from-scratch concentrated book that crashed; the only fix that helped just reproduced the deterministic result). It is no longer the live engine and is not branded canon. Kept in-tree only as a comparison line.",
+  "fail_safe": "run_tilt_cutover has a hard abort-never-degrade: ANY error (inference fail, tilt exception, missing organ outputs) returns ok=False and the live path keeps the deterministic incumbent intents untouched. The deterministic rules are the safe floor.",
   "forward_boundary": "2026-06-11",
-  "freeze": "brain/FREEZE_ORB1.json",
-  "authority": "D-AUTO-20260616 (operator); DESIGN_DOSSIER.md §3 (Attack-5 ruling, BINDING); PKT-TB-012",
-  "live_brain": "The live brain is the native two-stage engine (src/brain/engine, PKT-TB-008), NOT tilt_adapter. Per the Attack-5 ruling nothing renders branded 'New Brain' unless this engine writes daily/<D>/trade_intents.json AND the nightly invariant self-check (held_symbols_invariant, the PKT-TB-009 spine) is green. 009 is green as of the cutover.",
-  "rollback": "Flip mode to 'shadow' (one config change) -> the next night writes incumbent intents again; atomic at the night boundary, no redeploy. Automatic fail-safe to incumbent on freeze-mismatch / invariant-red / inference-fail / engine-exception (abort-never-degrade).",
-  "non_assertion": "Going live authorizes forward measurement of dollar conversion; it does NOT assert the brain has a dollar edge. The exposure-stripped selection residual is measured at zero (LIVE_PREREG.md)."
+  "rollback": "Set engine to anything other than 'tilt_adapter' (or mode to 'shadow') and redeploy -> the live path falls back to the deterministic incumbent. The tilt only ever ADDS a small ML edit on top of the rules; it never replaces them.",
+  "non_assertion": "Going live authorizes forward measurement; it does NOT assert the ML tilt has a dollar edge. The rent ladder (the bottom evaluation panel) measures, organ by organ, whether the ML is paying rent — currently ~zero. The tilt is live because the design is 'let the ML nudge the working rules', and the rent ladder grades it as we go."
 }

@@ -205,6 +205,8 @@ def test_surface_carries_forward_confirmed_false():
 
 
 def test_brain_active_config_is_live():
+    # The live engine is the tilt_adapter (deterministic rules + small M1 tilt).
+    # native_two_stage was retired 2026-06-23 (operator verdict).
     cfg = load_brain_config()
     assert cfg["mode"] == "live"
-    assert cfg["engine"] == "native_two_stage"
+    assert cfg["engine"] == "tilt_adapter"
