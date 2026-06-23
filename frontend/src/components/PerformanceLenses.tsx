@@ -63,41 +63,40 @@ function buildModelComparisonData(equityCurve: EquityCurvePoint[]) {
     .filter((point): point is NonNullable<typeof point> => point !== null);
 }
 
-// New Brain (paper) vs Current Model — once the dual forward shadow has settled
-// points, the left lens compares the PKT-TB-007 brain tilt's paper book against
-// the live champion, both rebased to 100 at the shadow start date. Until then
-// the lens falls back to the legacy current-vs-previous comparison.
+// New model vs retired champion — the two models the operator watches. The new
+// model (live, tilt_adapter) is shadow_A; the retired champion (incumbent rules,
+// no tilt, run forward for comparison) is shadow_I. Both rebased to 100 at the
+// first common settled date. equityCurve is unused now (kept for signature
+// stability); the comparison is purely the two shadow books.
 function buildShadowComparisonData(
-  equityCurve: EquityCurvePoint[],
+  _equityCurve: EquityCurvePoint[],
   shadow: ShadowTimeseries | null | undefined,
 ) {
-  const shadowPoints = shadow?.shadow_A ?? [];
-  if (shadowPoints.length === 0) return [];
-  const shadowByDate = new Map(shadowPoints);
+  const newModelPts = shadow?.shadow_A ?? [];
+  const championPts = shadow?.shadow_I ?? [];
+  if (newModelPts.length === 0 || championPts.length === 0) return [];
+  const newByDate = new Map(newModelPts);
+  const champByDate = new Map(championPts);
 
-  const rows = equityCurve.filter((point) => shadowByDate.has(point.date));
-  const first = rows.find((point) => {
-    const current = getCurrentModelValue(point);
-    const sv = shadowByDate.get(point.date);
-    return current > 0 && sv != null && sv > 0;
-  });
-  if (!first) return [];
+  const dates = Array.from(newByDate.keys()).filter((d) => champByDate.has(d)).sort();
+  const firstDate = dates.find((d) => (newByDate.get(d) ?? 0) > 0 && (champByDate.get(d) ?? 0) > 0);
+  if (!firstDate) return [];
 
-  const firstCurrent = getCurrentModelValue(first);
-  const firstShadow = shadowByDate.get(first.date)!;
+  const firstChampion = champByDate.get(firstDate)!;
+  const firstNew = newByDate.get(firstDate)!;
 
-  return rows
-    .map((point) => {
-      const current = getCurrentModelValue(point);
-      const sv = shadowByDate.get(point.date);
-      if (current <= 0 || sv == null || sv <= 0) return null;
+  return dates
+    .map((date) => {
+      const champ = champByDate.get(date);
+      const nv = newByDate.get(date);
+      if (champ == null || champ <= 0 || nv == null || nv <= 0) return null;
 
-      const currentModelIndex = (current / firstCurrent) * 100;
-      const newModelIndex = (sv / firstShadow) * 100;
+      const currentModelIndex = (champ / firstChampion) * 100;   // retired champion
+      const newModelIndex = (nv / firstNew) * 100;                // new model (live)
 
       return {
-        date: point.date,
-        dateLabel: format(parseISO(point.date), 'MMM d'),
+        date,
+        dateLabel: format(parseISO(date), 'MMM d'),
         currentModelIndex,
         previousModelIndex: newModelIndex,
         modelDeltaPct: newModelIndex - currentModelIndex,

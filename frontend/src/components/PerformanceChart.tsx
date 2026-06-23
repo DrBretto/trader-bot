@@ -46,7 +46,9 @@ interface MergedPoint {
   newBrain: number | null;
   incumbent: number | null;
   shadowA: number | null;
-  shadowB: number | null;
+  valuePre: number | null;
+  newModel: number | null;
+  championForward: number | null;
   benchmark: number;
   drawdownPct: number;
   peak: number;
@@ -136,17 +138,12 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
       <div style={{ color: '#94a3b8', marginBottom: 4, fontWeight: 600 }}>
         <span>{dateStr}</span>
       </div>
-      <div style={{ color: '#60a5fa' }}>
-        Portfolio: <span style={{ fontWeight: 600 }}>{formatCurrency(point.value)}</span>
+      <div style={{ color: point.newModel != null ? '#f59e0b' : '#60a5fa' }}>
+        {point.newModel != null ? 'New model' : 'Portfolio'}: <span style={{ fontWeight: 600 }}>{formatCurrency(point.newModel ?? point.valuePre ?? point.value)}</span>
       </div>
-      {point.hybridValue !== null && point.hybridValue !== undefined && point.hybridValue !== point.value && (
-        <div style={{ color: '#94a3b8' }}>
-          Previous champion: <span style={{ fontWeight: 500 }}>{formatCurrency(point.hybridValue)}</span>
-        </div>
-      )}
-      {point.preHybridValue !== null && point.preHybridValue !== undefined && (
-        <div style={{ color: '#94a3b8' }}>
-          Pre-hybrid (older comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.preHybridValue)}</span>
+      {point.championForward !== null && point.championForward !== undefined && (
+        <div style={{ color: '#60a5fa', opacity: 0.7 }}>
+          Retired champion: <span style={{ fontWeight: 500 }}>{formatCurrency(point.championForward)}</span>
         </div>
       )}
       <div style={{ color: '#94a3b8' }}>
@@ -155,16 +152,6 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
       {spread !== null && (
         <div style={{ color: spread >= 0 ? '#22c55e' : '#f97316' }}>
           vs SPY: <span style={{ fontWeight: 600 }}>{spread >= 0 ? '+' : ''}{formatCurrency(spread)}</span>
-        </div>
-      )}
-      {point.shadowA !== null && point.shadowA !== undefined && (
-        <div style={{ color: '#f59e0b' }}>
-          Shadow: brain tilt (paper): <span style={{ fontWeight: 500 }}>{formatCurrency(point.shadowA)}</span>
-        </div>
-      )}
-      {point.shadowB !== null && point.shadowB !== undefined && (
-        <div style={{ color: '#fbbf24' }}>
-          Shadow: +event damp (paper): <span style={{ fontWeight: 500 }}>{formatCurrency(point.shadowB)}</span>
         </div>
       )}
       {regime && (
@@ -197,10 +184,13 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
 
   // Dual forward shadow (paper books, PKT-TB-007 follow-on). Absent or
   // armed-but-empty payloads render nothing new.
+  // The new model (tilt_adapter) = shadow_A, the canon line forward of the
+  // boundary. The retired champion (incumbent, no tilt) = shadow_I, the dotted
+  // comparison line. shadow_B (the +event-damp variant) is no longer drawn.
   const shadowAByDate = new Map(shadow?.shadow_A ?? []);
-  const shadowBByDate = new Map(shadow?.shadow_B ?? []);
+  const shadowIByDate = new Map(shadow?.shadow_I ?? []);
   const hasShadowA = shadowAByDate.size > 0;
-  const hasShadowB = shadowBByDate.size > 0;
+  const hasChampionForward = shadowIByDate.size > 0;
 
   // Trim leading flat zone
   const startVal = equityData[0]?.value ?? 0;
@@ -242,8 +232,14 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
       championFrozen,
       newBrain,
       incumbent,
+      // Canon line split at the boundary: solid BLUE = the real champion history
+      // through 06-11; solid YELLOW = the new model (tilt_adapter = shadow_A) from
+      // 06-11 forward. championForward (dotted BLUE) = the retired champion run
+      // forward (shadow_I = incumbent, no tilt) — the comparison line.
+      valuePre: point.date <= NEW_BRAIN_BOUNDARY ? primaryValue : null,
+      newModel: point.date >= NEW_BRAIN_BOUNDARY ? (shadowAByDate.get(point.date) ?? null) : null,
+      championForward: point.date >= NEW_BRAIN_BOUNDARY ? (shadowIByDate.get(point.date) ?? null) : null,
       shadowA: shadowAByDate.get(point.date) ?? null,
-      shadowB: shadowBByDate.get(point.date) ?? null,
       benchmark: point.benchmark,
       drawdownPct: (ddMap.get(point.date) ?? 0) * 100,
       peak,
@@ -475,86 +471,54 @@ Background color bands show the detected market regime at each point in time.`}
             legendType="none"
           />
 
-          {/* Pre-hybrid replay line (older comparison). opt-bootstrap config,
-              no F-7 relax. Source: 2026-05-06 known-bugs-fixed algorithm
-              comparison run. Rendered lightest gray-dashed. */}
-          <Line
-            yAxisId="equity"
-            type="monotone"
-            dataKey="preHybridValue"
-            stroke="#94a3b8"
-            strokeWidth={1}
-            strokeOpacity={0.22}
-            strokeDasharray="2 4"
-            dot={false}
-            legendType="none"
-            connectNulls
-          />
-
-          {/* PKT-TB-012: the in-sample optimized champion line, FROZEN
-              byte-immutable through 2026-06-11 (retired as the live algorithm).
-              Rendered as a neutral dashed reference that ends at the boundary —
-              it is never recomputed and never extended forward. */}
-          <Line
-            yAxisId="equity"
-            type="monotone"
-            dataKey="championFrozen"
-            stroke="#94a3b8"
-            strokeWidth={1}
-            strokeOpacity={0.45}
-            strokeDasharray="2 4"
-            dot={false}
-            legendType="none"
-            connectNulls
-          />
-
-          {/* Dual forward shadow paper books (PKT-TB-007 follow-on), from the
-              shadow start date forward. A (brain tilt) is the primary shadow
-              arm; B (+event damp) is the pre-registered confirmation arm,
-              rendered visually subordinate (thinner, dashed). */}
-          {hasShadowA && (
+          {/* Retired champion run forward (dotted BLUE) = shadow_I, the
+              incumbent deterministic rules with NO tilt, from the boundary
+              forward. The comparison line against the new model. */}
+          {hasChampionForward && (
             <Line
               yAxisId="equity"
               type="monotone"
-              dataKey="shadowA"
-              stroke="#f59e0b"
+              dataKey="championForward"
+              stroke="#3b82f6"
               strokeWidth={1.5}
-              dot={false}
-              legendType="none"
-              connectNulls
-            />
-          )}
-          {hasShadowB && (
-            <Line
-              yAxisId="equity"
-              type="monotone"
-              dataKey="shadowB"
-              stroke="#f59e0b"
-              strokeWidth={1}
               strokeOpacity={0.55}
-              strokeDasharray="4 3"
+              strokeDasharray="3 4"
               dot={false}
               legendType="none"
               connectNulls
             />
           )}
 
-          {/* PRIMARY line (PKT-TB-012) — single continuous solid blue. `value`
-              carries the FROZEN champion through 2026-06-11, then the New Brain
-              (native two-stage engine), re-anchored C0-continuous to the frozen
-              terminal. The New Brain owns the stroke forward of the boundary;
-              the brand is gated on the engine having written intents (green
-              PKT-TB-009 invariant). One line, one color, no cut-off. */}
+          {/* CANON, part 1 — solid BLUE through the boundary: the real champion
+              history up to 2026-06-11 (where the new model was placed). */}
           <Line
             yAxisId="equity"
             type="monotone"
-            dataKey="value"
+            dataKey="valuePre"
             stroke="#3b82f6"
             strokeWidth={2.5}
             dot={false}
             legendType="none"
-            activeDot={{ r: 4, fill: '#3b82f6', stroke: '#0f172a', strokeWidth: 2 }}
+            connectNulls={false}
           />
+
+          {/* CANON, part 2 — solid YELLOW from the boundary forward: the NEW
+              MODEL (tilt_adapter = deterministic rules + small M1 tilt = shadow_A).
+              Continuous with the blue history (both meet at the frozen terminal
+              on 2026-06-11). The retired two-stage drift line is gone. */}
+          {hasShadowA && (
+            <Line
+              yAxisId="equity"
+              type="monotone"
+              dataKey="newModel"
+              stroke="#f59e0b"
+              strokeWidth={2.5}
+              dot={false}
+              legendType="none"
+              connectNulls
+              activeDot={{ r: 4, fill: '#f59e0b', stroke: '#0f172a', strokeWidth: 2 }}
+            />
+          )}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -595,36 +559,27 @@ Background color bands show the detected market regime at each point in time.`}
       {/* Legend */}
       <div className="performance-legend">
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#3b82f6' }} />{' '}
-          {hasNewBrain ? 'New Brain (native engine)' : hasIncumbentForward ? 'Portfolio (current algorithm)' : 'Portfolio (frozen champion)'}
+          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio (champion, through Jun 11)
         </span>
-        {hasChampionFrozen && (
+        {hasShadowA && (
           <span className="legend-item">
-            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#94a3b8' }} /> Champion (frozen, retired Jun 11)
+            <span className="legend-swatch" style={{ background: '#f59e0b' }} /> New model (live, from Jun 11)
+          </span>
+        )}
+        {hasChampionForward && (
+          <span className="legend-item">
+            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#3b82f6', opacity: 0.6 }} /> Retired champion (comparison)
           </span>
         )}
         <span className="legend-item">
           <span className="legend-swatch legend-swatch-dashed" style={{ background: '#64748b' }} /> SPY
         </span>
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#334155' }} /> Peak
-        </span>
-        <span className="legend-item">
           <span className="legend-swatch" style={{ background: '#ef4444', opacity: 0.5 }} /> Drawdown
         </span>
-        {hasShadowA && (
+        {shadow && !hasShadowA && (
           <span className="legend-item">
-            <span className="legend-swatch" style={{ background: '#f59e0b' }} /> Shadow: brain tilt (paper)
-          </span>
-        )}
-        {hasShadowB && (
-          <span className="legend-item">
-            <span className="legend-swatch legend-swatch-dashed" style={{ color: '#f59e0b', opacity: 0.7 }} /> Shadow: +event damp (paper)
-          </span>
-        )}
-        {shadow && !hasShadowA && !hasShadowB && (
-          <span className="legend-item">
-            <span className="legend-swatch" style={{ background: '#f59e0b', opacity: 0.45 }} /> Shadow (paper): armed — accruing
+            <span className="legend-swatch" style={{ background: '#f59e0b', opacity: 0.45 }} /> New model: armed — accruing
           </span>
         )}
         <span className="legend-item legend-item-regime">
@@ -667,9 +622,9 @@ Background color bands show the detected market regime at each point in time.`}
           language before the pre-registered read dates. */}
       {shadow && (
         <div className="shadow-note">
-          {hasShadowA || hasShadowB ? (
+          {hasShadowA ? (
             <>
-              Shadow (paper): {shadow.stats.days_accrued} day{shadow.stats.days_accrued === 1 ? '' : 's'} accrued
+              New model (live): {shadow.stats.days_accrued} day{shadow.stats.days_accrued === 1 ? '' : 's'} accrued
               {' · '}mean IC {formatShadowStat(shadow.stats.mean_ic, 3)} (t={formatShadowStat(shadow.stats.ic_t, 2)})
               {' · '}utility diff {formatShadowStat(shadow.stats.utility_diff_bp_day)} bp/day
               {shadow.stats.utility_diff_bp_day_ci ?? shadow.stats.ci
