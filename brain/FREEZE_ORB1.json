@@ -3,6 +3,8 @@
   "meta": {
     "packet": "PKT-TB-010-LIVE-PREREG-V1-20260616",
     "frozen_on": "2026-06-16",
+    "re_frozen_on": "2026-06-23",
+    "re_freeze_reason": "Restore the regime chassis into the New Brain (docs/plans/2026-06-23-restore-regime-chassis-into-new-brain.md). The cutover had dropped config/regime_compatibility.json — the regime picker's multiplier series the orthogonal members were specced to add value ON TOP OF (PROPOSAL_ORTHOGONALITY §0) — leaving the live book regime-blind (regime_admissibility {} AND regime_exposure_multiplier {}); it loaded ~51% into one correlated high-beta complex and took −3.37% vs SPY −1.27% on 2026-06-23. This re-freeze (a) restores regime into Stage-1 ranking via ForecastBundle.regime_score_mult (engine_sha moved: contracts.py + selection.py), and (b) restores the Stage-2 regime exposure cut via theta_size.regime_exposure_multiplier (theta_size content_hash moved). theta_sel is unchanged. Per the no-mid-stream bound this terminates the prior LIVE_PREREG reads and opens a fresh forward pre-registration with start date 2026-06-24.",
     "decision_authority": "D-AUTO-20260616",
     "design_source": "book-factory/runs/20260616_trader-bot-new-brain-overhaul-committee-v1/DESIGN_DOSSIER.md (committee-governed, Infotropy spine)",
     "purpose": "Forward-only freeze of the LIVE brain. These hashes are asserted at cold start (PKT-TB-012). The LIVE brain is the native two-stage engine, NOT tilt_adapter. No artifact below may move without terminating the LIVE_PREREG reads and opening a fresh pre-registration (LIVE_PREREG.md §3).",
@@ -12,15 +14,15 @@
     "name": "native_two_stage",
     "module": "src/brain/engine/",
     "git_commit": "c4242c4",
-    "engine_sha": "0e1d22ecec1cf56bf32b319e7f82b957bf6277a79f6b6d1afb8c41b869f077ba",
+    "engine_sha": "4ae7b79d9d62fa5255ba485e287d4493333225296ad9f82da6200f1413a6c51b",
     "engine_sha_method": "sha256 over each src/brain/engine/*.py (filename + bytes), files in sorted order; __pycache__ excluded",
     "files": {
       "src/brain/engine/__init__.py": "fd46c8cceb55d1e1504194aa51e3e0a0a32171b8843a22612c22d83d6be3b899",
       "src/brain/engine/allocation.py": "7e7c446e72bdc5a5a9046ba7ba780d03de93aa816ce409fb83a2715cd6d39705",
-      "src/brain/engine/contracts.py": "c3782d5316d35c6d8f833a28abb8f76177e76d78d8568511087019f510875ca3",
+      "src/brain/engine/contracts.py": "ea1f90ae63101e7868f34deb90de629a1a798b6ce2e90dcbeb44ee0c97887550",
       "src/brain/engine/engine.py": "760564c296e73f8ef8eb2b4f4eeefdf9186d212af4e2dcd3ad54fa48ee3e7023",
       "src/brain/engine/parity.py": "96acf7bbb838c030a8919b7829894cad43d3949b828d4cc82cddcaa83aa04602",
-      "src/brain/engine/selection.py": "b9ab7a6589246459fc2e0dc22c7c1f21c76cc247a76afd1f773f1395da24cd22"
+      "src/brain/engine/selection.py": "320fe2d1df013b2c60d14ddc01d8153b4f318156147956fb0ab7a0d1ebf2c433"
     },
     "live_brain_note": "tilt_adapter (TB-007, T_max 0.08, hash 952a2f5a565e) is NOT the live brain. Per the Attack-5 ruling (DESIGN_DOSSIER §3) nothing is branded 'New Brain' until this two-stage engine writes trade_intents.json with a green invariant self-check."
   },
@@ -52,24 +54,31 @@
       "N": "10. Pre-committed from the pre-holdout ENB 4.48 + Friedman separability finding (FREEZE_ORB1 §2/§4). Prior to falsify, not fit to any forward read.",
       "h_min": "0.60. Health is a binary Stage-1 eligibility gate; structural floor chosen by hand before any forward read. Prior to falsify, not fit to any forward read.",
       "core_fraction": "0.55. Rank-based Core/Satellite tier edge (Core = top round(N*0.55) by mu_M1). Replaces the tilt-adapter CORE/COND support-tier table with a sizing-independent rank rule. Prior to falsify, not fit to any forward read.",
-      "regime_admissibility": "{} (empty). An empty map admits all asset classes in every regime: the regime label enters the live book ONLY as a Stage-2 book-level exposure multiplier (theta_size), never as a Stage-1 per-name multiplier. Frozen inert by hand. Prior to falsify, not fit to any forward read.",
+      "regime_admissibility": "{} (empty, unchanged). The regime label is NOT applied as a Stage-1 hard admit/deny gate. Instead — restored 2026-06-23 — it enters Stage-1 ranking as a SOFT per-name multiplier via ForecastBundle.regime_score_mult (a function of f, not theta_sel), the faithful port of the original decision_engine.score_candidates final_score = base x regime_compatibility[regime][sector]. It also enters Stage-2 as the book-level exposure multiplier (theta_size.regime_exposure_multiplier). theta_sel itself is unchanged.",
       "tiebreak": "Frozen ordering after mu_M1 desc: lower idiosyncratic vol first, then symbol ascending. Deterministic, sizing-independent. Prior to falsify, not fit to any forward read.",
       "lot_policy": "min_order $250 at a frozen reference_nav of $100,000 — the theta_size-INDEPENDENT min-order notional hoisted to Stage-1 (C5). The lot-infeasibility partition is therefore byte-identical across the whole theta_size grid. Prior to falsify, not fit to any forward read."
     },
     "no_mid_stream_bound": "Any change to any theta_sel value (which changes content_hash) terminates the LIVE_PREREG reads and requires a fresh pre-registration with a fresh start date (LIVE_PREREG.md §3). 'Frozen by hand' is leakage-safe ONLY under this bound (Analyst C4 — closes defect-B-via-the-human)."
   },
   "theta_size": {
-    "content_hash": "4c4844ae82500ff3c818be01cbf3e2624ac1e1a2d26c7d5ade489e270d4d7a47",
+    "content_hash": "9561c1d0987dcb1b8f5c1371a490112cbb5f85c53f8e0f7786796193f204b8cf",
     "content_hash_method": "SizingParams.content_hash() — sha256 over dataclasses.asdict(theta_size) JSON-canonicalised",
     "values": {
       "gross_target": 1.0,
       "max_position_weight": 0.20,
       "max_cluster_weight": 0.35,
       "cash_reserve_pct": 0.10,
-      "regime_exposure_multiplier": {},
+      "regime_exposure_multiplier": {
+        "calm_uptrend": 1.0,
+        "risk_on_trend": 1.0,
+        "choppy": 0.90,
+        "risk_off_trend": 0.75,
+        "high_vol_panic": 0.50
+      },
       "parity_gain": 0.5
     },
     "parity_controller_gain": 0.5,
+    "regime_exposure_provenance": "Restored 2026-06-23. The book-level gross multiplier G = gross_target x regime_exposure_multiplier[regime] cuts exposure in risk-off/panic regimes — the de-risking the original chassis did via the regime_compatibility equity factor (risk_on 1.10 / choppy 0.95 / risk_off 0.85 / panic 0.50). Mapped to gross scalars: panic halves gross (holds ~50% cash), risk_off 0.75, choppy 0.90, risk_on/calm 1.0 (never levers above gross_target). Hand-frozen; prior to falsify.",
     "note": "theta_size is frozen alongside theta_sel. parity_gain is the closed-loop ex-post parity controller gain (F8 fix). theta_size NEVER reaches Stage-1 Select (enforced by assert_no_dollar_surface); freezing it pins the realized book, not the held set."
   },
   "universe": {

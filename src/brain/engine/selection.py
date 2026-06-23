@@ -43,9 +43,28 @@ def _eligible(f: ForecastBundle, theta_sel: SelectionParams, sym: str) -> bool:
     return True
 
 
+def _regime_adjusted_mu(f: ForecastBundle, sym: str) -> float:
+    """The regime-tilted forecast score: ``mu_M1 x regime_score_mult``.
+
+    This restores the chassis regime picker into the New Brain's PRIMARY ordering
+    key -- the faithful port of the original ``decision_engine.score_candidates``
+    (``final_score = base_score x regime_multiplier``), with the orthogonal M1
+    forecast as the base instead of health. In ``high_vol_panic`` the tech/equity
+    names are knocked (x0.4..0.5) and fall out of the top-N while defensives rise;
+    in ``risk_on_trend`` tech is lifted (x1.15). ``regime_score_mult`` defaults to
+    1.0 per symbol (empty map) -> identical to the pre-restore raw-mu ranking.
+
+    Selection holds the top-N by this score, which over the health-eligible set is
+    the positive-mu region; the multiplier is strictly positive so it preserves the
+    sign of mu and only re-weights its magnitude (a negative-mu name stays below the
+    cut either way).
+    """
+    return float(f.mu_M1[sym]) * float(f.regime_score_mult.get(sym, 1.0))
+
+
 def _ordering_key(f: ForecastBundle, sym: str):
-    """Frozen ordering: mu_M1 desc, then idio_vol asc, then symbol asc."""
-    return (-float(f.mu_M1[sym]), float(f.idio_vol.get(sym, 0.0)), sym)
+    """Frozen ordering: regime-adjusted mu_M1 desc, then idio_vol asc, then symbol asc."""
+    return (-_regime_adjusted_mu(f, sym), float(f.idio_vol.get(sym, 0.0)), sym)
 
 
 def select(f: ForecastBundle, theta_sel: SelectionParams) -> SelectionResult:
@@ -84,6 +103,8 @@ def select(f: ForecastBundle, theta_sel: SelectionParams) -> SelectionResult:
         "n_eligible": len(eligible),
         "n_selected": len(selected),
         "mu_M1": {sym: float(f.mu_M1[sym]) for sym in selected},
+        "regime_score_mult": {sym: float(f.regime_score_mult.get(sym, 1.0)) for sym in selected},
+        "regime_adjusted_mu": {sym: _regime_adjusted_mu(f, sym) for sym in selected},
         "core_count": core_count,
     }
 

@@ -9,6 +9,21 @@ DESIGN_DOSSIER.md §6 (the contents spec), committee
 **This file is the read contract for the LIVE arm. The reads below are the ONLY
 pre-registered LIVE looks. Anything else is exploratory and must be labeled as such.**
 
+> **⚠ RE-PRE-REGISTRATION — 2026-06-23 (start date 2026-06-24).** Under the §3
+> no-mid-stream bound, the LIVE arm has been re-frozen and the prior forward reads
+> (registered 2026-06-16, start 2026-06-12) are **terminated**; a fresh forward
+> read begins 2026-06-24. **Reason:** the cutover had dropped the regime chassis —
+> `config/regime_compatibility.json`, the regime picker's multiplier series the
+> orthogonal members were specced to add value ON TOP OF (PROPOSAL_ORTHOGONALITY
+> §0) — leaving the live book regime-blind. It loaded ~51% into one correlated
+> high-beta complex and lost −3.37% vs SPY −1.27% on 2026-06-23 (biggest single-day
+> drop on record). The re-freeze restores the chassis: regime enters Stage-1 ranking
+> as a soft per-name multiplier (`ForecastBundle.regime_score_mult`, the faithful
+> port of `decision_engine.score_candidates`) and Stage-2 as a book-level gross cut
+> (`θ_size.regime_exposure_multiplier`); a correlation-group cluster cap now binds on
+> the tech/metals complexes. `θ_sel` is unchanged. New hashes are in §0. See
+> `docs/plans/2026-06-23-restore-regime-chassis-into-new-brain.md`.
+
 > **The standing fact, stated first (DESIGN_DOSSIER §1).** The brain's dollar conversion
 > is currently measured at exactly zero: the exposure-stripped selection residual is
 > **−0.29 bp/day, t≈−0.22**. The forecast signal (M1, pooled weekly rank-IC 0.1076,
@@ -33,10 +48,10 @@ cold start (PKT-TB-012). A hash mismatch is a parity failure that ABORTS the nig
 
 | Artifact | Identity (frozen) |
 |---|---|
-| **engine_sha** | `0e1d22ecec1cf56bf32b319e7f82b957bf6277a79f6b6d1afb8c41b869f077ba` — content hash of `src/brain/engine/*.py` (git `c4242c4`, PKT-TB-008). **The live brain is THIS engine, not `tilt_adapter`.** |
+| **engine_sha** | `4ae7b79d9d62fa5255ba485e287d4493333225296ad9f82da6200f1413a6c51b` — content hash of `src/brain/engine/*.py` (re-frozen 2026-06-23: `contracts.py` + `selection.py` carry the restored `regime_score_mult` Stage-1 tilt; prior `0e1d22ec…` was the regime-blind cutover). **The live brain is THIS engine, not `tilt_adapter`.** |
 | **model_sha** | `5b2428c66c14` — `forward_inference.model_sha()` over the four `models_out_007/` files (`m1_cast/seed_4242.pt`, `m1_cast/seed_4243.pt`, `m4_evt_a/model.pkl`, `m3_disp/coefs.npz`), per-file sha256 pinned in FREEZE_ORB1. **No retraining, ever, inside this LIVE arm** — a retrained brain is a NEW prereg with a new start date. |
 | **θ_sel** | content hash `f154f3ce…cbd24b5e` (`SelectionParams.content_hash()`). Frozen by hand: `N=10`, `h_min=0.60`, `core_fraction=0.55` (tier edge), `regime_admissibility={}` (admits-all; regime enters only as a Stage-2 book-level multiplier), `tiebreak=(mu_M1_desc, idio_vol_asc, symbol_asc)`, `lot_policy{min_order=$250, reference_nav=$100,000}`. **Each parameter carries a provenance note in FREEZE_ORB1 ("prior to falsify, not fit to any forward read")** — this discharges **C4** (closes defect-B-via-the-human). |
-| **θ_size + parity gain** | content hash `4c4844ae…0d4d7a47`. `gross_target=1.0`, `max_position_weight=0.20`, `max_cluster_weight=0.35`, `cash_reserve_pct=0.10`, `regime_exposure_multiplier={}`, **`parity_gain=0.5`** (closed-loop ex-post parity controller, the F8 fix). θ_size never reaches Stage-1 Select (enforced by `assert_no_dollar_surface`). |
+| **θ_size + parity gain** | content hash `9561c1d0…f204b8cf` (re-frozen 2026-06-23; prior `4c4844ae…`). `gross_target=1.0`, `max_position_weight=0.20`, `max_cluster_weight=0.35`, `cash_reserve_pct=0.10`, **`regime_exposure_multiplier={calm 1.0, risk_on 1.0, choppy 0.90, risk_off 0.75, panic 0.50}`** (restored — cuts book-level gross in risk-off/panic), **`parity_gain=0.5`** (closed-loop ex-post parity controller, the F8 fix). θ_size never reaches Stage-1 Select (enforced by `assert_no_dollar_surface`). |
 | **go-live universe** | `config/universe.csv` sha `438abff0…` (64 names, all eligible; the membership/eligibility contract) + `universe_exploitability.json` sha `c3cf5abe…` (the forecast-skill/tradability derivation). **Every tilt name is `forward_confirmed:false`** — a strong in-sample prior to falsify, tilted live before any forward fold confirms it (DESIGN_DOSSIER Attack 2, operator-accepted residual). The `min_fresh_fold_end ≥ 2026-06-11` floor (C2) governs the first forward re-derivation (PKT-TB-013), not this frozen go-live set; the forward `universe_manifest_{T}.json` does not yet exist (see BUILD_RECEIPT executor_concern). |
 
 **C4 [GATE] discharge.** The full `θ_sel` vector is content-hashed in `brain/FREEZE_ORB1.json`

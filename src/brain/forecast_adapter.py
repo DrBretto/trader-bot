@@ -25,9 +25,66 @@ Frozen-contract notes (no parameter invented outside FREEZE_ORB1):
 """
 from __future__ import annotations
 
+import json
+import os
+from pathlib import Path
 from typing import Dict, Mapping, Optional
 
 from .engine import ForecastBundle, PortfolioState
+
+# Built-in correlation grouping: the granular universe.csv `sector` taxonomy
+# splits one correlated risk factor into separate buckets (industry_semis vs
+# sector_tech vs theme_innovation are three sectors; gold vs silver are two), so
+# the Stage-2 `max_cluster_weight` cap never binds on the real complex. These
+# groups collapse the ~0.9-correlated sleeves so the cap binds. Overridable via
+# config/correlation_groups.json. Sectors not listed map to themselves.
+_DEFAULT_CORRELATION_GROUPS: Dict[str, tuple] = {
+    "tech_growth": ("industry_semis", "sector_tech", "theme_innovation"),
+    "precious_metals": ("gold", "silver"),
+}
+
+
+def _config_root() -> Path:
+    """Repo root (or ${LAMBDA_TASK_ROOT} in the image) holding config/."""
+    task_root = os.environ.get("LAMBDA_TASK_ROOT")
+    if task_root and (Path(task_root) / "config").exists():
+        return Path(task_root)
+    return Path(__file__).resolve().parents[2]
+
+
+def _load_correlation_groups() -> Dict[str, str]:
+    """Return a flat ``sector -> group`` map. Reads config/correlation_groups.json
+    ({group: [sectors]}) when present; otherwise the built-in default. Fail-soft:
+    a missing/garbled file falls back to the default, never raises."""
+    groups = _DEFAULT_CORRELATION_GROUPS
+    try:
+        p = _config_root() / "config" / "correlation_groups.json"
+        if p.exists():
+            loaded = json.loads(p.read_text())
+            if isinstance(loaded, dict) and loaded:
+                groups = {g: tuple(members) for g, members in loaded.items()}
+    except Exception:  # noqa: BLE001 — never let grouping config crash the night
+        groups = _DEFAULT_CORRELATION_GROUPS
+    sector_to_group: Dict[str, str] = {}
+    for group, members in groups.items():
+        for sector in members:
+            sector_to_group[str(sector)] = str(group)
+    return sector_to_group
+
+
+def _regime_mult_for(
+    regime_compat: Optional[Mapping[str, Mapping[str, float]]],
+    regime_label: str,
+    sector: str,
+    asset_class: str,
+) -> float:
+    """The chassis regime x sector compatibility multiplier — the faithful port of
+    the original ``decision_engine.score_candidates.get_multiplier`` lookup:
+    try the fine sector key, fall back to asset_class, then 1.0."""
+    compat = (regime_compat or {}).get(regime_label, {})
+    if not compat:
+        return 1.0
+    return float(compat.get(sector, compat.get(asset_class, 1.0)))
 
 
 def _vol_bucket(v: Optional[float]) -> str:
@@ -60,14 +117,25 @@ def build_forecast_bundle(
     regime_label: str,
     universe_df,
     health_map: Optional[Mapping[str, float]] = None,
+    regime_compat: Optional[Mapping[str, Mapping[str, float]]] = None,
 ) -> ForecastBundle:
     """Build ``f`` for one decision date. ``mu_map`` is the frozen brain's
-    full-universe M1 forecast (the PRIMARY ordering key)."""
+    full-universe M1 forecast (the PRIMARY ordering key).
+
+    ``regime_compat`` is the chassis ``regime_compatibility`` table (per
+    regime, per sector/asset_class multiplier). When provided, each symbol gets a
+    ``regime_score_mult`` so Stage-1 ranks on the regime-tilted forecast (the
+    restored chassis socket). When ``None``/empty the mult is 1.0 for all symbols
+    -> identical to the pre-restore raw-mu ranking.
+    """
     health_map = dict(health_map or {})
     elig = {str(s): bool(int(e)) for s, e in
             zip(universe_df["symbol"], universe_df["eligible"])}
     acls = {str(s): str(a) for s, a in
             zip(universe_df["symbol"], universe_df["asset_class"])}
+    secs = {str(s): str(sec) for s, sec in
+            zip(universe_df["symbol"], universe_df["sector"])} \
+        if "sector" in getattr(universe_df, "columns", []) else {}
     feats = _features_by_symbol(features_df)
 
     mu_M1: Dict[str, float] = {}
@@ -77,6 +145,7 @@ def build_forecast_bundle(
     eligible: Dict[str, bool] = {}
     asset_class: Dict[str, str] = {}
     vol_bucket: Dict[str, str] = {}
+    regime_score_mult: Dict[str, float] = {}
 
     for sym, mu in mu_map.items():
         sym = str(sym)
@@ -93,8 +162,11 @@ def build_forecast_bundle(
         v21 = f.get("vol_21d")
         idio_vol[sym] = float(v21) if v21 is not None and v21 == v21 else 0.0
         eligible[sym] = elig.get(sym, False)
-        asset_class[sym] = acls.get(sym, "equity")
+        acl = acls.get(sym, "equity")
+        asset_class[sym] = acl
         vol_bucket[sym] = _vol_bucket(idio_vol[sym])
+        regime_score_mult[sym] = _regime_mult_for(
+            regime_compat, str(regime_label or "neutral"), secs.get(sym, ""), acl)
 
     return ForecastBundle(
         date=date,
@@ -106,6 +178,7 @@ def build_forecast_bundle(
         eligible=eligible,
         asset_class=asset_class,
         vol_bucket=vol_bucket,
+        regime_score_mult=regime_score_mult,
     )
 
 
@@ -144,8 +217,15 @@ def build_portfolio_state(
             if cp is not None and cp > 0:
                 marks[sym] = cp
 
-    cluster_of = {str(s): str(sec) for s, sec in
-                  zip(universe_df["symbol"], universe_df["sector"])}
+    # Map the granular universe.csv `sector` to its correlation group so the
+    # Stage-2 max_cluster_weight cap binds on the real complex (e.g. SMH/SOXX/XLK/
+    # ARKK -> one `tech_growth` cluster instead of three). Ungrouped sectors map
+    # to themselves (their own cluster), preserving prior behaviour for them.
+    sector_to_group = _load_correlation_groups()
+    cluster_of = {
+        str(s): sector_to_group.get(str(sec), str(sec))
+        for s, sec in zip(universe_df["symbol"], universe_df["sector"])
+    }
 
     cash = _finite(portfolio_state.get("cash")) or 0.0
     nav = cash + sum(positions.get(s, 0) * marks.get(s, 0.0) for s in positions)

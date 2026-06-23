@@ -69,6 +69,14 @@ class ForecastBundle:
     eligible: Mapping[str, bool]        # universe membership / tradability (sizing-independent)
     asset_class: Mapping[str, str]      # for regime admissibility
     vol_bucket: Mapping[str, str] = field(default_factory=dict)  # 'low'|'med'|'high' (display)
+    # The chassis regime x sector compatibility multiplier per symbol (the regime
+    # picker's multiplier series -- PROPOSAL_ORTHOGONALITY §0; the original
+    # decision_engine.score_candidates applied it as final_score = base x mult).
+    # Pure function of (regime_label, sector): market-level regime x static sector,
+    # so it is constant across the theta_size grid and the held_symbols invariant
+    # is preserved. Dimensionless (~0.4..1.25), NOT a dollar/cash/NAV value. Empty
+    # -> 1.0 for every symbol (backward compatible: the pre-restore top-N ranker).
+    regime_score_mult: Mapping[str, float] = field(default_factory=dict)
 
     def symbols(self) -> Tuple[str, ...]:
         return tuple(self.mu_M1.keys())

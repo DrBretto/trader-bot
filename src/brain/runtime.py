@@ -205,8 +205,12 @@ def run_cutover(
                              incumbent_intents=incumbent_intents)
 
     # (4) build the engine contracts
+    # The chassis regime_compatibility table (config bundle, handler.py:97)
+    # restores the regime picker into Stage-1 ranking via per-symbol
+    # regime_score_mult (PROPOSAL_ORTHOGONALITY §0 — the chassis socket).
     f = build_forecast_bundle(date, mu_map, features_df, regime_label,
-                              universe_df, health_map=health_map)
+                              universe_df, health_map=health_map,
+                              regime_compat=config.get("regime_compatibility"))
     portfolio = build_portfolio_state(portfolio_state, features_df, universe_df)
 
     # (5) invariant self-check GATE (the PKT-TB-009 spine, run nightly).
