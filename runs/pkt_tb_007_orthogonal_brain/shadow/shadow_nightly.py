@@ -89,8 +89,17 @@ class Ctx:
 
 def load_state(ctx: Ctx) -> dict:
     if ctx.state_json.exists():
-        return json.loads(ctx.state_json.read_text())
-    return SL.default_state()
+        state = json.loads(ctx.state_json.read_text())
+    else:
+        return SL.default_state()
+    # self-heal pre-PKT-011 state (legacy I/A/B -> ladder I,R,F,E,U). Idempotent:
+    # a no-op once the full ladder is present. Persist if a migration was applied
+    # so the rewrite is durable (and mirrored to S3 on the publish step).
+    if SL.migrate_state_books(state, ctx.ledgers):
+        save_state(ctx, state)
+        log_line("migrated legacy state books (I/A/B) -> ladder "
+                 "(I,R,F,E,U): R seeded from I, U seeded from E", ctx.logf)
+    return state
 
 
 def save_state(ctx: Ctx, state: dict) -> None:

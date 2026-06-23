@@ -317,6 +317,75 @@ def test_published_json_schema(tmp_path):
                 or key.startswith(SL.S3_STATE_PREFIX))
 
 
+def test_legacy_state_migration(tmp_path):
+    """Pre-PKT-011 state (legacy I/A/B books + legacy ledgers) self-heals to
+    the I,R,F,E,U ladder on load: A->F, B->E (evolved books carry over), R
+    parent-seeded from I, U parent-seeded from E. Idempotent + the migrated
+    state then settles forward without KeyError, ending byte-identical on
+    re-run."""
+    ctx = make_ctx(tmp_path)
+    ctx.ledgers.mkdir(parents=True, exist_ok=True)
+    # forge an evolved legacy state at last_settled 2026-06-12
+    bookI = {"cash": 111.0, "positions": [
+        {"symbol": "AAA", "shares": 10.0, "entry_price": 50.0,
+         "entry_date": "2026-06-11", "peak_price": 51.0,
+         "asset_class": "equity", "sector": "tech", "leverage_flag": 0,
+         "last_close": 50.5}]}
+    bookA = {"cash": 222.0, "positions": list(bookI["positions"])}
+    bookB = {"cash": 333.0, "positions": list(bookI["positions"])}
+    legacy = {"schema": "shadow_state.v1",
+              "forward_boundary": SL.FORWARD_BOUNDARY,
+              "start_date": "2026-06-11", "baseline": None,
+              "last_settled_date": "2026-06-12", "n_settled": 2,
+              "books": {"I": bookI, "A": bookA, "B": bookB}}
+    SL.write_json(ctx.state_json, legacy)
+    # legacy ledgers
+    for r in [{"date": "2026-06-11", "nav_I": 100.0, "nav_A": 101.0,
+               "nav_B": 102.0, "n_actions_I": 1, "n_actions_A": 2,
+               "n_actions_B": 3},
+              {"date": "2026-06-12", "nav_I": 105.0, "nav_A": 106.0,
+               "nav_B": 107.0, "n_actions_I": 0, "n_actions_A": 1,
+               "n_actions_B": 1}]:
+        SL.append_jsonl(ctx.ledgers / "equity_ledger.jsonl", r)
+    for b in ("I", "A", "B"):
+        SL.append_jsonl(ctx.ledgers / f"actions_{b}.jsonl",
+                        {"action": "BUY", "symbol": "AAA", "shares": 10.0,
+                         "price": 50.0, "dollars": 500.0, "date": "2026-06-11",
+                         "asset_class": "equity", "sector": "tech",
+                         "leverage_flag": 0, "reason": "TEST"})
+
+    state = SN.load_state(ctx)
+    # ladder shape; legacy keys gone
+    assert set(state["books"]) == set(SL.BOOKS)
+    # evolved books carried over by alias
+    assert state["books"]["F"]["cash"] == 222.0      # A -> F
+    assert state["books"]["E"]["cash"] == 333.0      # B -> E
+    assert state["books"]["I"]["cash"] == 111.0
+    # new rungs parent-seeded
+    assert state["books"]["R"]["cash"] == state["books"]["I"]["cash"]   # R<-I
+    assert state["books"]["U"]["cash"] == state["books"]["E"]["cash"]   # U<-E
+
+    # ledgers migrated
+    eq = SL.read_jsonl(ctx.ledgers / "equity_ledger.jsonl")
+    assert all("nav_A" not in r and "nav_B" not in r for r in eq)
+    assert eq[0]["nav_F"] == 101.0 and eq[0]["nav_E"] == 102.0
+    assert eq[0]["nav_R"] == eq[0]["nav_I"] and eq[0]["n_actions_R"] == 0
+    assert eq[0]["nav_U"] == eq[0]["nav_E"]
+    assert (ctx.ledgers / "actions_F.jsonl").exists()
+    assert (ctx.ledgers / "actions_E.jsonl").exists()
+    assert (ctx.ledgers / "actions_R.jsonl").exists()   # copied from I
+    assert (ctx.ledgers / "actions_U.jsonl").exists()   # copied from E
+    assert not (ctx.ledgers / "actions_A.jsonl").exists()
+    assert not (ctx.ledgers / "actions_B.jsonl").exists()
+
+    # idempotent: a second migration is a no-op
+    assert SL.migrate_state_books(state, ctx.ledgers) is False
+
+    # and the migrated state settles forward without KeyError 'R'
+    summary = SN.run_night(ctx)
+    assert "settled" in summary
+
+
 def test_empty_armed_skeleton(tmp_path):
     """No pending decision dates => clean 'armed' skeleton publish."""
     src_root = tmp_path / "source"

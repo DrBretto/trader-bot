@@ -402,6 +402,103 @@ def book_from_dict(d: dict):
             last_close=p.get("last_close")) for p in d["positions"]])
 
 
+def migrate_state_books(state: dict, ledgers_dir: Optional[Path] = None
+                        ) -> bool:
+    """Idempotent, forward-only migration of PRE-PKT-011 persisted state from
+    the legacy 3-book scheme (I,A,B) to the 5-rung organ ladder
+    (I,R,F,E,U). No-op once the full ladder set is present.
+
+    Mapping (genomes are identical across the rename, so the EVOLVED legacy
+    books carry over exactly):
+      I -> I        (incumbent, no tilt)
+      A -> F        (LEGACY_BOOK_ALIAS: the frozen a-priori M1 tilt)
+      B -> E        (LEGACY_BOOK_ALIAS: M1 + M4-A damp)
+    The two genuinely-new rungs are seeded from their ladder PARENT on the
+    evolved books — exactly how a fresh D0 seed sets every book equal:
+      R <- I        (R is the regime throttle; over the already-settled window
+                     the live regimes do not appear in REGIME_EXPOSURE, so the
+                     throttle is identity and R == I exactly)
+      U <- E        (U restricts E's trades to the engine's selected_universe;
+                     none was published in that window, so U == E exactly)
+    The append-only ledgers are migrated in lock-step (nav_/n_actions_ key
+    rename in equity_ledger.jsonl; actions_<book>.jsonl rename/copy) so the
+    published overlays line up with the migrated books.
+
+    Returns True if a migration was applied (caller should persist), else
+    False.
+    """
+    books = state.get("books")
+    if not isinstance(books, dict):
+        return False                          # nothing seeded yet (None)
+    have = set(books.keys())
+    if set(BOOKS).issubset(have):
+        return False                          # already the full ladder — no-op
+    if not set(BOOKS_LEGACY).issubset(have):
+        # unrecognized shape — refuse to guess, surface for inspection
+        raise RuntimeError(
+            f"cannot migrate state.books: keys {sorted(have)} are neither the "
+            f"legacy set {sorted(BOOKS_LEGACY)} nor the ladder {sorted(BOOKS)}")
+
+    # --- book state: rename evolved legacy books, parent-seed the new rungs
+    new_books = {"I": deepcopy(books["I"]),
+                 "F": deepcopy(books["A"]),       # A -> F
+                 "E": deepcopy(books["B"])}       # B -> E
+    new_books["R"] = deepcopy(new_books["I"])     # R seeded from parent I
+    new_books["U"] = deepcopy(new_books["E"])     # U seeded from parent E
+    state["books"] = {b: new_books[b] for b in BOOKS}
+
+    if ledgers_dir is not None:
+        _migrate_ledgers(Path(ledgers_dir))
+    return True
+
+
+def _migrate_ledgers(ledgers_dir: Path) -> None:
+    """In-place migration of the append-only ledgers from legacy A/B/I to the
+    I,R,F,E,U ladder (see migrate_state_books). Idempotent: a ledger already
+    carrying ladder keys/files is left untouched."""
+    # actions_*.jsonl: A->F, B->E renames; R copied from I, U copied from E
+    def _move(src: str, dst: str) -> None:
+        sp, dp = ledgers_dir / src, ledgers_dir / dst
+        if sp.exists() and not dp.exists():
+            dp.write_text(sp.read_text())
+            sp.unlink()
+
+    def _copy(src: str, dst: str) -> None:
+        sp, dp = ledgers_dir / src, ledgers_dir / dst
+        if sp.exists() and not dp.exists():
+            dp.write_text(sp.read_text())
+
+    _move("actions_A.jsonl", "actions_F.jsonl")
+    _move("actions_B.jsonl", "actions_E.jsonl")
+    _copy("actions_I.jsonl", "actions_R.jsonl")   # R == I over migrated window
+    _copy("actions_E.jsonl", "actions_U.jsonl")   # U == E over migrated window
+
+    # equity_ledger.jsonl: rename nav_/n_actions_ keys, add the new rungs
+    eq = ledgers_dir / "equity_ledger.jsonl"
+    if not eq.exists():
+        return
+    rows = read_jsonl(eq)
+    changed = False
+    for r in rows:
+        if "nav_R" in r and "nav_U" in r:
+            continue                              # already migrated
+        for legacy, new in (("A", "F"), ("B", "E")):
+            for stem in ("nav_", "n_actions_"):
+                k = stem + legacy
+                if k in r:
+                    r[stem + new] = r.pop(k)
+        # parent-seed the new rungs into the historical rows
+        if "nav_I" in r and "nav_R" not in r:
+            r["nav_R"] = r["nav_I"]
+            r["n_actions_R"] = 0
+        if "nav_E" in r and "nav_U" not in r:
+            r["nav_U"] = r["nav_E"]
+            r["n_actions_U"] = r.get("n_actions_E", 0)
+        changed = True
+    if changed:
+        eq.write_text("\n".join(jdump(r) for r in rows) + "\n")
+
+
 def robust_value(book, ohlc: Dict[str, Dict[str, float]]
                  ) -> Tuple[float, List[str]]:
     """Cash + sum(shares x close), falling back to last_close/peak_price for
