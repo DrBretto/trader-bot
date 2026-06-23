@@ -471,24 +471,6 @@ Background color bands show the detected market regime at each point in time.`}
             legendType="none"
           />
 
-          {/* Retired champion run forward (dotted BLUE) = shadow_I, the
-              incumbent deterministic rules with NO tilt, from the boundary
-              forward. The comparison line against the new model. */}
-          {hasChampionForward && (
-            <Line
-              yAxisId="equity"
-              type="monotone"
-              dataKey="championForward"
-              stroke="#3b82f6"
-              strokeWidth={1.5}
-              strokeOpacity={0.55}
-              strokeDasharray="3 4"
-              dot={false}
-              legendType="none"
-              connectNulls
-            />
-          )}
-
           {/* CANON, part 1 — solid BLUE through the boundary: the real champion
               history up to 2026-06-11 (where the new model was placed). */}
           <Line
@@ -517,6 +499,25 @@ Background color bands show the detected market regime at each point in time.`}
               legendType="none"
               connectNulls
               activeDot={{ r: 4, fill: '#f59e0b', stroke: '#0f172a', strokeWidth: 2 }}
+            />
+          )}
+
+          {/* Retired champion run forward (dotted BLUE) = shadow_I, the
+              deterministic rules with NO ML tilt, from the boundary forward.
+              Rendered ON TOP of the new model so the dots are visible — the two
+              lines overlap to within ~0.03% (the ML tilt adds ~nothing), so this
+              shows the dotted champion riding on the yellow new-model line. */}
+          {hasChampionForward && (
+            <Line
+              yAxisId="equity"
+              type="monotone"
+              dataKey="championForward"
+              stroke="#93c5fd"
+              strokeWidth={1.5}
+              strokeDasharray="2 5"
+              dot={false}
+              legendType="none"
+              connectNulls
             />
           )}
           </ComposedChart>
