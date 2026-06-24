@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# tb — operator CLI shim (PKT-TB-IR-01 seed). Runs scripts/tb.py with the project venv.
+# Env: AWS_PROFILE=personal AWS_REGION=us-east-1
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PY="$ROOT/.venv/bin/python"
+[ -x "$PY" ] || PY="python3"
+exec "$PY" "$ROOT/scripts/tb.py" "$@"
