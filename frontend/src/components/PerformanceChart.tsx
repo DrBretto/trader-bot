@@ -139,11 +139,11 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
       <div style={{ color: '#94a3b8', marginBottom: 4, fontWeight: 600 }}>
         <span>{dateStr}</span>
       </div>
-      <div style={{ color: point.newModel != null ? '#f59e0b' : '#60a5fa' }}>
-        {point.newModel != null ? 'New model (two-stage)' : 'Portfolio'}: <span style={{ fontWeight: 600 }}>{formatCurrency(point.newModel ?? point.valuePre ?? point.value)}</span>
+      <div style={{ color: '#3b82f6' }}>
+        {point.newModel != null ? 'Portfolio (two-stage)' : 'Portfolio'}: <span style={{ fontWeight: 600 }}>{formatCurrency(point.newModel ?? point.valuePre ?? point.value)}</span>
       </div>
       {point.championForward !== null && point.championForward !== undefined && (
-        <div style={{ color: '#60a5fa', opacity: 0.8 }}>
+        <div style={{ color: '#f59e0b', opacity: 0.9 }}>
           Tilt (comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.championForward)}</span>
         </div>
       )}
@@ -484,30 +484,30 @@ Background color bands show the detected market regime at each point in time.`}
             connectNulls={false}
           />
 
-          {/* CANON, part 2 — solid YELLOW from the boundary forward: the NEW
-              MODEL = the live two-stage engine (the canon `value` forward).
-              Continuous with the blue champion history at 2026-06-11. */}
+          {/* CANON, part 2 — solid BLUE from the boundary forward: the NEW MODEL
+              = the live two-stage engine (the canon `value` forward). One
+              continuous blue canon line with the blue champion history. */}
           <Line
             yAxisId="equity"
             type="monotone"
             dataKey="newModel"
-            stroke="#f59e0b"
+            stroke="#3b82f6"
             strokeWidth={2.5}
             dot={false}
             legendType="none"
             connectNulls
-            activeDot={{ r: 4, fill: '#f59e0b', stroke: '#0f172a', strokeWidth: 2 }}
+            activeDot={{ r: 4, fill: '#3b82f6', stroke: '#0f172a', strokeWidth: 2 }}
           />
 
-          {/* COMPARISON (dotted blue) = the TILT (deterministic rules + small M1
-              nudge = shadow_A), from the boundary forward. The two-stage (yellow)
-              vs the tilt (this line) are the two models being evaluated. */}
+          {/* COMPARISON (dotted YELLOW) = the TILT (deterministic rules + small M1
+              nudge = shadow_A), from the boundary forward. Blue continuous = canon
+              (two-stage); yellow dotted = the tilt comparison. */}
           {hasTilt && (
             <Line
               yAxisId="equity"
               type="monotone"
               dataKey="championForward"
-              stroke="#60a5fa"
+              stroke="#f59e0b"
               strokeWidth={1.5}
               strokeDasharray="3 4"
               dot={false}
@@ -555,14 +555,11 @@ Background color bands show the detected market regime at each point in time.`}
       {/* Legend */}
       <div className="performance-legend">
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio (champion, through Jun 11)
-        </span>
-        <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#f59e0b' }} /> New model: two-stage (live, from Jun 11)
+          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio (canon — two-stage live)
         </span>
         {hasTilt && (
           <span className="legend-item">
-            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#60a5fa', opacity: 0.8 }} /> Tilt (comparison)
+            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#f59e0b', opacity: 0.9 }} /> Tilt (comparison)
           </span>
         )}
         <span className="legend-item">
