@@ -7,6 +7,19 @@
       "Principal": "*",
       "Action": "s3:GetObject",
       "Resource": "arn:aws:s3:::investment-system-data/dashboard/*"
+    },
+    {
+      "Sid": "DenyOperatorWriteRenderedAndPointerKeys",
+      "Effect": "Deny",
+      "Principal": { "AWS": "arn:aws:iam::767398003959:user/drbretto-admin" },
+      "Action": ["s3:PutObject", "s3:DeleteObject"],
+      "Resource": [
+        "arn:aws:s3:::investment-system-data/dashboard/dashboard.json",
+        "arn:aws:s3:::investment-system-data/dashboard/data/dashboard.json",
+        "arn:aws:s3:::investment-system-data/latest.json",
+        "arn:aws:s3:::investment-system-data/registry/canon.json",
+        "arn:aws:s3:::investment-system-data/runs/*/dashboard.json"
+      ]
     }
   ]
 }
