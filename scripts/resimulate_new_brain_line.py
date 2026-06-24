@@ -238,7 +238,22 @@ def resimulate(variant, field):
         held = sorted((h["symbol"], h["shares"]) for h in book["holdings"])
         print(f"{date} [{regime:14}] TOTAL=${disp:,.0f}  (raw ${raw:,.0f})  cash=${book['cash']:,.0f}")
         print(f"               held={held}")
-    return {"raw": raw_line, "displayed": disp_line, "raw_seed": round(raw_seed, 2)}
+    # Terminal corrected book (last date's marks). This is the corrected position
+    # the correctly-implemented engine would be holding at the end of the resim
+    # window — used to reconcile the live sim book to the corrected history so the
+    # corrected line is durable (the broken concentrated book is replaced, not
+    # carried forward into a phantom drawdown).
+    terminal_book = {
+        "cash": round(float(book["cash"]), 6),
+        "holdings": [
+            {"symbol": h["symbol"], "shares": int(h["shares"]),
+             "current_price": round(float(h["current_price"]), 6)}
+            for h in sorted(book["holdings"], key=lambda x: x["symbol"])
+        ],
+        "marked_at": ALL_DATES[-1],
+    }
+    return {"raw": raw_line, "displayed": disp_line, "raw_seed": round(raw_seed, 2),
+            "terminal_book": terminal_book}
 
 
 if __name__ == "__main__":

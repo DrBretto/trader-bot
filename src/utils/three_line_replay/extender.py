@@ -394,17 +394,12 @@ def extend_dashboard(s3_client, dash: Dict[str, Any],
                      'No recompute of either line.'),
         }
 
-        # PKT-TB-IR-01 (Stage S1): apply the append-only CORRECTION OVERLAY as an
-        # INPUT, AFTER re-anchoring. Corrections live upstream in the corrections/
-        # store (attributed, write-once) and are NEVER patched onto this rendered
-        # output — so the nightly regenerate REPRODUCES them on every run instead of
-        # erasing them. This is the small overlay read, not the S2 fold. Defensive:
-        # any failure leaves the re-anchored line unchanged.
-        try:
-            from src.utils.corrections import apply_active_overlay
-            apply_active_overlay(s3_client, dash)
-        except Exception as _ov_exc:  # noqa: BLE001
-            logger.warning("correction overlay hook skipped: %s", _ov_exc)
+        # PKT-TB-CLIFF-RESIM-AT-SOURCE-V1: the void PKT-TB-IR-01 correction-overlay
+        # hook (apply_active_overlay + corrections/ read) is REMOVED. The cliff is
+        # corrected at the per-day source (daily/<date>/portfolio_state.json) by an
+        # honest resim, so the re-anchored line carries the correction natively and
+        # the nightly regenerate reproduces it from source alone. No rendered-output
+        # overlay can re-apply on top.
 
         logger.info("new-brain canon: champion frozen at $%.2f (%d pts); "
                     "New Brain forward present=%s; total=$%.2f",

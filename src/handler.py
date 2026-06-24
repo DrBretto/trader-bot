@@ -142,6 +142,8 @@ def lambda_handler(event: dict, context) -> dict:
         return _run_morning_phase(event, bucket, region)
     elif source == 'midday-check':
         return _run_midday_check(event, bucket, region)
+    elif source == 'republish-dashboard':
+        return _run_republish_dashboard(event, bucket, region)
     else:
         return _run_night_phase(event, bucket, region)
 
@@ -784,6 +786,99 @@ def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
                 'timestamp': datetime.now().isoformat()
             })
         }
+
+
+def _run_republish_dashboard(event: dict, bucket: str, region: str) -> dict:
+    """Idempotent dashboard regenerate from the persisted per-day source — no
+    trading, no new day. Rebuilds dashboard.json exactly as the night/morning
+    publish step does (build_dashboard_data -> extend_dashboard ->
+    attach_new_brain_surface -> sanitize -> advance guard -> write), so a manual
+    invoke reproduces the corrected line straight from daily/<date>/
+    portfolio_state.json. Runs under the Lambda execution role (allowed to write
+    the rendered dashboard keys). Same source -> byte-identical line + max-dd on
+    every call (the durability property PKT-TB-CLIFF-RESIM-AT-SOURCE-V1 proves).
+    """
+    from src.steps.publish_artifacts import (
+        build_dashboard_data, _build_snapshot_meta, _can_publish_dashboard,
+        _verify_extension_or_alarm,
+    )
+    from src.utils.three_line_replay.extender import extend_dashboard
+    from src.utils.dashboard_metrics import attach_new_brain_surface, sanitize_nan_for_json
+
+    run_date = event.get('run_date') or datetime.now().strftime('%Y-%m-%d')
+    s3 = S3Client(bucket, region)
+
+    portfolio_state = paper_trader.load_portfolio_state(s3)
+    latest = s3.read_json('daily/latest.json') or {}
+    night_date = latest.get('intents_date', latest.get('date', run_date))
+    inference = s3.read_json(f'daily/{night_date}/inference.json') or {}
+    decisions = s3.read_json(f'daily/{night_date}/decisions.json') or {}
+    weather = s3.read_json(f'daily/{night_date}/weather_blurb.json') or {}
+
+    # Reconstruct expert_signals from the stored signals parquet (handler logic).
+    expert_signals = None
+    try:
+        sig = s3.read_parquet(f'daily/{night_date}/signals.parquet')
+        if len(sig) > 0:
+            row = sig.iloc[0]
+            expert_signals = {
+                'macro_credit': {
+                    'macro_credit_score': float(row.get('macro_credit_score', 0)),
+                    'yield_slope_10y_3m': float(row.get('yield_slope_10y_3m', 0)),
+                    'hy_spread_proxy': float(row.get('hy_spread_proxy', 0)),
+                },
+                'vol_uncertainty': {
+                    'vol_uncertainty_score': float(row.get('vol_uncertainty_score', 0.5)),
+                    'vol_regime_label': str(row.get('vol_regime_label', 'calm')),
+                    'vix_percentile': float(row.get('vix_percentile', 0.5)),
+                    'vvix_percentile': float(row.get('vvix_percentile', 0.5)),
+                },
+                'fragility': {
+                    'fragility_score': float(row.get('fragility_score', 0.5)),
+                    'avg_correlation': float(row.get('avg_correlation', 0)),
+                    'pc1_explained': float(row.get('pc1_explained', 0)),
+                },
+                'entropy_shift': {
+                    'entropy_score': float(row.get('entropy_score', 0.5)),
+                    'entropy_z_score': float(row.get('entropy_z_score', 0)),
+                    'entropy_shift_flag': bool(row.get('entropy_shift_flag', False)),
+                },
+            }
+    except Exception as e:
+        logger.warning(f"republish: could not reconstruct expert_signals: {e}")
+
+    if not _can_publish_dashboard(expert_signals):
+        return {'statusCode': 409, 'body': json.dumps(
+            {'status': 'skipped', 'phase': 'republish-dashboard',
+             'reason': 'expert_signals null/incomplete'})}
+
+    snapshot_meta = _build_snapshot_meta(run_date, 'morning', portfolio_state)
+    dash = build_dashboard_data(portfolio_state, inference, decisions, weather, s3,
+                                expert_signals=expert_signals, snapshot_meta=snapshot_meta)
+    dash = extend_dashboard(s3.s3, dash)
+    try:
+        shadow = s3.read_json('dashboard/shadow_timeseries.json')
+    except Exception:
+        shadow = None
+    dash = attach_new_brain_surface(dash, shadow)
+    dash = sanitize_nan_for_json(dash)
+
+    ok, reason = _verify_extension_or_alarm(dash, s3, 'morning', run_date)
+    if not ok:
+        return {'statusCode': 409, 'body': json.dumps(
+            {'status': 'held', 'phase': 'republish-dashboard', 'reason': reason})}
+
+    s3.write_json(dash, 'dashboard/data/dashboard.json')
+    s3.write_json(dash, 'dashboard/dashboard.json')
+
+    m = dash.get('metrics', {})
+    tail = [{'date': r['date'], 'value': r['value']}
+            for r in dash.get('equity_curve', []) if r['date'] >= '2026-06-16']
+    return {'statusCode': 200, 'body': json.dumps({
+        'status': 'success', 'phase': 'republish-dashboard', 'run_date': run_date,
+        'max_drawdown': m.get('max_drawdown'), 'total_value': m.get('total_value'),
+        'tail_06_16_onward': tail,
+    })}
 
 
 # For local testing
