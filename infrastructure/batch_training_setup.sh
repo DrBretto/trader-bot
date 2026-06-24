@@ -214,7 +214,7 @@ cd "$(dirname "$0")/.."
 
 aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$ECR_URI"
 
-docker buildx build --platform linux/amd64 \
+docker buildx build --platform linux/amd64 --progress=plain \
     -f Dockerfile.training \
     -t "$IMAGE_URI" \
     --provenance=false \

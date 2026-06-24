@@ -101,7 +101,7 @@ aws ecr get-login-password --region "$REGION" | docker login --username AWS --pa
 # Build the container image (x86_64 for Lambda) and push directly
 # Use buildx with --push and --provenance=false to avoid multi-arch manifest issues
 echo "Building and pushing container image..."
-docker buildx build --platform linux/amd64 \
+docker buildx build --platform linux/amd64 --progress=plain \
     -f Dockerfile.lambda \
     -t "$IMAGE_URI" \
     --provenance=false \
