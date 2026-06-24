@@ -1,13 +1,16 @@
 {
   "schema": "brain_active.v1",
   "mode": "live",
-  "engine": "tilt_adapter",
-  "genome": "shadow_A",
+  "engine": "native_two_stage",
+  "genome": "native_two_stage",
+  "engine_sha": "4ae7b79d9d62fa5255ba485e287d4493333225296ad9f82da6200f1413a6c51b",
+  "model_sha": "5b2428c66c14",
   "effective_from": "2026-06-24",
-  "live_brain": "The live brain is the tilt_adapter (the intended new model: the deterministic chassis rules + a SMALL M1 ML tilt on top — the yellow line, book F). The ML's only job is to make the rules that already work a little better. Wired via src/brain/tilt_live.run_tilt_cutover, called from publish_artifacts.run_brain_cutover_night when engine=='tilt_adapter'.",
-  "retired_engine": "native_two_stage is RETIRED (operator verdict 2026-06-23: 'bunk' — it discarded the working deterministic rules and built a from-scratch concentrated book that crashed; the only fix that helped just reproduced the deterministic result). It is no longer the live engine and is not branded canon. Kept in-tree only as a comparison line.",
-  "fail_safe": "run_tilt_cutover has a hard abort-never-degrade: ANY error (inference fail, tilt exception, missing organ outputs) returns ok=False and the live path keeps the deterministic incumbent intents untouched. The deterministic rules are the safe floor.",
+  "live_brain": "The live engine is the REGIME-RESTORED two-stage engine (Select-by-M1 then Allocate, with the regime chassis put back: regime_score_mult Stage-1 tilt + theta_size.regime_exposure_multiplier exposure cut + binding cluster cap). This is the architecture the operator chose to run live for evaluation: deterministic regime/risk guardrails wrapped around ML (M1) stock selection. It selects from the FULL config/universe.csv field (the committee universe-narrowing is NOT used). Asserted against brain/FREEZE_ORB1.json (engine_sha 4ae7b79d).",
+  "comparison_model": "The tilt_adapter (deterministic rules + a small M1 nudge = shadow_A / book F) is the COMPARISON line (dotted blue on the chart). Not live; watched against the two-stage in the performance lens + rent ladder.",
+  "fail_safe": "run_cutover aborts-never-degrades: FREEZE mismatch / invariant-red / inference-fail / engine-exception -> the live path keeps the deterministic incumbent intents.",
   "forward_boundary": "2026-06-11",
-  "rollback": "Set engine to anything other than 'tilt_adapter' (or mode to 'shadow') and redeploy -> the live path falls back to the deterministic incumbent. The tilt only ever ADDS a small ML edit on top of the rules; it never replaces them.",
-  "non_assertion": "Going live authorizes forward measurement; it does NOT assert the ML tilt has a dollar edge. The rent ladder (the bottom evaluation panel) measures, organ by organ, whether the ML is paying rent — currently ~zero. The tilt is live because the design is 'let the ML nudge the working rules', and the rent ladder grades it as we go."
+  "freeze": "brain/FREEZE_ORB1.json",
+  "rollback": "Flip engine to 'tilt_adapter' (deterministic rules + small ML tilt) or mode to 'shadow' (deterministic incumbent) and redeploy.",
+  "non_assertion": "Going live authorizes forward measurement; it does NOT assert M1 selection has a dollar edge. The rent ladder's forecast rung (F-R) currently reads ~zero — this is the bet being evaluated forward: does ML stock selection beat the deterministic rules, with the regime guardrails on."
 }

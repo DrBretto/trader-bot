@@ -139,11 +139,11 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
         <span>{dateStr}</span>
       </div>
       <div style={{ color: point.newModel != null ? '#f59e0b' : '#60a5fa' }}>
-        {point.newModel != null ? 'New model' : 'Portfolio'}: <span style={{ fontWeight: 600 }}>{formatCurrency(point.newModel ?? point.valuePre ?? point.value)}</span>
+        {point.newModel != null ? 'New model (two-stage)' : 'Portfolio'}: <span style={{ fontWeight: 600 }}>{formatCurrency(point.newModel ?? point.valuePre ?? point.value)}</span>
       </div>
       {point.championForward !== null && point.championForward !== undefined && (
-        <div style={{ color: '#60a5fa', opacity: 0.7 }}>
-          Retired champion: <span style={{ fontWeight: 500 }}>{formatCurrency(point.championForward)}</span>
+        <div style={{ color: '#60a5fa', opacity: 0.8 }}>
+          Tilt (comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.championForward)}</span>
         </div>
       )}
       <div style={{ color: '#94a3b8' }}>
@@ -184,13 +184,12 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
 
   // Dual forward shadow (paper books, PKT-TB-007 follow-on). Absent or
   // armed-but-empty payloads render nothing new.
-  // The new model (tilt_adapter) = shadow_A, the canon line forward of the
-  // boundary. The retired champion (incumbent, no tilt) = shadow_I, the dotted
-  // comparison line. shadow_B (the +event-damp variant) is no longer drawn.
-  const shadowAByDate = new Map(shadow?.shadow_A ?? []);
-  const shadowIByDate = new Map(shadow?.shadow_I ?? []);
-  const hasShadowA = shadowAByDate.size > 0;
-  const hasChampionForward = shadowIByDate.size > 0;
+  // The NEW MODEL (canon, yellow from the boundary) = the live two-stage engine,
+  // i.e. the canon `value` line forward. The COMPARISON (dotted blue) = the tilt
+  // (deterministic rules + small M1 nudge = shadow_A). The two are what the
+  // performance lens + rent ladder evaluate against each other.
+  const tiltByDate = new Map(shadow?.shadow_A ?? []);
+  const hasTilt = tiltByDate.size > 0;
 
   // Trim leading flat zone
   const startVal = equityData[0]?.value ?? 0;
@@ -233,13 +232,13 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
       newBrain,
       incumbent,
       // Canon line split at the boundary: solid BLUE = the real champion history
-      // through 06-11; solid YELLOW = the new model (tilt_adapter = shadow_A) from
-      // 06-11 forward. championForward (dotted BLUE) = the retired champion run
-      // forward (shadow_I = incumbent, no tilt) — the comparison line.
+      // through 06-11; solid YELLOW from 06-11 = the NEW MODEL (the live two-stage
+      // engine = the canon `value` forward). championForward (dotted BLUE) = the
+      // TILT (shadow_A) — the comparison model.
       valuePre: point.date <= NEW_BRAIN_BOUNDARY ? primaryValue : null,
-      newModel: point.date >= NEW_BRAIN_BOUNDARY ? (shadowAByDate.get(point.date) ?? null) : null,
-      championForward: point.date >= NEW_BRAIN_BOUNDARY ? (shadowIByDate.get(point.date) ?? null) : null,
-      shadowA: shadowAByDate.get(point.date) ?? null,
+      newModel: point.date >= NEW_BRAIN_BOUNDARY ? primaryValue : null,
+      championForward: point.date >= NEW_BRAIN_BOUNDARY ? (tiltByDate.get(point.date) ?? null) : null,
+      shadowA: tiltByDate.get(point.date) ?? null,
       benchmark: point.benchmark,
       drawdownPct: (ddMap.get(point.date) ?? 0) * 100,
       peak,
@@ -485,36 +484,31 @@ Background color bands show the detected market regime at each point in time.`}
           />
 
           {/* CANON, part 2 — solid YELLOW from the boundary forward: the NEW
-              MODEL (tilt_adapter = deterministic rules + small M1 tilt = shadow_A).
-              Continuous with the blue history (both meet at the frozen terminal
-              on 2026-06-11). The retired two-stage drift line is gone. */}
-          {hasShadowA && (
-            <Line
-              yAxisId="equity"
-              type="monotone"
-              dataKey="newModel"
-              stroke="#f59e0b"
-              strokeWidth={2.5}
-              dot={false}
-              legendType="none"
-              connectNulls
-              activeDot={{ r: 4, fill: '#f59e0b', stroke: '#0f172a', strokeWidth: 2 }}
-            />
-          )}
+              MODEL = the live two-stage engine (the canon `value` forward).
+              Continuous with the blue champion history at 2026-06-11. */}
+          <Line
+            yAxisId="equity"
+            type="monotone"
+            dataKey="newModel"
+            stroke="#f59e0b"
+            strokeWidth={2.5}
+            dot={false}
+            legendType="none"
+            connectNulls
+            activeDot={{ r: 4, fill: '#f59e0b', stroke: '#0f172a', strokeWidth: 2 }}
+          />
 
-          {/* Retired champion run forward (dotted BLUE) = shadow_I, the
-              deterministic rules with NO ML tilt, from the boundary forward.
-              Rendered ON TOP of the new model so the dots are visible — the two
-              lines overlap to within ~0.03% (the ML tilt adds ~nothing), so this
-              shows the dotted champion riding on the yellow new-model line. */}
-          {hasChampionForward && (
+          {/* COMPARISON (dotted blue) = the TILT (deterministic rules + small M1
+              nudge = shadow_A), from the boundary forward. The two-stage (yellow)
+              vs the tilt (this line) are the two models being evaluated. */}
+          {hasTilt && (
             <Line
               yAxisId="equity"
               type="monotone"
               dataKey="championForward"
-              stroke="#93c5fd"
+              stroke="#60a5fa"
               strokeWidth={1.5}
-              strokeDasharray="2 5"
+              strokeDasharray="3 4"
               dot={false}
               legendType="none"
               connectNulls
@@ -562,14 +556,12 @@ Background color bands show the detected market regime at each point in time.`}
         <span className="legend-item">
           <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio (champion, through Jun 11)
         </span>
-        {hasShadowA && (
+        <span className="legend-item">
+          <span className="legend-swatch" style={{ background: '#f59e0b' }} /> New model: two-stage (live, from Jun 11)
+        </span>
+        {hasTilt && (
           <span className="legend-item">
-            <span className="legend-swatch" style={{ background: '#f59e0b' }} /> New model (live, from Jun 11)
-          </span>
-        )}
-        {hasChampionForward && (
-          <span className="legend-item">
-            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#3b82f6', opacity: 0.6 }} /> Retired champion (comparison)
+            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#60a5fa', opacity: 0.8 }} /> Tilt (comparison)
           </span>
         )}
         <span className="legend-item">
@@ -578,9 +570,9 @@ Background color bands show the detected market regime at each point in time.`}
         <span className="legend-item">
           <span className="legend-swatch" style={{ background: '#ef4444', opacity: 0.5 }} /> Drawdown
         </span>
-        {shadow && !hasShadowA && (
+        {shadow && !hasTilt && (
           <span className="legend-item">
-            <span className="legend-swatch" style={{ background: '#f59e0b', opacity: 0.45 }} /> New model: armed — accruing
+            <span className="legend-swatch" style={{ background: '#f59e0b', opacity: 0.45 }} /> Tilt (comparison): armed — accruing
           </span>
         )}
         <span className="legend-item legend-item-regime">
@@ -623,7 +615,7 @@ Background color bands show the detected market regime at each point in time.`}
           language before the pre-registered read dates. */}
       {shadow && (
         <div className="shadow-note">
-          {hasShadowA ? (
+          {hasTilt ? (
             <>
               New model (live): {shadow.stats.days_accrued} day{shadow.stats.days_accrued === 1 ? '' : 's'} accrued
               {' · '}mean IC {formatShadowStat(shadow.stats.mean_ic, 3)} (t={formatShadowStat(shadow.stats.ic_t, 2)})
