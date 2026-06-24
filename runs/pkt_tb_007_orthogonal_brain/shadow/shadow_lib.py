@@ -402,30 +402,40 @@ def book_from_dict(d: dict):
             last_close=p.get("last_close")) for p in d["positions"]])
 
 
+def _load_migration_plan() -> dict:
+    """The legacy->ladder migration map, DATA-DESCRIBED from the component
+    registry's ``ladder_books`` (history_of/parent), replacing the old
+    hand-written Python table (PKT-TB-BV-01 §5.3). Imported lazily so neither
+    this module nor the Lambda image needs the registry until a migration runs.
+
+    Guards that the registry's ladder still matches this engine's BOOKS — a
+    registry edit that diverges from the actual ladder raises (refuse to guess),
+    rather than silently mis-migrating."""
+    from src.brain.component_registry import ladder_migration_plan
+    plan = ladder_migration_plan()
+    if tuple(plan["books"]) != BOOKS:
+        raise RuntimeError(
+            f"component registry ladder_books {plan['books']} != engine BOOKS "
+            f"{list(BOOKS)} — registry and engine ladder disagree (refuse to guess)")
+    return plan
+
+
 def migrate_state_books(state: dict, ledgers_dir: Optional[Path] = None
                         ) -> bool:
     """Idempotent, forward-only migration of PRE-PKT-011 persisted state from
-    the legacy 3-book scheme (I,A,B) to the 5-rung organ ladder
-    (I,R,F,E,U). No-op once the full ladder set is present.
+    the legacy 3-book scheme (I,A,B) to the 5-rung organ ladder (I,R,F,E,U).
+    No-op once the full ladder set is present.
 
-    Mapping (genomes are identical across the rename, so the EVOLVED legacy
-    books carry over exactly):
-      I -> I        (incumbent, no tilt)
-      A -> F        (LEGACY_BOOK_ALIAS: the frozen a-priori M1 tilt)
-      B -> E        (LEGACY_BOOK_ALIAS: M1 + M4-A damp)
-    The two genuinely-new rungs are seeded from their ladder PARENT on the
-    evolved books — exactly how a fresh D0 seed sets every book equal:
-      R <- I        (R is the regime throttle; over the already-settled window
-                     the live regimes do not appear in REGIME_EXPOSURE, so the
-                     throttle is identity and R == I exactly)
-      U <- E        (U restricts E's trades to the engine's selected_universe;
-                     none was published in that window, so U == E exactly)
-    The append-only ledgers are migrated in lock-step (nav_/n_actions_ key
-    rename in equity_ledger.jsonl; actions_<book>.jsonl rename/copy) so the
-    published overlays line up with the migrated books.
+    PKT-TB-BV-01: the {from->to, seed_from:parent} map is now read from the
+    component registry's ``ladder_books`` (each book carries ``history_of`` =
+    the legacy ids it inherits, and ``parent`` = its seed source) instead of a
+    hand-written table. Genomes are identical across the renames, so the EVOLVED
+    legacy books carry over exactly; a genuinely-new rung (empty history_of) is
+    seeded from its ladder parent — exactly how a fresh D0 seed sets every book
+    equal. The append-only ledgers are migrated in lock-step. Idempotent,
+    forward-only, refuse-to-guess on an unrecognized shape — unchanged.
 
-    Returns True if a migration was applied (caller should persist), else
-    False.
+    Returns True if a migration was applied (caller should persist), else False.
     """
     books = state.get("books")
     if not isinstance(books, dict):
@@ -433,30 +443,43 @@ def migrate_state_books(state: dict, ledgers_dir: Optional[Path] = None
     have = set(books.keys())
     if set(BOOKS).issubset(have):
         return False                          # already the full ladder — no-op
-    if not set(BOOKS_LEGACY).issubset(have):
+
+    plan = _load_migration_plan()
+    legacy_books = set(plan["legacy_books"])
+    if not legacy_books.issubset(have):
         # unrecognized shape — refuse to guess, surface for inspection
         raise RuntimeError(
             f"cannot migrate state.books: keys {sorted(have)} are neither the "
-            f"legacy set {sorted(BOOKS_LEGACY)} nor the ladder {sorted(BOOKS)}")
+            f"legacy set {sorted(legacy_books)} nor the ladder {sorted(BOOKS)}")
 
-    # --- book state: rename evolved legacy books, parent-seed the new rungs
-    new_books = {"I": deepcopy(books["I"]),
-                 "F": deepcopy(books["A"]),       # A -> F
-                 "E": deepcopy(books["B"])}       # B -> E
-    new_books["R"] = deepcopy(new_books["I"])     # R seeded from parent I
-    new_books["U"] = deepcopy(new_books["E"])     # U seeded from parent E
+    # --- book state: rename evolved legacy books, parent-seed the new rungs.
+    # Iterate the ladder IN ORDER so each book's parent is built before it.
+    rename_map, seed_map = plan["rename_map"], plan["seed_map"]
+    src_by_target = {tgt: legacy for legacy, tgt in rename_map.items()}
+    new_books: Dict[str, Any] = {}
+    for book in BOOKS:
+        if book in src_by_target:                     # renamed from a legacy book
+            new_books[book] = deepcopy(books[src_by_target[book]])
+        elif book in seed_map:                        # new rung — seed from parent
+            new_books[book] = deepcopy(new_books[seed_map[book]])
+        else:                                         # should not happen (guarded)
+            raise RuntimeError(f"no migration rule for ladder book {book!r}")
     state["books"] = {b: new_books[b] for b in BOOKS}
 
     if ledgers_dir is not None:
-        _migrate_ledgers(Path(ledgers_dir))
+        _migrate_ledgers(Path(ledgers_dir), plan)
     return True
 
 
-def _migrate_ledgers(ledgers_dir: Path) -> None:
-    """In-place migration of the append-only ledgers from legacy A/B/I to the
-    I,R,F,E,U ladder (see migrate_state_books). Idempotent: a ledger already
-    carrying ladder keys/files is left untouched."""
-    # actions_*.jsonl: A->F, B->E renames; R copied from I, U copied from E
+def _migrate_ledgers(ledgers_dir: Path, plan: Optional[dict] = None) -> None:
+    """In-place migration of the append-only ledgers from the legacy scheme to
+    the I,R,F,E,U ladder, driven by the registry-derived ``plan`` (see
+    migrate_state_books). Idempotent: a ledger already carrying ladder
+    keys/files is left untouched."""
+    plan = plan or _load_migration_plan()
+    rename_map, seed_map = plan["rename_map"], plan["seed_map"]
+    baseline_book = plan["baseline_book"]
+
     def _move(src: str, dst: str) -> None:
         sp, dp = ledgers_dir / src, ledgers_dir / dst
         if sp.exists() and not dp.exists():
@@ -468,32 +491,40 @@ def _migrate_ledgers(ledgers_dir: Path) -> None:
         if sp.exists() and not dp.exists():
             dp.write_text(sp.read_text())
 
-    _move("actions_A.jsonl", "actions_F.jsonl")
-    _move("actions_B.jsonl", "actions_E.jsonl")
-    _copy("actions_I.jsonl", "actions_R.jsonl")   # R == I over migrated window
-    _copy("actions_E.jsonl", "actions_U.jsonl")   # U == E over migrated window
+    # actions_*.jsonl: rename legacy->ladder (skip identity); seed new rungs from parent
+    for legacy, new in rename_map.items():
+        if legacy != new:
+            _move(f"actions_{legacy}.jsonl", f"actions_{new}.jsonl")
+    for new, parent in seed_map.items():
+        _copy(f"actions_{parent}.jsonl", f"actions_{new}.jsonl")
 
     # equity_ledger.jsonl: rename nav_/n_actions_ keys, add the new rungs
     eq = ledgers_dir / "equity_ledger.jsonl"
     if not eq.exists():
         return
+    # a row is "already migrated" once it carries every seeded rung's nav_ key
+    seeded = list(seed_map.keys())
     rows = read_jsonl(eq)
     changed = False
     for r in rows:
-        if "nav_R" in r and "nav_U" in r:
+        if all(f"nav_{b}" in r for b in seeded):
             continue                              # already migrated
-        for legacy, new in (("A", "F"), ("B", "E")):
+        for legacy, new in rename_map.items():
+            if legacy == new:
+                continue
             for stem in ("nav_", "n_actions_"):
                 k = stem + legacy
                 if k in r:
                     r[stem + new] = r.pop(k)
         # parent-seed the new rungs into the historical rows
-        if "nav_I" in r and "nav_R" not in r:
-            r["nav_R"] = r["nav_I"]
-            r["n_actions_R"] = 0
-        if "nav_E" in r and "nav_U" not in r:
-            r["nav_U"] = r["nav_E"]
-            r["n_actions_U"] = r.get("n_actions_E", 0)
+        for new, parent in seed_map.items():
+            if f"nav_{parent}" in r and f"nav_{new}" not in r:
+                r[f"nav_{new}"] = r[f"nav_{parent}"]
+                # seeding FROM the incumbent baseline book contributes no extra
+                # actions (n_actions == 0); otherwise the rung == its parent.
+                r[f"n_actions_{new}"] = (
+                    0 if parent == baseline_book
+                    else r.get(f"n_actions_{parent}", 0))
         changed = True
     if changed:
         eq.write_text("\n".join(jdump(r) for r in rows) + "\n")

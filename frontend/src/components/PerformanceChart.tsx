@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { ChartMarker, EquityCurvePoint, DrawdownPoint, MonthlyReturn, TimeseriesPoint } from '../types';
 import { ShadowTimeseries } from '../hooks/useShadowData';
+import { FORECAST_RUNG_ID } from '../registry/componentRegistry';
 import { format, parseISO } from 'date-fns';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -262,7 +263,7 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
   // viewer sees the brain's selection contribution (a zero-straddling band), not
   // just a market-driven equity curve (Skeptic closing condition 1).
   const organLedger = shadow?.organ_ledger ?? shadow?.stats?.organ_ledger ?? [];
-  const forecastRung = organLedger.find((r) => r.component === 'forecast');
+  const forecastRung = organLedger.find((r) => r.component === FORECAST_RUNG_ID);
 
   const hybridIdx = merged.findIndex((p) => p.date >= HYBRID_PROMOTION_DATE);
   const hybridDate = hybridIdx >= 0 ? merged[hybridIdx]?.date : undefined;

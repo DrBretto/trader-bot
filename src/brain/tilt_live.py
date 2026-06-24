@@ -1,15 +1,25 @@
-"""Live tilt cutover — the intended new brain (the YELLOW line) as the live engine.
+"""Tilt cutover — the ``tilt_adapter`` book (the COMPARISON line, not the live engine).
 
-The native two-stage engine was retired (operator verdict 2026-06-23: it discarded
-the working deterministic rules and built a from-scratch concentrated book). The
-model that was actually designed and shadow-tracked is the ``tilt_adapter``: it
-takes the deterministic chassis's intents and applies a SMALL ML tilt on top — the
-ML's only job is to make the rules that already work a little better. This is the
-exact book the shadow plots as the yellow line (book F = regime throttle + M1 tilt).
+NOTE (PKT-TB-BV-01 docstring correction): this module's old docstring was inverted.
+The brain changed several times on 2026-06-23 (git): ``a35ca30`` briefly made the
+tilt the live engine and retired the two-stage model, but ``d3495b1`` restored the
+regime chassis and **``ec9561d`` "Make the regime-restored two-stage the live engine
++ comparison vs the tilt"** is the current live state. So:
+
+  LIVE ENGINE  = the regime-restored two-stage engine (``runtime.run_cutover`` ->
+                 ``src/brain/engine/``), which writes the live ``trade_intents.json``
+                 (``engine == "native_two_stage"``); the restored regime model lives
+                 inside it as a per-name ``regime_score_mult`` in Stage-1 ranking.
+  THIS MODULE  = the ``tilt_adapter`` book (deterministic chassis intents + a SMALL
+                 capped M1 tilt — the shadow's yellow line, book F = regime throttle
+                 + M1 tilt). It is the COMPARISON line, invoked only when explicitly
+                 configured (``engine == "tilt_adapter"``), and is NOT the default
+                 live path.
 
 ``run_tilt_cutover`` mirrors the shadow's ``process_book_date`` for the F book but
-writes REAL intents. Hard fail-safe: ANY error returns ok=False and the caller
-leaves the deterministic incumbent intents untouched (abort-never-degrade).
+writes REAL intents on that configured-comparison path. Hard fail-safe: ANY error
+returns ok=False and the caller leaves the deterministic incumbent intents untouched
+(abort-never-degrade).
 """
 from __future__ import annotations
 

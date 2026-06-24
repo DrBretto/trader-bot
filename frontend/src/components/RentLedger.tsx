@@ -1,5 +1,6 @@
 import { OrganLedgerRow, ForecastLeg, ShadowStats } from '../hooks/useShadowData';
 import { InfoTooltip } from './InfoTooltip';
+import { ladderRungs, byId } from '../registry/componentRegistry';
 
 // PKT-TB-011 attribution spine, mounted by PKT-TB-015. The per-organ rent
 // ledger: one row per component of the 5-rung leave-one-organ-out ladder, each
@@ -9,32 +10,18 @@ import { InfoTooltip } from './InfoTooltip';
 // implies a dollar edge: the standing exposure-stripped residual is measured at
 // zero.
 //
-// Honest-state contract (PKT-TB-015 §4): the four canonical rungs ALWAYS render.
-// A rung the forward attribution job has not populated yet shows its labeled
-// "awaiting forward settled data" state -- never a blank, never a fabricated
-// number. The scoreboard does not vanish when data is absent.
+// PKT-TB-BV-01: the rungs are NO LONGER hard-coded here. The rows render OFF the
+// declarative component registry (`ladderRungs()` — id, label, book_pair all
+// from the registry), joined to the published ledger on the STABLE `id` (never
+// label, never index). Adding/renaming/re-parenting a rung is a registry data
+// edit, not a code change; an unseen id auto-renders in its honest `awaiting`
+// state (the universal fallback) — never a blank, never a fabricated number.
 
 interface Props {
   organ_ledger?: OrganLedgerRow[];
   forecast_leg?: ForecastLeg;
   stats?: ShadowStats;
 }
-
-const COMPONENT_LABEL: Record<string, string> = {
-  regime: 'Regime gate',
-  forecast: 'Forecast (M1 signal)',
-  event: 'Event-damp (M4)',
-  universe: 'Universe choice',
-};
-
-// The canonical 5-rung leave-one-organ-out ladder (I is the baseline book, so
-// the four marginals below are the rungs the operator watches "pay rent").
-const LADDER_RUNGS: { component: string; book_pair: string }[] = [
-  { component: 'regime', book_pair: 'R−I' },
-  { component: 'forecast', book_pair: 'F−R' },
-  { component: 'event', book_pair: 'E−F' },
-  { component: 'universe', book_pair: 'U−E' },
-];
 
 function verdictStyle(verdict: string): { bg: string; fg: string; label: string } {
   if (verdict === 'positive') return { bg: '#14532d', fg: '#4ade80', label: 'positive' };
@@ -138,19 +125,22 @@ export function RentLedger({ organ_ledger, forecast_leg, stats }: Props) {
             </tr>
           </thead>
           <tbody>
-            {LADDER_RUNGS.map((rung) => {
-              const r = byComponent.get(rung.component);
+            {ladderRungs().map((rung) => {
+              const r = byComponent.get(rung.id);          // join on the STABLE id
               const vs = r ? verdictStyle(r.verdict) : AWAITING_STYLE;
               return (
-                <tr key={rung.component} style={{ borderBottom: '1px solid #0f172a', textAlign: 'right' }}>
+                <tr key={rung.id} style={{ borderBottom: '1px solid #0f172a', textAlign: 'right' }}>
                   <td style={{ textAlign: 'left', padding: '6px 8px' }}>
                     <div style={{ color: r ? '#e2e8f0' : '#94a3b8' }}>
-                      {COMPONENT_LABEL[rung.component] ?? rung.component}
+                      {rung.label}
                       {r?.badge && (
                         <span style={{ marginLeft: 6, fontSize: 10, color: '#fbbf24' }} title={r.badge}>⚑</span>
                       )}
                     </div>
                     <div style={{ fontSize: 10, color: '#475569' }}>{r?.book_pair ?? rung.book_pair}</div>
+                    {!r && (
+                      <div style={{ fontSize: 10, color: '#64748b' }}>{AWAITING_STYLE.label} — no settled data yet</div>
+                    )}
                   </td>
                   <td style={{ padding: '6px 8px', color: '#94a3b8' }}>{bp(r?.gross_bp_day)}</td>
                   <td style={{ padding: '6px 8px', color: r ? '#e2e8f0' : '#475569', fontWeight: r ? 600 : 400 }}>{bp(r?.stripped_bp_day)}</td>
@@ -176,7 +166,7 @@ export function RentLedger({ organ_ledger, forecast_leg, stats }: Props) {
         <div style={{ marginTop: 10, fontSize: 10.5, color: '#64748b' }}>
           {rows.filter((r) => r.caveat).map((r) => (
             <div key={r.component} style={{ marginBottom: 2 }}>
-              <span style={{ color: '#94a3b8' }}>{COMPONENT_LABEL[r.component] ?? r.component}:</span> {r.caveat}
+              <span style={{ color: '#94a3b8' }}>{byId(r.component)?.label ?? r.component}:</span> {r.caveat}
             </div>
           ))}
         </div>

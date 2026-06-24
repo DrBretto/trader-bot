@@ -16,7 +16,7 @@ export type ShadowLinePoint = [string, number];
  *  row is one component's marginal (gross AND multi-factor exposure-stripped),
  *  with a three-valued verdict and a BH-FDR survival flag. */
 export interface OrganLedgerRow {
-  component: 'regime' | 'forecast' | 'event' | 'universe' | string;
+  component: string;                       // stable registry id (the ledger join key); valid ids live in the component registry, never hard-coded here
   book_pair: string;                       // e.g. "F-R"
   gross_bp_day: number | null;
   gross_ci: [number, number] | null;
