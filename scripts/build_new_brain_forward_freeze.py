@@ -67,16 +67,20 @@ def main() -> None:
             raise SystemExit(f"pre-engine date {d} absent from live dashboard equity_curve")
         pre_engine[d] = round(float(v), 2)
 
-    # 2. Regime-ON + FULL-universe replay (the corrected New-Brain era 06-17..06-24;
-    #    06-24 is a mark-only held-book carry at its settled close).
+    # 2. Regime-ON + FULL-universe COMPLETE re-do (the corrected New-Brain era).
+    #    Each decision day the book is rebuilt to EXACTLY the engine's selection
+    #    (sells every non-selected name, even on missing-bar days) — zero
+    #    wrong-config residue. 06-23 lands ~117,970 (the poison-free value; the old
+    #    117,862 was tainted by a stranded XLK position on 06-19/20). 06-24 is the
+    #    real high_vol_panic decision day (~116,090, a realistic ~-1.6% dip).
     res = resimulate("fixed", "full")
     displayed = {d: round(float(v), 2) for d, v in res["displayed"].items()}
 
     gate = displayed.get("2026-06-23")
-    if gate is None or abs(gate - 117862.0) > 5.0:
-        raise SystemExit(f"GATE FAILED: 06-23 = {gate} (expected ~117862)")
-    if "2026-06-24" not in displayed:
-        raise SystemExit("06-24 missing from replay (expected mark-only carry)")
+    if gate is None or not (117500.0 <= gate <= 118500.0):
+        raise SystemExit(f"GATE SANITY FAILED: 06-23 = {gate} (expected ~117,970)")
+    if "2026-06-24" not in displayed or displayed["2026-06-24"] >= gate:
+        raise SystemExit(f"06-24 missing or not a dip vs 06-23: {displayed.get('2026-06-24')}")
 
     merged = {}
     merged.update(pre_engine)

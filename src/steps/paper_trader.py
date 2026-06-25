@@ -251,9 +251,17 @@ def execute_trade(
             trade_record['entry_price'] = entry_price
             trade_record['pnl'] = pnl
             trade_record['pnl_pct'] = pnl_pct
-            trade_record['days_held'] = (
-                trade_time - pd.to_datetime(holding['entry_date'])
-            ).days
+            # entry_date may be absent on holdings written by a resim/reconcile
+            # (those carry entry_price + days_held but not entry_date). Fall back
+            # to the holding's own days_held rather than KeyError out of the whole
+            # morning run (the SELL still executes; only the derived metric differs).
+            entry_date = holding.get('entry_date')
+            if entry_date:
+                trade_record['days_held'] = (
+                    trade_time - pd.to_datetime(entry_date)
+                ).days
+            else:
+                trade_record['days_held'] = int(holding.get('days_held', 0) or 0)
 
             # Add cash
             portfolio['cash'] += shares * price

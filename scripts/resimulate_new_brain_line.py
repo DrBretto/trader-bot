@@ -66,14 +66,15 @@ MIN_ORDER = 250.0
 
 # The New-Brain canon era. Engine-driven decision dates (wrote
 # brain_selected_universe.json); 06-22 (Mon) had no engine decision -> mark-only.
-# 06-24 is a CARRY (mark-only) day: the morning trigger was DISABLED on 06-24, so
-# the 06-24 intents were never executed — the book HELD its 06-23 positions. The
-# honest 06-24 line is therefore the held 06-23 book marked at the 06-24 SETTLED
-# close (which landed in daily/2026-06-25/prices.parquet), NOT a counterfactual
-# rotation and NOT a hand-set flat value. 06-25 has no settled close yet (no
-# successor prices, no provisional morning bar) -> not priceable; the dashboard
-# extender flat-holds it from 06-24 (the system's own priceability rule).
-DECISION_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-23"]
+# Every engine-driven date is RE-DONE day-by-day as if the correct regime picker
+# was live when it was written (the whole point: the per-day books the wrong
+# config wrote are poison; we regenerate each day's decision from the clean,
+# config-independent inputs — the M1 mu forecast + the regime label + real prices
+# — with the chassis-restored picker + full universe re-applied fresh). 06-24 is a
+# real decision day (its settled close landed in daily/2026-06-25/prices.parquet).
+# 06-25 has no settled close yet -> not priceable; the dashboard extender flat-holds
+# it from 06-24 (the system's own priceability rule), never a hand-set value.
+DECISION_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-23", "2026-06-24"]
 ALL_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-22", "2026-06-23", "2026-06-24"]
 SEED_DATE = "2026-06-16"
 # D's OHLC bar lives in its SUCCESSOR's prices.parquet (written that night,
@@ -148,41 +149,54 @@ def _fill(book, intents, ohlc, universe_df):
     REDUCE/SELL use the intent's own share delta — no halving)."""
     secs = dict(zip(universe_df["symbol"].astype(str), universe_df["sector"].astype(str)))
     pos = {h["symbol"]: h for h in book["holdings"]}
+    # COMPLETE RE-DO discipline: process every SELL/REDUCE FIRST (so a name the
+    # engine did NOT select is ALWAYS dropped — no wrong-config position can ever
+    # survive into the book, even if its open bar is missing that day), then BUYs.
+    # The book after each decision day is therefore exactly the engine's selection.
     for it in intents:
-        sym = it["symbol"]; act = it["action"]
+        if it["action"] not in ("REDUCE", "SELL"):
+            continue
+        sym = it["symbol"]
+        h = pos.get(sym)
+        if h is None:
+            continue
+        q = ohlc.get(sym)
+        # sell at the morning OPEN when priced; otherwise at the last mark, so a
+        # missing bar never leaves a non-selected ("poison") stock stranded.
+        sell_p = float(q["open"]) if (q and q.get("open", 0) > 0) else float(
+            h.get("current_price", 0) or 0)
+        sh = min(int(it.get("shares", h["shares"])), h["shares"])
+        if sh <= 0:
+            continue
+        book["cash"] += sh * sell_p
+        h["shares"] -= sh
+    for it in intents:
+        if it["action"] != "BUY":
+            continue
+        sym = it["symbol"]
         q = ohlc.get(sym)
         if q is None:
             continue
         op = q["open"]
-        if act == "BUY":
-            ip = float(it.get("price", 0) or 0)
-            if ip <= 0 or op <= 0:
-                continue
-            if abs(op - ip) / ip > BUY_GAP:          # price-gap guard
-                continue
-            dollars = float(it.get("dollars", 0) or it.get("shares", 0) * ip)
-            sh = int(dollars / op)
-            if sh <= 0 or sh * op < MIN_ORDER:
-                continue
-            if sh * op > book["cash"]:
-                sh = int(book["cash"] / op)
-                if sh <= 0:
-                    continue
-            book["cash"] -= sh * op
-            if sym in pos:
-                pos[sym]["shares"] += sh
-            else:
-                pos[sym] = {"symbol": sym, "shares": sh, "current_price": op}
-                book["holdings"].append(pos[sym])
-        elif act in ("REDUCE", "SELL"):
-            h = pos.get(sym)
-            if h is None:
-                continue
-            sh = min(int(it.get("shares", h["shares"])), h["shares"])
+        ip = float(it.get("price", 0) or 0)
+        if ip <= 0 or op <= 0:
+            continue
+        if abs(op - ip) / ip > BUY_GAP:          # price-gap guard
+            continue
+        dollars = float(it.get("dollars", 0) or it.get("shares", 0) * ip)
+        sh = int(dollars / op)
+        if sh <= 0 or sh * op < MIN_ORDER:
+            continue
+        if sh * op > book["cash"]:
+            sh = int(book["cash"] / op)
             if sh <= 0:
                 continue
-            book["cash"] += sh * op
-            h["shares"] -= sh
+        book["cash"] -= sh * op
+        if sym in pos and pos[sym]["shares"] > 0:
+            pos[sym]["shares"] += sh
+        else:
+            pos[sym] = {"symbol": sym, "shares": sh, "current_price": op}
+            book["holdings"].append(pos[sym])
     book["holdings"] = [h for h in book["holdings"] if h["shares"] > 0]
     return book
 
