@@ -74,8 +74,8 @@ MIN_ORDER = 250.0
 # real decision day (its settled close landed in daily/2026-06-25/prices.parquet).
 # 06-25 has no settled close yet -> not priceable; the dashboard extender flat-holds
 # it from 06-24 (the system's own priceability rule), never a hand-set value.
-DECISION_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-23", "2026-06-24"]
-ALL_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-22", "2026-06-23", "2026-06-24"]
+DECISION_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-23", "2026-06-24", "2026-06-25"]
+ALL_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25"]
 SEED_DATE = "2026-06-16"
 # D's OHLC bar lives in its SUCCESSOR's prices.parquet (written that night,
 # covers through the prior close); the newest date is priced provisionally.
@@ -101,12 +101,20 @@ def _get_parquet(key):
 # history through the 06-22 close (06-17..06-22 real bars). The newest date
 # (06-23) has no settled close yet -> its provisional morning bar.
 _HIST_PRICES_KEY = "daily/2026-06-23/prices.parquet"
-_NEWEST = "2026-06-23"
+# 06-25 is the current live day: no settled close yet, priced PROVISIONALLY from
+# this morning's quotes (morning_prices.parquet) — open fill + intraday-close mark.
+# It settles tonight and is re-frozen at its real close on the next regenerate.
+_NEWEST = "2026-06-25"
 # Per-date SETTLED price source for days whose real close arrived after the
-# comprehensive _HIST_PRICES_KEY file was written. 06-24's settled bar lives in
-# the 06-25 night prices file (06-23 stays provisional so its displayed value is
-# the accepted gate $117,862 — R0 keep-the-line-exactly).
-_SETTLED_PRICE_KEY = {"2026-06-24": "daily/2026-06-25/prices.parquet"}
+# comprehensive _HIST_PRICES_KEY file was written. Every settled history day is
+# marked at its REAL settled close (not a provisional intraday mark) so the line is
+# accurate and day-to-day moves are not distorted by provisional-vs-settled price
+# mismatches: 06-23's settled bar is in the 06-24 night prices file; 06-24's is in
+# the 06-25 night prices file. (Only the current live day, 06-25, is provisional.)
+_SETTLED_PRICE_KEY = {
+    "2026-06-23": "daily/2026-06-24/prices.parquet",
+    "2026-06-24": "daily/2026-06-25/prices.parquet",
+}
 _hist_cache = {}
 
 

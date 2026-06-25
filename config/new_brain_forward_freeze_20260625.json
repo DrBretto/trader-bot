@@ -10,7 +10,7 @@
     "never": "sim_book_value is NEVER the line and NEVER the return base."
   },
   "boundary_after": "2026-06-11",
-  "frontier_date": "2026-06-24",
+  "frontier_date": "2026-06-25",
   "curve": [
     {
       "date": "2026-06-12",
@@ -50,11 +50,15 @@
     },
     {
       "date": "2026-06-23",
-      "value": 117969.65
+      "value": 117693.43
     },
     {
       "date": "2026-06-24",
       "value": 116090.23
+    },
+    {
+      "date": "2026-06-25",
+      "value": 116126.12
     }
   ]
 }

@@ -46,7 +46,7 @@ BUCKET = "investment-system-data"
 OUT = REPO / "config" / "new_brain_forward_freeze_20260625.json"
 
 BOUNDARY_AFTER = "2026-06-11"     # champion owns <= this; this table owns >
-FRONTIER_DATE = "2026-06-24"      # newest SETTLED/priceable date this freeze covers
+FRONTIER_DATE = "2026-06-25"      # newest priceable date (06-25 provisional, settles tonight)
 PRE_ENGINE_DATES = ["2026-06-12", "2026-06-13", "2026-06-15", "2026-06-16"]
 
 
