@@ -1,0 +1,60 @@
+{
+  "schema": "new_brain_forward_freeze.v1",
+  "meta": {
+    "packet": "PKT-TRADER-BOT-REGIME-PICKER-NIGHTLY-RECALC-FIX-V1",
+    "built_on": "2026-06-25",
+    "purpose": "Byte-static forward New-Brain line (> 2026-06-11), READ by extend_dashboard and NEVER recomputed \u2014 the durable lock that stops the nightly recalc from re-deriving (and re-breaking) the line from the dead sim_book_value. Mirrors the gated champion freeze (<= 2026-06-11) extended forward.",
+    "basis": "CHAMPION/replay only. 06-12..06-16 = accepted pre-engine incumbent line snapshotted from the accepted dashboard.json; 06-17..06-24 = regime-ON + FULL-universe replay (resimulate_new_brain_line.py variant=fixed; the one chassis-restored regime picker, full config/universe.csv, no narrowed pool). 06-24 is a mark-only held-book carry at its settled close (morning trigger disabled -> no execution -> book held 06-23 positions); it is a REAL high_vol_panic down day (~115.8k), not a bug and not a hand-set value. 06-25 is not yet priceable (no settled close) and flat-holds 06-24 via the extender.",
+    "gate": "2026-06-23 == 117861.91 (~= accepted 117862)",
+    "finding": "06-24's ~1.6% drop is REAL market movement (06-23 risk_on book caught in a high_vol_panic session), NOT the nightly-recalc bug. The bug was the REVERSION (line re-derived from sim_book every publish); that is what this lock kills.",
+    "never": "sim_book_value is NEVER the line and NEVER the return base."
+  },
+  "boundary_after": "2026-06-11",
+  "frontier_date": "2026-06-24",
+  "curve": [
+    {
+      "date": "2026-06-12",
+      "value": 115745.51
+    },
+    {
+      "date": "2026-06-13",
+      "value": 115725.01
+    },
+    {
+      "date": "2026-06-15",
+      "value": 118651.57
+    },
+    {
+      "date": "2026-06-16",
+      "value": 117985.68
+    },
+    {
+      "date": "2026-06-17",
+      "value": 117468.89
+    },
+    {
+      "date": "2026-06-18",
+      "value": 118758.52
+    },
+    {
+      "date": "2026-06-19",
+      "value": 118758.52
+    },
+    {
+      "date": "2026-06-20",
+      "value": 118758.52
+    },
+    {
+      "date": "2026-06-22",
+      "value": 118410.78
+    },
+    {
+      "date": "2026-06-23",
+      "value": 117861.91
+    },
+    {
+      "date": "2026-06-24",
+      "value": 115819.47
+    }
+  ]
+}

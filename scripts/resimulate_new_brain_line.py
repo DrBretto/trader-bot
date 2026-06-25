@@ -66,8 +66,15 @@ MIN_ORDER = 250.0
 
 # The New-Brain canon era. Engine-driven decision dates (wrote
 # brain_selected_universe.json); 06-22 (Mon) had no engine decision -> mark-only.
+# 06-24 is a CARRY (mark-only) day: the morning trigger was DISABLED on 06-24, so
+# the 06-24 intents were never executed — the book HELD its 06-23 positions. The
+# honest 06-24 line is therefore the held 06-23 book marked at the 06-24 SETTLED
+# close (which landed in daily/2026-06-25/prices.parquet), NOT a counterfactual
+# rotation and NOT a hand-set flat value. 06-25 has no settled close yet (no
+# successor prices, no provisional morning bar) -> not priceable; the dashboard
+# extender flat-holds it from 06-24 (the system's own priceability rule).
 DECISION_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-23"]
-ALL_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-22", "2026-06-23"]
+ALL_DATES = ["2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-22", "2026-06-23", "2026-06-24"]
 SEED_DATE = "2026-06-16"
 # D's OHLC bar lives in its SUCCESSOR's prices.parquet (written that night,
 # covers through the prior close); the newest date is priced provisionally.
@@ -94,12 +101,22 @@ def _get_parquet(key):
 # (06-23) has no settled close yet -> its provisional morning bar.
 _HIST_PRICES_KEY = "daily/2026-06-23/prices.parquet"
 _NEWEST = "2026-06-23"
+# Per-date SETTLED price source for days whose real close arrived after the
+# comprehensive _HIST_PRICES_KEY file was written. 06-24's settled bar lives in
+# the 06-25 night prices file (06-23 stays provisional so its displayed value is
+# the accepted gate $117,862 — R0 keep-the-line-exactly).
+_SETTLED_PRICE_KEY = {"2026-06-24": "daily/2026-06-25/prices.parquet"}
 _hist_cache = {}
 
 
 def _ohlc(date):
     """{'open':..,'close':..} per symbol for `date`."""
-    if date == _NEWEST:
+    if date in _SETTLED_PRICE_KEY:
+        key = _SETTLED_PRICE_KEY[date]
+        if key not in _hist_cache:
+            _hist_cache[key] = _get_parquet(key)
+        df = _hist_cache[key]
+    elif date == _NEWEST:
         df = _get_parquet(f"daily/{date}/morning_prices.parquet")
     else:
         if "hist" not in _hist_cache:
@@ -185,11 +202,17 @@ def _mark(book, ohlc):
 DISPLAY_ANCHOR = 117985.68
 
 
-def resimulate(variant, field):
+def resimulate(variant, field="full"):
     # variant: baseline = regime-blind engine as deployed; fixed = restored chassis.
-    # field:   derived  = the committee's concentrated daily pool (the bug);
-    #          full     = the ORIGINAL working field (the full config universe the
-    #                     system selected from before the committee narrowed it).
+    # field:   ALWAYS full. The committee-narrowed "derived" pool is GARBAGE and has
+    #          been removed (PKT-TRADER-BOT-REGIME-PICKER-NIGHTLY-RECALC-FIX-V1,
+    #          operator fact #3): all selection is from the FULL config/universe.csv,
+    #          never a narrowed pool. The parameter is retained only so the legacy
+    #          call signature does not break; any value other than "full" is rejected.
+    if field != "full":
+        raise ValueError(
+            "resimulate: the narrowed/committee universe ('derived') is removed — "
+            "selection is always from the full config/universe.csv (field='full')")
     regime_compat = None
     if variant == "fixed":
         regime_compat = json.loads(
@@ -216,12 +239,10 @@ def resimulate(variant, field):
             dec = _get_json(f"daily/{date}/decisions.json")
             regime = dec.get("regime") or "risk_on_trend"
             feats = _get_parquet(f"daily/{date}/features.parquet")
+            # FULL universe always: keep config/universe.csv eligibility (the original
+            # working field the engine selects its top-N from). The narrowed committee
+            # pool is removed — never intersect eligibility with a selected pool.
             uni = universe_df.copy()
-            if field == "derived":
-                pool = set(_get_json(f"daily/{date}/brain_selected_universe.json")["selected_universe"])
-                uni["eligible"] = uni["symbol"].isin(pool).astype(int)
-            # field == "full": keep config/universe.csv eligibility (the original
-            # working field the engine selects its top-N from).
             f = build_forecast_bundle(date, mu, feats, regime, uni,
                                       health_map=None, regime_compat=regime_compat)
             portfolio = build_portfolio_state(deepcopy(book), feats, uni)
@@ -259,7 +280,8 @@ def resimulate(variant, field):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", choices=["baseline", "fixed"], required=True)
-    ap.add_argument("--field", choices=["derived", "full"], default="derived")
+    # Full universe only. 'derived' (the narrowed committee pool) is removed.
+    ap.add_argument("--field", choices=["full"], default="full")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
     print(f"# variant={args.variant} field={args.field}  (anchor 06-16 displayed ${DISPLAY_ANCHOR:,.0f})")

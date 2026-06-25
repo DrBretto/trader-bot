@@ -24,12 +24,13 @@ safe.
 """
 from __future__ import annotations
 
+import json
 import logging
 import math
 from collections import defaultdict, deque
 from datetime import datetime as dt, timezone, timedelta
 from statistics import mean, stdev
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from .replay_engine import (
     S3Cache, load_variant_configs, run_variant, VariantConfig,
@@ -41,6 +42,32 @@ from .strategies import (
 logger = logging.getLogger(__name__)
 
 REPLAY_START = '2026-03-12'
+
+_FORWARD_FREEZE_BUCKET = 'investment-system-data'
+
+
+def _forward_freeze_from_s3(s3_client) -> Tuple[Dict[str, float], Optional[str]]:
+    """Load the forward New-Brain freeze table from S3 (the persisted source of
+    truth: config/new_brain_forward_freeze_*.json). This lets the canonical line be
+    CORRECTED/EXTENDED by an S3 upload alone — no Lambda image rebuild. Returns
+    ({}, None) on any failure so the caller falls back to the image-baked copy.
+    """
+    if s3_client is None:
+        return {}, None
+    try:
+        from src.utils.canonical_replay_anchor import NEW_BRAIN_FORWARD_FREEZE_FILENAME
+        body = s3_client.get_object(
+            Bucket=_FORWARD_FREEZE_BUCKET,
+            Key=f'config/{NEW_BRAIN_FORWARD_FREEZE_FILENAME}')['Body'].read()
+        fz = json.loads(body)
+        curve = fz.get('curve', [])
+        m = {row['date']: float(row['value']) for row in curve}
+        if m:
+            return m, fz.get('frontier_date')
+        return {}, None
+    except Exception as exc:  # noqa: BLE001 — degrade to the baked copy
+        logger.info("forward freeze table not read from S3 (%s); using baked copy", exc)
+        return {}, None
 
 
 def _market_return_extend(
@@ -167,6 +194,7 @@ def extend_dashboard(s3_client, dash: Dict[str, Any],
     try:
         from src.utils.canonical_replay_anchor import (
             champion_freeze_map, NEW_BRAIN_BOUNDARY_DATE,
+            new_brain_forward_freeze_map,
         )
 
         frozen_map, term_date, term_value = champion_freeze_map()
@@ -174,6 +202,16 @@ def extend_dashboard(s3_client, dash: Dict[str, Any],
             logger.warning("champion freeze table absent; dashboard left on raw "
                            "canonical line (no re-anchor)")
             return dash
+
+        # The CORRECT forward line is READ from the byte-static forward freeze table
+        # (regime-ON + full-universe replay; CHAMPION/replay basis), NEVER re-chained
+        # from the dead per-day sim_book_value. This is the durable lock that stops
+        # the nightly recompute from re-deriving (and re-breaking) the line.
+        # Source of truth is the S3 copy (correctable by upload, no image rebuild);
+        # the image-baked copy is the fallback.
+        forward_freeze_map, forward_frontier = _forward_freeze_from_s3(s3_client)
+        if not forward_freeze_map:
+            forward_freeze_map, forward_frontier = new_brain_forward_freeze_map()
 
         boundary = NEW_BRAIN_BOUNDARY_DATE
         equity_curve = dash.get('equity_curve', [])
@@ -195,20 +233,39 @@ def extend_dashboard(s3_client, dash: Dict[str, Any],
             if d <= boundary and cont.get(d) is not None:
                 prev_cont = float(cont[d])
 
-        # New Brain forward line: chain realized daily returns from the frozen
-        # terminal (C0-continuous, no recompute).
+        # New Brain forward line.
         nb: Dict[str, float] = {}
-        nb_prev = float(term_value)
-        for d in dates:
-            if d <= boundary:
-                continue
-            c = cont.get(d)
-            if c is not None and prev_cont and prev_cont > 0 and c > 0:
-                ret = float(c) / prev_cont - 1.0
-                nb_prev = nb_prev * (1.0 + ret)
-                prev_cont = float(c)
-            # else: no priceable move this date -> flat-hold (honest "no data")
-            nb[d] = nb_prev
+        if forward_freeze_map:
+            # DURABLE PATH: serve the forward line from the byte-static freeze table
+            # (read, never recomputed). Settled dates are read directly; any date
+            # beyond the frozen frontier (or an in-range gap) flat-holds the last
+            # frozen value, so a future night/midday recompute cannot cliff the line.
+            # The dead sim_book_value never enters.
+            last_frozen = float(term_value)
+            for d in dates:
+                if d <= boundary:
+                    continue
+                fv = forward_freeze_map.get(d)
+                if fv is not None:
+                    last_frozen = float(fv)
+                nb[d] = last_frozen
+        else:
+            # FALLBACK (freeze table absent): legacy realized-return chain from the
+            # frozen terminal (C0-continuous). Retained so a missing table degrades
+            # to prior behavior rather than crashing.
+            logger.warning("forward freeze table absent; forward line falls back to "
+                           "the legacy realized-return chain")
+            nb_prev = float(term_value)
+            for d in dates:
+                if d <= boundary:
+                    continue
+                c = cont.get(d)
+                if c is not None and prev_cont and prev_cont > 0 and c > 0:
+                    ret = float(c) / prev_cont - 1.0
+                    nb_prev = nb_prev * (1.0 + ret)
+                    prev_cont = float(c)
+                # else: no priceable move this date -> flat-hold (honest "no data")
+                nb[d] = nb_prev
 
         # Rewrite the primary line.
         primary_curve: List[Dict[str, Any]] = []

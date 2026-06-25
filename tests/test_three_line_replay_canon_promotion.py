@@ -28,6 +28,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.utils.three_line_replay import extender
 from src.utils.canonical_replay_anchor import (
     champion_freeze_map,
+    new_brain_forward_freeze_map,
     NEW_BRAIN_BOUNDARY_DATE,
 )
 
@@ -80,16 +81,42 @@ class TestNewBrainCanon:
                 assert row["champion_frozen_value"] == fmap[d]
                 assert row["new_brain_value"] is None
 
-    def test_new_brain_line_reanchored_forward(self):
-        """Forward of the boundary the New Brain line is re-anchored C0-continuous
-        to the frozen terminal."""
-        fmap, _td, tval = champion_freeze_map()
+    def test_forward_line_is_read_from_freeze_table_not_sim_book(self):
+        """DURABLE LOCK (PKT-TRADER-BOT-REGIME-PICKER-NIGHTLY-RECALC-FIX-V1):
+        forward of the boundary the line is READ from the byte-static forward freeze
+        table (regime-ON + full-universe replay), NEVER re-chained from the per-day
+        sim_book_value. The seeded realized values (tval*1.01, ...) are deliberately
+        ignored — proving the dead sim book no longer drives the line."""
+        forward_map, _frontier = new_brain_forward_freeze_map()
+        assert forward_map, "forward freeze table must be present (the durable line lock)"
         out = self._run()
         rows = {r["date"]: r for r in out["equity_curve"]}
-        # 06-12 realized return = (tval*1.01)/tval - 1 = 0.01 -> anchored to tval.
-        assert abs(rows["2026-06-12"]["new_brain_value"] - tval * 1.01) < 0.01
-        assert rows["2026-06-12"]["value"] == rows["2026-06-12"]["new_brain_value"]
+        # value comes from the frozen table, NOT from the seeded realized return.
+        assert rows["2026-06-12"]["value"] == forward_map["2026-06-12"]
+        assert rows["2026-06-12"]["new_brain_value"] == forward_map["2026-06-12"]
         assert rows["2026-06-12"]["champion_frozen_value"] is None
+        # and it is independent of the seeded sim_book value (tval*1.01).
+        fmap, _td, tval = champion_freeze_map()
+        assert rows["2026-06-12"]["value"] != tval * 1.01
+
+    def test_forward_line_flat_holds_beyond_frozen_frontier(self):
+        """A date beyond the frozen frontier flat-holds the last frozen value, so a
+        future night/midday recompute cannot cliff the line."""
+        forward_map, frontier = new_brain_forward_freeze_map()
+        assert forward_map and frontier
+        dash = _seed_dash()
+        # append a forward date strictly beyond the frozen frontier
+        beyond = "2099-01-01"
+        dash["equity_curve"].append(
+            {"date": beyond, "value": 1.0, "benchmark": 95000.0,
+             "cumulative_external_cashflow": 0.0})
+        out = extender.extend_dashboard(
+            s3_client=None, dash=dash,
+            engine_driven_dates={"2026-06-12", "2026-06-13", beyond})
+        rows = {r["date"]: r for r in out["equity_curve"]}
+        # flat-hold: a date past the frontier carries the immediately preceding
+        # frozen row's value (no new value computed) — never a fresh recompute.
+        assert rows[beyond]["value"] == rows["2026-06-13"]["value"] == forward_map["2026-06-13"]
 
     def test_canon_source_is_new_brain(self):
         out = self._run()
