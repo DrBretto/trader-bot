@@ -257,6 +257,49 @@ def test_leaf_carries_full_schema():
 # --------------------------------------------------------------------------- #
 # build_leaf validation + content-addressing
 # --------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+# FP-08-5 — first-class corrections (attributed supersede-leaves that STICK)
+# --------------------------------------------------------------------------- #
+def test_correction_supersedes_and_sticks_across_rebuild():
+    s3 = FakeS3()
+    led = EquityLedger(s3)
+    _seed_three(led)  # 06-21,06-22,06-23
+
+    before_value = led.read_manifest()  # frontier 06-23
+    # correct 06-22 to a new value
+    corr = led.correct(
+        date="2026-06-22", value=111111.11, benchmark=99000.0, comparison=None,
+        issued_by="op@example.com", why="settled-price fix", reason_code="RESIM_SEGMENT",
+    )
+    rows = [json.loads(line) for line in led.read_cache().decode().splitlines()]
+    by_date = {r["date"]: r for r in rows}
+    assert by_date["2026-06-22"]["value"] == 111111.11, "correction is head-of-chain"
+    # old value retained as a superseded leaf (still on S3)
+    leaves = led.list_leaves()
+    vals_0622 = sorted(l["value"] for l in leaves if l["date"] == "2026-06-22")
+    assert vals_0622 == [110000.0, 111111.11], "old value retained, not deleted"
+    # the correction sticks across a full restore-from-facts rebuild
+    led.rebuild(write=True)
+    rows2 = [json.loads(line) for line in led.read_cache().decode().splitlines()]
+    assert {r["date"]: r["value"] for r in rows2}["2026-06-22"] == 111111.11
+    # frontier/terminal unchanged (06-23 still last)
+    assert led.frontier()["date"] == "2026-06-23"
+    # attribution present on the correction leaf
+    assert corr["why"] == "settled-price fix" and corr["reason_code"] == "RESIM_SEGMENT"
+
+
+def test_correction_requires_identity_and_reason():
+    s3 = FakeS3()
+    led = EquityLedger(s3)
+    _seed_three(led)
+    with pytest.raises(ValueError):
+        led.correct(date="2026-06-22", value=1.0, benchmark=1.0, comparison=None,
+                    issued_by="anonymous", why="x", reason_code="SEAM")
+    with pytest.raises(ValueError):
+        led.correct(date="2026-06-22", value=1.0, benchmark=1.0, comparison=None,
+                    issued_by="op@example.com", why="", reason_code="SEAM")
+
+
 def test_build_leaf_rejects_anonymous_issuer_and_bad_segment():
     base = dict(date="2026-06-21", value=1.0, benchmark=1.0, comparison=1.0,
                 model_id="m", source="native_two_stage")

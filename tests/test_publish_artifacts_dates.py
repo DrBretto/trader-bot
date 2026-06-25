@@ -6,7 +6,10 @@ from typing import Any, Dict, List
 
 import pandas as pd
 
+import json as _json
+
 from src.steps import publish_artifacts
+from src.canon.equity_ledger import CACHE_KEY, MANIFEST_KEY
 
 
 MINIMAL_EXPERT_SIGNALS = {
@@ -16,6 +19,44 @@ MINIMAL_EXPERT_SIGNALS = {
     "entropy_shift": {},
 }
 
+_LEDGER_TERMINAL = {"date": "2026-03-12", "value": 100000.0, "benchmark": 100000.0}
+# The stored-ledger line the repointed publish path renders + the parity gate checks.
+_LEDGER_LINE = {
+    "equity_curve": [dict(_LEDGER_TERMINAL, cumulative_external_cashflow=0.0,
+                          optimized_value=100000.0, new_brain_value=100000.0,
+                          champion_frozen_value=None, incumbent_value=None)],
+    "drawdowns": [{"date": "2026-03-12", "drawdown": 0.0}],
+}
+
+
+class _LedgerRawS3:
+    """Raw-boto3 stand-in serving a one-point seeded ledger (cache + manifest)."""
+
+    def __init__(self):
+        row = {"date": "2026-03-12", "value": 100000.0, "benchmark": 100000.0,
+               "comparison": None, "segment": "new_brain", "model_id": "FREEZE_ORB1@test"}
+        self.store = {
+            CACHE_KEY: (_json.dumps(row) + "\n").encode(),
+            MANIFEST_KEY: _json.dumps({"frontier": {"date": "2026-03-12", "content_sha": "x"},
+                                       "entries": []}).encode(),
+        }
+
+    def get_object(self, Bucket, Key):
+        if Key not in self.store:
+            raise Exception("NoSuchKey")
+        body = self.store[Key]
+
+        class _B:
+            def read(self_inner):
+                return body
+        return {"Body": _B()}
+
+    def put_object(self, **kw):
+        return {}
+
+    def list_objects_v2(self, **kw):
+        return {"Contents": [], "CommonPrefixes": [], "IsTruncated": False}
+
 
 class FakeS3:
     """Minimal capture stub for publish_artifacts module."""
@@ -24,6 +65,7 @@ class FakeS3:
 
     def __init__(self, bucket: str):
         self.bucket = bucket
+        self.s3 = _LedgerRawS3()
         self.json_writes: Dict[str, Any] = {}
         self.jsonl_writes: Dict[str, List[Dict[str, Any]]] = {}
         FakeS3.instances.append(self)
@@ -60,7 +102,7 @@ def test_night_publish_stamps_portfolio_state_date(monkeypatch):
     monkeypatch.setattr(
         publish_artifacts,
         "build_dashboard_data",
-        lambda *args, **kwargs: {"metrics": {}, "equity_curve": [], "drawdowns": []},
+        lambda *args, **kwargs: {"metrics": {}, **_LEDGER_LINE},
     )
 
     run_date = "2026-03-12"
@@ -132,7 +174,7 @@ def test_morning_publish_stamps_portfolio_state_date(monkeypatch):
     monkeypatch.setattr(
         publish_artifacts,
         "build_dashboard_data",
-        lambda *args, **kwargs: {"metrics": {}, "equity_curve": [], "drawdowns": []},
+        lambda *args, **kwargs: {"metrics": {}, **_LEDGER_LINE},
     )
 
     run_date = "2026-03-12"

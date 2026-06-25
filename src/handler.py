@@ -456,7 +456,7 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
         try:
             _dash = s3_client.read_json('dashboard/dashboard.json') or {}
             _m = _dash.get('metrics', {})
-            if _m.get('canon_source') in ('new_brain', 'optimized_champion') and _m.get('total_value'):
+            if _m.get('canon_source') in ('ledger', 'new_brain', 'optimized_champion') and _m.get('total_value'):
                 canon_metrics = {
                     'total_value': float(_m['total_value']),
                     'cash_pct': float(_m.get('cash_pct', 0.0) or 0.0),
@@ -735,7 +735,7 @@ def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
         try:
             _dash = s3_client.read_json('dashboard/dashboard.json') or {}
             _m = _dash.get('metrics', {})
-            if _m.get('canon_source') in ('new_brain', 'optimized_champion') and _m.get('total_value'):
+            if _m.get('canon_source') in ('ledger', 'new_brain', 'optimized_champion') and _m.get('total_value'):
                 canon_total_value = float(_m['total_value'])
         except Exception as canon_err:
             logger.warning(f"Canon metrics unavailable for midday email: {canon_err}")
@@ -789,20 +789,18 @@ def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
 
 
 def _run_republish_dashboard(event: dict, bucket: str, region: str) -> dict:
-    """Idempotent dashboard regenerate from the persisted per-day source — no
-    trading, no new day. Rebuilds dashboard.json exactly as the night/morning
-    publish step does (build_dashboard_data -> extend_dashboard ->
-    attach_new_brain_surface -> sanitize -> advance guard -> write), so a manual
-    invoke reproduces the corrected line straight from daily/<date>/
-    portfolio_state.json. Runs under the Lambda execution role (allowed to write
-    the rendered dashboard keys). Same source -> byte-identical line + max-dd on
-    every call (the durability property PKT-TB-CLIFF-RESIM-AT-SOURCE-V1 proves).
+    """PURE RE-SERVE of the stored equity ledger (clean core, G-REPUBLISH-PURE).
+
+    No trading, no new day, NO recompute, NO re-anchor. Rebuilds dashboard.json by
+    reading the STORED ledger line (build_dashboard_data folds equity_history.jsonl)
+    and re-serving it behind the parity-or-hold gate. It does NOT append a leaf (the
+    night owns the one settled append/day) — so a manual re-serve is byte-identical
+    on every call by construction: the leaves are immutable, the fold is pure.
     """
     from src.steps.publish_artifacts import (
         build_dashboard_data, _build_snapshot_meta, _can_publish_dashboard,
-        _verify_extension_or_alarm,
+        _verify_ledger_or_hold,
     )
-    from src.utils.three_line_replay.extender import extend_dashboard
     from src.utils.dashboard_metrics import attach_new_brain_surface, sanitize_nan_for_json
 
     run_date = event.get('run_date') or datetime.now().strftime('%Y-%m-%d')
@@ -855,7 +853,6 @@ def _run_republish_dashboard(event: dict, bucket: str, region: str) -> dict:
     snapshot_meta = _build_snapshot_meta(run_date, 'morning', portfolio_state)
     dash = build_dashboard_data(portfolio_state, inference, decisions, weather, s3,
                                 expert_signals=expert_signals, snapshot_meta=snapshot_meta)
-    dash = extend_dashboard(s3.s3, dash)
     try:
         shadow = s3.read_json('dashboard/shadow_timeseries.json')
     except Exception:
@@ -863,7 +860,7 @@ def _run_republish_dashboard(event: dict, bucket: str, region: str) -> dict:
     dash = attach_new_brain_surface(dash, shadow)
     dash = sanitize_nan_for_json(dash)
 
-    ok, reason = _verify_extension_or_alarm(dash, s3, 'morning', run_date)
+    ok, reason = _verify_ledger_or_hold(dash, s3, 'morning', run_date)
     if not ok:
         return {'statusCode': 409, 'body': json.dumps(
             {'status': 'held', 'phase': 'republish-dashboard', 'reason': reason})}

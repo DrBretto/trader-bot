@@ -6,7 +6,7 @@ from typing import Dict, Any, List, Optional, Tuple
 import random
 
 from src.utils.s3_client import S3Client
-from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
+from src.utils.dashboard_metrics import compute_trade_and_exposure_metrics
 from src.utils.transaction_costs import apply_transaction_costs
 
 
@@ -377,26 +377,29 @@ def compute_portfolio_stats(
     portfolio: Dict[str, Any],
     s3: S3Client
 ) -> Dict[str, Any]:
-    """Compute canonical performance + lifecycle stats from one coherent series."""
-    snapshot_date = datetime.now().strftime('%Y-%m-%d')
-    canonical = compute_canonical_dashboard_metrics(
-        s3=s3,
-        portfolio_state=portfolio,
-        snapshot_date=snapshot_date,
-        current_state=portfolio,
-        max_days=730,
-        initial_value=100000.0,
-        risk_free_rate_annual=0.0,
-        min_sharpe_observations=60,
-    )
-    metrics = canonical['metrics']
+    """Compute lifecycle stats: trade/exposure from fills, LINE stats from the ledger.
 
-    portfolio['ytd_return'] = metrics['ytd_return']
-    portfolio['mtd_return'] = metrics['mtd_return']
-    portfolio['sharpe_ratio'] = metrics['sharpe_ratio']
-    portfolio['sharpe_observations'] = metrics['sharpe_observations']
-    portfolio['max_drawdown'] = metrics['max_drawdown']
-    portfolio['current_drawdown'] = metrics['current_drawdown']
+    Clean core: the displayed equity LINE (ytd/mtd/sharpe/max-dd) is the STORED
+    ledger, not a recompute of this internal sim book. Trade + exposure stats come
+    from the FIFO round-trip accounting over fills + the current posture.
+    """
+    trade_exp = compute_trade_and_exposure_metrics(
+        s3=s3, portfolio_state=portfolio, current_state=portfolio, max_days=730,
+    )
+    metrics = trade_exp['metrics']
+
+    # LINE stats from the stored ledger (the displayed, anchored series).
+    try:
+        from src.canon.equity_line import load_line_view
+        lm = load_line_view(s3.s3).get('line_metrics', {}) or {}
+    except Exception:
+        lm = {}
+    portfolio['ytd_return'] = lm.get('ytd_return')
+    portfolio['mtd_return'] = lm.get('mtd_return')
+    portfolio['sharpe_ratio'] = lm.get('sharpe_ratio')
+    portfolio['sharpe_observations'] = lm.get('sharpe_observations')
+    portfolio['max_drawdown'] = lm.get('max_drawdown')
+    portfolio['current_drawdown'] = lm.get('current_drawdown')
     portfolio['win_rate'] = metrics['win_rate']
     portfolio['total_trades'] = metrics['total_trades']
     portfolio['wins'] = metrics['wins']
@@ -414,7 +417,7 @@ def compute_portfolio_stats(
     portfolio['net_exposure'] = metrics['net_exposure']
     portfolio['top_position_pct'] = metrics['top_position_pct']
     portfolio['beta_proxy'] = metrics['beta_proxy']
-    portfolio['metrics_reset_boundary'] = canonical.get('reset_boundary')
+    portfolio['metrics_reset_boundary'] = None  # no recompute segment (clean core)
 
     return portfolio
 

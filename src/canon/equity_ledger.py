@@ -102,7 +102,7 @@ def build_leaf(
     date: str,
     value: float,
     benchmark: float,
-    comparison: float,
+    comparison: Optional[float],
     segment: str,
     model_id: str,
     source: str,
@@ -114,10 +114,13 @@ def build_leaf(
 ) -> Dict[str, Any]:
     """Build a fully-formed, content-addressed ``equity_point.v1`` leaf (not stored).
 
-    All three displayed columns (value/benchmark/comparison) are required and must
-    be finite (``allow_nan=False`` in the canonical bytes rejects NaN/inf). The
-    chain links ``prev_date``/``prev_content_hash`` point at the prior frontier
-    leaf, making the ledger a tamper-evident chain of record.
+    ``value`` and ``benchmark`` are required and must be finite. ``comparison``
+    (the dotted tilt_adapter shadow line) is OPTIONAL — it only exists for the
+    recent shadow window, so leaves before the comparison series begins carry
+    ``comparison=None`` (a JSON null, not NaN). Any provided numeric column must be
+    finite (``allow_nan=False`` in the canonical bytes rejects NaN/inf). The chain
+    links ``prev_date``/``prev_content_hash`` point at the prior frontier leaf,
+    making the ledger a tamper-evident chain of record.
     """
     if not issued_by or not issued_by.strip() or issued_by.strip().lower() in {"unknown", "anonymous"}:
         raise ValueError("issued_by must be a real, non-anonymous identity")
@@ -133,7 +136,7 @@ def build_leaf(
         "date": date,
         "value": float(value),
         "benchmark": float(benchmark),
-        "comparison": float(comparison),
+        "comparison": float(comparison) if comparison is not None else None,
         "segment": segment,
         "model_id": model_id,
         "source": source,
@@ -278,56 +281,48 @@ class EquityLedger:
 
     # ---- restore-from-facts -------------------------------------------- #
     def _ordered_chain_from_leaves(self) -> List[Dict[str, Any]]:
-        """Reconstruct the canonical frontier chain by walking prev_content_hash.
+        """Reconstruct the canonical chain from the leaves, resolving supersedes.
 
-        Genesis is the leaf with ``prev_content_hash is None``; each subsequent
-        leaf is the one whose ``prev_content_hash`` equals the current leaf's
-        ``content_sha``. This proves the leaves ARE the truth: the chain is rebuilt
-        from S3 facts alone, and a broken/forked chain raises rather than guessing.
+        The leaves ARE the truth. Each date's displayed value is the HEAD of its
+        supersede chain — the active leaf no other leaf supersedes (FP-08-5). The
+        original value is retained as a superseded leaf (still on S3), so a
+        correction sticks and the old value is never lost. The chain is the active
+        leaf per date, in date order; integrity (content_sha recompute, one active
+        leaf per date, supersede targets present, strictly increasing dates) is
+        verified or it raises rather than guessing.
         """
         leaves = self.list_leaves()
         if not leaves:
             return []
         by_sha: Dict[str, Dict[str, Any]] = {}
-        next_by_prev: Dict[Optional[str], List[Dict[str, Any]]] = {}
         for leaf in leaves:
-            by_sha[leaf["content_sha"]] = leaf
-            next_by_prev.setdefault(leaf.get("prev_content_hash"), []).append(leaf)
-
-        genesis = next_by_prev.get(None, [])
-        if len(genesis) != 1:
-            raise LedgerIntegrityError(
-                f"expected exactly one genesis leaf (prev_content_hash=None), found {len(genesis)}"
-            )
-        chain: List[Dict[str, Any]] = []
-        cur: Optional[Dict[str, Any]] = genesis[0]
-        seen = set()
-        while cur is not None:
-            sha = cur["content_sha"]
-            if sha in seen:
-                raise LedgerIntegrityError(f"cycle detected at leaf {sha}")
-            seen.add(sha)
-            # integrity: recompute the leaf's own content_sha from its identity fields
-            if _content_sha_of(cur) != sha:
-                raise LedgerIntegrityError(f"leaf content_sha mismatch (tampered): {sha}")
-            chain.append(cur)
-            successors = next_by_prev.get(sha, [])
-            if len(successors) > 1:
+            # integrity: recompute each leaf's content_sha from its identity fields
+            if _content_sha_of(leaf) != leaf["content_sha"]:
                 raise LedgerIntegrityError(
-                    f"fork: {len(successors)} leaves chain off {sha} (supersede resolution is FP-08-5)"
-                )
-            cur = successors[0] if successors else None
+                    f"leaf content_sha mismatch (tampered): {leaf['content_sha']}")
+            by_sha[leaf["content_sha"]] = leaf
 
-        if len(chain) != len(leaves):
-            raise LedgerIntegrityError(
-                f"orphan leaves: chain covers {len(chain)} of {len(leaves)} leaves"
-            )
-        # the chain must be strictly date-increasing — frontier-only by construction
+        superseded = {leaf["supersedes"] for leaf in leaves if leaf.get("supersedes")}
+        for s in superseded:
+            if s not in by_sha:
+                raise LedgerIntegrityError(f"leaf supersedes unknown content {s}")
+
+        # The active leaf for each date is the one nothing supersedes.
+        by_date: Dict[str, Dict[str, Any]] = {}
+        for leaf in leaves:
+            if leaf["content_sha"] in superseded:
+                continue  # an old value retained behind a correction
+            d = leaf["date"]
+            if d in by_date:
+                raise LedgerIntegrityError(
+                    f"two active (non-superseded) leaves for {d} — ambiguous head")
+            by_date[d] = leaf
+
+        chain = [by_date[d] for d in sorted(by_date)]
         for a, b in zip(chain, chain[1:]):
             if not (a["date"] < b["date"]):
                 raise LedgerIntegrityError(
-                    f"non-increasing dates in chain: {a['date']} !< {b['date']}"
-                )
+                    f"non-increasing dates in chain: {a['date']} !< {b['date']}")
         return chain
 
     def _manifest_from_chain(self, chain: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -432,4 +427,62 @@ class EquityLedger:
         }
         self._put_manifest(manifest)
         self._refold_cache()
+        return leaf
+
+    # ---- first-class correction (FP-08-5) ------------------------------ #
+    def correct(
+        self,
+        *,
+        date: str,
+        value: float,
+        benchmark: float,
+        comparison: Optional[float],
+        issued_by: str,
+        why: str,
+        reason_code: str,
+        model_id: Optional[str] = None,
+        source: str = "correction",
+        written_at: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Correct a settled date's displayed value with a NEW attributed leaf.
+
+        A correction is first-class and durable (FP-08-5, history-protection §5): it
+        is a NEW immutable supersede-leaf at the corrected date carrying the new
+        value + ``issued_by`` (anonymous rejected) + ``why`` + ``reason_code`` +
+        ``supersedes:<prior head>``. The prior value is RETAINED as a superseded
+        leaf (still on S3), never deleted. Because the render reads the ledger (an
+        immutable input), the correction sticks across a night regenerate — it can
+        never be silently reverted. The chain links match the corrected date's
+        position so the rest of the line is undisturbed.
+        """
+        if not why or not why.strip():
+            raise ValueError("a correction must carry a non-empty why")
+        manifest = self.read_manifest()
+        entry = next((e for e in (manifest.get("entries") or []) if e["date"] == date), None)
+        if entry is None:
+            raise LedgerError(f"cannot correct {date}: not present in the ledger")
+        active = by_sha = None
+        for leaf in self.list_leaves():
+            if leaf["content_sha"] == entry["content_sha"]:
+                active = leaf
+                break
+        if active is None:
+            raise LedgerIntegrityError(f"active leaf for {date} not found on S3")
+
+        leaf = build_leaf(
+            date=date, value=value, benchmark=benchmark, comparison=comparison,
+            segment=active["segment"], model_id=model_id or active["model_id"],
+            source=source, issued_by=issued_by,
+            prev_date=active.get("prev_date"),
+            prev_content_hash=active.get("prev_content_hash"),
+            supersedes=active["content_sha"], written_at=written_at,
+        )
+        # Attribution carried as NON-hashed metadata (does not change content_sha,
+        # so it never perturbs existing leaves' identities).
+        leaf["why"] = why.strip()
+        leaf["reason_code"] = reason_code
+        self._put_leaf_write_once(leaf)
+        # Rebuild manifest + cache from the leaves (supersede-aware) so the
+        # correction becomes head-of-chain for its date.
+        self.rebuild(write=True)
         return leaf

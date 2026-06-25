@@ -8,7 +8,6 @@ from math import sqrt
 from statistics import mean, stdev
 from typing import Any, Deque, Dict, List, Optional, Tuple
 
-from src.utils.cutover_bridge import extract_cutover_date_from_marker
 from src.utils.historical_corrections import apply_split_corrections_to_fills
 
 
@@ -142,389 +141,6 @@ def _parse_timestamp(value: str) -> Optional[datetime]:
         return parsed
     except ValueError:
         return None
-
-
-def extract_external_cashflow(state: Dict[str, Any]) -> float:
-    """Extract net external cashflow for a state row.
-
-    Positive values are deposits/transfers in, negative values are withdrawals.
-    """
-    direct_keys = (
-        "external_cashflow",
-        "external_cashflow_t",
-        "net_external_cashflow",
-        "net_cashflow",
-        "cashflow",
-        "cash_flow",
-    )
-    for key in direct_keys:
-        if key in state and state.get(key) is not None:
-            try:
-                return float(state.get(key, 0.0))
-            except (TypeError, ValueError):
-                continue
-
-    def _num(key: str) -> float:
-        try:
-            return float(state.get(key, 0.0) or 0.0)
-        except (TypeError, ValueError):
-            return 0.0
-
-    deposits = (
-        _num("deposit")
-        + _num("deposits")
-        + _num("cash_deposit")
-        + _num("external_deposit")
-        + _num("transfer_in")
-        + _num("inflow")
-    )
-    withdrawals = (
-        _num("withdrawal")
-        + _num("withdrawals")
-        + _num("cash_withdrawal")
-        + _num("external_withdrawal")
-        + _num("transfer_out")
-        + _num("outflow")
-    )
-    return deposits - withdrawals
-
-
-def _effective_external_cashflow(state: Dict[str, Any], row_date: str) -> float:
-    """Apply continuity bridge cashflow only on its cutover date.
-
-    The cutover patch is a one-day accounting adjustment. If that field leaks into
-    later portfolio_state snapshots, ignore it for those later dates.
-    """
-    cashflow = extract_external_cashflow(state)
-    if cashflow == 0.0:
-        return 0.0
-
-    bridge_date = extract_cutover_date_from_marker(
-        state.get("continuity_bridge_marker")
-    )
-    if bridge_date and bridge_date != row_date:
-        return 0.0
-
-    return cashflow
-
-
-def _extract_state_reset_marker(state: Dict[str, Any]) -> Optional[str]:
-    """Read explicit reset marker if available."""
-    for key in ("metrics_reset_id", "reset_id", "portfolio_reset_id"):
-        value = state.get(key)
-        if value not in (None, ""):
-            return str(value)
-    return None
-
-
-def _apply_canonical_overrides(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Substitute the hybrid-replay canon for the post-cutover historical
-    segment, and inject the seam cashflow that anchors broker daily moves
-    to the canon going forward.
-
-    Effect:
-    - For dates in `HYBRID_SEGMENT` (2026-03-12 -> 2026-05-05): the row's
-      `value`, `cash`, `holdings_count` are overridden with the v2 hybrid
-      replay values, and `external_cashflow` is zeroed (this nullifies the
-      live broker's continuity-bridge entries on 2026-03-12 / 2026-04-22
-      so they don't contaminate the canonical curve).
-    - For dates inside the segment span [first segment date,
-      SEAM_CASHFLOW_DATE) that are NOT in `HYBRID_SEGMENT`: forward-fill
-      the most recent canonical entry. This catches gap-trading-days
-      (Saturday-dated states from a Friday-night Lambda persist, holiday
-      Mondays, etc.) that would otherwise leak the broker raw value into
-      the canonical equity curve and produce zig-zag spikes.
-    - On `SEAM_CASHFLOW_DATE` (2026-05-06): a single synthetic
-      `external_cashflow` of `SEAM_CASHFLOW_VALUE` is added. This makes
-      `cumulative_external_cashflow` on the seam day equal to that single
-      value, so `continuity_value = broker_raw - cumulative` lands on the
-      canonical hybrid endpoint at the seam and broker daily moves carry
-      the canonical line forward unchanged.
-
-    See `src/utils/canonical_replay_anchor.py` for the segment data and
-    rationale, and `book-factory/use_lane_outputs/runs/
-    20260506_trader-bot-mar11-known-bugs-fixed-algorithm-comparison-v2/`
-    for the source-faithful replay that produced the segment values.
-    """
-    from .canonical_replay_anchor import (
-        HYBRID_SEGMENT,
-        SEAM_CASHFLOW_DATE,
-        SEAM_CASHFLOW_VALUE,
-    )
-
-    if not HYBRID_SEGMENT:
-        return rows
-
-    segment_start = min(HYBRID_SEGMENT.keys())
-    last_override: Optional[Dict[str, Any]] = None
-
-    for row in rows:
-        d = row.get("date")
-        if d in HYBRID_SEGMENT:
-            override = HYBRID_SEGMENT[d]
-            row["value"] = float(override["value"])
-            row["cash"] = float(override["cash"])
-            row["holdings_count"] = int(override["holdings_count"])
-            row["external_cashflow"] = 0.0
-            row["canonical_override"] = "hybrid_replay_v2"
-            last_override = override
-        elif d == SEAM_CASHFLOW_DATE:
-            row["external_cashflow"] = (
-                row.get("external_cashflow", 0.0) + SEAM_CASHFLOW_VALUE
-            )
-            row["canonical_override"] = "seam_cashflow"
-        elif (
-            last_override is not None
-            and d is not None
-            and segment_start <= d < SEAM_CASHFLOW_DATE
-        ):
-            row["value"] = float(last_override["value"])
-            row["cash"] = float(last_override["cash"])
-            row["holdings_count"] = int(last_override["holdings_count"])
-            row["external_cashflow"] = 0.0
-            row["canonical_override"] = "hybrid_replay_v2_forward_filled"
-    return rows
-
-
-def _load_daily_states(
-    s3,
-    max_days: int,
-    snapshot_date: Optional[str],
-    current_state: Optional[Dict[str, Any]],
-) -> List[Dict[str, Any]]:
-    """Load ordered daily state rows and optionally inject current in-memory state."""
-    dates = sorted(s3.list_daily_dates(max_days=max_days))
-    rows: List[Dict[str, Any]] = []
-
-    for date_str in dates:
-        state = s3.read_json(f"daily/{date_str}/portfolio_state.json")
-        if not state:
-            continue
-        try:
-            # Fresh states publish the internal sim book under `sim_book_value`
-            # (PKT-TB-001 boundary rename); historical states are records and
-            # keep `portfolio_value`. Either provides the date-scaffolding
-            # value (the extender overwrites it with the canon line for dates
-            # in the replay span).
-            value_raw = state.get("sim_book_value", state.get("portfolio_value", 0.0))
-            value = float(value_raw or 0.0)
-        except (TypeError, ValueError):
-            continue
-
-        rows.append(
-            {
-                "date": date_str,
-                "value": value,
-                "benchmark": float(state.get("benchmark_value", value) or value),
-                "cash": float(state.get("cash", 0.0) or 0.0),
-                "holdings_count": len(state.get("holdings", [])),
-                "external_cashflow": _effective_external_cashflow(state, date_str),
-                "state_timestamp": state.get("last_updated"),
-                "reset_marker": _extract_state_reset_marker(state),
-            }
-        )
-
-    # Inject or replace today's state to avoid one-day lag when stats are computed
-    # before daily/{date}/portfolio_state.json is persisted.
-    if current_state is not None:
-        as_of_date = snapshot_date or datetime.now().strftime("%Y-%m-%d")
-        current_row = {
-            "date": as_of_date,
-            "value": float(current_state.get("portfolio_value", 0.0) or 0.0),
-            "benchmark": float(
-                current_state.get("benchmark_value", current_state.get("portfolio_value", 0.0))
-                or 0.0
-            ),
-            "cash": float(current_state.get("cash", 0.0) or 0.0),
-            "holdings_count": len(current_state.get("holdings", [])),
-            "external_cashflow": _effective_external_cashflow(
-                current_state, as_of_date
-            ),
-            "state_timestamp": current_state.get("last_updated"),
-            "reset_marker": _extract_state_reset_marker(current_state),
-        }
-
-        replaced = False
-        for idx, existing in enumerate(rows):
-            if existing["date"] == as_of_date:
-                rows[idx] = current_row
-                replaced = True
-                break
-        if not replaced:
-            rows.append(current_row)
-
-    rows.sort(key=lambda row: row["date"])
-
-    # Apply canonical hybrid-replay overrides over the historical segment
-    # plus the seam cashflow that anchors broker daily moves to the canon.
-    rows = _apply_canonical_overrides(rows)
-
-    return rows
-
-
-def _select_active_segment(
-    rows: List[Dict[str, Any]],
-    initial_value: float,
-) -> Tuple[List[Dict[str, Any]], Optional[Dict[str, Any]]]:
-    """Select active segment and infer reset boundary if present."""
-    if not rows:
-        return [], None
-
-    # Prefer explicit reset markers when available.
-    latest_marker = None
-    for row in reversed(rows):
-        if row.get("reset_marker"):
-            latest_marker = row["reset_marker"]
-            break
-    if latest_marker is not None:
-        active = [row for row in rows if row.get("reset_marker") == latest_marker]
-        if active:
-            return active, {
-                "method": "explicit_marker",
-                "marker": latest_marker,
-                "start_date": active[0]["date"],
-            }
-
-    # Heuristic fallback: large discontinuity into near-initial mostly-cash state.
-    boundary_idx = 0
-    for idx in range(1, len(rows)):
-        prev = rows[idx - 1]
-        curr = rows[idx]
-        prev_value = prev["value"]
-        curr_value = curr["value"]
-        if prev_value <= 0:
-            continue
-
-        jump = (curr_value - prev_value) / prev_value
-        near_initial = abs(curr_value - initial_value) <= initial_value * 0.05
-        mostly_cash = curr["cash"] >= curr_value * 0.9
-        large_discontinuity = abs(jump) >= 0.30
-
-        if near_initial and mostly_cash and large_discontinuity:
-            boundary_idx = idx
-
-    if boundary_idx > 0:
-        active = rows[boundary_idx:]
-        return active, {
-            "method": "heuristic_discontinuity",
-            "start_date": active[0]["date"],
-            "details": (
-                "Detected reset-like discontinuity and restarted return aggregation "
-                "from this boundary."
-            ),
-        }
-
-    return rows, None
-
-
-def _build_return_rows(active_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Build canonical daily return series adjusted for external cashflows."""
-    results: List[Dict[str, Any]] = []
-    prev_value: Optional[float] = None
-
-    for row in active_rows:
-        if prev_value is None or prev_value <= 0:
-            daily_return = None
-        else:
-            daily_return = (row["value"] - prev_value - row["external_cashflow"]) / prev_value
-
-        results.append(
-            {
-                "date": row["date"],
-                "value": row["value"],
-                "benchmark": row["benchmark"],
-                "external_cashflow": row["external_cashflow"],
-                "daily_return": daily_return,
-            }
-        )
-        prev_value = row["value"]
-    return results
-
-
-def _build_continuity_rows(
-    return_rows: List[Dict[str, Any]],
-) -> List[Dict[str, Any]]:
-    """Build continuity-adjusted rows by removing cumulative external cashflow.
-
-    This preserves performance continuity in equity/drawdown visualizations even
-    when account value jumps due to a broker cutover or true deposits/withdrawals.
-    """
-    cumulative_cashflow = 0.0
-    rows: List[Dict[str, Any]] = []
-
-    for row in return_rows:
-        cashflow = float(row.get("external_cashflow", 0.0) or 0.0)
-        cumulative_cashflow += cashflow
-        continuity_value = float(row.get("value", 0.0) or 0.0) - cumulative_cashflow
-        rows.append(
-            {
-                **row,
-                "continuity_value": continuity_value,
-                "cumulative_external_cashflow": cumulative_cashflow,
-            }
-        )
-
-    return rows
-
-
-def _compound(returns: List[float]) -> float:
-    """Compound a list of arithmetic returns."""
-    if not returns:
-        return 0.0
-    total = 1.0
-    for ret in returns:
-        total *= 1.0 + ret
-    return total - 1.0
-
-
-def _period_return(
-    return_rows: List[Dict[str, Any]],
-    start_date: str,
-) -> float:
-    """Compute compounded return from start_date through snapshot."""
-    values = [
-        row["daily_return"]
-        for row in return_rows
-        if row["date"] >= start_date and row["daily_return"] is not None
-    ]
-    return _compound([float(x) for x in values])
-
-
-def _monthly_returns(return_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Build monthly compounded returns from canonical daily returns."""
-    monthly_map: Dict[str, List[float]] = defaultdict(list)
-    for row in return_rows:
-        if row["daily_return"] is None:
-            continue
-        ym = row["date"][:7]
-        monthly_map[ym].append(float(row["daily_return"]))
-
-    result: List[Dict[str, Any]] = []
-    for ym in sorted(monthly_map.keys()):
-        year, month = ym.split("-")
-        result.append(
-            {
-                "year": int(year),
-                "month": int(month),
-                "return_pct": _compound(monthly_map[ym]),
-                "observations": len(monthly_map[ym]),
-            }
-        )
-    return result
-
-
-def _drawdown_series(active_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Build drawdown series from canonical equity curve."""
-    if not active_rows:
-        return []
-
-    peak = active_rows[0]["value"]
-    drawdowns: List[Dict[str, Any]] = []
-    for row in active_rows:
-        peak = max(peak, row["value"])
-        drawdown = (row["value"] - peak) / peak if peak > 0 else 0.0
-        drawdowns.append({"date": row["date"], "drawdown": drawdown})
-    return drawdowns
 
 
 def _load_fills(s3, dates: List[str]) -> List[Dict[str, Any]]:
@@ -760,79 +376,35 @@ def _exposure_metrics(
     }
 
 
-def compute_canonical_dashboard_metrics(
+def compute_trade_and_exposure_metrics(
     s3,
     portfolio_state: Dict[str, Any],
-    snapshot_date: Optional[str] = None,
     current_state: Optional[Dict[str, Any]] = None,
     max_days: int = 730,
-    initial_value: float = 100000.0,
-    risk_free_rate_annual: float = 0.0,
-    min_sharpe_observations: int = 60,
 ) -> Dict[str, Any]:
-    """Compute canonical dashboard metrics and series from daily artifacts."""
-    as_of_date = snapshot_date or datetime.now().strftime("%Y-%m-%d")
+    """Trade-history + current-exposure metrics — the NON-LINE half of the dashboard.
+
+    Clean-core split (FP-08-3/-4): the displayed equity LINE (equity_curve,
+    drawdowns, monthly returns, ytd/mtd/sharpe/max-dd) now comes from the stored
+    ledger (``src/canon/equity_line.py``), NOT from a nightly recompute of the
+    per-day sim book. This function keeps only what is genuinely derived elsewhere:
+
+      * trade stats from the FIFO round-trip accounting over ``trades.jsonl``
+        (win_rate / wins / losses / costs) — never the line;
+      * current-posture exposure ratios from the live ``portfolio_state`` holdings
+        (cash_pct / gross / net / top_position / beta_proxy).
+
+    It does NOT read ``sim_book_value`` into any displayed line and never calls the
+    deleted recompute pipeline (``_load_daily_states`` & friends).
+    """
     effective_state = current_state or portfolio_state
-
-    rows = _load_daily_states(
-        s3=s3,
-        max_days=max_days,
-        snapshot_date=as_of_date,
-        current_state=effective_state,
-    )
-    active_rows, reset_boundary = _select_active_segment(rows, initial_value=initial_value)
-    return_rows = _build_return_rows(active_rows)
-    continuity_rows = _build_continuity_rows(return_rows)
-    continuity_for_drawdown = [
-        {"date": row["date"], "value": row["continuity_value"]}
-        for row in continuity_rows
-    ]
-    drawdowns = _drawdown_series(continuity_for_drawdown)
-    monthly_returns = _monthly_returns(return_rows)
-
-    start_of_year = f"{as_of_date[:4]}-01-01"
-    start_of_month = f"{as_of_date[:7]}-01"
-    ytd_return = _period_return(return_rows, start_of_year)
-    mtd_return = _period_return(return_rows, start_of_month)
-
-    # Filter non-finite (NaN/inf) returns: statistics.mean/stdev raise the cryptic
-    # "'float' object has no attribute 'numerator'" on a NaN element (PKT-TB-012).
-    daily_returns = [
-        row["daily_return"] for row in return_rows
-        if row["daily_return"] is not None and row["daily_return"] == row["daily_return"]
-        and row["daily_return"] not in (float("inf"), float("-inf"))
-    ]
-    sharpe_ratio: Optional[float]
-    if len(daily_returns) < min_sharpe_observations:
-        sharpe_ratio = None
-    else:
-        rf_daily = (1.0 + risk_free_rate_annual) ** (1.0 / 252.0) - 1.0
-        excess = [ret - rf_daily for ret in daily_returns]
-        if len(excess) < 2:
-            sharpe_ratio = None
-        else:
-            sigma = stdev(excess)
-            sharpe_ratio = (mean(excess) / sigma * sqrt(252.0)) if sigma > 0 else None
-
-    max_drawdown = min((point["drawdown"] for point in drawdowns), default=0.0)
-    current_drawdown = drawdowns[-1]["drawdown"] if drawdowns else 0.0
-
-    dates = [row["date"] for row in active_rows]
+    dates = sorted(s3.list_daily_dates(max_days=max_days))
     fills = _load_fills(s3, dates)
     trade_summary = _build_trade_summary(fills)
     exposure = _exposure_metrics(effective_state)
 
     metrics = {
-        "ytd_return": ytd_return,
-        "mtd_return": mtd_return,
-        "sharpe_ratio": sharpe_ratio,
-        "sharpe_observations": len(daily_returns),
-        "sharpe_min_observations": min_sharpe_observations,
-        "max_drawdown": max_drawdown,
-        "current_drawdown": current_drawdown,
         "win_rate": trade_summary["win_rate"],
-        # "Total trades" is counted-trade basis (wins + losses) to keep
-        # denominator semantics consistent with win_rate = wins / (wins + losses).
         "total_trades": trade_summary["wins"] + trade_summary["losses"],
         "wins": trade_summary["wins"],
         "losses": trade_summary["losses"],
@@ -846,40 +418,11 @@ def compute_canonical_dashboard_metrics(
         "top_position_pct": exposure["top_position_pct"],
         "beta_proxy": exposure["beta_proxy"],
     }
-
     return {
-        "snapshot_date": as_of_date,
-        "reset_boundary": reset_boundary,
-        "active_start_date": active_rows[0]["date"] if active_rows else None,
-        "equity_curve": [
-            {
-                "date": row["date"],
-                "value": row["continuity_value"],
-                "benchmark": row["benchmark"],
-                "cumulative_external_cashflow": row["cumulative_external_cashflow"],
-            }
-            for row in continuity_rows
-        ],
-        "raw_equity_curve": [
-            {"date": row["date"], "value": row["value"], "benchmark": row["benchmark"]}
-            for row in active_rows
-        ],
-        "drawdowns": drawdowns,
-        "monthly_returns": monthly_returns,
-        "daily_returns": [
-            {
-                "date": row["date"],
-                "daily_return": row["daily_return"],
-                "external_cashflow": row["external_cashflow"],
-            }
-            for row in return_rows
-        ],
         "fills": fills,
-        "trade_summary": {
-            key: value
-            for key, value in trade_summary.items()
-            if key != "round_trips"
-        },
+        "trade_summary": {k: v for k, v in trade_summary.items() if k != "round_trips"},
         "round_trips": trade_summary["round_trips"],
         "metrics": metrics,
     }
+
+

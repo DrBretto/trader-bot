@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Optional
 import pandas as pd
 
 from src.utils.s3_client import S3Client
-from src.utils.dashboard_metrics import compute_canonical_dashboard_metrics
+from src.utils.dashboard_metrics import compute_trade_and_exposure_metrics
 from src.steps import paper_trader
 
 
@@ -136,13 +136,22 @@ def run_brain_cutover_night(
         or inference_output.get('regime', {}).get('label', 'neutral')
     )
 
-    engine_name = str(cfg.get("engine", "")).lower()
+    # FP-08-6 — registry dispatch (G-REGISTRY-DISPATCH). The live engine is read
+    # from the authoritative pointer config/brain.active.json.engine, validated
+    # against the FREEZE_ORB1 engine hash at cold start. A swap is a pointer move:
+    # flip "engine" to a registered name + redeploy. The live engine today is the
+    # regime-restored native_two_stage (the ML-selection line); tilt_adapter is the
+    # dotted comparison. An unregistered engine / hash mismatch aborts to the
+    # deterministic incumbent (fail-safe) rather than dispatching the wrong model.
+    from src.brain.model_registry import resolve_live_engine, EngineRegistryError
+    try:
+        engine_name = resolve_live_engine(cfg)
+    except EngineRegistryError as e:
+        status["reason"] = f"engine registry/cold-start gate ABORT: {e}"
+        print(f"  ALARM: {status['reason']} — incumbent intents retained")
+        _alert_cutover_fallback(run_date, status["reason"])
+        return status
 
-    # The LIVE engine is the tilt_adapter (the intended new brain: deterministic
-    # rules + a small ML tilt — the yellow line). The native_two_stage engine is
-    # RETIRED (operator verdict 2026-06-23). Any non-tilt engine falls through to
-    # the legacy two-stage path only if explicitly configured (kept for the
-    # retired-model comparison line; never the default).
     if engine_name == "tilt_adapter":
         from src.brain.tilt_live import run_tilt_cutover
         tres = run_tilt_cutover(
@@ -174,7 +183,8 @@ def run_brain_cutover_night(
     )
 
     if res.ok and res.trade_intents:
-        # Legacy two-stage path (RETIRED — only runs if explicitly configured).
+        # The LIVE engine: regime-restored native two-stage (ML M1 selection +
+        # regime/risk chassis). Dispatched via the registry from brain.active.engine.
         s3.write_json(res.trade_intents, f"daily/{run_date}/trade_intents.json")
         s3.write_json(incumbent, f"daily/{run_date}/trade_intents.incumbent.json")
         s3.write_json({
@@ -183,8 +193,8 @@ def run_brain_cutover_night(
             "selected_universe": res.selected_universe,
             "forward_confirmed": False,
             "invariant_green": res.invariant_green,
-            "source": "PKT-TB-012 native two-stage engine cutover (RETIRED)",
-            "note": "Retired model — kept only for the comparison line.",
+            "source": "native two-stage engine cutover (live, registry-dispatched)",
+            "note": "Regime-restored two-stage: ML selection wrapped in the regime chassis.",
         }, f"daily/{run_date}/brain_selected_universe.json")
         status.update(
             engine_wrote_intents=True, engine=res.engine,
@@ -257,23 +267,23 @@ def build_dashboard_data(
     snapshot_date = snapshot['date']
     snapshot_id = snapshot['id']
 
-    canonical = compute_canonical_dashboard_metrics(
-        s3=s3,
-        portfolio_state=portfolio_state,
-        snapshot_date=snapshot_date,
-        current_state=portfolio_state,
-        max_days=730,
-        initial_value=100000.0,
-        risk_free_rate_annual=0.0,
-        min_sharpe_observations=60,
+    # CLEAN CORE (FP-08-3): the displayed equity LINE is the STORED ledger
+    # (src/canon/equity_line.load_line_view over equity_history.jsonl), never a
+    # recompute. The trade/exposure stats are the non-line half (FIFO round-trips +
+    # current posture). Nothing here reads sim_book_value into the line, and the old
+    # extend_dashboard re-anchor is gone.
+    from src.canon.equity_line import load_line_view
+    line = load_line_view(s3.s3)
+    line_metrics = line['line_metrics']
+    trade_exp = compute_trade_and_exposure_metrics(
+        s3=s3, portfolio_state=portfolio_state,
+        current_state=portfolio_state, max_days=730,
     )
-    canonical_metrics = canonical['metrics']
-    continuity_curve = canonical.get('equity_curve', [])
-    continuity_total_value = (
-        continuity_curve[-1]['value']
-        if continuity_curve
-        else portfolio_state.get('portfolio_value', 100000)
-    )
+    te_metrics = trade_exp['metrics']
+    # The displayed total is ALWAYS the stored ledger's terminal — NEVER the sim
+    # book. If the ledger is unreadable, total_value is None and the parity-or-hold
+    # gate holds the publish (the sim-book dollars must never become the line).
+    continuity_total_value = line_metrics.get('total_value') if line_metrics else None
     # Keep invested aligned with current holdings if upstream field is missing.
     invested = portfolio_state.get('invested')
     if invested is None:
@@ -281,30 +291,32 @@ def build_dashboard_data(
 
     # Build metrics
     metrics = {
-        # Champion line value for dashboard presentation.
+        # The displayed line's terminal value, straight from the stored ledger.
         'total_value': continuity_total_value,
         'cash': portfolio_state.get('cash', 100000),
         'invested': invested,
-        'ytd_return': canonical_metrics['ytd_return'],
-        'mtd_return': canonical_metrics['mtd_return'],
-        'sharpe_ratio': canonical_metrics['sharpe_ratio'],
-        'sharpe_observations': canonical_metrics['sharpe_observations'],
-        'sharpe_min_observations': canonical_metrics['sharpe_min_observations'],
-        'max_drawdown': canonical_metrics['max_drawdown'],
-        'current_drawdown': canonical_metrics['current_drawdown'],
-        'win_rate': canonical_metrics['win_rate'],
-        'total_trades': canonical_metrics['total_trades'],
-        'wins': canonical_metrics['wins'],
-        'losses': canonical_metrics['losses'],
-        'breakeven_trades': canonical_metrics['breakeven_trades'],
-        'realized_round_trips': canonical_metrics['realized_round_trips'],
-        'total_fills': canonical_metrics['total_fills'],
-        'cumulative_transaction_costs': canonical_metrics['cumulative_transaction_costs'],
-        'cash_pct': canonical_metrics['cash_pct'],
-        'gross_exposure': canonical_metrics['gross_exposure'],
-        'net_exposure': canonical_metrics['net_exposure'],
-        'top_position_pct': canonical_metrics['top_position_pct'],
-        'beta_proxy': canonical_metrics['beta_proxy'],
+        'ytd_return': line_metrics.get('ytd_return', 0.0),
+        'mtd_return': line_metrics.get('mtd_return', 0.0),
+        'sharpe_ratio': line_metrics.get('sharpe_ratio'),
+        'sharpe_observations': line_metrics.get('sharpe_observations', 0),
+        'sharpe_min_observations': 60,
+        'max_drawdown': line_metrics.get('max_drawdown', 0.0),
+        'current_drawdown': line_metrics.get('current_drawdown', 0.0),
+        'win_rate': te_metrics['win_rate'],
+        'total_trades': te_metrics['total_trades'],
+        'wins': te_metrics['wins'],
+        'losses': te_metrics['losses'],
+        'breakeven_trades': te_metrics['breakeven_trades'],
+        'realized_round_trips': te_metrics['realized_round_trips'],
+        'total_fills': te_metrics['total_fills'],
+        'cumulative_transaction_costs': te_metrics['cumulative_transaction_costs'],
+        'cash_pct': te_metrics['cash_pct'],
+        'gross_exposure': te_metrics['gross_exposure'],
+        'net_exposure': te_metrics['net_exposure'],
+        'top_position_pct': te_metrics['top_position_pct'],
+        'beta_proxy': te_metrics['beta_proxy'],
+        # The displayed line is the stored ledger (clean core), not a recompute.
+        'canon_source': 'ledger',
         'snapshot_id': snapshot_id,
         'timestamp': timestamp,
     }
@@ -343,10 +355,10 @@ def build_dashboard_data(
             'suggested_size': candidate.get('suggested_size', 0)
         })
 
-    # Canonical timeseries from the same snapshot context.
-    equity_curve = canonical['equity_curve']
-    drawdowns = canonical['drawdowns']
-    monthly_returns = canonical['monthly_returns']
+    # The three displayed lines + their derived series, folded from the stored ledger.
+    equity_curve = line['equity_curve']
+    drawdowns = line['drawdowns']
+    monthly_returns = line['monthly_returns']
 
     # Build regime info (use fused regime if available)
     regime_data = inference_output.get('regime', {})
@@ -406,8 +418,8 @@ def build_dashboard_data(
         'timestamp': timestamp,
     }
 
-    # Canonical fill history and round-trip summary from same active segment.
-    fills = canonical.get('fills', [])
+    # Fill history and round-trip summary (the non-line trade stats).
+    fills = trade_exp.get('fills', [])
     trades_history = []
     for fill in fills:
         trade = {k: v for k, v in fill.items() if not k.startswith('_')}
@@ -433,9 +445,9 @@ def build_dashboard_data(
         'chart_markers': _load_chart_markers(),
         'weather': weather_report,
         'trades': trades_history,
-        'trade_summary': canonical.get('trade_summary', {}),
-        'round_trips': canonical.get('round_trips', []),
-        'reset_boundary': canonical.get('reset_boundary'),
+        'trade_summary': trade_exp.get('trade_summary', {}),
+        'round_trips': trade_exp.get('round_trips', []),
+        'reset_boundary': None,
     }
 
     # Add expert signals if available
@@ -482,108 +494,56 @@ def _can_publish_dashboard(expert_signals: Optional[Dict[str, Any]]) -> bool:
     return expert_signals is not None
 
 
-# The newest possible-but-structurally-unpriceable day. The replay can only
-# price a decision date D from either D's own morning_prices.parquet (provisional)
-# or D+1's prices.parquet (real, next-session OPEN). The structural-latest day
-# never has a successor prices file yet, so it is only priceable provisionally.
-_PRICEABLE_WINDOW = 6  # walk back at most this many newest prefixes (cost cap)
-_REPLAY_START = '2026-03-11'
+def _verify_ledger_or_hold(dashboard_data, s3, phase, run_date) -> tuple:
+    """Parity-or-hold gate (FP-08-3) — replaces the old extender advance guard.
 
-
-def _newest_priceable_date(s3: S3Client) -> Optional[str]:
-    """Newest date the live corpus makes priceable, mirroring the replay's own
-    pricing precondition. Returns None if none in the recent window.
-
-    A date X is PRICEABLE iff:
-      - (analysis) daily/X/inference.json AND daily/X/features.parquet AND
-        daily/X/signals.parquet all exist, AND
-      - (price source) daily/X/morning_prices.parquet exists (provisional)  OR
-        the immediate successor date Y (next in trading_dates) has
-        daily/Y/prices.parquet.
-
-    Weekends/holidays/Mondays (no analysis) and the structural-latest day with
-    no successor prices and no provisional file are naturally NOT priceable, so
-    this does not false-alarm.
+    The displayed line is now the STORED ledger; this gate refuses to publish a
+    dashboard whose line is empty, has drifted from the stored leaves, or has
+    regressed behind the last published terminal. Returns (ok, reason); ok=False
+    means HOLD last-known-good + alarm. Never raises.
     """
-    from src.utils.three_line_replay.replay_engine import S3Cache
-    cache = S3Cache(s3.s3)
     try:
-        trading_dates = cache.list_daily_dates()
-    except Exception as e:
-        print(f"  _newest_priceable_date: list failed (non-fatal): {e}")
-        return None
-    trading_dates = [d for d in trading_dates if d >= _REPLAY_START]
-    if not trading_dates:
-        return None
+        from src.canon.equity_ledger import EquityLedger
+        ec = dashboard_data.get('equity_curve', []) or []
+        if not ec:
+            return False, "PARITY check failed: equity_curve is empty (ledger not readable / unseeded)"
 
-    def _exists(key: str) -> bool:
+        rendered_term = ec[-1]
+        # 1. CACHE-PROJECTION parity: the rendered terminal must equal the stored
+        #    ledger frontier leaf EXACTLY (the line is a pure fold of the leaves).
+        front = EquityLedger(s3.s3).frontier()
+        if front is None:
+            return False, "PARITY check failed: ledger has no frontier (unseeded)"
+        # value parity against the stored frontier (read the leaf via the cache row)
+        from src.canon.equity_line import read_cache_rows
+        cache_rows = read_cache_rows(s3.s3)
+        if not cache_rows:
+            return False, "PARITY check failed: ledger cache empty"
+        led_term = cache_rows[-1]
+        if rendered_term.get('date') != led_term['date'] or rendered_term.get('value') != led_term['value']:
+            return False, (
+                f"PARITY check failed: rendered terminal "
+                f"{rendered_term.get('date')}={rendered_term.get('value')} != ledger "
+                f"{led_term['date']}={led_term['value']} (cache projection drift)"
+            )
+
+        # 2. NO-REGRESSION: the terminal date must not move backward vs the last
+        #    published dashboard (the exact "history moved overnight" failure class).
         try:
-            cache.get(key)
-            return True
+            prev = s3.read_json('dashboard/dashboard.json') or {}
+            prev_ec = prev.get('equity_curve', []) or []
+            prev_term_date = prev_ec[-1]['date'] if prev_ec else None
         except Exception:
-            return False
-
-    n = len(trading_dates)
-    # Walk from newest backward, only the last ~_PRICEABLE_WINDOW prefixes.
-    for i in range(n - 1, max(-1, n - 1 - _PRICEABLE_WINDOW), -1):
-        x = trading_dates[i]
-        has_analysis = (
-            _exists(f'daily/{x}/inference.json')
-            and _exists(f'daily/{x}/features.parquet')
-            and _exists(f'daily/{x}/signals.parquet')
-        )
-        if not has_analysis:
-            continue
-        has_provisional = _exists(f'daily/{x}/morning_prices.parquet')
-        has_successor_prices = False
-        if i + 1 < n:
-            y = trading_dates[i + 1]
-            has_successor_prices = _exists(f'daily/{y}/prices.parquet')
-        if has_provisional or has_successor_prices:
-            return x
-    return None
-
-
-def _verify_extension_or_alarm(dashboard_data, s3, phase, run_date) -> tuple:
-    """Returns (ok, reason). ok=False means: DO NOT publish (preserve last-known-good),
-    send an alert, mark the run failed. Never raises."""
-    try:
-        tc = dashboard_data.get('timeline_correction', {}) or {}
-        metrics = dashboard_data.get('metrics', {}) or {}
-
-        # 1. STAMP: extender ran and stamped the New-Brain canon (PKT-TB-012).
-        stamp_ok = (
-            tc.get('version') == 'lambda-new-brain-canon-v1'
-            and metrics.get('canon_source') == 'new_brain'
-        )
-        if not stamp_ok:
+            prev_term_date = None
+        if prev_term_date is not None and rendered_term['date'] < prev_term_date:
             return False, (
-                "STAMP check failed: timeline_correction.version="
-                f"{tc.get('version')!r}, metrics.canon_source="
-                f"{metrics.get('canon_source')!r} (expected new-brain canon stamp; "
-                "extender likely silently no-op'd / champion freeze table missing)"
+                f"REGRESSION check failed: new terminal {rendered_term['date']} < "
+                f"last published {prev_term_date} (line would move backward)"
             )
 
-        # 2. FRONTIER PRESENT: the primary line reached at least one date.
-        f_new = tc.get('champion_frontier')
-        if f_new is None:
-            return False, "FRONTIER check failed: champion_frontier is None (primary line empty)"
-
-        # 3. FORWARD-ADVANCE: the corpus must not offer a newer priceable day
-        #    than the replay reached.
-        f_expected = _newest_priceable_date(s3)
-        if f_expected is not None and f_new < f_expected:
-            return False, (
-                f"FORWARD-ADVANCE check failed: champion_frontier={f_new} < "
-                f"newest priceable={f_expected} (corpus offered a newer priceable "
-                "day; replay stalled / stuck provisional)"
-            )
-
-        return True, f"ok (frontier={f_new}, expected={f_expected})"
+        return True, f"ok (ledger terminal {led_term['date']}={led_term['value']})"
     except Exception as e:
-        # Never raise from the guard. A guard crash should not crash the run,
-        # but it also must not silently pass — treat it as a hold.
-        return False, f"guard raised (held as precaution): {e}"
+        return False, f"gate raised (held as precaution): {e}"
 
 
 def _build_timeseries_row(
@@ -883,6 +843,21 @@ def run(
             failed.append("timeseries.parquet")
 
     # 13. Generate dashboard.json for frontend
+    #     CLEAN CORE: first APPEND today's settled frontier leaf to the stored
+    #     ledger (the advance mechanism — capital carried from yesterday's STORED
+    #     leaf, value from the canon series, NEVER sim_book), then render the line
+    #     from the ledger. The append is the only write to the line; the render is
+    #     a pure fold. A parity-or-hold gate guards the publish.
+    from src.canon.equity_append import append_settled_point_for_publish
+    try:
+        _append_res = append_settled_point_for_publish(s3.s3, run_date, portfolio_state)
+        print(f"  equity ledger append: {_append_res.get('action')} "
+              f"{_append_res.get('date')}={_append_res.get('value')}")
+    except Exception as e:
+        # An append failure must NOT crash the publish — the line holds at its last
+        # stored leaf (no revert possible) and the gate below renders that.
+        print(f"  equity ledger append skipped (non-fatal, line holds): {e}")
+
     dashboard_publishable = _can_publish_dashboard(expert_signals)
     dashboard_held = False
     canon_total_value = None
@@ -892,17 +867,9 @@ def run(
             expert_signals=expert_signals,
             snapshot_meta=snapshot_meta,
         )
-        # Apply the three-line replay extension (optimized-champion canon line).
-        # MUST be wired here: without a committed call site the corrected line
-        # is produced only by working-tree code baked into the Lambda image,
-        # and a fresh checkout + rebuild would silently drop it. extend_dashboard
-        # is internally defensive (returns dashboard_data unchanged on any
-        # failure), so this degrades gracefully to the raw canonical line.
-        from src.utils.three_line_replay.extender import extend_dashboard
-        dashboard_data = extend_dashboard(s3.s3, dashboard_data)
-        # PKT-TB-012: carry the exposure-stripped forecast-rung rent + CI, the
-        # U-E universe rung, the IC skill receipt, and forward_confirmed:false
-        # onto the live primary-line surface (Skeptic closing condition 1).
+        # Carry the exposure-stripped forecast-rung rent + CI, the U-E universe rung,
+        # the IC skill receipt, and forward_confirmed:false onto the surface (a
+        # non-line annotation; reads the out-of-band shadow payload).
         try:
             _shadow_payload = s3.read_json('dashboard/shadow_timeseries.json')
         except Exception:
@@ -920,23 +887,22 @@ def run(
                   "Preserving last known good dashboard state.")
             failed.append("dashboard.json (skipped: null signals)")
         else:
-            # Fail-loud advance guard: never overwrite a good dashboard with a
-            # silently-stale or unstamped one. Holds last-known-good on alarm.
-            guard_ok, guard_reason = _verify_extension_or_alarm(
+            # Parity-or-hold gate: never publish an empty/drifted/regressed line.
+            guard_ok, guard_reason = _verify_ledger_or_hold(
                 dashboard_data, s3, 'night', run_date
             )
             if not guard_ok:
-                print(f"  ALARM: dashboard advance guard FAILED — {guard_reason}")
+                print(f"  ALARM: dashboard parity-or-hold gate FAILED — {guard_reason}")
                 from src.utils.sns_alerts import send_alert
                 send_alert(
-                    subject="[TraderBot] night dashboard did NOT advance — holding last-known-good",
+                    subject="[TraderBot] night dashboard line failed parity — holding last-known-good",
                     body=(
                         f"{guard_reason}\n"
                         f"run_date={run_date}\n"
                         "Preserving last-known-good dashboard.json; check CloudWatch."
                     ),
                 )
-                failed.append("dashboard.json (HELD: failed advance guard)")
+                failed.append("dashboard.json (HELD: failed parity-or-hold gate)")
                 dashboard_held = True
             else:
                 # Write to both locations for compatibility
@@ -1104,13 +1070,10 @@ def publish_morning_artifacts(
             expert_signals=expert_signals,
             snapshot_meta=snapshot_meta,
         )
-        # Apply the three-line replay extension (optimized-champion canon line).
-        # See the night-path note above: committed call site required for
-        # durability; extend_dashboard degrades gracefully on failure.
-        from src.utils.three_line_replay.extender import extend_dashboard
-        dashboard_data = extend_dashboard(s3.s3, dashboard_data)
-        # PKT-TB-012: carry forecast-rung rent + CI + U-E rung + IC receipt +
-        # forward_confirmed:false onto the live primary-line surface.
+        # CLEAN CORE: the morning re-serves the STORED ledger line (no append — the
+        # night owns the one settled frontier append per trading day; the morning is
+        # intraday and the line is the settled daily series). Carry the non-line
+        # forecast-rung surface from the out-of-band shadow payload.
         try:
             _shadow_payload = s3.read_json('dashboard/shadow_timeseries.json')
         except Exception:
@@ -1125,22 +1088,22 @@ def publish_morning_artifacts(
                   "Preserving last known good dashboard state.")
             failed.append("dashboard.json (skipped: null signals)")
         else:
-            # Fail-loud advance guard (same as night path).
-            guard_ok, guard_reason = _verify_extension_or_alarm(
+            # Parity-or-hold gate (same as night path).
+            guard_ok, guard_reason = _verify_ledger_or_hold(
                 dashboard_data, s3, 'morning', run_date
             )
             if not guard_ok:
-                print(f"  ALARM: morning dashboard advance guard FAILED — {guard_reason}")
+                print(f"  ALARM: morning dashboard parity-or-hold gate FAILED — {guard_reason}")
                 from src.utils.sns_alerts import send_alert
                 send_alert(
-                    subject="[TraderBot] morning dashboard did NOT advance — holding last-known-good",
+                    subject="[TraderBot] morning dashboard line failed parity — holding last-known-good",
                     body=(
                         f"{guard_reason}\n"
                         f"run_date={run_date}\n"
                         "Preserving last-known-good dashboard.json; check CloudWatch."
                     ),
                 )
-                failed.append("dashboard.json (HELD: failed advance guard)")
+                failed.append("dashboard.json (HELD: failed parity-or-hold gate)")
                 dashboard_held = True
             else:
                 s3.write_json(dashboard_data, "dashboard/data/dashboard.json")

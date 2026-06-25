@@ -77,47 +77,12 @@ def champion_freeze_map() -> Tuple[Dict[str, float], Optional[str], Optional[flo
     )
 
 
-# ----------------------------------------------- forward New-Brain line freeze
-# PKT-TRADER-BOT-REGIME-PICKER-NIGHTLY-RECALC-FIX-V1. The displayed forward line
-# (> NEW_BRAIN_BOUNDARY_DATE) was re-derived on every publish by chaining the
-# per-day sim_book_value (the dead internal book — NEVER the line) onto the frozen
-# 06-11 terminal, so the live night/midday runs re-broke it overnight every time.
-# This byte-static table is the CORRECT forward line (regime-ON + full-universe
-# replay; CHAMPION/replay basis), READ by extend_dashboard and NEVER recomputed —
-# the same gated pattern as the champion freeze, extended forward. The nightly
-# recompute can no longer revert it.
-NEW_BRAIN_FORWARD_FREEZE_FILENAME = "new_brain_forward_freeze_20260625.json"
-
-
-def _new_brain_forward_freeze_path() -> Path:
-    return Path(__file__).resolve().parents[2] / "config" / NEW_BRAIN_FORWARD_FREEZE_FILENAME
-
-
-def load_new_brain_forward_freeze() -> Optional[Dict[str, Any]]:
-    """Load the frozen forward New-Brain line table. Returns None if absent (the
-    extender then falls back to the legacy realized-return chain rather than
-    crashing)."""
-    p = _new_brain_forward_freeze_path()
-    if not p.exists():
-        return None
-    try:
-        return json.loads(p.read_text())
-    except (OSError, json.JSONDecodeError):
-        return None
-
-
-def new_brain_forward_freeze_map() -> Tuple[Dict[str, float], Optional[str]]:
-    """(date->value map, frontier_date) of the frozen forward New-Brain line.
-
-    The map owns dates strictly after NEW_BRAIN_BOUNDARY_DATE. ``frontier_date`` is
-    the newest settled date the freeze covers; the extender flat-holds the last
-    frozen value for any date beyond it (no cliff on a future night run)."""
-    fz = load_new_brain_forward_freeze()
-    if not fz:
-        return {}, None
-    curve: List[Dict[str, Any]] = fz.get("curve", [])
-    m = {row["date"]: float(row["value"]) for row in curve}
-    return m, fz.get("frontier_date")
+# NOTE (clean core, 2026-06-25): the band-aid forward New-Brain freeze loader
+# (PKT-TRADER-BOT-REGIME-PICKER-NIGHTLY-RECALC-FIX-V1) is REMOVED. It wrapped the
+# very recompute the clean-core dossier deletes; the displayed forward line is now
+# the STORED equity ledger (src/canon/equity_ledger.py), read by
+# src/canon/equity_line.py — not a frozen table read by a recompute. The champion
+# freeze (<= 2026-06-11) above is preserved as gated infra (byte-immutable anchor).
 
 
 # Per-day override values for 2026-03-12 -> 2026-05-05.

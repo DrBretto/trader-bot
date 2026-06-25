@@ -27,6 +27,20 @@ ensure_docker_ready() {
     return 1
 }
 
+# Why the build runs through the `default` context (the `docker` BuildKit driver),
+# not the active buildx builder:
+#
+#   The active buildx builder on this machine (multi-arch-builder) uses the
+#   `docker-container` driver — BuildKit runs as a CONTAINER managed by Docker
+#   Desktop. Starting that build makes Docker Desktop bring its UI window to the
+#   foreground on every deploy (plain `docker info`/`docker login` are simple API
+#   calls and do not). The `docker` driver (the builder bound to the `default`
+#   context, endpoint /var/run/docker.sock) uses the daemon's EMBEDDED BuildKit —
+#   no Desktop-managed buildkit container, so no GUI surfacing — and it still
+#   supports `--platform linux/amd64 --push` (verified 2026-06-25). We pin every
+#   build to it via `docker --context=default buildx`.
+DOCKER_BUILD=(docker --context=default buildx build)
+
 # Get the project root directory
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
@@ -98,10 +112,12 @@ fi
 echo "Logging into ECR..."
 aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$ECR_URI"
 
-# Build the container image (x86_64 for Lambda) and push directly
-# Use buildx with --push and --provenance=false to avoid multi-arch manifest issues
-echo "Building and pushing container image..."
-docker buildx build --platform linux/amd64 --progress=plain \
+# Build the container image (x86_64 for Lambda) and push directly.
+# Uses the `docker` driver via --context=default (see DOCKER_BUILD note above) so
+# the build does NOT surface the Docker Desktop GUI. --push + --provenance=false
+# avoid multi-arch manifest issues.
+echo "Building and pushing container image (docker driver, no GUI popup)..."
+"${DOCKER_BUILD[@]}" --platform linux/amd64 --progress=plain \
     -f Dockerfile.lambda \
     -t "$IMAGE_URI" \
     --provenance=false \
