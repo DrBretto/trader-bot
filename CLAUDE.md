@@ -1,3 +1,20 @@
+<!-- ================================================================= -->
+<!-- READ THIS FIRST — NON-NEGOTIABLE — EVERY AI SESSION — FOREVER     -->
+<!-- ================================================================= -->
+
+# 🛑 THE ALPACA / ~$97K "SIM BOOK" IS **NOT** THE SOURCE OF TRUTH FOR ANYTHING. EVER.
+
+**TO EVERY AI THAT EVER TOUCHES THIS PROJECT — CLAUDE, CODEX, ANY MODEL, ANY SESSION, GOING FORWARD FOREVER:**
+
+- THE ~$97,000 INTERNAL SIM BOOK / `sim_book_value` / THE OLD ALPACA "ACCOUNT" IS **NOT** A PORTFOLIO, **NOT** THE LINE, **NOT** A RETURN BASE, **NOT** A YARDSTICK, **NOT** A MEASURING STICK FOR ACCURACY — **NOT THE SOURCE OF TRUTH FOR ANYTHING AT ALL.**
+- THE ONLY SOURCE OF TRUTH FOR THE LINE / PERFORMANCE IS **CHAMPION / REPLAY**: real recorded holdings, marked at real **SETTLED** prices, scaled to the accepted displayed anchor.
+- THE RESIM SCRIPT'S `raw` COLUMN (~$95–97K) IS **ONLY THE RETURN ENGINE.** THE LINE IS THE **DISPLAYED** ANCHORED RETURN SERIES. **NEVER** COMPARE THE DISPLAYED LINE AGAINST THE RAW / SIM-BOOK DOLLARS AND CALL IT "INACCURATE." THAT IS THE #1 RECURRING FAILURE ON THIS PROJECT.
+- IF YOU EVER CATCH YOURSELF USING, CITING, OR MEASURING AGAINST THE ~$97K BOOK: **STOP. YOU ARE WRONG. DELETE THAT REASONING AND START OVER.**
+
+_(This banner exists because this exact mistake was made and corrected on 2026-06-25. Do not repeat it.)_
+
+<!-- ================================================================= -->
+
 # Claude Project Driver (CLAUDE.md)
 
 ## Role
