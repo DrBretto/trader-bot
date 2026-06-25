@@ -105,6 +105,31 @@ export interface ShadowTimeseries {
   stats: ShadowStats;
 }
 
+// Challenger (comparison) series in display priority. The bottom model-comparison
+// chart renders the FIRST non-empty one, so it stays robust to a varying number of
+// challenger series and NEVER assumes a fixed set (e.g. exactly shadow_A + shadow_B):
+// a series being absent, or N changing, degrades to "the next available challenger"
+// rather than a blank/crashing chart. shadow_A and shadow_F are the same M1 tilt
+// (the producer aliases shadow_A := shadow_F), so either renders the tilt line.
+export const CHALLENGER_SERIES_KEYS: (keyof ShadowTimeseries)[] = [
+  'shadow_A', 'shadow_F', 'shadow_U', 'shadow_E', 'shadow_B', 'shadow_R', 'shadow_I',
+];
+
+/** The first non-empty challenger line on the payload, or [] when none exists
+ *  (armed-but-empty / absent). Pure + total — never throws on a missing series. */
+export function pickChallengerSeries(
+  shadow: ShadowTimeseries | null | undefined,
+): ShadowLinePoint[] {
+  if (!shadow) return [];
+  for (const key of CHALLENGER_SERIES_KEYS) {
+    const series = shadow[key];
+    if (Array.isArray(series) && series.length > 0) {
+      return series as ShadowLinePoint[];
+    }
+  }
+  return [];
+}
+
 const SHADOW_URL = import.meta.env.VITE_DATA_URL
   ? 'shadow_timeseries.json'
   : './data/shadow_timeseries.json';

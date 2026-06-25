@@ -3,7 +3,7 @@ import {
   Tooltip, ResponsiveContainer, ReferenceArea, TooltipProps,
 } from 'recharts';
 import { EquityCurvePoint, TimeseriesPoint } from '../../types';
-import { ShadowTimeseries } from '../../hooks/useShadowData';
+import { ShadowTimeseries, pickChallengerSeries } from '../../hooks/useShadowData';
 import { format, parseISO } from 'date-fns';
 
 interface Props {
@@ -52,7 +52,7 @@ export function MobileChart({ equityData, timeseries, shadow }: Props) {
 
   // Dual forward shadow (paper book A). Absent/armed payloads draw nothing;
   // the caption below the chart reports the armed state.
-  const shadowAByDate = new Map(shadow?.shadow_A ?? []);
+  const shadowAByDate = new Map(pickChallengerSeries(shadow));
   const hasShadowA = shadowAByDate.size > 0;
   const shadowArmed = !!shadow && !hasShadowA;
 

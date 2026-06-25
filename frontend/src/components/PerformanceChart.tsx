@@ -12,7 +12,7 @@ import {
   TooltipProps,
 } from 'recharts';
 import { ChartMarker, EquityCurvePoint, DrawdownPoint, MonthlyReturn, TimeseriesPoint } from '../types';
-import { ShadowTimeseries } from '../hooks/useShadowData';
+import { ShadowTimeseries, pickChallengerSeries } from '../hooks/useShadowData';
 import { FORECAST_RUNG_ID } from '../registry/componentRegistry';
 import { format, parseISO } from 'date-fns';
 import { InfoTooltip } from './InfoTooltip';
@@ -139,11 +139,11 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
       <div style={{ color: '#94a3b8', marginBottom: 4, fontWeight: 600 }}>
         <span>{dateStr}</span>
       </div>
-      <div style={{ color: '#3b82f6' }}>
+      <div style={{ color: '#f59e0b' }}>
         {point.newModel != null ? 'Portfolio (two-stage)' : 'Portfolio'}: <span style={{ fontWeight: 600 }}>{formatCurrency(point.newModel ?? point.valuePre ?? point.value)}</span>
       </div>
       {point.championForward !== null && point.championForward !== undefined && (
-        <div style={{ color: '#f59e0b', opacity: 0.9 }}>
+        <div style={{ color: '#3b82f6', opacity: 0.9 }}>
           Tilt (comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.championForward)}</span>
         </div>
       )}
@@ -189,7 +189,10 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
   // i.e. the canon `value` line forward. The COMPARISON (dotted blue) = the tilt
   // (deterministic rules + small M1 nudge = shadow_A). The two are what the
   // performance lens + rent ladder evaluate against each other.
-  const tiltByDate = new Map(shadow?.shadow_A ?? []);
+  // The challenger (dotted-blue tilt comparison). Pick the first available
+  // challenger series so the line keeps rendering even if the producer's series
+  // set changes (varying N) — never assume exactly shadow_A + shadow_B.
+  const tiltByDate = new Map(pickChallengerSeries(shadow));
   const hasTilt = tiltByDate.size > 0;
 
   // Trim leading flat zone
@@ -472,7 +475,8 @@ Background color bands show the detected market regime at each point in time.`}
           />
 
           {/* CANON, part 1 — solid BLUE through the boundary: the real champion
-              history up to 2026-06-11 (where the new model was placed). */}
+              history up to 2026-06-11 (the OLD model; stays blue). The NEW two-stage
+              model forward of the boundary is yellow. */}
           <Line
             yAxisId="equity"
             type="monotone"
@@ -484,30 +488,30 @@ Background color bands show the detected market regime at each point in time.`}
             connectNulls={false}
           />
 
-          {/* CANON, part 2 — solid BLUE from the boundary forward: the NEW MODEL
+          {/* CANON, part 2 — solid YELLOW from the boundary forward: the NEW MODEL
               = the live two-stage engine (the canon `value` forward). One
-              continuous blue canon line with the blue champion history. */}
+              continuous yellow canon line with the yellow champion history. */}
           <Line
             yAxisId="equity"
             type="monotone"
             dataKey="newModel"
-            stroke="#3b82f6"
+            stroke="#f59e0b"
             strokeWidth={2.5}
             dot={false}
             legendType="none"
             connectNulls
-            activeDot={{ r: 4, fill: '#3b82f6', stroke: '#0f172a', strokeWidth: 2 }}
+            activeDot={{ r: 4, fill: '#f59e0b', stroke: '#0f172a', strokeWidth: 2 }}
           />
 
-          {/* COMPARISON (dotted YELLOW) = the TILT (deterministic rules + small M1
-              nudge = shadow_A), from the boundary forward. Blue continuous = canon
-              (two-stage); yellow dotted = the tilt comparison. */}
+          {/* COMPARISON (dotted BLUE) = the TILT (deterministic rules + small M1
+              nudge = shadow_A), from the boundary forward. Yellow continuous = canon
+              (two-stage); blue dotted = the tilt comparison. */}
           {hasTilt && (
             <Line
               yAxisId="equity"
               type="monotone"
               dataKey="championForward"
-              stroke="#f59e0b"
+              stroke="#3b82f6"
               strokeWidth={1.5}
               strokeDasharray="3 4"
               dot={false}
@@ -555,11 +559,11 @@ Background color bands show the detected market regime at each point in time.`}
       {/* Legend */}
       <div className="performance-legend">
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio (canon — two-stage live)
+          <span className="legend-swatch" style={{ background: '#f59e0b' }} /> Portfolio (canon — two-stage live)
         </span>
         {hasTilt && (
           <span className="legend-item">
-            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#f59e0b', opacity: 0.9 }} /> Tilt (comparison)
+            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#3b82f6', opacity: 0.9 }} /> Tilt (comparison)
           </span>
         )}
         <span className="legend-item">
@@ -570,7 +574,7 @@ Background color bands show the detected market regime at each point in time.`}
         </span>
         {shadow && !hasTilt && (
           <span className="legend-item">
-            <span className="legend-swatch" style={{ background: '#f59e0b', opacity: 0.45 }} /> Tilt (comparison): armed — accruing
+            <span className="legend-swatch" style={{ background: '#3b82f6', opacity: 0.45 }} /> Tilt (comparison): armed — accruing
           </span>
         )}
         <span className="legend-item legend-item-regime">
@@ -592,7 +596,7 @@ Background color bands show the detected market regime at each point in time.`}
         <div className="shadow-note">
           {hasNewBrain ? (
             <>
-              <strong style={{ color: '#93c5fd' }}>New Brain</strong> (native two-stage engine) — live from {newBrainGoLiveDate}, re-anchored C0-continuous to the frozen champion ($114.9k, Jun 11).
+              <strong style={{ color: '#fbbf24' }}>New Brain</strong> (native two-stage engine) — live from {newBrainGoLiveDate}, re-anchored C0-continuous to the frozen champion ($114.9k, Jun 11).
               {' '}
               {forecastRung
                 ? <>Forecast-rung rent (exposure-stripped): <strong>{formatShadowStat(forecastRung.stripped_bp_day)}</strong> bp/day

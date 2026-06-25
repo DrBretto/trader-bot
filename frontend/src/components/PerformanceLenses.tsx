@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { EquityCurvePoint } from '../types';
-import { ShadowTimeseries } from '../hooks/useShadowData';
+import { ShadowTimeseries, pickChallengerSeries } from '../hooks/useShadowData';
 import { InfoTooltip } from './InfoTooltip';
 
 interface Props {
@@ -71,7 +71,8 @@ function buildShadowComparisonData(
   equityCurve: EquityCurvePoint[],
   shadow: ShadowTimeseries | null | undefined,
 ) {
-  const tiltPts = shadow?.shadow_A ?? [];
+  // First available challenger series (robust to a varying number of series).
+  const tiltPts = pickChallengerSeries(shadow);
   if (tiltPts.length === 0) return [];
   const tiltByDate = new Map(tiltPts);
 
