@@ -51,8 +51,33 @@ ECR_URI="$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com"
 IMAGE_URI="$ECR_URI/$ECR_REPO_NAME:latest"
 ROLE_ARN="arn:aws:iam::$ACCOUNT_ID:role/$ROLE_NAME"
 
+# PKT-TB-CLEAN-GOVERNED-IMAGE (ISSUE-15): every deployed image also carries an
+# IMMUTABLE commit-SHA tag, so a deployed digest is always traceable to the exact
+# committed tree it was built from (not `latest`-only push-time correlation).
+# Deploy still pins by digest (below); the SHA tag is the provenance.
+#
+# The dirty check is scoped to the paths the Dockerfile actually bakes (BAKE_PATHS
+# below) — NOT the whole tree, which always carries unrelated research/hygiene
+# sprawl in this repo. If any BAKED source path has uncommitted changes the image
+# is ungoverned and tags `<sha>-dirty` so it can never masquerade as a clean SHA.
+GIT_SHA=$(git rev-parse --short=12 HEAD 2>/dev/null || echo "nogit")
+BAKE_PATHS=(src/ config/ training/models/ brain/FREEZE_ORB1.json \
+    requirements-lambda.txt Dockerfile.lambda \
+    runs/pkt_tb_007_orthogonal_brain/shadow \
+    runs/pkt_tb_007_orthogonal_brain/prototype/lot_fix_007.py \
+    runs/pkt_tb_006_clean_sheet_brain/prototype)
+# Tracked changes vs HEAD in the baked paths (staged+unstaged). Untracked files
+# are not part of the enumerated committed bake source, so they do not count.
+if git diff --quiet HEAD -- "${BAKE_PATHS[@]}" 2>/dev/null; then
+    GIT_TAG="sha-${GIT_SHA}"
+else
+    GIT_TAG="sha-${GIT_SHA}-dirty"
+fi
+SHA_IMAGE_URI="$ECR_URI/$ECR_REPO_NAME:$GIT_TAG"
+
 echo "Account: $ACCOUNT_ID"
 echo "ECR URI: $IMAGE_URI"
+echo "SHA tag: $SHA_IMAGE_URI"
 
 ensure_docker_ready
 
@@ -120,14 +145,16 @@ echo "Building and pushing container image (docker driver, no GUI popup)..."
 "${DOCKER_BUILD[@]}" --platform linux/amd64 --progress=plain \
     -f Dockerfile.lambda \
     -t "$IMAGE_URI" \
+    -t "$SHA_IMAGE_URI" \
     --provenance=false \
     --push \
     .
 
-# Get the image digest for deterministic deployment
+# Get the image digest for deterministic deployment (pin by the SHA tag so the
+# deployed digest is the one bound to this commit's immutable tag).
 IMAGE_DIGEST=$(aws ecr describe-images \
     --repository-name "$ECR_REPO_NAME" \
-    --image-ids imageTag=latest \
+    --image-ids imageTag="$GIT_TAG" \
     --region "$REGION" \
     --query 'imageDetails[0].imageDigest' \
     --output text)
