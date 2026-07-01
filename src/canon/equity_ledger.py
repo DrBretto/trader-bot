@@ -93,6 +93,19 @@ class LedgerIntegrityError(LedgerError):
     """The on-S3 leaves do not form a single valid hash chain (restore-from-facts failed)."""
 
 
+class DestructiveCacheError(LedgerError):
+    """A cache projection write would overwrite a currently-populated line with an
+    empty or point-reduced one (the canon analogue of the shadow-publish guard). A
+    degraded/partial read of the leaves must ABORT+ALERT rather than silently wipe
+    the good line — the populated cache is left intact (fail-loud, never-shrink)."""
+
+
+def _ndjson_row_count(body: bytes) -> int:
+    if not body:
+        return 0
+    return sum(1 for line in body.decode().splitlines() if line.strip())
+
+
 # --------------------------------------------------------------------------- #
 # leaf construction + content-addressing
 # --------------------------------------------------------------------------- #
@@ -253,10 +266,33 @@ class EquityLedger:
             ContentType="application/json",
         )
 
+    def _assert_cache_not_shrunk(self, new_body: bytes) -> None:
+        """Fail-loud never-shrink guard for the CACHE_KEY projection.
+
+        Refuse to overwrite a currently-populated cache with an empty or
+        point-reduced fold (e.g. a degraded/partial leaf listing). When the
+        current cache is unreadable or itself unpopulated there is nothing to
+        protect. On a destructive write we log an ALERT and RAISE, leaving the
+        good line intact.
+        """
+        try:
+            current = self.read_cache()
+        except Exception:  # noqa: BLE001
+            current = b""
+        cur_n = _ndjson_row_count(current)
+        new_n = _ndjson_row_count(new_body)
+        if cur_n > 0 and new_n < cur_n:
+            msg = (f"ABORT destructive canon cache overwrite — would overwrite a "
+                   f"populated line with an empty/point-reduced one "
+                   f"({cur_n}->{new_n} leaves); good line left intact")
+            logger.error("ALERT %s", msg)
+            raise DestructiveCacheError(msg)
+
     def _refold_cache(self) -> bytes:
         """Re-derive the cache from the leaves (the ONLY writer of CACHE_KEY)."""
         leaves = self._ordered_chain_from_leaves()
         body = fold_cache(leaves)
+        self._assert_cache_not_shrunk(body)
         self.s3.put_object(
             Bucket=self.bucket, Key=CACHE_KEY, Body=body,
             ContentType="application/x-ndjson",
@@ -376,9 +412,11 @@ class EquityLedger:
         chain = self._ordered_chain_from_leaves()
         manifest = self._manifest_from_chain(chain)
         if write:
+            body = fold_cache(chain)
+            self._assert_cache_not_shrunk(body)
             self._put_manifest(manifest)
             self.s3.put_object(
-                Bucket=self.bucket, Key=CACHE_KEY, Body=fold_cache(chain),
+                Bucket=self.bucket, Key=CACHE_KEY, Body=body,
                 ContentType="application/x-ndjson",
             )
         return manifest

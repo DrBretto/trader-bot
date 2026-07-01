@@ -176,8 +176,19 @@ def _run_shadow_publish(event: dict, bucket: str, region: str) -> dict:
     for sp in cands:
         if sp and _Path(sp).exists() and sp not in sys.path:
             sys.path.append(sp)
+    # Non-destructive route/reachability verification. Proving the shadow-publish
+    # path FIRES must never require a destructive live publish (PKT-SHADOW-PUBLISH-
+    # SAFETY): a dry-run invoke confirms the branch is reachable and the shadow
+    # package loads WITHOUT mutating any S3 object.
+    dry_run = bool(event.get('dry_run') or event.get('publish') is False)
     try:
         import shadow_nightly as SN  # type: ignore
+        if dry_run:
+            logger.info("Shadow publish DRY-RUN: route reachable, shadow module "
+                        "loaded, no S3 write performed")
+            return {'statusCode': 200, 'body': json.dumps({
+                'status': 'success', 'phase': 'shadow-publish',
+                'dry_run': True, 'route_ok': True, 'published': False})}
         with StepTimer("Shadow publish (cloud)", logger):
             ctx = SN.build_production_ctx(publish=True)
             summary = SN.run_night(ctx)

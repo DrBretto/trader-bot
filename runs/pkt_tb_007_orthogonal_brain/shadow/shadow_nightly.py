@@ -499,8 +499,65 @@ def factor_price_series(ctx: Ctx, dates: List[str]
     return out
 
 
+class DestructivePublishError(RuntimeError):
+    """A shadow-publish would overwrite a currently-populated series/line with an
+    empty or point-reduced one. The publish is ABORTED (fail-loud) and the good
+    line is left intact — a frozen/degraded run must never wipe the dashboard."""
+
+
+# The displayed series a publish must never silently shrink (the dotted
+# challenger ladder + its legacy aliases + the mirrored live line).
+GUARDED_SERIES = tuple(f"shadow_{b}" for b in BOOKS) + ("shadow_A", "shadow_B",
+                                                        "live_line")
+
+
+def _series_len(payload: Any, key: str) -> int:
+    v = payload.get(key) if isinstance(payload, dict) else None
+    return len(v) if isinstance(v, list) else 0
+
+
+def assert_publish_not_destructive(current: Any, new: dict,
+                                   keys=GUARDED_SERIES,
+                                   logf: Optional[Path] = None) -> None:
+    """Fail-loud never-overwrite-populated-with-empty guard.
+
+    Refuse to overwrite a currently-populated series with an empty or
+    point-reduced one (the displayed line only ever advances forward; any
+    reduction is a frozen/degraded-run degradation). When ``current`` is
+    unreadable or itself unpopulated there is nothing to protect and the write
+    proceeds. On a destructive write we log an ALERT and RAISE — the publish
+    aborts and the good line stays intact.
+    """
+    if not isinstance(current, dict):
+        return
+    offenders = []
+    for k in keys:
+        cur = _series_len(current, k)
+        nxt = _series_len(new, k)
+        if cur > 0 and nxt < cur:
+            offenders.append(f"{k}: {cur}->{nxt}")
+    if offenders:
+        msg = ("ABORT destructive shadow-publish — would overwrite a populated "
+               "series with an empty/point-reduced one (" + ", ".join(offenders)
+               + "); good line left intact")
+        if logf is not None:
+            log_line(f"ALERT {msg}", logf)
+        raise DestructivePublishError(msg)
+
+
 def mirror_to_s3(ctx: Ctx, payload: dict) -> List[str]:
     keys = []
+    # fail-loud never-overwrite-populated-with-empty guard (PKT-SHADOW-PUBLISH-
+    # SAFETY): a frozen/degraded run that built an empty/point-reduced payload
+    # must ABORT+ALERT rather than wipe the live challenger line.
+    try:
+        current = ctx.source.get_json(S3_DASHBOARD_KEY)
+    except Exception as e:                                   # noqa: BLE001
+        current = None
+        log_line(f"publish guard: current dashboard series unreadable "
+                 f"({type(e).__name__}: {e}); nothing to protect, proceeding",
+                 ctx.logf)
+    assert_publish_not_destructive(current, payload, logf=ctx.logf)
     ctx.source.put_json(S3_DASHBOARD_KEY, payload)
     keys.append(S3_DASHBOARD_KEY)
     write_json(ctx.published_dir / "shadow_timeseries.json", payload)
