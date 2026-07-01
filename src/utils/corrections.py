@@ -68,6 +68,21 @@ def _utcnow_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _is_unsupported_param(exc: Exception, param: str) -> bool:
+    """True when ``exc`` is a botocore ParamValidationError for an unknown
+    parameter ``param`` — i.e. the runtime SDK predates that parameter.
+
+    The Lambda's pinned ``boto3`` is older than the S3 conditional-write
+    (``IfNoneMatch``) feature, so a write-once put there raises this instead of
+    writing. Detected by message/type so we needn't import botocore's exception.
+    """
+    msg = str(exc)
+    return (
+        ("ParamValidationError" in type(exc).__name__ or "Unknown parameter" in msg)
+        and param in msg
+    )
+
+
 def _canonical_bytes(obj: Dict[str, Any]) -> bytes:
     """Deterministic serialization for content-addressing (sorted keys, no NaN)."""
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
@@ -174,6 +189,24 @@ class CorrectionStore:
             # its job, not an error.
             if "PreconditionFailed" in str(type(e)) or "PreconditionFailed" in str(e):
                 logger.info("correction leaf already present (idempotent): %s", key)
+            elif _is_unsupported_param(e, "IfNoneMatch"):
+                # Older botocore (the Lambda's pinned boto3) lacks the S3
+                # ``IfNoneMatch`` conditional-write parameter. The leaf key is
+                # content-addressed, so write-once is preserved by the key: HEAD
+                # for an existing leaf, otherwise a plain put.
+                try:
+                    self.s3.head_object(Bucket=self.bucket, Key=key)
+                    logger.info("correction leaf already present (idempotent): %s", key)
+                except Exception:  # noqa: BLE001 — missing key is the normal write path
+                    self.s3.put_object(
+                        Bucket=self.bucket, Key=key, Body=body,
+                        ContentType="application/json",
+                    )
+                    logger.warning(
+                        "correction leaf written WITHOUT IfNoneMatch (runtime SDK "
+                        "lacks S3 conditional writes; content-addressed key preserves "
+                        "write-once): %s", key,
+                    )
             else:
                 raise
         # Append to the rolling index (a convenience; resolution can rebuild from

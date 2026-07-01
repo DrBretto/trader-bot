@@ -70,6 +70,8 @@ COPY build/brain_bake/ ${LAMBDA_TASK_ROOT}/
 ENV BRAIN_RUNTIME_SUBSET=${LAMBDA_TASK_ROOT}/runs/pkt_tb_007_orthogonal_brain/shadow
 # Writable working tree for the brain (Lambda /var/task is read-only).
 ENV BRAIN_STATE_DIR=/tmp/brain_state
+# Shadow-publish file logging -> /tmp (SHADOW dir is on the read-only /var/task).
+ENV SHADOW_LOG_DIR=/tmp/shadow_logs
 # Deterministic inference (the 2e-3 mu parity tolerance absorbs benign FP drift).
 ENV OMP_NUM_THREADS=1
 ENV MKL_NUM_THREADS=1

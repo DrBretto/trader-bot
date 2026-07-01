@@ -38,6 +38,7 @@ _TB6 = "runs/pkt_tb_006_clean_sheet_brain"
 CODE_FILES: List[str] = [
     f"{_TB7}/shadow/forward_inference.py",
     f"{_TB7}/shadow/shadow_lib.py",
+    f"{_TB7}/shadow/shadow_nightly.py",   # cloud shadow-publish phase (was laptop-only)
     f"{_TB7}/prototype/organs_007.py",
     f"{_TB7}/prototype/folds.py",
     f"{_TB7}/prototype/make_targets_007.py",

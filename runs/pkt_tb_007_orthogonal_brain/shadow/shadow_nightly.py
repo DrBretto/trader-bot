@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
 import sys
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -36,6 +37,11 @@ from typing import Any, Callable, Dict, List, Optional
 SHADOW = Path(__file__).resolve().parent
 if str(SHADOW) not in sys.path:
     sys.path.append(str(SHADOW))
+
+# Log directory. On the laptop this is SHADOW/logs; in AWS Lambda SHADOW lives on
+# the read-only /var/task, so SHADOW_LOG_DIR (set in the Lambda env) redirects all
+# file logging to a writable /tmp path. Prints still go to CloudWatch either way.
+LOG_DIR = Path(os.environ.get("SHADOW_LOG_DIR") or (SHADOW / "logs"))
 
 import shadow_lib as SL                                   # noqa: E402
 from shadow_lib import (BOOKS, FORWARD_BOUNDARY, HORIZON_TD, IC_STEP_TD,
@@ -151,31 +157,56 @@ def _load_selected_universe(ctx: Ctx, date: str) -> Optional[set]:
 
 def settle_dates(ctx: Ctx, state: dict, decision_dates: List[str],
                  all_dates: List[str]) -> List[str]:
-    """Process decision dates in order until one cannot be priced. Mutates
-    state (books, last_settled_date). Returns settled dates."""
+    """Advance the challenger books ONE MARKED NODE PER TRADING DAY — the same
+    daily equity-curve logic the canon line uses (``src/canon/equity_append.py``),
+    so the dotted challenger line is 1:1 comparable to canon (identical grid,
+    identical mark-at-settled-close valuation; the ONLY difference between the two
+    lines is the book each one holds).
+
+    The trading calendar (SPY market days) is the grid. On each market day:
+      * a DECISION day (has trade_intents+features+portfolio_state) applies the
+        chassis's actual decisions, then marks every book to that day's SETTLED
+        close;
+      * a NON-decision market day (e.g. a Monday the chassis does not decide on)
+        FLAT-HOLDS the open book and marks it to that day's SETTLED close — a
+        legitimate mark-to-market, never a fabricated trade and never the morning
+        (open) bar.
+    Both are marked from the D/D+1 successor ``prices.parquet`` panel (which holds
+    D's own settled bar). No cost overlay is applied to the displayed line — canon
+    carries none, and mixing one in breaks the 1:1 comparison. Mutates state
+    (books, last_settled_date). Returns the list of newly-marked dates."""
     import pandas as pd
     from src.utils.three_line_replay import replay_engine as RE
 
-    settled = []
+    required = ["trade_intents.json", "portfolio_state.json", "features.parquet"]
+    decision_set = set(decision_dates)
+    last_settled = state.get("last_settled_date")
+    calendar = [d for d in trading_calendar(ctx)
+                if d > FORWARD_BOUNDARY and (last_settled is None or d > last_settled)]
+
+    settled: List[str] = []
     strategies = None
-    for D in decision_dates:
+    for D in calendar:
         assert_forward_only(D)
         ddir = ctx.cache_daily / D
-        required = ["trade_intents.json", "portfolio_state.json",
-                    "features.parquet"]
-        missing = [f for f in required if not (ddir / f).exists()]
-        if missing:
-            log_line(f"SKIP {D}: missing inputs {missing} (never fabricated)",
-                     ctx.logf)
-            append_jsonl(ctx.ledgers / "equity_ledger.jsonl",
-                         {"date": D, "skipped": True,
-                          "reason": f"missing_inputs:{','.join(missing)}"})
-            state["last_settled_date"] = D
-            continue
+        is_decision = D in decision_set and not [
+            f for f in required if not (ddir / f).exists()]
+
         succ, succ_px = successor_prices(ctx, D, all_dates)
         if succ is None:
-            break                              # newest date — provisional only
+            break                              # no settled close yet — provisional only
+        ohlc = RE._ohlc_for_date(succ_px, D)
+        if not ohlc or "SPY" not in ohlc:
+            # No settled bar for D (holiday/half-day/outage): not a real market
+            # node — leave it out of the daily line entirely (never fabricate).
+            log_line(f"NO-BAR {D}: absent from daily/{succ}/prices — skipped",
+                     ctx.logf)
+            continue
+
+        # Seed the books on the first markable DECISION day (the line's D0).
         if state["books"] is None:
+            if not is_decision:
+                continue                       # cannot mark before the book is seeded
             pstate = json.loads((ddir / "portfolio_state.json").read_text())
             books = {b: seed_book_from_state(pstate) for b in BOOKS}
             state["books"] = {b: book_to_dict(books[b]) for b in BOOKS}
@@ -183,23 +214,16 @@ def settle_dates(ctx: Ctx, state: dict, decision_dates: List[str],
             log_line(f"books seeded at {D} from daily/{D}/portfolio_state.json"
                      f" (cash {pstate['cash']:.2f}, "
                      f"{len(pstate.get('holdings', []))} holdings)", ctx.logf)
+
         books = {b: book_from_dict(state["books"][b]) for b in BOOKS}
-        if strategies is None:
-            factory = ctx.strategies_factory or _default_strategies_factory
-            strategies = factory(ctx, log_dir=SHADOW / "logs")
-        ohlc = RE._ohlc_for_date(succ_px, D)
-        intents_doc = json.loads((ddir / "trade_intents.json").read_text())
-        intents = list(intents_doc.get("actions", []))
-        regime = intents_doc.get("regime")
-        if not ohlc or "SPY" not in ohlc:
-            log_line(f"SKIP-FLAT {D}: no OHLC bar in daily/{succ}/prices "
-                     f"(half-day/outage?) — books flat-hold", ctx.logf)
-            row = {"date": D, "skipped": True, "reason": "no_ohlc_bar"}
-            for b in BOOKS:
-                nav, _ = robust_value(books[b], {})
-                row[f"nav_{b}"] = round(nav, 2)
-            append_jsonl(ctx.ledgers / "equity_ledger.jsonl", row)
-        else:
+
+        if is_decision:
+            if strategies is None:
+                factory = ctx.strategies_factory or _default_strategies_factory
+                strategies = factory(ctx, log_dir=LOG_DIR)
+            intents_doc = json.loads((ddir / "trade_intents.json").read_text())
+            intents = list(intents_doc.get("actions", []))
+            regime = intents_doc.get("regime")
             feats = pd.read_parquet(ddir / "features.parquet")
             res = process_book_date(books, D, intents, ohlc, feats,
                                     ctx.decision_params, strategies,
@@ -209,12 +233,27 @@ def settle_dates(ctx: Ctx, state: dict, decision_dates: List[str],
             for b in BOOKS:
                 for a in res["actions"][b]:
                     append_jsonl(ctx.ledgers / f"actions_{b}.jsonl", a)
+            log_line(f"settled {D} (decision; fills from daily/{succ})", ctx.logf)
+        else:
+            # Non-decision market day: flat-hold, mark every book to D's close.
+            row: Dict[str, Any] = {"date": D, "provisional": False,
+                                   "non_decision": True}
+            for b in BOOKS:
+                RE._mark_to_close(books[b], ohlc)
+                nav, missing = robust_value(books[b], ohlc)
+                row[f"nav_{b}"] = round(nav, 2)
+                row[f"n_actions_{b}"] = 0
+                if missing:
+                    row.setdefault("missing_marks", {})[b] = missing
+            append_jsonl(ctx.ledgers / "equity_ledger.jsonl", row)
+            log_line(f"marked {D} (non-decision flat-hold; close from "
+                     f"daily/{succ})", ctx.logf)
+
         state["books"] = {b: book_to_dict(books[b]) for b in BOOKS}
         state["last_settled_date"] = D
         state["n_settled"] = int(state.get("n_settled", 0)) + 1
         save_state(ctx, state)
         settled.append(D)
-        log_line(f"settled {D} (fills from daily/{succ})", ctx.logf)
     return settled
 
 
@@ -405,16 +444,18 @@ def build_payload(ctx: Ctx, state: dict, provisional_row: Optional[dict]
                 live_at_start = v
                 break
         for b in BOOKS:
-            adj = overlays[b]["cost_adjusted"]
-            series[b] = adj
-            base = adj[0] if adj and adj[0] else None
+            # The rent-ladder stats keep the cost-adjusted basis (their
+            # established, pre-registered convention). The DISPLAYED line uses the
+            # RAW settled-mark return chain — no cost overlay — so it is built with
+            # the identical logic to the canon line (anchor x cumulative settled
+            # return) and is 1:1 comparable.
+            series[b] = overlays[b]["cost_adjusted"]
+            raw = overlays[b]["raw"]
+            base = raw[0] if raw and raw[0] else None
             scale = (live_at_start / base) if (live_at_start and base) else 1.0
-            line = [[d, round(v * scale, 2)] for d, v in zip(dates, adj)]
+            line = [[d, round(v * scale, 2)] for d, v in zip(dates, raw)]
             if provisional_row is not None and f"nav_{b}" in provisional_row:
-                cum_cost = ((overlays[b]["raw"][-1]
-                             - overlays[b]["cost_adjusted"][-1])
-                            if overlays[b]["raw"] else 0.0)
-                pv = (provisional_row[f"nav_{b}"] - cum_cost) * scale
+                pv = provisional_row[f"nav_{b}"] * scale
                 line.append([provisional_row["date"], round(pv, 2)])
                 payload["provisional_date"] = provisional_row["date"]
             payload[f"shadow_{b}"] = line
@@ -597,7 +638,7 @@ def build_production_ctx(publish: bool = True) -> Ctx:
     except Exception as e:                                   # noqa: BLE001
         raise RuntimeError(f"cannot read decision_params.active.json: {e}")
     universe_df = pd.read_csv(SL.REPO / "config" / "universe.csv")
-    logf = SHADOW / "logs" / f"shadow_{dt.date.today().isoformat()}.log"
+    logf = LOG_DIR / f"shadow_{dt.date.today().isoformat()}.log"
     # seed caches BEFORE anything needs the SPY calendar
     import forward_inference as FI
     FI.ensure_seed_caches(logf)

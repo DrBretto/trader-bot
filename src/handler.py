@@ -144,8 +144,84 @@ def lambda_handler(event: dict, context) -> dict:
         return _run_midday_check(event, bucket, region)
     elif source == 'republish-dashboard':
         return _run_republish_dashboard(event, bucket, region)
+    elif source == 'shadow-publish':
+        return _run_shadow_publish(event, bucket, region)
+    elif source == 'healthcheck':
+        return _run_healthcheck(event, bucket, region)
     else:
         return _run_night_phase(event, bucket, region)
+
+
+def _run_shadow_publish(event: dict, bucket: str, region: str) -> dict:
+    """Autonomous cloud replacement for the laptop shadow launchd job
+    (``com.traderbot.shadow.plist``).
+
+    Runs the PKT-TB-007 dual-forward shadow end to end and publishes
+    ``dashboard/shadow_timeseries.json`` — the dotted challenger line. ISOLATED
+    from the trade pipeline: it appends NO equity leaf and cannot touch the canon
+    line. A failure ALERTS (the challenger is one of the three watched lines).
+    """
+    import sys
+    from pathlib import Path as _Path
+    run_date = event.get('run_date') or datetime.now().strftime('%Y-%m-%d')
+    # File logging -> /tmp; SHADOW lives on the read-only /var/task in Lambda.
+    os.environ.setdefault('SHADOW_LOG_DIR', '/tmp/shadow_logs')
+    # Bootstrap the baked shadow package onto sys.path (same recipe as
+    # src.brain.runtime, which already runs the forward inference in-cloud).
+    cands = []
+    if os.environ.get('BRAIN_RUNTIME_SUBSET'):
+        cands.append(os.environ['BRAIN_RUNTIME_SUBSET'])
+    cands.append(str(_Path(os.environ.get('LAMBDA_TASK_ROOT', '.'))
+                     / 'runs' / 'pkt_tb_007_orthogonal_brain' / 'shadow'))
+    for sp in cands:
+        if sp and _Path(sp).exists() and sp not in sys.path:
+            sys.path.append(sp)
+    try:
+        import shadow_nightly as SN  # type: ignore
+        with StepTimer("Shadow publish (cloud)", logger):
+            ctx = SN.build_production_ctx(publish=True)
+            summary = SN.run_night(ctx)
+        s3 = S3Client(bucket, region)
+        shadow = s3.read_json('dashboard/shadow_timeseries.json') or {}
+        as_of = (shadow.get('as_of') or '')[:19]
+        sa = shadow.get('shadow_A') or []
+        last_sa = sa[-1][0] if sa else None
+        logger.info(f"Shadow publish OK: as_of={as_of} last_shadow_A={last_sa}")
+        return {'statusCode': 200, 'body': json.dumps({
+            'status': 'success', 'phase': 'shadow-publish',
+            'as_of': as_of, 'last_shadow_A': last_sa,
+            'summary': summary if isinstance(summary, dict) else str(summary)},
+            default=str)}
+    except Exception as e:
+        logger.error(f"Shadow publish FAILED: {e}", exc_info=True)
+        try:
+            send_alert(
+                subject="[TraderBot] CRITICAL: challenger (shadow) publish FAILED",
+                body=(f"The cloud shadow-publish run failed for {run_date}.\n\n"
+                      f"{type(e).__name__}: {e}\n\n"
+                      f"The dotted challenger line will not advance until this is "
+                      f"fixed. Check CloudWatch."))
+        except Exception:  # noqa: BLE001
+            pass
+        return {'statusCode': 500, 'body': json.dumps(
+            {'status': 'error', 'phase': 'shadow-publish', 'error': str(e)})}
+
+
+def _run_healthcheck(event: dict, bucket: str, region: str) -> dict:
+    """Independent daily three-line health report (the anti-betrayal watchdog).
+
+    Reads the actual published S3 surfaces and emails a ✓/✗ status for the canon,
+    SPY-benchmark, and challenger lines — so a silently-frozen line is caught the
+    SAME day instead of by eyeballing the chart on Friday.
+    """
+    from src.brain import monitors
+    s3 = S3Client(bucket, region)
+    status = monitors.run_daily_health_check(s3)
+    return {'statusCode': 200, 'body': json.dumps({
+        'status': 'success', 'phase': 'healthcheck',
+        'ok': status.get('ok'), 'lines': status.get('lines'),
+        'chassis': status.get('chassis'), 'subject': status.get('subject')},
+        default=str)}
 
 
 def _run_night_phase(event: dict, bucket: str, region: str) -> dict:

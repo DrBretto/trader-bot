@@ -331,3 +331,63 @@ def test_content_addressing_excludes_written_at():
     c = build_leaf(date="2026-06-21", value=1.5, benchmark=2.0, comparison=3.0,
                    segment="new_brain", model_id="m", source="s", issued_by="op@example.com")
     assert c["content_sha"] != a["content_sha"]
+
+
+# --------------------------------------------------------------------------- #
+# Regression — the Lambda's old boto3 lacks S3 IfNoneMatch; the append MUST
+# still advance the line (root cause of "line frozen / didn't run more than one
+# day in a row", 2026-06-26: ParamValidationError on IfNoneMatch was swallowed
+# as "line holds", so the frontier never moved).
+# --------------------------------------------------------------------------- #
+class FakeS3OldSdk(FakeS3):
+    """A boto3 too old to know the S3 ``IfNoneMatch`` conditional-write param —
+    it raises a ParamValidationError before writing, exactly like the Lambda."""
+
+    def put_object(self, Bucket, Key, Body, ContentType=None, IfNoneMatch=None):
+        if IfNoneMatch is not None:
+            raise Exception(
+                "ParamValidationError: Parameter validation failed: "
+                'Unknown parameter in input: "IfNoneMatch"'
+            )
+        self.store[Key] = Body if isinstance(Body, bytes) else Body.encode()
+        self.put_calls.append(Key)
+        return {}
+
+    def head_object(self, Bucket, Key):
+        if Key not in self.store:
+            raise Exception("NoSuchKey (404)")
+        return {"ContentLength": len(self.store[Key])}
+
+
+def test_append_advances_line_on_old_sdk_without_ifnonematch():
+    s3 = FakeS3OldSdk()
+    led = EquityLedger(s3)
+
+    leaf = _append(led, "2026-06-21", 100000.0)
+    expected_key = f"{POINTS_PREFIX}2026-06-21/{leaf['content_sha'][:16]}.json"
+    assert expected_key in s3.store, "leaf written even though IfNoneMatch is unsupported"
+
+    # the frontier ADVANCES across consecutive days (the whole point)
+    _append(led, "2026-06-22", 110000.0)
+    leaf3 = _append(led, "2026-06-23", 117873.57)
+    m = led.read_manifest()
+    assert m["frontier"]["date"] == "2026-06-23"
+    assert [e["date"] for e in m["entries"]] == ["2026-06-21", "2026-06-22", "2026-06-23"]
+    assert leaf3["prev_date"] == "2026-06-22"
+
+
+def test_old_sdk_same_content_reappend_is_noop_via_head():
+    s3 = FakeS3OldSdk()
+    led = EquityLedger(s3)
+    _append(led, "2026-06-21", 100000.0)
+    leaf = _append(led, "2026-06-22", 110000.0)
+
+    puts_before = len(s3.put_calls)
+    manifest_before = led.read_manifest()
+
+    # re-append identical content → HEAD finds the leaf → idempotent no-op
+    again = _append(led, "2026-06-22", 110000.0, written_at="2099-01-01T00:00:00+00:00")
+    assert again["content_sha"] == leaf["content_sha"]
+    assert led.read_manifest() == manifest_before
+    assert MANIFEST_KEY not in s3.put_calls[puts_before:]
+    assert CACHE_KEY not in s3.put_calls[puts_before:]

@@ -42,7 +42,12 @@ import logging
 from typing import Any, Dict, List, Optional
 
 # Reuse the already-tested write-once / content-addressing primitives.
-from src.utils.corrections import _canonical_bytes, _utcnow_iso, content_sha
+from src.utils.corrections import (
+    _canonical_bytes,
+    _is_unsupported_param,
+    _utcnow_iso,
+    content_sha,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -214,6 +219,31 @@ class EquityLedger:
             if "PreconditionFailed" in str(type(e)) or "PreconditionFailed" in str(e):
                 logger.info("equity leaf already present (idempotent no-op): %s", key)
                 return False
+            # Older botocore (the Lambda's pinned boto3) doesn't know the S3
+            # ``IfNoneMatch`` conditional-write parameter and raises a
+            # ParamValidationError before any write happens — which is why the
+            # nightly append was silently skipped and the line never advanced.
+            # The leaf key is content-addressed, so write-once is already
+            # guaranteed by the key itself: HEAD for an existing leaf (idempotent
+            # no-op), otherwise a plain put. This keeps the line ADVANCING on the
+            # deployed runtime instead of holding at the frontier every night.
+            if _is_unsupported_param(e, "IfNoneMatch"):
+                try:
+                    self.s3.head_object(Bucket=self.bucket, Key=key)
+                    logger.info("equity leaf already present (idempotent no-op): %s", key)
+                    return False
+                except Exception:  # noqa: BLE001 — missing key is the normal write path
+                    pass
+                self.s3.put_object(
+                    Bucket=self.bucket, Key=key, Body=body,
+                    ContentType="application/json",
+                )
+                logger.warning(
+                    "equity leaf written WITHOUT IfNoneMatch (runtime SDK lacks S3 "
+                    "conditional writes; content-addressed key preserves write-once): %s",
+                    key,
+                )
+                return True
             raise
 
     def _put_manifest(self, manifest: Dict[str, Any]) -> None:

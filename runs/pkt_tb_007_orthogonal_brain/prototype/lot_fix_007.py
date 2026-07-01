@@ -112,10 +112,21 @@ def _execute_intents_lotfix(portfolio, intents: List[Dict[str, Any]],
             if not lots:
                 continue
             total_held = sum(p.shares for p in lots)
-            # C5 fix (b): the default + the clamp see ALL lots, not the last one
-            shares_to_sell = float(intent.get('shares', total_held))
-            if action == 'REDUCE':
-                shares_to_sell *= 0.5
+            # C5 fix (b): the default + the clamp see ALL lots, not the last one.
+            # Fidelity fix (2026-07-01): mirror the LIVE executor
+            # (src/steps/paper_trader.py). The chassis emits exact-share trims in
+            # a `reduce_shares` field (PKT-TB-004); the live book sells EXACTLY
+            # that. Only a legacy REDUCE with no `reduce_shares` field falls back
+            # to the historical half-position trim. Ignoring `reduce_shares` (the
+            # prior behavior) under-sold every trim by ~50%, so the shadow book
+            # never shed exposure and progressively diverged from the live book.
+            reduce_shares = intent.get('reduce_shares')
+            if reduce_shares is not None:
+                shares_to_sell = float(reduce_shares)
+            else:
+                shares_to_sell = float(intent.get('shares', total_held))
+                if action == 'REDUCE':
+                    shares_to_sell *= 0.5
             shares_to_sell = min(shares_to_sell, total_held)
             if shares_to_sell <= 0:
                 continue

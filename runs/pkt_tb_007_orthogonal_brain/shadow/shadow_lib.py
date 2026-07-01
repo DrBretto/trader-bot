@@ -155,11 +155,23 @@ LADDER_GENOMES = {
 RUNG_GENOME = {"I": None, "R": None, "F": "M1", "E": "M1_M4", "U": "M1_M4"}
 
 # Regime -> book-level gross-exposure multiplier (the regime GATE as an
-# exposure throttle). Identity (1.0) for unlisted regimes so the R rung is
-# honestly ~zero when the regime does not bite. Frozen by hand.
-REGIME_EXPOSURE = {"panic": 0.50, "force_sell": 0.50, "defensive": 0.75,
-                   "caution": 0.85, "neutral": 1.0, "constructive": 1.0,
-                   "risk_on": 1.0}
+# exposure throttle). Keyed on the ONE real regime taxonomy the picker emits
+# (src/models/baseline_regime.py + src/signals/regime_fusion.py):
+# calm_uptrend / risk_on_trend / risk_off_trend / choppy / high_vol_panic.
+#
+# 2026-07-01 FIX: the prior table keyed on invented labels
+# ({panic, force_sell, defensive, caution, neutral, constructive, risk_on}) that
+# the regime picker NEVER emits — zero overlap — so this throttle silently no-op'd
+# on every real regime. It is now keyed on the real labels AND held at identity
+# (1.0) ON PURPOSE: the deployed native_two_stage engine (canon) already applies
+# the regime gross-cut in Stage-2 (theta_size.regime_exposure_multiplier) when it
+# SIZES the intents, so the challenger — which reconstructs FROM those already
+# regime-cut intents — must NOT re-apply it or it would DOUBLE-cut. The challenger
+# therefore inherits canon's exact regime posture (same one picker) and differs
+# from canon only by the M1 tilt. (Kept as an explicit identity map on the real
+# taxonomy so the names can never silently mismatch the picker again.)
+REGIME_EXPOSURE = {"calm_uptrend": 1.0, "risk_on_trend": 1.0,
+                   "risk_off_trend": 1.0, "choppy": 1.0, "high_vol_panic": 1.0}
 
 # Multi-factor exposure-strip basis (C6): SPY + duration + broad-commodity.
 # The strip uses REALIZED multi-factor regression betas of each rung's daily
@@ -216,6 +228,10 @@ def sha12(b: bytes) -> str:
 # ---------------------------------------------------------------- S3 layer
 def s3_client():
     import boto3
+    # On the laptop, use the named 'personal' profile. In AWS Lambda there is no
+    # named profile — use the default credential chain (the function's IAM role).
+    if os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+        return boto3.client("s3", region_name="us-east-1")
     return boto3.Session(profile_name=AWS_PROFILE,
                          region_name="us-east-1").client("s3")
 
