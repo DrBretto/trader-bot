@@ -150,6 +150,8 @@ def lambda_handler(event: dict, context) -> dict:
         return _run_healthcheck(event, bucket, region)
     elif source == 'forecast-diag':
         return _run_forecast_diag(event, bucket, region)
+    elif source == 'regime-diag':
+        return _run_regime_diag(event, bucket, region)
     else:
         return _run_night_phase(event, bucket, region)
 
@@ -174,6 +176,27 @@ def _run_forecast_diag(event: dict, bucket: str, region: str) -> dict:
                 f"gate_stale={result.get('gate', {}).get('stale')}")
     return {'statusCode': 200, 'body': json.dumps({
         'status': 'success', 'phase': 'forecast-diag', 'result': result},
+        default=str)}
+
+
+def _run_regime_diag(event: dict, bucket: str, region: str) -> dict:
+    """Governed, NON-DESTRUCTIVE regime-chassis probe (PKT-3). Proves the chassis
+    is LOADED (regime_compat_loaded=True) and observably RE-RANKS a fresh mu
+    (regime_score_mult != 1.0; regime-tilted top-10 differs from raw-mu top-10),
+    and that the fail-loud startup assertion fires if the table is emptied under
+    native_two_stage. Writes NO S3 object."""
+    from src.brain import diagnose_regime_chassis
+    pending = event.get('pending')
+    if isinstance(pending, str):
+        pending = [pending]
+    with StepTimer("Regime chassis diagnostic", logger):
+        result = diagnose_regime_chassis(pending=pending)
+    logger.info(f"regime-diag: regime={result.get('regime_label')} "
+                f"compat_loaded={result.get('regime_compat_loaded')} "
+                f"reranks_top10={result.get('regime_tilt_reranks_top10')} "
+                f"mu_sha={result.get('mu_sha16')}")
+    return {'statusCode': 200, 'body': json.dumps({
+        'status': 'success', 'phase': 'regime-diag', 'result': result},
         default=str)}
 
 

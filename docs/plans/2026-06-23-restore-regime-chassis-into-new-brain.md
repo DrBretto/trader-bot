@@ -90,6 +90,13 @@ cap that actually binds (the granular sector taxonomy currently defeats the 35% 
   equity (ITA→#1); forced panic halves every equity (×0.50), lifts oil (USO→#1)
   and bonds (×1.20), cuts gross to 0.50. Rotation confirmed.
 - 2026-06-23: Container Lambda deploy launched (lambda_deploy_container.sh).
+- 2026-06-23: Deploy landed — Lambda State Active / LastUpdateStatus Successful,
+  image sha256 93a84c5b…, LastModified 19:21 UTC. Confirmed build/brain_bake/
+  contains only runs/ (no engine source) so COPY src/ is not shadowed →
+  engine_sha in the image matches the re-froze FREEZE_ORB1 → cold-start asserts
+  green. Committed d3495b1 (engine restore) + 36aa443 (shadow timeline).
+  COMPLETE — live confirmation is tonight's 10 PM ET night run (regime-aware
+  intents, fresh forward prereg start 2026-06-24).
 
 ## Follow-ups
 
@@ -97,3 +104,44 @@ cap that actually binds (the granular sector taxonomy currently defeats the 35% 
   for the operator — this plan only makes the cap *bind* via correct grouping.
 - Shadow rent ladder (the evaluation timeline) is being fixed in parallel
   (KeyError 'R' state migration) — separate task.
+
+---
+
+## 2026-07-02 — PKT-3 ACTIVATION (chassis was still inert in the deployed engine)
+
+**Context.** The 06-23 restore added `config/regime_compatibility.json` and the
+`regime_score_mult` socket in `forecast_adapter`, but the deployed engine still ran
+inert: `load_brain_config` (`runtime.py`) read only `brain.active.json`, which
+carries no `regime_compatibility` key, so `config.get('regime_compatibility')` was
+None → every `regime_score_mult` = 1.0 → Stage-1 ranked raw mu (identical to
+pre-restore). The full-audit committee confirmed `regime_compat_loaded=False` live.
+Now that PKT-2 made mu fresh (verified date-over-date), the tilt actually re-ranks a
+live forecast.
+
+**Changes (execution log).**
+- `runtime.py` `load_brain_config` now merges `config/regime_compatibility.json`
+  into the config (operator override via an explicit `brain.active.json` key still
+  wins). A present-but-malformed table raises; absent → `{}` (shadow/tilt stay usable).
+- `runtime.py` adds `assert_regime_chassis_loaded` (+ `RegimeChassisInertError`): a
+  fail-loud gate — empty/missing table under `engine=native_two_stage` ABORTS the
+  night to the incumbent (guarded, SNS CRITICAL) instead of shipping an inert
+  raw-mu selection. Wired into `run_cutover` right after `is_live`.
+- `forecast_adapter.py` replaces the silent `health_map.get(sym, 1.0)` with the
+  explicit named `UNKNOWN_HEALTH_DEFAULT` rule: health=None is a distinct UNKNOWN
+  state → benefit-of-doubt pass, applied identically to candidates and holdings and
+  COUNTED/logged (removes the silent incumbency-bias quirk, ISSUE-11). A reported
+  sub-h_min health is still cut.
+- `publish_artifacts.py` builds the health_map explicitly (counts candidates vs
+  holdings with unknown health, logs the asymmetry).
+- `runtime.py` `diagnose_regime_chassis` + `handler.py` `regime-diag` route: a
+  governed NON-DESTRUCTIVE probe proving `regime_compat_loaded=True`,
+  `regime_score_mult \!= 1.0` re-ranks (regime-tilted top-10 ≠ raw-mu top-10), and
+  the empty-table assertion fires. Writes no S3 object.
+- `tests/test_regime_chassis.py` locks all four behaviors.
+
+**Ordering trap honored:** verified mu changed date-over-date (06-30 `3cefeba2` →
+07-01 `0bf0098c`; frozen ARKK/GLD/... top-10 no longer reproduced; staleness gate
+green) BEFORE asserting the re-rank.
+
+## Follow-ups
+- PKT-4 (settled-day grid), PKT-5 (seam-free reconstruction), PKT-6 (hygiene/ECR).

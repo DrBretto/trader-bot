@@ -20,8 +20,12 @@ Frozen-contract notes (no parameter invented outside FREEZE_ORB1):
     hard-exclusion threshold, so M4 enters as the attribution ladder's event-DAMP
     rung (E), not as a Stage-1 hard cut. Setting a threshold here would be an
     un-frozen θ (a LIVE_PREREG §3 no-mid-stream violation). Recorded, not invented.
-  - ``health`` defaults to 1.0 (pass) for symbols lacking a health signal, so the
-    h_min gate excludes only names with an explicit sub-threshold health.
+  - ``health`` for a symbol with NO reported health signal is UNKNOWN, not
+    healthy: it is set to the explicit, named ``UNKNOWN_HEALTH_DEFAULT`` (a
+    documented benefit-of-doubt pass), applied IDENTICALLY to fresh candidates and
+    held positions and counted, so the h_min gate excludes only names with an
+    explicit sub-threshold health while the incumbency effect stays auditable
+    (PKT-3 / ISSUE-11 — no more silent ``.get(sym, 1.0)``).
 """
 from __future__ import annotations
 
@@ -42,6 +46,21 @@ _DEFAULT_CORRELATION_GROUPS: Dict[str, tuple] = {
     "tech_growth": ("industry_semis", "sector_tech", "theme_innovation"),
     "precious_metals": ("gold", "silver"),
 }
+
+# ---------------------------------------------------------------- health=None rule
+# EXPLICIT rule (PKT-3 / ISSUE-11), replacing the silent ``health_map.get(sym, 1.0)``.
+# A symbol with NO reported health_score (None / absent from health_map) is in a
+# distinct UNKNOWN state — it is NOT asserted healthy. It is assigned this named
+# default, a deliberate benefit-of-doubt PASS, for one documented reason: on a live
+# book, CUTTING a name because its health is *absent* (not measured low) would churn
+# the portfolio on missing data — strictly worse than holding through the gap. The
+# fix here is not to change that pass, but to make it (a) explicit + named instead of
+# a magic literal, (b) COUNTED and logged so the effect is observable, and (c) applied
+# IDENTICALLY to fresh candidates and held positions so the incumbency asymmetry the
+# audit flagged (incumbents tend to omit health, candidates tend to carry real scores)
+# is auditable rather than hidden. A symbol with an explicit sub-threshold health is
+# still cut by the h_min gate — only genuinely UNKNOWN health gets the pass.
+UNKNOWN_HEALTH_DEFAULT = 1.0
 
 
 def _config_root() -> Path:
@@ -129,6 +148,7 @@ def build_forecast_bundle(
     -> identical to the pre-restore raw-mu ranking.
     """
     health_map = dict(health_map or {})
+    n_unknown_health = 0  # symbols with NO reported health -> UNKNOWN_HEALTH_DEFAULT
     elig = {str(s): bool(int(e)) for s, e in
             zip(universe_df["symbol"], universe_df["eligible"])}
     acls = {str(s): str(a) for s, a in
@@ -156,7 +176,16 @@ def build_forecast_bundle(
         if muf != muf:                          # drop NaN mu (never select on NaN)
             continue
         mu_M1[sym] = muf
-        health[sym] = float(health_map.get(sym, 1.0))
+        # EXPLICIT health=None rule (see UNKNOWN_HEALTH_DEFAULT above): a reported
+        # score is honored (a real sub-threshold health can cut the name); an
+        # absent/None health is the UNKNOWN state -> the counted benefit-of-doubt
+        # default, never a silent .get(...,1.0).
+        reported = health_map.get(sym, None)
+        if reported is None:
+            health[sym] = UNKNOWN_HEALTH_DEFAULT
+            n_unknown_health += 1
+        else:
+            health[sym] = float(reported)
         event_block[sym] = False  # no frozen M4 hard-exclusion threshold (see module docstring)
         f = feats.get(sym, {})
         v21 = f.get("vol_21d")
@@ -167,6 +196,14 @@ def build_forecast_bundle(
         vol_bucket[sym] = _vol_bucket(idio_vol[sym])
         regime_score_mult[sym] = _regime_mult_for(
             regime_compat, str(regime_label or "neutral"), secs.get(sym, ""), acl)
+
+    # Observability for the health=None rule: how many symbols fell to the
+    # UNKNOWN_HEALTH_DEFAULT this build (the incumbency-effect signal made auditable).
+    if n_unknown_health:
+        print(f"  [HEALTH] {n_unknown_health}/{len(mu_M1)} symbols had UNKNOWN health "
+              f"-> UNKNOWN_HEALTH_DEFAULT={UNKNOWN_HEALTH_DEFAULT} (benefit-of-doubt "
+              "pass; explicit rule, PKT-3/ISSUE-11); "
+              f"{len(mu_M1) - n_unknown_health} carried a reported health_score.")
 
     return ForecastBundle(
         date=date,

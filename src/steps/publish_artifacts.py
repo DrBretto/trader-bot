@@ -121,15 +121,35 @@ def run_brain_cutover_night(
         _alert_cutover_fallback(run_date, status["reason"])
         return status
 
+    # health_map carries ONLY reported (non-None) health_scores. A symbol with a
+    # None/absent score is deliberately left OUT so forecast_adapter applies the
+    # single explicit UNKNOWN_HEALTH_DEFAULT rule (PKT-3 / ISSUE-11) — identically
+    # to fresh candidates and held positions, no silent per-site 1.0. We count the
+    # None cases on each side so the incumbency asymmetry (holdings tend to omit
+    # health, candidates tend to carry it) is visible in the logs, not hidden.
     health_map: Dict[str, float] = {}
+    cand_none = cand_scored = hold_none = hold_scored = 0
     for c in decisions.get('buy_candidates', []) or []:
         sym = c.get('symbol')
-        if sym and c.get('health_score') is not None:
+        if not sym:
+            continue
+        if c.get('health_score') is not None:
             health_map[sym] = float(c['health_score'])
+            cand_scored += 1
+        else:
+            cand_none += 1
     for h in portfolio_state.get('holdings', []) or []:
         sym = h.get('symbol')
-        if sym and h.get('health_score') is not None:
+        if not sym:
+            continue
+        if h.get('health_score') is not None:
             health_map[sym] = float(h['health_score'])
+            hold_scored += 1
+        else:
+            hold_none += 1
+    print(f"  [HEALTH] health_map: candidates scored={cand_scored} unknown={cand_none}; "
+          f"holdings scored={hold_scored} unknown={hold_none} "
+          "(unknown -> UNKNOWN_HEALTH_DEFAULT in forecast_adapter; explicit rule).")
 
     regime_label = (
         decisions.get('expert_metrics', {}).get('final_regime_label')
