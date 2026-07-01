@@ -137,6 +137,11 @@ def gdelt_forward(logf: Optional[Path] = None) -> int:
         GB.RECORDS_DIR = str(GDELT_RECORDS_DIR)
         GB.DAILY_DIR = str(GDELT_DAILY_DIR)
         GB.LOG_PATH = str(GDELT_RECORDS_DIR.parent / "backfill_log.txt")
+        # ISSUE-08: the manifest is a module constant on the baked (read-only
+        # /var/task) gdelt_cache; without this override open(MANIFEST_PATH,"a")
+        # raises OSError: Read-only file system and every GDELT day FAILs. Redirect
+        # it under the writable state tree alongside RECORDS/DAILY/LOG.
+        GB.MANIFEST_PATH = str(GDELT_RECORDS_DIR.parent / "manifest.jsonl")
         start = (last + dt.timedelta(days=1)).strftime("%Y-%m-%d")
         end = yday.strftime("%Y-%m-%d")
         log_line(f"gdelt forward fetch {start}..{end}", logf)

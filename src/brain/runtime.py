@@ -261,44 +261,266 @@ def run_cutover(
 S3_BUCKET = "investment-system-data"
 
 
-def _extend_ohlcv_from_s3(SL, FI) -> int:
+def _ohlcv_watermark(SL):
+    """Return ``(max_date_str_or_None, row_count)`` for the in-store SPY panel —
+    the substrate-currency watermark the freshness gate keys on."""
+    import pandas as pd
+    spy = SL.CACHE_OHLCV / "SPY.parquet"
+    if not spy.exists():
+        return None, 0
+    df = pd.read_parquet(spy, columns=["date"])
+    d = pd.to_datetime(df["date"])
+    return (d.max().strftime("%Y-%m-%d") if len(d) else None), int(len(df))
+
+
+def _extend_ohlcv_from_s3(SL, FI) -> dict:
     """Bring the brain's OHLCV store current: fetch the chassis's published
     daily/<D>/prices.parquet for every date newer than the seed store and splice
     them in (extend_ohlcv). Uses the Lambda execution role's default creds (NOT
-    the laptop 'personal' profile that SL.S3Source assumes)."""
+    the laptop 'personal' profile that SL.S3Source assumes).
+
+    Returns a diagnostic dict (store watermark before/after, gap, bars added,
+    per-date errors). Failures are LOGGED with the exact exception — NEVER
+    silently swallowed (ISSUE-01/F-D1). The aggregate substrate-currency gate in
+    ``production_forecaster`` is what ABORTS a stale night; per-date faults are
+    collected here so that gate can name them."""
     import boto3
-    import pandas as pd
+    import traceback
     s3 = boto3.client("s3", region_name=os.environ.get("AWS_REGION", "us-east-1"))
 
-    spy = SL.CACHE_OHLCV / "SPY.parquet"
-    last_ohlcv = None
-    if spy.exists():
-        df = pd.read_parquet(spy, columns=["date"])
-        last_ohlcv = pd.to_datetime(df["date"]).max().strftime("%Y-%m-%d")
+    last_ohlcv, n_before = _ohlcv_watermark(SL)
+    result = {"last_ohlcv_before": last_ohlcv, "rows_before": n_before,
+              "dates_listed": 0, "gap": [], "downloaded": 0, "extended": 0,
+              "bars_added": 0, "errors": []}
 
-    pg = s3.get_paginator("list_objects_v2")
-    dates = set()
-    for page in pg.paginate(Bucket=S3_BUCKET, Prefix="daily/", Delimiter="/"):
-        for cp in page.get("CommonPrefixes", []) or []:
-            d = cp["Prefix"].split("/")[-2]
-            if len(d) == 10 and d[4] == "-":
-                dates.add(d)
+    try:
+        pg = s3.get_paginator("list_objects_v2")
+        dates = set()
+        for page in pg.paginate(Bucket=S3_BUCKET, Prefix="daily/", Delimiter="/"):
+            for cp in page.get("CommonPrefixes", []) or []:
+                d = cp["Prefix"].split("/")[-2]
+                if len(d) == 10 and d[4] == "-":
+                    dates.add(d)
+    except Exception as e:  # noqa: BLE001 — surfaced, not swallowed
+        msg = f"S3 list daily/ FAILED: {type(e).__name__}: {e}"
+        print(f"  [FRESHNESS] {msg}")
+        result["errors"].append(msg)
+        dates = set()
+    result["dates_listed"] = len(dates)
+
     gap = sorted(d for d in dates if last_ohlcv is None or d > last_ohlcv)
-    n = 0
+    result["gap"] = gap
+    print(f"  [FRESHNESS] store SPY max={last_ohlcv} rows={n_before}; listed "
+          f"{len(dates)} daily dates; gap={len(gap)} "
+          f"[{gap[0] if gap else '-'}..{gap[-1] if gap else '-'}]")
+
     for d in gap:
         dst = SL.CACHE_DAILY / d / "prices.parquet"
         if not dst.exists():
             try:
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 s3.download_file(S3_BUCKET, f"daily/{d}/prices.parquet", str(dst))
-            except Exception:
+                result["downloaded"] += 1
+            except Exception as e:  # noqa: BLE001 — surfaced, not swallowed
+                msg = f"download daily/{d}/prices.parquet FAILED: {type(e).__name__}: {e}"
+                print(f"  [FRESHNESS] {msg}")
+                result["errors"].append(msg)
                 continue
         try:
             FI.extend_ohlcv(d)
-            n += 1
-        except Exception:
+            result["extended"] += 1
+        except Exception as e:  # noqa: BLE001 — surfaced, not swallowed
+            print(f"  [FRESHNESS] extend_ohlcv({d}) FAILED: {type(e).__name__}: {e}\n"
+                  f"{traceback.format_exc()}")
+            result["errors"].append(f"extend_ohlcv({d}): {type(e).__name__}: {e}")
             continue
+
+    last_after, n_after = _ohlcv_watermark(SL)
+    result["last_ohlcv_after"] = last_after
+    result["rows_after"] = n_after
+    result["bars_added"] = n_after - n_before
+    print(f"  [FRESHNESS] after extend: SPY max={last_after} rows={n_after} "
+          f"(+{result['bars_added']} bars; {result['extended']}/{len(gap)} dates "
+          f"extended; {result['downloaded']} downloaded; {len(result['errors'])} errors)")
+    return result
+
+
+# ----------------------------------------------------- fail-loud staleness gate
+# The single worst failure this project has shipped (ISSUE-01/02): the in-Lambda
+# OHLCV store silently stopped advancing, so `mu` froze and the SAME concentrated
+# line published every night for two weeks with zero alarm — because every monitor
+# keyed on PUBLISH recency (fresh leaf written nightly) not SUBSTRATE currency (the
+# OHLCV panel behind mu). This gate keys on substrate currency: if the store's max
+# settled bar lags the run date, or new daily dates were available but zero bars
+# spliced (the frozen-substrate signature), the night ABORTS + ALARMS instead of
+# shipping a frozen forecast.
+_STALE_TOLERANCE_TD = 3   # trading days the store may lag the run date before ABORT
+
+
+class StaleSubstrateError(RuntimeError):
+    """Raised by the freshness gate when the OHLCV substrate is not current.
+    run_cutover's forecaster try/except catches it -> ok=False -> the incumbent
+    intents are retained (fail-safe) and an SNS CRITICAL is raised."""
+
+
+def _weekday_trading_days_between(d0: str, d1: str) -> int:
+    """Weekday count strictly between two YYYY-MM-DD dates (a cheap NYSE proxy;
+    holidays make this CONSERVATIVE — it never fires falsely loud). 0 if d1<=d0."""
+    import datetime as _dt
+    try:
+        a = _dt.date.fromisoformat(str(d0)[:10])
+        b = _dt.date.fromisoformat(str(d1)[:10])
+    except Exception:  # noqa: BLE001
+        return 0
+    if b <= a:
+        return 0
+    n, cur = 0, a
+    while cur < b:
+        cur += _dt.timedelta(days=1)
+        if cur.weekday() < 5:
+            n += 1
     return n
+
+
+def _latest_settled_trading_day(today: Optional[str] = None) -> str:
+    """Latest weekday on/before `today` (NY). The night forecasts off the last
+    settled session; the OHLCV store's max bar should track this."""
+    import datetime as _dt
+    d = _dt.date.fromisoformat(today[:10]) if today else _dt.datetime.now(
+        _dt.timezone.utc).astimezone(_dt.timezone(-_dt.timedelta(hours=5))).date()
+    while d.weekday() >= 5:
+        d -= _dt.timedelta(days=1)
+    return d.isoformat()
+
+
+def _freshness_gate_verdict(run_date: str, ohlcv_max_date: Optional[str],
+                            fresh: dict) -> dict:
+    """Substrate-currency verdict. Two independent invariants, either trips ABORT:
+      1. max settled OHLCV bar within K trading days of the run date, AND
+      2. bar-count advanced when the S3 gap was non-empty (mu is a pure function of
+         the price/vol OHLCV panel -> bars-advanced is the causal proxy for
+         mu-freshness; a no-op splice IS the frozen-`mu` signature)."""
+    reasons: List[str] = []
+    if not ohlcv_max_date:
+        reasons.append("OHLCV store empty — no SPY watermark to trust")
+    else:
+        lag = _weekday_trading_days_between(ohlcv_max_date, run_date)
+        if lag > _STALE_TOLERANCE_TD:
+            reasons.append(
+                f"OHLCV substrate STALE: max settled bar {ohlcv_max_date} is {lag} "
+                f"trading days behind run date {run_date} (tolerance {_STALE_TOLERANCE_TD})")
+    gap = fresh.get("gap") or []
+    if gap and fresh.get("bars_added", 0) <= 0:
+        reasons.append(
+            f"OHLCV extend NO-OP: {len(gap)} newer daily date(s) available "
+            f"[{gap[0]}..{gap[-1]}] but 0 bars spliced — the frozen-substrate signature")
+    return {"stale": bool(reasons), "reasons": reasons,
+            "run_date": run_date, "ohlcv_max_date": ohlcv_max_date,
+            "bars_added": fresh.get("bars_added", 0), "gap_len": len(gap)}
+
+
+def _alert_stale_substrate(verdict: dict, fresh: dict) -> None:
+    reason = "; ".join(verdict.get("reasons") or ["stale"])
+    body = (
+        "FAIL-LOUD STALENESS GATE FIRED — the night was ABORTED before shipping a "
+        "forecast over a stale substrate (the frozen-`mu` failure can no longer ship "
+        "silently).\n\n"
+        f"run_date                 = {verdict.get('run_date')}\n"
+        f"OHLCV store max bar      = {verdict.get('ohlcv_max_date')}\n"
+        f"bars spliced this run    = {verdict.get('bars_added')}\n"
+        f"newer daily dates (gap)  = {verdict.get('gap_len')}\n"
+        f"reason                   = {reason}\n\n"
+        "extend errors:\n  " + ("\n  ".join(fresh.get("errors") or ["(none)"])) + "\n\n"
+        "The incumbent intents are retained (fail-safe). Check CloudWatch "
+        "/aws/lambda/investment-system-daily-pipeline for the [FRESHNESS] lines.")
+    try:
+        from src.utils.sns_alerts import send_alert
+        send_alert(
+            subject="[TraderBot] CRITICAL: forecast substrate STALE — night ABORTED (fail-loud gate)",
+            body=body)
+    except Exception as e:  # noqa: BLE001 — alerting must never crash the check
+        print(f"  [FRESHNESS] stale-substrate alert failed (non-fatal): {e}")
+
+
+def _assert_substrate_current(run_date: str, SL, fresh: dict) -> None:
+    """The enforced gate. Raises StaleSubstrateError (+ SNS alert) when the OHLCV
+    substrate is not current, so a frozen forecast cannot ship."""
+    ohlcv_max, _rows = _ohlcv_watermark(SL)
+    verdict = _freshness_gate_verdict(run_date, ohlcv_max, fresh)
+    print(f"  [FRESHNESS] gate verdict: {verdict}")
+    if verdict["stale"]:
+        _alert_stale_substrate(verdict, fresh)
+        raise StaleSubstrateError("; ".join(verdict["reasons"]))
+
+
+def diagnose_forecast_freshness(pending: Optional[List[str]] = None,
+                                force_stale: bool = False) -> dict:
+    """Governed, NON-DESTRUCTIVE in-Lambda probe of forecast substrate currency.
+
+    Runs the same forward path as production_forecaster (extend OHLCV -> panel ->
+    inference) but writes NOTHING to S3 (all work in /tmp), then returns a
+    diagnostic dict: the OHLCV watermark before/after the S3 extend, the exact
+    per-date errors (the root of the swallow), and the resulting mu hash / top-10.
+    ``force_stale=True`` SKIPS the extend to prove the gate fires over a
+    deliberately frozen store."""
+    import sys
+    import hashlib
+    candidates = []
+    env_subset = os.environ.get("BRAIN_RUNTIME_SUBSET")
+    if env_subset:
+        candidates.append(Path(env_subset))
+    candidates.append(_REPO_ROOT / "runs" / "pkt_tb_007_orthogonal_brain" / "shadow")
+    for p in candidates:
+        sp = str(p)
+        if Path(sp).exists() and sp not in sys.path:
+            sys.path.append(sp)
+    import shadow_lib as SL  # type: ignore
+    import forward_inference as FI  # type: ignore
+
+    SL.STATE.mkdir(parents=True, exist_ok=True)
+    FI.ensure_seed_caches()
+
+    if force_stale:
+        before, rows = _ohlcv_watermark(SL)
+        fresh = {"forced_stale": True, "last_ohlcv_before": before, "rows_before": rows,
+                 "gap": ["__forced__"], "bars_added": 0, "errors": []}
+        print("  [FRESHNESS] force_stale=True — SKIPPING extend to exercise the gate")
+    else:
+        fresh = _extend_ohlcv_from_s3(SL, FI)
+
+    if pending is None:
+        pending = [_latest_settled_trading_day()]
+    run_date = pending[-1]
+
+    try:
+        FI.gdelt_forward()
+    except Exception as e:  # noqa: BLE001
+        print(f"  [FRESHNESS] gdelt_forward soft-fail: {type(e).__name__}: {e}")
+    try:
+        FI.cboe_forward()
+    except Exception as e:  # noqa: BLE001
+        print(f"  [FRESHNESS] cboe_forward soft-fail: {type(e).__name__}: {e}")
+
+    FI.build_panel(pending)
+    records = FI.run_inference(pending)
+    rec = records.get(run_date) if records else None
+    mu = dict(rec.get("mu", {})) if rec else {}
+    top10 = [s for s, _ in sorted(mu.items(), key=lambda kv: -kv[1])[:10]]
+    mu_sha = hashlib.sha256(json.dumps(
+        {k: round(float(v), 8) for k, v in sorted(mu.items())},
+        sort_keys=True).encode()).hexdigest()[:16]
+
+    ohlcv_max, ohlcv_rows = _ohlcv_watermark(SL)
+    verdict = _freshness_gate_verdict(run_date, ohlcv_max, fresh)
+    out = {"pending": pending, "settled_trading_day": run_date,
+           "ohlcv_max_date": ohlcv_max, "ohlcv_rows": ohlcv_rows,
+           "freshness": fresh, "n_mu": len(mu), "mu_top10": top10,
+           "mu_sha16": mu_sha, "gate": verdict}
+    print(f"  [FRESHNESS] DIAG: settled={run_date} ohlcv_max={ohlcv_max} "
+          f"rows={ohlcv_rows} n_mu={len(mu)} mu_sha={mu_sha}\n"
+          f"  [FRESHNESS] DIAG: top10={top10}\n"
+          f"  [FRESHNESS] DIAG: gate={verdict}")
+    return out
 
 
 def production_forecaster(pending: List[str]) -> Dict[str, dict]:
@@ -328,7 +550,12 @@ def production_forecaster(pending: List[str]) -> Dict[str, dict]:
     # writable state tree (/tmp in Lambda) + frozen read-only seeds copied in
     SL.STATE.mkdir(parents=True, exist_ok=True)
     FI.ensure_seed_caches()
-    _extend_ohlcv_from_s3(SL, FI)
+    _fresh = _extend_ohlcv_from_s3(SL, FI)
+    # FAIL-LOUD substrate-currency staleness gate (ISSUE-01/02/13): a stale OHLCV
+    # store ABORTS the night here instead of shipping a frozen mu. run_cutover's
+    # forecaster try/except catches this -> ok=False -> incumbent retained + alarm.
+    _assert_substrate_current(pending[-1] if pending else _latest_settled_trading_day(),
+                              SL, _fresh)
     # external feeds are fail-soft (GDELT masking / CBOE staleness-null are
     # registered honest fallbacks); never let them abort the night.
     try:

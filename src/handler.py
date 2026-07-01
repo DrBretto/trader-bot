@@ -148,8 +148,33 @@ def lambda_handler(event: dict, context) -> dict:
         return _run_shadow_publish(event, bucket, region)
     elif source == 'healthcheck':
         return _run_healthcheck(event, bucket, region)
+    elif source == 'forecast-diag':
+        return _run_forecast_diag(event, bucket, region)
     else:
         return _run_night_phase(event, bucket, region)
+
+
+def _run_forecast_diag(event: dict, bucket: str, region: str) -> dict:
+    """Governed, NON-DESTRUCTIVE forecast-freshness probe (PKT-FORECAST-FRESHNESS-
+    GATE). Runs the in-Lambda forward path (extend OHLCV -> panel -> inference)
+    and returns the substrate-currency diagnostics WITHOUT writing any S3 object:
+    the OHLCV watermark before/after the S3 extend, the exact per-date extend
+    errors (the root of the ISSUE-01 swallow), the resulting mu hash / top-10, and
+    the staleness-gate verdict. ``{"force_stale": true}`` skips the extend to prove
+    the gate fires over a deliberately frozen store."""
+    from src.brain import diagnose_forecast_freshness
+    pending = event.get('pending')
+    if isinstance(pending, str):
+        pending = [pending]
+    force_stale = bool(event.get('force_stale'))
+    with StepTimer("Forecast freshness diagnostic", logger):
+        result = diagnose_forecast_freshness(pending=pending, force_stale=force_stale)
+    logger.info(f"forecast-diag: settled={result.get('settled_trading_day')} "
+                f"ohlcv_max={result.get('ohlcv_max_date')} n_mu={result.get('n_mu')} "
+                f"gate_stale={result.get('gate', {}).get('stale')}")
+    return {'statusCode': 200, 'body': json.dumps({
+        'status': 'success', 'phase': 'forecast-diag', 'result': result},
+        default=str)}
 
 
 def _run_shadow_publish(event: dict, bucket: str, region: str) -> dict:
