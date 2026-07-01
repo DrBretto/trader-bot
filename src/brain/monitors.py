@@ -206,6 +206,69 @@ def check_canon_fresh(s3, chassis_date: str, max_trading_days: int = STALE_TRADI
     return status
 
 
+def check_substrate_fresh(s3, lookback: int = 6, min_identical: int = 3) -> Dict[str, Any]:
+    """SUBSTRATE-CURRENCY check (ISSUE-01/02/13) — the one the publish-recency
+    checks above STRUCTURALLY cannot make.
+
+    ``check_stale_publish`` / ``check_canon_fresh`` key on *publish recency* (a leaf
+    written today, a line whose last plotted date is current). Both stayed GREEN for
+    two weeks over a frozen OHLCV substrate: the chassis published a fresh leaf every
+    night while the brain's ``mu`` was byte-frozen, so the SAME 10-name
+    ``selected_universe`` shipped daily. Recency-of-record is not currency-of-content.
+
+    This check keys on CONTENT: it reads the last ``lookback`` trading-day leaves'
+    ``brain_selected_universe.json`` and flags the frozen-``mu`` signature — the
+    selected universe byte-identical across the most recent ``min_identical`` DISTINCT
+    trading days. That is the S3-observable fingerprint of a frozen substrate; the
+    night's fail-loud gate is the primary defense, this is the independent watchdog."""
+    status: Dict[str, Any] = {"stale": False, "reason": "", "identical_run": 0,
+                              "days_checked": 0, "selected_universe": None,
+                              "dates": []}
+    try:
+        dates = s3.list_daily_dates(max_days=lookback)
+    except Exception as e:  # noqa: BLE001
+        status["reason"] = f"could not list daily dates: {type(e).__name__}: {e}"
+        return status
+    if not dates:
+        status["reason"] = "no daily leaves found"
+        return status
+
+    # newest-first; read each leaf's selected_universe fingerprint
+    fps = []  # (date, tuple(selected_universe)) newest-first
+    for d in reversed(dates):
+        try:
+            bsu = s3.read_json(f"daily/{d}/brain_selected_universe.json") or {}
+        except Exception:  # noqa: BLE001
+            bsu = {}
+        sel = bsu.get("selected_universe")
+        if sel:
+            fps.append((d, tuple(sel)))
+    status["days_checked"] = len(fps)
+    if len(fps) < min_identical:
+        status["reason"] = (f"only {len(fps)} leaf universe(s) available "
+                            f"(< {min_identical}); cannot judge substrate freshness")
+        return status
+
+    # length of the leading run of byte-identical selected_universe (newest-first)
+    head = fps[0][1]
+    run = 1
+    for _, sel in fps[1:]:
+        if sel == head:
+            run += 1
+        else:
+            break
+    status["identical_run"] = run
+    status["selected_universe"] = list(head)
+    status["dates"] = [d for d, _ in fps[:run]]
+    if run >= min_identical:
+        status["stale"] = True
+        status["reason"] = (
+            f"FROZEN-SUBSTRATE signature: brain selected_universe byte-identical across "
+            f"{run} consecutive trading days {status['dates']} — mu is not advancing "
+            f"(a frozen OHLCV substrate behind a fresh-looking publish)")
+    return status
+
+
 def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None,
                            today: Optional[str] = None) -> Dict[str, Any]:
     """Check all three lines + chassis liveness and ALWAYS email a status.
@@ -242,7 +305,14 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
     out["lines"] = lines
     out["chassis"] = {"date": chassis_date, "expected": expected, "stale": chassis_stale}
 
-    any_stale = chassis_stale or any(v.get("stale") for v in lines.values())
+    # 3) SUBSTRATE currency (ISSUE-01/02/13) — the check publish-recency cannot make:
+    #    is `mu` actually advancing, or is a frozen substrate shipping the same
+    #    selected_universe behind fresh-looking leaves?
+    substrate = check_substrate_fresh(s3)
+    out["substrate"] = substrate
+
+    any_stale = (chassis_stale or any(v.get("stale") for v in lines.values())
+                 or substrate.get("stale"))
     out["ok"] = not any_stale
 
     def _mark(v):
@@ -255,11 +325,23 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
     ]
     for name, v in lines.items():
         body_lines.append(f"  {_mark(v):<8} {name:<22} at {v.get('at')}  (lag {v.get('lag')} td)")
+    body_lines += [
+        "",
+        "Substrate currency (is mu actually advancing?):",
+        f"  {'✗ FROZEN' if substrate.get('stale') else '✓':<8} "
+        f"brain selected_universe identical-run = {substrate.get('identical_run')} "
+        f"day(s) over {substrate.get('days_checked')} checked"
+        + (f"  [{substrate.get('reason')}]" if substrate.get('stale') else ""),
+    ]
     body = "\n".join(body_lines)
 
     if any_stale:
-        subject = "[TraderBot] CRITICAL: a displayed line did NOT advance"
-        body = ("ONE OR MORE LINES ARE STALE — the dashboard is not current.\n\n"
+        subject = ("[TraderBot] CRITICAL: forecast substrate FROZEN"
+                   if substrate.get("stale") and not (chassis_stale or
+                       any(v.get("stale") for v in lines.values()))
+                   else "[TraderBot] CRITICAL: a displayed line did NOT advance")
+        body = ("ONE OR MORE FRESHNESS CHECKS ARE STALE — the dashboard/forecast is "
+                "not current.\n\n"
                 + body +
                 "\n\nCheck CloudWatch /aws/lambda/investment-system-daily-pipeline "
                 "and the shadow-publish run.")

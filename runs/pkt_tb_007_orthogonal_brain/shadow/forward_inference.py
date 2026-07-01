@@ -112,6 +112,17 @@ def extend_ohlcv(daily_date: str, logf: Optional[Path] = None) -> List[str]:
             "adj_close": new["close"].astype(float),
             "volume": new["volume"].astype(float),
             "source": "s3_daily", "adj_factor": 1.0})
+        # ISSUE-01 ROOT (F-D1): pandas 2.1.x (the Lambda image) raises a block-
+        # consolidation ValueError when concatenating datetime64 columns of
+        # DIFFERENT resolution — the seed store's `date` is datetime64[ms] while
+        # the freshly-parsed S3 daily bars are datetime64[ns] (and volume is
+        # int64 vs float64). Newer pandas (laptop repro) tolerates it, which is
+        # why the store advanced locally but the raise was swallowed in-Lambda,
+        # freezing the panel at 2026-06-10. Coerce the new rows to the store's
+        # existing dtypes so the splice can never raise on a resolution mismatch.
+        for col in add.columns:
+            if col in cur.columns and add[col].dtype != cur[col].dtype:
+                add[col] = add[col].astype(cur[col].dtype)
         out = pd.concat([cur, add], ignore_index=True)
         out.to_parquet(p, index=False)
     for a in alerts:
