@@ -399,11 +399,34 @@ def _extend_ohlcv_from_s3(SL, FI) -> dict:
 
     gap = sorted(d for d in dates if last_ohlcv is None or d > last_ohlcv)
     result["gap"] = gap
+
+    # A `daily/<D>/` FOLDER newer than the store is NOT proof of a newer SETTLED
+    # trading day: the morning/midday runs create `daily/<today>/` carrying only
+    # morning artifacts (morning_prices.parquet, portfolio_state.json) hours before
+    # today's session settles a real OHLCV bar (prices.parquet). Counting those
+    # phantom folders as "newer daily dates available but 0 bars spliced" is exactly
+    # the false-abort the frozen-substrate gate must NOT fire on (a not-yet-closed
+    # day is not a freeze). The Sunday folders (06-15/22/29) are the same shape.
+    # The staleness signal is defined ONLY over dates that carry a settled
+    # prices.parquet bar; a genuine freeze (a real bar exists but won't splice)
+    # still trips the gate. HEAD each candidate so warm-cache invokes don't miss it.
+    gap_settled: List[str] = []
+    for d in gap:
+        try:
+            s3.head_object(Bucket=S3_BUCKET, Key=f"daily/{d}/prices.parquet")
+            gap_settled.append(d)
+        except Exception:  # noqa: BLE001 — no settled bar for d (phantom/Sunday folder)
+            continue
+    result["gap_settled"] = gap_settled
     print(f"  [FRESHNESS] store SPY max={last_ohlcv} rows={n_before}; listed "
           f"{len(dates)} daily dates; gap={len(gap)} "
-          f"[{gap[0] if gap else '-'}..{gap[-1] if gap else '-'}]")
+          f"[{gap[0] if gap else '-'}..{gap[-1] if gap else '-'}]; "
+          f"settled-gap={len(gap_settled)} "
+          f"[{gap_settled[0] if gap_settled else '-'}..{gap_settled[-1] if gap_settled else '-'}]")
 
-    for d in gap:
+    import pandas as pd
+    max_available_bar: Optional[str] = last_ohlcv
+    for d in gap_settled:
         dst = SL.CACHE_DAILY / d / "prices.parquet"
         if not dst.exists():
             try:
@@ -415,6 +438,19 @@ def _extend_ohlcv_from_s3(SL, FI) -> dict:
                 print(f"  [FRESHNESS] {msg}")
                 result["errors"].append(msg)
                 continue
+        # The freeze detector keys on the actual bar dates INSIDE the settled files,
+        # not the folder labels: a `daily/D/prices.parquet` may carry bars only
+        # through D-1, so a folder's mere existence never counts as a newer bar. The
+        # max real bar found here is the "expected settled day" the gate compares the
+        # store against — the store MUST reach it or a genuine freeze is live.
+        try:
+            bd = pd.to_datetime(pd.read_parquet(dst, columns=["date"])["date"])
+            if len(bd):
+                fdmax = bd.max().strftime("%Y-%m-%d")
+                if max_available_bar is None or fdmax > max_available_bar:
+                    max_available_bar = fdmax
+        except Exception as e:  # noqa: BLE001 — surfaced, not swallowed
+            result["errors"].append(f"read-bar daily/{d}/prices.parquet: {type(e).__name__}: {e}")
         try:
             FI.extend_ohlcv(d)
             result["extended"] += 1
@@ -428,9 +464,11 @@ def _extend_ohlcv_from_s3(SL, FI) -> dict:
     result["last_ohlcv_after"] = last_after
     result["rows_after"] = n_after
     result["bars_added"] = n_after - n_before
+    result["max_available_bar"] = max_available_bar
     print(f"  [FRESHNESS] after extend: SPY max={last_after} rows={n_after} "
-          f"(+{result['bars_added']} bars; {result['extended']}/{len(gap)} dates "
-          f"extended; {result['downloaded']} downloaded; {len(result['errors'])} errors)")
+          f"(+{result['bars_added']} bars; {result['extended']}/{len(gap_settled)} settled dates "
+          f"extended; {result['downloaded']} downloaded; max_available_bar={max_available_bar}; "
+          f"{len(result['errors'])} errors)")
     return result
 
 
@@ -490,22 +528,57 @@ def _freshness_gate_verdict(run_date: str, ohlcv_max_date: Optional[str],
          the price/vol OHLCV panel -> bars-advanced is the causal proxy for
          mu-freshness; a no-op splice IS the frozen-`mu` signature)."""
     reasons: List[str] = []
+
+    # (0) diagnostic force: diagnose_forecast_freshness(force_stale=True) skips the
+    #     extend to prove the gate still fires over a deliberately frozen store.
+    if fresh.get("forced_stale"):
+        reasons.append("forced_stale diagnostic: extend skipped to exercise the gate")
+
     if not ohlcv_max_date:
         reasons.append("OHLCV store empty — no SPY watermark to trust")
     else:
+        # (1) the store's max bar must be within K trading days of the run date.
+        #     A store frozen at the seed (06-10) while the run marches on trips this
+        #     within ~4 trading days; a not-yet-closed run date lags by <= 1 and does
+        #     NOT fire (tolerance K).
         lag = _weekday_trading_days_between(ohlcv_max_date, run_date)
         if lag > _STALE_TOLERANCE_TD:
             reasons.append(
                 f"OHLCV substrate STALE: max settled bar {ohlcv_max_date} is {lag} "
                 f"trading days behind run date {run_date} (tolerance {_STALE_TOLERANCE_TD})")
-    gap = fresh.get("gap") or []
-    if gap and fresh.get("bars_added", 0) <= 0:
-        reasons.append(
-            f"OHLCV extend NO-OP: {len(gap)} newer daily date(s) available "
-            f"[{gap[0]}..{gap[-1]}] but 0 bars spliced — the frozen-substrate signature")
+
+        # (2) THE freeze-on-contact detector, keyed on the expected settled day:
+        #     the max real bar actually present in S3's settled prices.parquet files
+        #     (max_available_bar). If a bar newer than the store exists but the store
+        #     did not reach it, the splice froze (the genuine ISSUE-01 signature) —
+        #     fail loud immediately, before invariant (1)'s lag even accrues. This
+        #     compares BAR DATES, never folder labels, so a phantom `daily/<today>/`
+        #     folder (no settled bar) and a `daily/D/` file that only carries bars
+        #     through D-1 both leave max_available_bar == the store max => NO false
+        #     abort on a not-yet-closed day.
+        max_available = fresh.get("max_available_bar")
+        if max_available and max_available > ohlcv_max_date:
+            reasons.append(
+                f"OHLCV freeze: settled bar {max_available} is available in S3 but the "
+                f"store only reached {ohlcv_max_date} — the splice froze (frozen-mu signature)")
+        elif max_available is None:
+            # backward-compat: an older extend dict without the bar-date probe.
+            # Fall back to the settled-gap heuristic (a settled folder present but 0
+            # bars spliced) so a legacy freeze still trips.
+            gap_settled = fresh.get("gap_settled")
+            if gap_settled is None:
+                gap_settled = fresh.get("gap") or []
+            if gap_settled and fresh.get("bars_added", 0) <= 0:
+                reasons.append(
+                    f"OHLCV extend NO-OP: {len(gap_settled)} newer SETTLED daily date(s) "
+                    f"[{gap_settled[0]}..{gap_settled[-1]}] but 0 bars spliced — frozen-substrate signature")
+
     return {"stale": bool(reasons), "reasons": reasons,
             "run_date": run_date, "ohlcv_max_date": ohlcv_max_date,
-            "bars_added": fresh.get("bars_added", 0), "gap_len": len(gap)}
+            "bars_added": fresh.get("bars_added", 0),
+            "max_available_bar": fresh.get("max_available_bar"),
+            "gap_len": len(fresh.get("gap") or []),
+            "gap_settled_len": len(fresh.get("gap_settled") or [])}
 
 
 def _alert_stale_substrate(verdict: dict, fresh: dict) -> None:
@@ -572,7 +645,8 @@ def diagnose_forecast_freshness(pending: Optional[List[str]] = None,
     if force_stale:
         before, rows = _ohlcv_watermark(SL)
         fresh = {"forced_stale": True, "last_ohlcv_before": before, "rows_before": rows,
-                 "gap": ["__forced__"], "bars_added": 0, "errors": []}
+                 "gap": ["__forced__"], "gap_settled": ["__forced__"],
+                 "bars_added": 0, "errors": []}
         print("  [FRESHNESS] force_stale=True — SKIPPING extend to exercise the gate")
     else:
         fresh = _extend_ohlcv_from_s3(SL, FI)
