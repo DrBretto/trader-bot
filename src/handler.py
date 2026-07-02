@@ -34,6 +34,7 @@ from src.steps import (
     publish_artifacts
 )
 from src.signals.compute_signals import run as compute_signals
+from src.utils.market_calendar import latest_settled_session, settled_day_from_prices
 from src.utils.s3_client import S3Client
 from src.utils.logging_utils import setup_logger, log_step, StepTimer
 from src.utils.sns_alerts import (
@@ -152,6 +153,8 @@ def lambda_handler(event: dict, context) -> dict:
         return _run_forecast_diag(event, bucket, region)
     elif source == 'regime-diag':
         return _run_regime_diag(event, bucket, region)
+    elif source == 'date-grid-diag':
+        return _run_date_grid_diag(event, bucket, region)
     else:
         return _run_night_phase(event, bucket, region)
 
@@ -200,6 +203,126 @@ def _run_regime_diag(event: dict, bucket: str, region: str) -> dict:
         default=str)}
 
 
+def _run_date_grid_diag(event: dict, bucket: str, region: str) -> dict:
+    """Governed, NON-DESTRUCTIVE proof of the settled-day forward stamp (PKT-4).
+
+    Writes NOTHING to S3. Reads the LIVE equity-ledger frontier (read-only) and, for
+    a suite of simulated ``asof`` instants + settled SPY closes, reports:
+
+      * the OLD buggy key (UTC ``datetime.now()`` calendar date) vs the NEW key (the
+        settled NY trading day) — a Friday-evening UTC instant is Saturday under the
+        old key, Friday under the new one;
+      * whether the equity append would ADD a leaf or NO-OP against the live frontier
+        (``run_date <= frontier`` = no-op) — so weekend/holiday runs produce no leaf;
+      * that the live frontier leaf carries BOTH the canon ``value`` and the SPY
+        ``benchmark`` on ONE date — SPY + canon ride one real-trading-day grid.
+
+    Optional event override ``scenarios``: list of ``{label, asof, spy_max}`` rows
+    (``asof`` = ISO-8601 UTC instant; ``spy_max`` = settled SPY close in the fresh
+    panel, omit to use the clock proxy).
+    """
+    from datetime import datetime as _dt, timezone as _tz
+    import pandas as _pd
+    from src.canon.equity_ledger import EquityLedger
+    from src.canon.equity_append import _cache_tail
+    from src.utils.market_calendar import (
+        ny_today, latest_settled_session, settled_day_from_prices,
+    )
+
+    s3 = S3Client(bucket, region)
+
+    # Read-only frontier: the live settled leaf both lines share.
+    frontier = None
+    front_date = None
+    try:
+        ledger = EquityLedger(s3.s3, bucket)
+        frontier = ledger.frontier()
+        tail = _cache_tail(s3.s3, bucket)
+        if tail:
+            frontier = {
+                'date': tail.get('date'),
+                'value': tail.get('value'),
+                'benchmark': tail.get('benchmark'),
+                'shares_one_grid': ('value' in tail and 'benchmark' in tail
+                                    and tail.get('date') is not None),
+            }
+            front_date = tail.get('date')
+        elif frontier:
+            front_date = frontier.get('date')
+    except Exception as e:  # noqa: BLE001 — read-only best-effort
+        logger.warning(f"date-grid-diag: frontier read soft-fail: {e}")
+
+    def _utc_calendar_date(asof_iso: str) -> str:
+        """The OLD buggy key: the UTC calendar date of the instant."""
+        d = _dt.fromisoformat(asof_iso.replace('Z', '+00:00'))
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=_tz.utc)
+        return d.astimezone(_tz.utc).strftime('%Y-%m-%d')
+
+    # Default suite: the exact failure the packet targets (Fri-night UTC = Saturday),
+    # a Saturday and Sunday cron mis-fire, and a holiday (SPY close does not advance).
+    default_scenarios = [
+        {'label': 'Friday-night settle (03:00 UTC Sat)',
+         'asof': '2026-06-27T03:00:00Z', 'spy_max': '2026-06-26'},
+        {'label': 'Saturday run (no new session)',
+         'asof': '2026-06-27T14:00:00Z', 'spy_max': '2026-06-26'},
+        {'label': 'Sunday run (no new session)',
+         'asof': '2026-06-28T14:00:00Z', 'spy_max': '2026-06-26'},
+        {'label': 'Holiday run (SPY close frozen at prior session)',
+         'asof': '2026-07-03T22:00:00Z', 'spy_max': '2026-07-02'},
+        {'label': 'Normal weeknight (03:00 UTC Wed)',
+         'asof': '2026-07-02T03:00:00Z', 'spy_max': '2026-07-01'},
+    ]
+    scenarios = event.get('scenarios') or default_scenarios
+
+    rows = []
+    for sc in scenarios:
+        asof = sc['asof']
+        asof_dt = _dt.fromisoformat(asof.replace('Z', '+00:00'))
+        spy_max = sc.get('spy_max')
+        if spy_max:
+            panel = _pd.DataFrame([{'symbol': 'SPY', 'date': spy_max}])
+            settled = settled_day_from_prices(panel, symbol='SPY', now_utc=asof_dt)
+        else:
+            settled = latest_settled_session(now_utc=asof_dt)
+        old_key = _utc_calendar_date(asof)
+        # The append-only frontier guard: run_date <= frontier -> NO leaf.
+        if front_date is None:
+            decision = 'unknown (ledger unseeded)'
+        elif settled > front_date:
+            decision = 'APPEND (new settled leaf)'
+        else:
+            decision = 'NO-OP (no leaf: run_date <= frontier)'
+        rows.append({
+            'label': sc['label'],
+            'asof_utc': asof,
+            'ny_calendar_date': ny_today(asof_dt).isoformat(),
+            'old_utc_key': old_key,
+            'settled_day_key': settled,
+            'fixed_drift': bool(old_key != settled),
+            'append_decision_vs_frontier': decision,
+        })
+
+    # Live "now" resolution for the record.
+    now_settled = latest_settled_session()
+    result = {
+        'phase': 'date-grid-diag',
+        'nondestructive': True,
+        'live_frontier': frontier,
+        'spy_and_canon_one_grid': bool(frontier and frontier.get('shares_one_grid')),
+        'now_settled_trading_day': now_settled,
+        'now_old_utc_key': datetime.now(_tz.utc).strftime('%Y-%m-%d'),
+        'scenarios': rows,
+    }
+    logger.info(f"date-grid-diag: frontier={front_date} one_grid="
+                f"{result['spy_and_canon_one_grid']} now_settled={now_settled}")
+    for r in rows:
+        logger.info(f"  [DATE-GRID] {r['label']}: old_utc={r['old_utc_key']} -> "
+                    f"settled={r['settled_day_key']} => {r['append_decision_vs_frontier']}")
+    return {'statusCode': 200, 'body': json.dumps(
+        {'status': 'success', 'result': result}, default=str)}
+
+
 def _run_shadow_publish(event: dict, bucket: str, region: str) -> dict:
     """Autonomous cloud replacement for the laptop shadow launchd job
     (``com.traderbot.shadow.plist``).
@@ -211,7 +334,7 @@ def _run_shadow_publish(event: dict, bucket: str, region: str) -> dict:
     """
     import sys
     from pathlib import Path as _Path
-    run_date = event.get('run_date') or datetime.now().strftime('%Y-%m-%d')
+    run_date = event.get('run_date') or latest_settled_session()  # settled NY day (PKT-4)
     # File logging -> /tmp; SHADOW lives on the read-only /var/task in Lambda.
     os.environ.setdefault('SHADOW_LOG_DIR', '/tmp/shadow_logs')
     # Bootstrap the baked shadow package onto sys.path (same recipe as
@@ -294,7 +417,12 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
     start_time = datetime.now()
     logger.info(f"Pipeline started at {start_time}")
 
-    run_date = datetime.now().strftime('%Y-%m-%d')
+    # Forward stamp = the settled NY trading day, NOT UTC datetime.now() (PKT-4).
+    # The night fires at 03:00 UTC = the prior ET evening, so a UTC stamp lands one
+    # calendar day ahead of the settled market day (Friday's settle -> a Saturday
+    # leaf). Seed from the ET session; the true key is the freshly-ingested SPY
+    # close set right after price ingest below.
+    run_date = event.get('run_date') or latest_settled_session()
     s3_client = S3Client(bucket, region)
 
     try:
@@ -324,6 +452,19 @@ def _run_night_phase(event: dict, bucket: str, region: str) -> dict:
                 symbols,
                 alphavantage_key=alphavantage_key,
             )
+
+        # Key every leaf/decision/folder to the SETTLED NY trading day — the actual
+        # close date the book is marked at (max SPY bar in the fresh panel), not the
+        # UTC wall clock (PKT-4). Weekends/holidays have no bar, so a non-trading-day
+        # run resolves to the last settled session and the append-only frontier guard
+        # (run_date <= frontier) makes it a no-op = no leaf.
+        settled_run_date = settled_day_from_prices(prices_df, symbol='SPY')
+        if settled_run_date != run_date:
+            logger.info(
+                f"run_date re-keyed to settled NY trading day: {run_date} -> "
+                f"{settled_run_date} (settled SPY close, not UTC now)"
+            )
+            run_date = settled_run_date
 
         # Step 2: Ingest FRED
         log_step(2, 12, "Ingesting FRED data...", logger)
@@ -694,7 +835,9 @@ def _run_morning_phase(event: dict, bucket: str, region: str) -> dict:
     portfolio state and dashboard.
     """
     start_time = datetime.now()
-    run_date = datetime.now().strftime('%Y-%m-%d')
+    # Settled NY trading day, not UTC now (PKT-4). Morning fires 14:45 UTC = 09:45
+    # ET, so the ET session date is the correct grid key.
+    run_date = event.get('run_date') or latest_settled_session()
     logger.info(f"Morning execution started at {start_time}")
 
     s3_client = S3Client(bucket, region)
@@ -840,7 +983,8 @@ def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
     run features, signals, inference, or the decision engine.
     """
     start_time = datetime.now()
-    run_date = datetime.now().strftime('%Y-%m-%d')
+    # Settled NY trading day, not UTC now (PKT-4). Midday fires 18:00 UTC = 13:00 ET.
+    run_date = event.get('run_date') or latest_settled_session()
     logger.info(f"Midday check started at {start_time}")
 
     s3_client = S3Client(bucket, region)
@@ -938,7 +1082,7 @@ def _run_republish_dashboard(event: dict, bucket: str, region: str) -> dict:
     )
     from src.utils.dashboard_metrics import attach_new_brain_surface, sanitize_nan_for_json
 
-    run_date = event.get('run_date') or datetime.now().strftime('%Y-%m-%d')
+    run_date = event.get('run_date') or latest_settled_session()  # settled NY day (PKT-4)
     s3 = S3Client(bucket, region)
 
     portfolio_state = paper_trader.load_portfolio_state(s3)
