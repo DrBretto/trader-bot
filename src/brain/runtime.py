@@ -679,10 +679,6 @@ def diagnose_forecast_freshness(pending: Optional[List[str]] = None,
            "ohlcv_max_date": ohlcv_max, "ohlcv_rows": ohlcv_rows,
            "freshness": fresh, "n_mu": len(mu), "mu_top10": top10,
            "mu_sha16": mu_sha, "gate": verdict}
-    print(f"  [FRESHNESS] DIAG: settled={run_date} ohlcv_max={ohlcv_max} "
-          f"rows={ohlcv_rows} n_mu={len(mu)} mu_sha={mu_sha}\n"
-          f"  [FRESHNESS] DIAG: top10={top10}\n"
-          f"  [FRESHNESS] DIAG: gate={verdict}")
     return out
 
 
@@ -741,12 +737,12 @@ def diagnose_regime_chassis(pending: Optional[List[str]] = None) -> dict:
     # freshness diag / production forecaster) — build_panel reads them.
     try:
         FI.gdelt_forward()
-    except Exception as e:  # noqa: BLE001
-        print(f"  [REGIME-DIAG] gdelt_forward soft-fail: {type(e).__name__}: {e}")
+    except Exception:  # noqa: BLE001 — soft-fail, same as production forecaster
+        pass
     try:
         FI.cboe_forward()
-    except Exception as e:  # noqa: BLE001
-        print(f"  [REGIME-DIAG] cboe_forward soft-fail: {type(e).__name__}: {e}")
+    except Exception:  # noqa: BLE001 — soft-fail
+        pass
 
     FI.build_panel(pending)
     records = FI.run_inference(pending)
@@ -772,8 +768,8 @@ def diagnose_regime_chassis(pending: Optional[List[str]] = None) -> dict:
         if fused:
             regime_label = str(fused)
             regime_label_source = f"decisions.final_regime_label (daily/{run_date})"
-    except Exception as e:  # noqa: BLE001 — read-only best-effort
-        print(f"  [REGIME-DIAG] decisions leaf read soft-fail: {type(e).__name__}: {e}")
+    except Exception:  # noqa: BLE001 — read-only best-effort, soft-fail
+        pass
 
     mu_sha = hashlib.sha256(json.dumps(
         {k: round(float(v), 8) for k, v in sorted(mu.items())},
@@ -873,12 +869,6 @@ def diagnose_regime_chassis(pending: Optional[List[str]] = None) -> dict:
                     "health is still cut. No silent .get(sym,1.0).",
         },
     }
-    print(f"  [REGIME-DIAG] regime={regime_label} compat_loaded={regime_compat_loaded} "
-          f"n_mult_nonunit={n_nonunit}/{len(elig)} reranks_top10={top10_reranks} "
-          f"mu_sha={mu_sha}\n"
-          f"  [REGIME-DIAG] raw_top10   ={raw_top}\n"
-          f"  [REGIME-DIAG] tilted_top10={tilt_top}\n"
-          f"  [REGIME-DIAG] assertion={assertion}")
     return out
 
 
