@@ -155,8 +155,178 @@ def lambda_handler(event: dict, context) -> dict:
         return _run_regime_diag(event, bucket, region)
     elif source == 'date-grid-diag':
         return _run_date_grid_diag(event, bucket, region)
+    elif source == 'feeds-diag':
+        return _run_feeds_diag(event, bucket, region)
     else:
         return _run_night_phase(event, bucket, region)
+
+
+def _run_feeds_diag(event: dict, bucket: str, region: str) -> dict:
+    """Governed, NON-DESTRUCTIVE reality-test of trader-bot-core/feeds/prices.py
+    (PKT-TRADER-BOT-FEEDS-YAHOO-PRIMARY, P1).
+
+    Runs the REBUILT Yahoo-v8-primary price feed from the AWS-IP Lambda context
+    (the block that motivated the rebuild is AWS-IP-specific) and returns the
+    packet's five acceptance criteria as machine-checkable rows. Writes NO S3
+    object; the live night path (src/steps/ingest_prices.py) is untouched.
+
+      1. full-64 universe -> non-empty OHLCV bars from Yahoo v8 primary;
+      2. a stored settled SPY close cross-checks the Yahoo v8 quote to < 0.5%;
+      3. stooq deliberately blocked -> full-64 still non-empty (no freeze), AND a
+         forced primary-block probe shows the fallback path taken visibly;
+      4. vvix_value / skew_value now nonzero (Yahoo v8 vol-index replacement);
+      5. OHLCVBar dtypes conform, and a forced dtype-mismatch RAISES (not swallowed).
+    """
+    import sys
+    from pathlib import Path as _Path
+
+    # Bring the clean-folder module onto sys.path (baked at
+    # ${LAMBDA_TASK_ROOT}/trader-bot-core by Dockerfile.lambda). NOT wired into
+    # the live pipeline — imported only here for the governed reality-test.
+    core = _Path(os.environ.get('LAMBDA_TASK_ROOT', '.')) / 'trader-bot-core'
+    if str(core) not in sys.path:
+        sys.path.insert(0, str(core))
+    from feeds import prices as tbc_prices  # type: ignore
+    from feeds import contracts as tbc_contracts  # type: ignore
+
+    s3 = S3Client(bucket, region)
+    result: dict = {'phase': 'feeds-diag', 'nondestructive': True}
+
+    # --- Universe (64) ---
+    universe_df = s3.read_csv('config/universe.csv')
+    symbols = universe_df['symbol'].tolist() if len(universe_df) else []
+    result['universe_size'] = len(symbols)
+
+    # --- (1)+(3a) full-64 with stooq DELIBERATELY BLOCKED (proves stooq's AWS-IP
+    # block cannot freeze the run: Yahoo v8 primary carries the whole universe) ---
+    with StepTimer("feeds-diag full-64 (stooq blocked)", logger):
+        full_df, full_rep = tbc_prices.run_with_report(
+            symbols, lookback_days=90, blocked_sources=['stooq'])
+    n_nonempty = int(full_df['symbol'].nunique()) if len(full_df) else 0
+    result['full_universe'] = {
+        'requested': len(symbols),
+        'symbols_nonempty': n_nonempty,
+        'total_rows': int(len(full_df)),
+        'served_by_source': full_rep.source_counts,
+        'failed_symbols': full_rep.failed_symbols,
+        'blocked_sources': full_rep.blocked_sources,
+        'pass': bool(len(symbols) > 0 and n_nonempty == len(symbols)),
+    }
+
+    # --- (2) stored settled SPY close cross-checks Yahoo v8 to < 0.5% ---
+    spy_check = {'pass': False}
+    try:
+        latest = s3.read_json('daily/latest.json') or {}
+        settled = latest.get('intents_date') or latest.get('date')
+        stored_spy = None
+        if settled:
+            stored = s3.read_parquet(f'daily/{settled}/prices.parquet')
+            if len(stored):
+                srows = stored[stored['symbol'] == 'SPY'].copy()
+                if len(srows):
+                    srows['date'] = pd.to_datetime(srows['date'])
+                    stored_spy = float(srows.sort_values('date')['close'].iloc[-1])
+        yv8 = tbc_prices.fetch_yahoo_v8_daily('SPY', lookback_days=15)
+        yahoo_spy = None
+        if len(yv8):
+            yv8 = yv8.copy()
+            yv8['date'] = pd.to_datetime(yv8['date'])
+            match = yv8[yv8['date'] == pd.to_datetime(settled)] if settled else yv8
+            row = match if len(match) else yv8
+            yahoo_spy = float(row.sort_values('date')['close'].iloc[-1])
+        pct = None
+        if stored_spy and yahoo_spy:
+            pct = abs(stored_spy - yahoo_spy) / stored_spy * 100.0
+        spy_check = {
+            'settled_date': settled,
+            'stored_spy_close': stored_spy,
+            'yahoo_v8_spy_close': yahoo_spy,
+            'pct_diff': pct,
+            'pass': bool(pct is not None and pct < 0.5),
+        }
+    except Exception as exc:  # noqa: BLE001 — surface, don't swallow the whole diag
+        spy_check = {'pass': False, 'error': f'{type(exc).__name__}: {exc}'}
+    result['spy_crosscheck'] = spy_check
+
+    # --- (3b) forced primary block -> fallback taken VISIBLY, no empty result ---
+    probe = symbols[:5] if symbols else ['SPY', 'QQQ', 'TLT', 'GLD', 'HYG']
+    with StepTimer("feeds-diag fallback probe (yahoo_v8 blocked)", logger):
+        fb_df, fb_rep = tbc_prices.run_with_report(
+            probe, lookback_days=30, blocked_sources=['yahoo_v8'])
+    result['fallback_probe'] = {
+        'probe_symbols': probe,
+        'served_by_source': fb_rep.source_counts,
+        'fallback_events': fb_rep.fallback_events,
+        'symbols_nonempty': int(fb_df['symbol'].nunique()) if len(fb_df) else 0,
+        'no_freeze_nonempty': bool(len(fb_df) > 0),
+        'pass': bool(len(fb_df) > 0 and fb_rep.fallback_events),
+    }
+
+    # --- (3c) evidence that stooq itself is AWS-IP-blocked from this Lambda ---
+    stooq_probe = tbc_prices.fetch_stooq_daily('SPY', lookback_days=10)
+    result['stooq_from_aws'] = {
+        'spy_rows': int(len(stooq_probe)),
+        'blocked_or_empty': bool(len(stooq_probe) == 0),
+        'note': 'stooq is a demoted last-resort fallback; empty here confirms the '
+                'AWS-IP block that made it unusable as PRIMARY.',
+    }
+
+    # --- (4) vvix_value / skew_value now nonzero (Yahoo v8 replacement) ---
+    vvix = tbc_prices.latest_vol_index('^VVIX')
+    skew = tbc_prices.latest_vol_index('^SKEW')
+    result['vol_complex'] = {
+        'vvix_value': vvix,
+        'skew_value': skew,
+        'pass': bool(vvix and vvix > 0 and skew and skew > 0),
+    }
+
+    # --- (5) OHLCVBar dtype conformance + forced dtype-mismatch RAISES ---
+    dtype_ok = None
+    if len(full_df):
+        got = {c: str(t) for c, t in full_df.dtypes.items()}
+        want = {'date': 'datetime64[ns]', 'symbol': 'object', 'open': 'float64',
+                'high': 'float64', 'low': 'float64', 'close': 'float64',
+                'volume': 'int64'}
+        dtype_ok = all(got.get(k) == v for k, v in want.items())
+    forced_raise = False
+    forced_detail = ''
+    bad = pd.DataFrame([{'date': '2026-07-02', 'symbol': 'SPY', 'open': 1.0,
+                         'high': 1.0, 'low': 1.0, 'close': 'not_a_number',
+                         'volume': 100}])
+    try:
+        tbc_contracts.coerce_to_ohlcv(bad)
+    except tbc_contracts.OHLCVContractError as exc:
+        forced_raise = True
+        forced_detail = str(exc)[:120]
+    result['dtype_contract'] = {
+        'output_dtypes_conform': dtype_ok,
+        'forced_mismatch_raises': forced_raise,
+        'forced_raise_detail': forced_detail,
+        'pass': bool(dtype_ok and forced_raise),
+    }
+
+    # --- overall ---
+    checks = {
+        'full_universe_nonempty': result['full_universe']['pass'],
+        'spy_close_within_0.5pct': result['spy_crosscheck']['pass'],
+        'stooq_blocked_no_freeze': result['full_universe']['pass'],
+        'fallback_visible': result['fallback_probe']['pass'],
+        'vvix_skew_nonzero': result['vol_complex']['pass'],
+        'dtype_coerce_or_raise': result['dtype_contract']['pass'],
+    }
+    result['acceptance'] = checks
+    result['all_pass'] = all(checks.values())
+
+    logger.info(
+        "feeds-diag: full64=%d/%d spy_pct=%s vvix=%s skew=%s fallback=%s "
+        "dtype_raise=%s ALL_PASS=%s",
+        n_nonempty, len(symbols), spy_check.get('pct_diff'), vvix, skew,
+        result['fallback_probe']['served_by_source'],
+        forced_raise, result['all_pass'],
+    )
+    return {'statusCode': 200, 'body': json.dumps(
+        {'status': 'success', 'phase': 'feeds-diag', 'result': result},
+        default=str)}
 
 
 def _run_forecast_diag(event: dict, bucket: str, region: str) -> dict:

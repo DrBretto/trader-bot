@@ -57,6 +57,12 @@ COPY config/ ${LAMBDA_TASK_ROOT}/config/
 # The frozen brain contract (PKT-TB-010) — asserted at cold start.
 COPY brain/FREEZE_ORB1.json ${LAMBDA_TASK_ROOT}/brain/FREEZE_ORB1.json
 
+# trader-bot-core: the clean-rebuild kernel. NOT wired into the live night path
+# (that happens at the P9 cutover); baked here so the governed reality-test diag
+# branches (e.g. source='feeds-diag', PKT-…-FEEDS-YAHOO-PRIMARY) can exercise the
+# rebuilt modules from the real AWS-IP Lambda context.
+COPY trader-bot-core/ ${LAMBDA_TASK_ROOT}/trader-bot-core/
+
 # PKT-TB-012: bake the extracted runtime subset (run `python -m
 # src.brain.bake_runtime_subset` first). The bake MIRRORS the repo-relative
 # layout (runs/pkt_tb_007.../{shadow,prototype}, runs/pkt_tb_006.../prototype +
