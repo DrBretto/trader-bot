@@ -28,14 +28,16 @@ through — a wrong-dtype feed is a loud bug, not a quiet degrade.
 
 from __future__ import annotations
 
+import http.cookiejar
 import json
 import logging
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from io import StringIO
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
 
@@ -56,7 +58,15 @@ DEFAULT_CRITICAL_SYMBOLS = frozenset(
     {"SPY", "QQQ", "IWM", "TLT", "IEF", "HYG", "LQD", "GLD", "VIXY"}
 )
 
+_YAHOO_HOSTS = ("query1.finance.yahoo.com", "query2.finance.yahoo.com")
 _YAHOO_CHART_BASE = "https://query1.finance.yahoo.com/v8/finance/chart/"
+_YAHOO_CRUMB_URL = "https://query1.finance.yahoo.com/v1/test/getcrumb"
+# Cookie-seeding endpoints. fc.yahoo.com 404s but still sets the consent/A3
+# cookie; finance.yahoo.com is the fallback seed.
+_YAHOO_COOKIE_SEEDS = (
+    "https://fc.yahoo.com/",
+    "https://finance.yahoo.com/quote/SPY",
+)
 # A browser-ish UA; Yahoo's public chart endpoint 429s an empty/py UA.
 _YAHOO_HEADERS = {
     "User-Agent": (
@@ -64,7 +74,59 @@ _YAHOO_HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
     ),
     "Accept": "application/json,text/plain,*/*",
+    "Accept-Language": "en-US,en;q=0.9",
 }
+
+# Per-container Yahoo session (cookie jar + crumb). Yahoo rate-limits (HTTP 429)
+# and rejects (HTTP 401) UNCOOKIED requests to the v8 chart endpoint from
+# datacenter/AWS IPs — this is the same AWS-IP block class that made stooq
+# unusable, and it is why a *bare* v8 GET fails from the Lambda. The fix is the
+# cookie+crumb handshake the yfinance library does internally: seed a cookie,
+# fetch a crumb, then send both on every chart request. We do it here with
+# urllib (no yfinance dependency). Cached module-globally so the handshake runs
+# once per warm container, not once per symbol.
+_YAHOO_OPENER: Optional[urllib.request.OpenerDirector] = None
+_YAHOO_CRUMB: Optional[str] = None
+
+
+def _build_yahoo_session(timeout: float) -> Tuple[urllib.request.OpenerDirector, Optional[str]]:
+    """Seed a cookie jar and fetch a crumb. Returns (opener, crumb|None)."""
+    jar = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+
+    for seed in _YAHOO_COOKIE_SEEDS:
+        try:
+            req = urllib.request.Request(seed, headers=_YAHOO_HEADERS)
+            opener.open(req, timeout=timeout).read()
+        except urllib.error.HTTPError:
+            # fc.yahoo.com returns 404 but the Set-Cookie still lands in the jar.
+            pass
+        except (urllib.error.URLError, TimeoutError) as exc:
+            logger.info("yahoo_v8: cookie seed %s failed: %s", seed, exc)
+            continue
+        if len(jar):
+            break
+
+    crumb = None
+    try:
+        req = urllib.request.Request(_YAHOO_CRUMB_URL, headers=_YAHOO_HEADERS)
+        crumb = opener.open(req, timeout=timeout).read().decode("utf-8").strip()
+        if not crumb or len(crumb) > 32 or "<" in crumb:
+            crumb = None  # got an HTML error page, not a crumb token
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as exc:
+        logger.info("yahoo_v8: crumb fetch failed: %s", exc)
+        crumb = None
+    return opener, crumb
+
+
+def _ensure_yahoo_session(timeout: float, force: bool = False):
+    """Return the cached (opener, crumb), building it if missing or ``force``."""
+    global _YAHOO_OPENER, _YAHOO_CRUMB
+    if force or _YAHOO_OPENER is None:
+        _YAHOO_OPENER, _YAHOO_CRUMB = _build_yahoo_session(timeout)
+        logger.info("yahoo_v8: session (re)built, crumb=%s",
+                    "present" if _YAHOO_CRUMB else "MISSING")
+    return _YAHOO_OPENER, _YAHOO_CRUMB
 
 
 def _yahoo_range_for_lookback(lookback_days: int) -> str:
@@ -106,21 +168,32 @@ def fetch_yahoo_v8_daily(
     rng = _yahoo_range_for_lookback(lookback_days)
     # ^-prefixed index symbols (^VVIX/^SKEW/^VIX) must be percent-encoded.
     enc = symbol.replace("^", "%5E")
-    url = f"{_YAHOO_CHART_BASE}{enc}?range={rng}&interval=1d"
 
     payload = None
     for attempt in range(1, max_retries + 1):
+        # Force a fresh cookie+crumb handshake on the retry after a 401/429.
+        opener, crumb = _ensure_yahoo_session(timeout, force=(attempt > 1))
+        params = {"range": rng, "interval": "1d"}
+        if crumb:
+            params["crumb"] = crumb
+        # Alternate query1/query2 across attempts (yfinance does the same — the
+        # two hosts have independent rate-limit buckets).
+        host = _YAHOO_HOSTS[(attempt - 1) % len(_YAHOO_HOSTS)]
+        url = (f"https://{host}/v8/finance/chart/{enc}"
+               f"?{urllib.parse.urlencode(params)}")
         try:
             req = urllib.request.Request(url, headers=_YAHOO_HEADERS)
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
+            with opener.open(req, timeout=timeout) as resp:
                 payload = json.loads(resp.read().decode("utf-8"))
             break
         except urllib.error.HTTPError as exc:
-            if exc.code == 429 and attempt < max_retries:
+            # 401 = crumb/cookie rejected; 429 = rate-limited. Both are defeated
+            # by rebuilding the session (next loop forces a fresh handshake).
+            if exc.code in (401, 429) and attempt < max_retries:
                 backoff = 1.5 * (2 ** (attempt - 1))
                 logger.info(
-                    "yahoo_v8: 429 for %s (attempt %d/%d), backing off %.1fs",
-                    symbol, attempt, max_retries, backoff,
+                    "yahoo_v8: HTTP %s for %s (attempt %d/%d), rehandshake+backoff %.1fs",
+                    exc.code, symbol, attempt, max_retries, backoff,
                 )
                 time.sleep(backoff)
                 continue
@@ -432,6 +505,10 @@ def run_with_report(
     the contract; no raw ``pd.concat``).
     """
     blocked = {s for s in (blocked_sources or [])}
+    # Runtime-blocked sources: augmented by the circuit-breaker below so a dead
+    # primary (e.g. Yahoo hard-429ing this IP) cannot burn the whole 900s budget
+    # across 64 symbols before every one of them falls back anyway.
+    runtime_blocked = set(blocked)
     report = IngestReport(blocked_sources=sorted(blocked))
 
     symbols = [u["symbol"] if isinstance(u, dict) else u for u in universe]
@@ -440,20 +517,46 @@ def run_with_report(
         len(symbols), SOURCE_YAHOO_V8, sorted(blocked) or "none",
     )
 
+    yahoo_consecutive_fail = 0
+    yahoo_break_threshold = 8
+
     frames: List[pd.DataFrame] = []
     for i, symbol in enumerate(symbols):
         if i > 0 and i % 10 == 0:
             logger.info("[FEEDS] progress %d/%d", i, len(symbols))
         # Gentle pacing so a burst of 64 requests from the single Lambda public
         # IP does not trip Yahoo's rate limiter. ~0.15s * 64 ≈ 10s << 900s.
-        if i > 0 and SOURCE_YAHOO_V8 not in blocked:
+        if i > 0 and SOURCE_YAHOO_V8 not in runtime_blocked:
             time.sleep(0.15)
         df = _fetch_one(
-            symbol, alphavantage_key, lookback_days, critical_symbols, blocked, report
+            symbol, alphavantage_key, lookback_days, critical_symbols,
+            runtime_blocked, report,
         )
         if len(df) > 0:
             frames.append(df)
 
+        # Circuit-breaker: if Yahoo primary is enabled but keeps missing, stop
+        # hammering it after `yahoo_break_threshold` consecutive misses and route
+        # the remaining symbols straight to the fallback chain (logged, honest).
+        if SOURCE_YAHOO_V8 not in runtime_blocked:
+            if report.served_by.get(symbol) == SOURCE_YAHOO_V8:
+                yahoo_consecutive_fail = 0
+            else:
+                yahoo_consecutive_fail += 1
+                if yahoo_consecutive_fail >= yahoo_break_threshold:
+                    runtime_blocked.add(SOURCE_YAHOO_V8)
+                    report.fallback_events.append(
+                        f"CIRCUIT-BREAK: yahoo_v8 disabled after "
+                        f"{yahoo_break_threshold} consecutive misses; "
+                        f"remaining symbols use fallback chain"
+                    )
+                    logger.warning(
+                        "[FEEDS] CIRCUIT-BREAK: yahoo_v8 disabled after %d "
+                        "consecutive misses at symbol #%d (%s); remaining -> fallback",
+                        yahoo_break_threshold, i, symbol,
+                    )
+
+    report.blocked_sources = sorted(runtime_blocked)
     result = concat_ohlcv(frames)
     logger.info(
         "[FEEDS] done: %d rows, %d/%d symbols non-empty (by source: %s); failed=%s",
