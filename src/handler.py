@@ -189,8 +189,19 @@ def _run_feeds_diag(event: dict, bucket: str, region: str) -> dict:
     from feeds import prices as tbc_prices  # type: ignore
     from feeds import contracts as tbc_contracts  # type: ignore
 
+    # Surface the feed module's INFO logs (Lambda's root logger defaults to
+    # WARNING, which hides the handshake diagnostics).
+    import logging as _logging
+    _logging.getLogger('feeds').setLevel(_logging.INFO)
+
     s3 = S3Client(bucket, region)
     result: dict = {'phase': 'feeds-diag', 'nondestructive': True}
+
+    # --- (0) surgical Yahoo handshake probe: is the raw v8 endpoint reachable
+    # from this AWS IP with a proper cookie+crumb, or is it a hard IP block? ---
+    with StepTimer("feeds-diag yahoo handshake probe", logger):
+        result['yahoo_handshake_probe'] = tbc_prices.yahoo_handshake_probe()
+    logger.info("feeds-diag handshake probe: %s", result['yahoo_handshake_probe'])
 
     # --- Universe (64) ---
     universe_df = s3.read_csv('config/universe.csv')

@@ -119,6 +119,63 @@ def _build_yahoo_session(timeout: float) -> Tuple[urllib.request.OpenerDirector,
     return opener, crumb
 
 
+def yahoo_handshake_probe(timeout: float = 15.0) -> dict:
+    """Surgical diagnostic: run the cookie+crumb handshake and a single direct SPY
+    chart fetch, returning the internals (cookie count, whether a crumb was
+    obtained, the chart HTTP status). Answers 'is the raw v8 endpoint reachable
+    from here with a proper crumb, or is this a hard IP block?' without log-diving."""
+    jar = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+    seed_status = {}
+    for seed in _YAHOO_COOKIE_SEEDS:
+        try:
+            req = urllib.request.Request(seed, headers=_YAHOO_HEADERS)
+            opener.open(req, timeout=timeout).read()
+            seed_status[seed] = "ok"
+        except urllib.error.HTTPError as exc:
+            seed_status[seed] = f"HTTP {exc.code}"
+        except Exception as exc:  # noqa: BLE001
+            seed_status[seed] = f"{type(exc).__name__}"
+    cookie_names = sorted({c.name for c in jar})
+
+    crumb, crumb_status = None, None
+    try:
+        req = urllib.request.Request(_YAHOO_CRUMB_URL, headers=_YAHOO_HEADERS)
+        crumb = opener.open(req, timeout=timeout).read().decode("utf-8").strip()
+        crumb_status = "ok"
+    except urllib.error.HTTPError as exc:
+        crumb_status = f"HTTP {exc.code}"
+    except Exception as exc:  # noqa: BLE001
+        crumb_status = f"{type(exc).__name__}"
+
+    chart_status, chart_rows = None, None
+    try:
+        params = {"range": "5d", "interval": "1d"}
+        if crumb:
+            params["crumb"] = crumb
+        url = f"{_YAHOO_CHART_BASE}SPY?{urllib.parse.urlencode(params)}"
+        req = urllib.request.Request(url, headers=_YAHOO_HEADERS)
+        payload = json.loads(opener.open(req, timeout=timeout).read().decode("utf-8"))
+        res = (payload.get("chart") or {}).get("result") or []
+        chart_status = "ok"
+        chart_rows = len((res[0].get("timestamp") or [])) if res else 0
+    except urllib.error.HTTPError as exc:
+        chart_status = f"HTTP {exc.code}"
+    except Exception as exc:  # noqa: BLE001
+        chart_status = f"{type(exc).__name__}"
+
+    return {
+        "cookie_seed_status": seed_status,
+        "cookie_names": cookie_names,
+        "cookie_count": len(cookie_names),
+        "crumb_status": crumb_status,
+        "crumb_obtained": bool(crumb and len(crumb) <= 32 and "<" not in crumb),
+        "crumb_len": len(crumb) if crumb else 0,
+        "direct_spy_chart_status": chart_status,
+        "direct_spy_chart_rows": chart_rows,
+    }
+
+
 def _ensure_yahoo_session(timeout: float, force: bool = False):
     """Return the cached (opener, crumb), building it if missing or ``force``."""
     global _YAHOO_OPENER, _YAHOO_CRUMB
