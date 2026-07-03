@@ -203,6 +203,15 @@ def _run_feeds_diag(event: dict, bucket: str, region: str) -> dict:
         result['yahoo_handshake_probe'] = tbc_prices.yahoo_handshake_probe()
     logger.info("feeds-diag handshake probe: %s", result['yahoo_handshake_probe'])
 
+    # probe_only: a cheap (~2 Yahoo requests) reachability check. Used to test
+    # whether the raw endpoint recovers after a cooldown WITHOUT re-hammering it
+    # with a 64-symbol burst. Returns just the handshake probe.
+    if event.get('probe_only'):
+        result['probe_only'] = True
+        return {'statusCode': 200, 'body': json.dumps(
+            {'status': 'success', 'phase': 'feeds-diag', 'result': result},
+            default=str)}
+
     # --- Universe (64) ---
     universe_df = s3.read_csv('config/universe.csv')
     symbols = universe_df['symbol'].tolist() if len(universe_df) else []

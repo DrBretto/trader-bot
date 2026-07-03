@@ -448,15 +448,23 @@ def fetch_stooq_daily(symbol: str, lookback_days: int = 365) -> pd.DataFrame:
 # --- vol complex (VVIX / SKEW) -------------------------------------------------
 
 def fetch_vol_index(symbol: str, lookback_days: int = 365) -> pd.DataFrame:
-    """Fetch a CBOE vol-complex index (``^VVIX`` / ``^SKEW`` / ``^VIX``) via the
-    Yahoo v8 endpoint — the working replacement for the dead ``fetch_stooq_index``.
+    """Fetch a CBOE vol-complex index (``^VVIX`` / ``^SKEW`` / ``^VIX``) — the
+    resilient replacement for the dead ``fetch_stooq_index``.
+
+    Yahoo v8 raw PRIMARY, yfinance FALLBACK (each logged by name). The fallback
+    matters: the Yahoo v8 raw endpoint is 429-rate-limited from AWS datacenter
+    IPs, so a Yahoo-only vol source would leave ``vvix``/``skew`` degraded on the
+    Lambda exactly as the dead stooq source did — the fallback keeps them nonzero.
 
     Returns a ``date, symbol, close`` frame (indices have no meaningful volume).
-    Empty on failure.
+    Empty on total failure.
     """
     df = fetch_yahoo_v8_daily(symbol, lookback_days=lookback_days)
     if len(df) == 0:
-        logger.warning("vol_index: yahoo_v8 empty for %s", symbol)
+        logger.info("vol_index: yahoo_v8 empty for %s -> FALLBACK yfinance", symbol)
+        df = fetch_yfinance_daily(symbol, lookback_days=lookback_days)
+    if len(df) == 0:
+        logger.warning("vol_index: no source returned %s", symbol)
         return pd.DataFrame(columns=["date", "symbol", "close"])
     return df[["date", "symbol", "close"]].reset_index(drop=True)
 
