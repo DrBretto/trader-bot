@@ -1,0 +1,44 @@
+{
+  "US": {
+    "etf": "SPY",
+    "bucket": "us_broad",
+    "iso3": ["USA"],
+    "fips": ["US"]
+  },
+  "CN": {
+    "etf": "FXI",
+    "bucket": "china",
+    "iso3": ["CHN"],
+    "fips": ["CH", "HK"]
+  },
+  "JP": {
+    "etf": "EWJ",
+    "bucket": "japan",
+    "iso3": ["JPN"],
+    "fips": ["JA"]
+  },
+  "BR": {
+    "etf": "EWZ",
+    "bucket": "brazil",
+    "iso3": ["BRA"],
+    "fips": ["BR"]
+  },
+  "IN": {
+    "etf": "INDA",
+    "bucket": "india",
+    "iso3": ["IND"],
+    "fips": ["IN"]
+  },
+  "RU": {
+    "etf": "EEM/VWO",
+    "bucket": "em_broad",
+    "iso3": ["RUS"],
+    "fips": ["RS"]
+  },
+  "EU": {
+    "etf": "VGK",
+    "bucket": "europe",
+    "iso3": ["EUR", "DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "AUT", "PRT", "IRL", "GRC", "FIN", "SWE", "DNK", "POL", "CZE", "HUN", "ROU", "BGR", "HRV", "SVK", "SVN", "LTU", "LVA", "EST", "LUX", "MLT", "CYP", "GBR", "CHE", "NOR"],
+    "fips": ["GM", "FR", "IT", "SP", "NL", "BE", "AU", "PO", "EI", "GR", "FI", "SW", "DA", "PL", "EZ", "HU", "RO", "BU", "HR", "LO", "SI", "LH", "LG", "EN", "LU", "MT", "CY", "UK", "SZ", "NO"]
+  }
+}

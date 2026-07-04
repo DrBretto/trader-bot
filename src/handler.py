@@ -157,6 +157,8 @@ def lambda_handler(event: dict, context) -> dict:
         return _run_date_grid_diag(event, bucket, region)
     elif source == 'feeds-diag':
         return _run_feeds_diag(event, bucket, region)
+    elif source == 'forecast-spine-diag':
+        return _run_forecast_spine_diag(event, bucket, region)
     else:
         return _run_night_phase(event, bucket, region)
 
@@ -346,6 +348,224 @@ def _run_feeds_diag(event: dict, bucket: str, region: str) -> dict:
     )
     return {'statusCode': 200, 'body': json.dumps(
         {'status': 'success', 'phase': 'feeds-diag', 'result': result},
+        default=str)}
+
+
+def _run_forecast_spine_diag(event: dict, bucket: str, region: str) -> dict:
+    """Governed, NON-DESTRUCTIVE reality-test of the RELOCATED forecast spine
+    (PKT-TRADER-BOT-FORECAST-SPINE-RELOCATE, P3).
+
+    Exercises the confirmed-correct kernel from its first-class trader-bot-core
+    paths (store/forecast/engine/adapter/decide) — the prototype-dir-as-runtime
+    trap is gone. Returns the packet's five acceptance criteria as machine-
+    checkable rows. Writes NO S3 object; the live night path is untouched.
+
+      1. run_inference(today) runs with NO runs/ on sys.path (imports/executes
+         clean from trader-bot-core) + FREEZE shas compute first-class & match.
+      2. the parity self-check is green (run_inference ABORTS on parity fail; a
+         returned mu ⇒ parity passed).
+      3. live mu_sha16 DIFFERS day-over-day on fresh substrate (not frozen).
+      4. n_mu == full universe AND invariant_green=True (run_cutover clean path).
+      5. an injected freeze-hash fault -> ok=False, the incumbent is byte-
+         unchanged, and SNS fired (abort-never-degrade holds after relocation).
+    """
+    import sys
+    import hashlib
+    from pathlib import Path as _Path
+
+    # Bring the clean-folder spine onto sys.path (baked at
+    # ${LAMBDA_TASK_ROOT}/trader-bot-core by Dockerfile.lambda). NOT wired into
+    # the live pipeline — imported only here for the governed reality-test.
+    core = _Path(os.environ.get('LAMBDA_TASK_ROOT', '.')) / 'trader-bot-core'
+    if str(core) not in sys.path:
+        sys.path.insert(0, str(core))
+
+    result: dict = {'phase': 'forecast-spine-diag', 'nondestructive': True}
+
+    # --- (1) first-class imports, no runs/ on sys.path, FREEZE shas match ---
+    from decide import cutover as CUT          # noqa: E402 — first-class
+    from forecast import freeze as FZ          # noqa: E402
+    import pandas as pd
+    runs_on_path = [p for p in sys.path if 'runs/pkt_tb' in p or 'runs\\pkt_tb' in p]
+    fr = FZ.load_freeze()
+    engine_sha = FZ.compute_engine_sha()
+    model_sha = FZ.compute_model_sha()
+    result['acc1_first_class_imports'] = {
+        'no_runs_on_syspath': (runs_on_path == []),
+        'runs_on_syspath': runs_on_path,
+        'engine_sha': engine_sha,
+        'engine_sha_matches_FREEZE': engine_sha == fr.get('engine', {}).get('engine_sha'),
+        'model_sha': model_sha,
+        'model_sha_matches_FREEZE': model_sha == fr.get('model_artifacts', {}).get('model_sha'),
+        'model_root': str(FZ.resolve_model_root()),
+    }
+
+    # --- settled trading days (today + prior) for the day-over-day check ---
+    settled = CUT._latest_settled_trading_day()
+    prior = event.get('prior_date')
+    if not prior:
+        import datetime as _dt
+        d = _dt.date.fromisoformat(settled)
+        d -= _dt.timedelta(days=1)
+        while d.weekday() >= 5:
+            d -= _dt.timedelta(days=1)
+        prior = d.isoformat()
+
+    # --- (2)+(4-n_mu)+(3-today): run the RELOCATED forward inference for today ---
+    with StepTimer("forecast-spine-diag run_inference(today)", logger):
+        diag_today = CUT.diagnose_forecast_freshness(pending=[settled])
+    n_mu = diag_today.get('n_mu', 0)
+    mu_sha_today = diag_today.get('mu_sha16')
+    result['acc2_parity_self_check'] = {
+        'run_inference_returned_mu': n_mu > 0,
+        'parity_green': n_mu > 0,   # run_inference ABORTS on parity fail; mu ⇒ green
+        'note': 'run_inference raises RuntimeError on any parity divergence vs '
+                'the frozen nightly reference; a non-empty mu proves parity passed.',
+        'gate': diag_today.get('gate'),
+    }
+
+    # --- (3) day-over-day mu_sha16 must differ on fresh substrate ---
+    with StepTimer("forecast-spine-diag run_inference(prior)", logger):
+        diag_prior = CUT.diagnose_forecast_freshness(pending=[prior])
+    mu_sha_prior = diag_prior.get('mu_sha16')
+    result['acc3_mu_sha16_day_over_day'] = {
+        'settled_date': settled, 'mu_sha16_today': mu_sha_today,
+        'prior_date': prior, 'mu_sha16_prior': mu_sha_prior,
+        'differs_day_over_day': bool(mu_sha_today and mu_sha_prior
+                                     and mu_sha_today != mu_sha_prior),
+        'substrate_max_bar': diag_today.get('ohlcv_max_date'),
+    }
+
+    # --- universe size for the n_mu == full-universe check ---
+    uni_path = CUT._regime_compat_path().parent / 'universe.csv'
+    universe_df = pd.read_csv(uni_path)
+    universe_n = int(len(universe_df))
+    mu_today = {}  # re-fetch full mu map for the run_cutover closure
+    # diagnose_forecast_freshness returned only top10; recompute the full mu via
+    # the same first-class path (cheap — substrate already extended).
+    from forecast import shadow_lib as SL     # noqa: E402
+    from forecast import inference as FI       # noqa: E402
+    SL.STATE.mkdir(parents=True, exist_ok=True)
+    FI.ensure_seed_caches()
+    FI.build_panel([settled])
+    recs = FI.run_inference([settled])
+    mu_today = dict((recs.get(settled) or {}).get('mu', {}))
+
+    # --- (4) invariant_green via the REAL run_cutover clean path ---
+    live_cfg = CUT.load_brain_config()
+    live_cfg = dict(live_cfg)
+    live_cfg['mode'] = 'live'
+    live_cfg['engine'] = 'native_two_stage'   # exercise the chassis-loaded assert
+    live_cfg['forward_boundary'] = '2026-06-11'
+    pstate = {'cash': 100000.0, 'holdings': []}
+    incumbent = {'incumbent': True, 'source': 'forecast-spine-diag-synthetic',
+                 'trade_intents': []}
+    incumbent_bytes = json.dumps(incumbent, sort_keys=True).encode()
+    incumbent_sha_before = hashlib.sha256(incumbent_bytes).hexdigest()[:16]
+
+    def _closure_forecaster(pending):
+        return {pending[-1]: {'mu': dict(mu_today)}}
+
+    with StepTimer("forecast-spine-diag run_cutover(clean)", logger):
+        res_clean = CUT.run_cutover(
+            date=settled, features_df=None, regime_label='neutral',
+            universe_df=universe_df, portfolio_state=pstate,
+            forecaster=_closure_forecaster, config=live_cfg,
+            incumbent_intents=incumbent)
+    result['acc4_invariant_and_universe'] = {
+        'n_mu': n_mu, 'universe_n': universe_n,
+        'n_mu_eq_universe': n_mu == universe_n,
+        'run_cutover_ok': bool(res_clean.ok),
+        'invariant_green': bool(res_clean.invariant_green),
+        'engine': res_clean.engine,
+        'reason': res_clean.reason,
+        'n_selected': len(res_clean.selected_universe or []),
+    }
+
+    # --- (5) injected freeze-hash fault -> ok=False + incumbent unchanged + SNS ---
+    tampered = _Path('/tmp/tbc_tampered_engine')
+    import shutil as _shutil
+    if tampered.exists():
+        _shutil.rmtree(tampered)
+    _shutil.copytree(core / 'engine', tampered)
+    # flip a byte in one engine file so compute_engine_sha != FREEZE.engine_sha
+    victim = tampered / 'contracts.py'
+    b = bytearray(victim.read_bytes())
+    b[0] = (b[0] + 1) % 256
+    victim.write_bytes(bytes(b))
+
+    orig_engine_dir = FZ._ENGINE_DIR
+    fault_reason = ''
+    try:
+        FZ._ENGINE_DIR = tampered            # assert_cold_start computes over tampered
+        with StepTimer("forecast-spine-diag run_cutover(freeze-fault)", logger):
+            res_fault = CUT.run_cutover(
+                date=settled, features_df=None, regime_label='neutral',
+                universe_df=universe_df, portfolio_state=pstate,
+                forecaster=_closure_forecaster, config=live_cfg,
+                incumbent_intents=incumbent)
+        fault_reason = res_fault.reason
+        fault_ok = bool(res_fault.ok)
+        # incumbent passed straight through, byte-unchanged (run_cutover NEVER writes)
+        inc_after = json.dumps(res_fault.incumbent_intents, sort_keys=True).encode()
+        incumbent_sha_after = hashlib.sha256(inc_after).hexdigest()[:16]
+    finally:
+        FZ._ENGINE_DIR = orig_engine_dir
+        if tampered.exists():
+            _shutil.rmtree(tampered)
+
+    # abort-never-degrade: fire the SNS CRITICAL the night caller fires on ok=False
+    sns_message_id = None
+    sns_error = None
+    if fault_ok is False:
+        try:
+            resp = send_alert(
+                subject="[TraderBot][FORECAST-SPINE-DIAG] injected FREEZE fault -> "
+                        "ABORT to incumbent (reality-test, non-destructive)",
+                body=(f"PKT-TRADER-BOT-FORECAST-SPINE-RELOCATE reality-test: an "
+                      f"injected freeze-hash fault made run_cutover return "
+                      f"ok=False:\n\n{fault_reason}\n\nThe incumbent intents were "
+                      f"retained byte-unchanged and NOTHING was written to S3. "
+                      f"This is a governed diag invoke, not a live abort."))
+            sns_message_id = (resp or {}).get('MessageId') if isinstance(resp, dict) else str(resp)
+        except Exception as e:  # noqa: BLE001
+            sns_error = f"{type(e).__name__}: {e}"
+
+    result['acc5_freeze_fault_abort'] = {
+        'ok_is_false': fault_ok is False,
+        'reason': fault_reason,
+        'reason_is_freeze': 'FREEZE' in (fault_reason or ''),
+        'incumbent_sha_before': incumbent_sha_before,
+        'incumbent_sha_after': incumbent_sha_after,
+        'incumbent_byte_unchanged': incumbent_sha_before == incumbent_sha_after,
+        'sns_fired': sns_message_id is not None,
+        'sns_message_id': sns_message_id,
+        'sns_error': sns_error,
+    }
+
+    # --- overall pass roll-up ---
+    result['all_pass'] = bool(
+        result['acc1_first_class_imports']['no_runs_on_syspath'] and
+        result['acc1_first_class_imports']['engine_sha_matches_FREEZE'] and
+        result['acc1_first_class_imports']['model_sha_matches_FREEZE'] and
+        result['acc2_parity_self_check']['parity_green'] and
+        result['acc3_mu_sha16_day_over_day']['differs_day_over_day'] and
+        result['acc4_invariant_and_universe']['n_mu_eq_universe'] and
+        result['acc4_invariant_and_universe']['invariant_green'] and
+        result['acc5_freeze_fault_abort']['ok_is_false'] and
+        result['acc5_freeze_fault_abort']['reason_is_freeze'] and
+        result['acc5_freeze_fault_abort']['incumbent_byte_unchanged'] and
+        result['acc5_freeze_fault_abort']['sns_fired'])
+
+    logger.info("forecast-spine-diag: acc1=%s acc2=%s acc3=%s acc4=%s acc5=%s all_pass=%s",
+                result['acc1_first_class_imports']['no_runs_on_syspath'],
+                result['acc2_parity_self_check']['parity_green'],
+                result['acc3_mu_sha16_day_over_day']['differs_day_over_day'],
+                result['acc4_invariant_and_universe']['invariant_green'],
+                result['acc5_freeze_fault_abort']['ok_is_false'],
+                result['all_pass'])
+    return {'statusCode': 200, 'body': json.dumps(
+        {'status': 'success', 'phase': 'forecast-spine-diag', 'result': result},
         default=str)}
 
 

@@ -1,0 +1,72 @@
+{
+ "F5": {
+  "purged_spearman": 0.10022586118947453,
+  "weekly_rank_ic": 0.1169253644596368,
+  "n_weeks": 51,
+  "best_epochs": [
+   0,
+   0
+  ],
+  "param_count": 16099,
+  "wall_s": 188.4
+ },
+ "F6": {
+  "purged_spearman": 0.1113497203905674,
+  "weekly_rank_ic": 0.12545246067313753,
+  "n_weeks": 50,
+  "best_epochs": [
+   11,
+   2
+  ],
+  "param_count": 16099,
+  "wall_s": 221.3
+ },
+ "F1": {
+  "purged_spearman": 0.09807750972117578,
+  "weekly_rank_ic": 0.10864210353716781,
+  "n_weeks": 51,
+  "best_epochs": [
+   0,
+   9
+  ],
+  "param_count": 16099,
+  "wall_s": 244.9,
+  "backfilled_from_oof": true
+ },
+ "F2": {
+  "purged_spearman": 0.08338856263227312,
+  "weekly_rank_ic": 0.07762292075279605,
+  "n_weeks": 51,
+  "best_epochs": [
+   0,
+   8
+  ],
+  "param_count": 16099,
+  "wall_s": 222.7,
+  "backfilled_from_oof": true
+ },
+ "F3": {
+  "purged_spearman": 0.08407077246597468,
+  "weekly_rank_ic": 0.10006237500201898,
+  "n_weeks": 51,
+  "best_epochs": [
+   12,
+   9
+  ],
+  "param_count": 16099,
+  "wall_s": 371.5,
+  "backfilled_from_oof": true
+ },
+ "F4": {
+  "purged_spearman": 0.11897805887134333,
+  "weekly_rank_ic": 0.11750966203525029,
+  "n_weeks": 51,
+  "best_epochs": [
+   1,
+   1
+  ],
+  "param_count": 16099,
+  "wall_s": 252.2,
+  "backfilled_from_oof": true
+ }
+}

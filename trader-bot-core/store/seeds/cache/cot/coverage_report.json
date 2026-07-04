@@ -1,0 +1,23 @@
+{
+ "es": {
+  "status": "OK",
+  "market": "E-MINI S&P 500",
+  "first": "2006-06-13",
+  "last": "2026-06-02",
+  "rows": 1043
+ },
+ "ust10y": {
+  "status": "OK",
+  "market": "UST 10Y NOTE",
+  "first": "2006-06-13",
+  "last": "2026-06-02",
+  "rows": 1043
+ },
+ "vix": {
+  "status": "OK",
+  "market": "VIX FUTURES",
+  "first": "2006-08-29",
+  "last": "2026-06-02",
+  "rows": 1002
+ }
+}

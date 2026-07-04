@@ -1,0 +1,86 @@
+{
+ "NFCI": {
+  "status": "OK",
+  "first": "1971-01-08",
+  "last": "2026-06-05",
+  "rows": 2892,
+  "lag_rule": "('following_weekday', 'WED')"
+ },
+ "STLFSI4": {
+  "status": "OK",
+  "first": "1993-12-31",
+  "last": "2026-06-05",
+  "rows": 1693,
+  "lag_rule": "('following_weekday', 'THU')"
+ },
+ "T10YIE": {
+  "status": "OK",
+  "first": "2003-01-02",
+  "last": "2026-06-09",
+  "rows": 5863,
+  "lag_rule": "('days', 1)"
+ },
+ "DFII10": {
+  "status": "OK",
+  "first": "2003-01-02",
+  "last": "2026-06-08",
+  "rows": 5862,
+  "lag_rule": "('days', 1)"
+ },
+ "BAMLH0A0HYM2": {
+  "status": "OK",
+  "first": "2023-06-12",
+  "last": "2026-06-09",
+  "rows": 786,
+  "lag_rule": "('days', 1)"
+ },
+ "ICSA": {
+  "status": "OK",
+  "first": "1967-01-07",
+  "last": "2026-05-30",
+  "rows": 3100,
+  "lag_rule": "('days', 7)"
+ },
+ "DGS2": {
+  "status": "OK",
+  "first": "1976-06-01",
+  "last": "2026-06-08",
+  "rows": 12501,
+  "lag_rule": "('days', 1)"
+ },
+ "DGS3MO": {
+  "status": "OK",
+  "first": "1981-09-01",
+  "last": "2026-06-08",
+  "rows": 11191,
+  "lag_rule": "('days', 1)"
+ },
+ "DGS10": {
+  "status": "OK",
+  "first": "1962-01-02",
+  "last": "2026-06-08",
+  "rows": 16093,
+  "lag_rule": "('days', 1)"
+ },
+ "VIXCLS": {
+  "status": "OK",
+  "first": "1990-01-02",
+  "last": "2026-06-09",
+  "rows": 9204,
+  "lag_rule": "('days', 1)"
+ },
+ "DCOILWTICO": {
+  "status": "OK",
+  "first": "1986-01-02",
+  "last": "2026-06-01",
+  "rows": 10172,
+  "lag_rule": "('days', 1)"
+ },
+ "DEXUSEU": {
+  "status": "OK",
+  "first": "1999-01-04",
+  "last": "2026-06-05",
+  "rows": 6878,
+  "lag_rule": "('days', 1)"
+ }
+}

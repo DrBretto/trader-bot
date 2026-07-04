@@ -1,0 +1,614 @@
+{
+ "generated": "2026-06-10T11:44:57",
+ "start_requested": "2014-01-01",
+ "universe_size": 64,
+ "missing_symbols": [],
+ "split_adjustment_note": "yfinance OHLC is retroactively split-adjusted; S3 daily snapshots are NOT (harness applies VUG 6:1 of 2026-04-20 itself). Use splits_since_start to align this panel with snapshot closes before the split effective date.",
+ "s3_crosscheck": {
+  "seed": 4242,
+  "pairs": [
+   {
+    "snapshot_dir": "2026-04-22",
+    "symbol": "XLV",
+    "date_D": "2026-04-21",
+    "s3_close": 145.93,
+    "ohlcv_close": 145.9199981689453,
+    "rel_diff": 6.9e-05,
+    "status": "MATCH"
+   },
+   {
+    "snapshot_dir": "2026-02-12",
+    "symbol": "QQQ",
+    "date_D": "2026-02-11",
+    "s3_close": 613.15,
+    "ohlcv_close": 613.1099853515625,
+    "rel_diff": 6.5e-05,
+    "status": "MATCH"
+   },
+   {
+    "snapshot_dir": "2026-03-26",
+    "symbol": "VEA",
+    "date_D": "2026-03-25",
+    "s3_close": 63.97,
+    "ohlcv_close": 63.970001220703125,
+    "rel_diff": 0.0,
+    "status": "MATCH"
+   },
+   {
+    "snapshot_dir": "2026-05-22",
+    "symbol": "VT",
+    "date_D": "2026-05-21",
+    "s3_close": 155.19,
+    "ohlcv_close": 155.2100067138672,
+    "rel_diff": 0.000129,
+    "status": "MATCH"
+   },
+   {
+    "snapshot_dir": "2026-05-02",
+    "symbol": "XLK",
+    "date_D": "2026-05-01",
+    "s3_close": 161.83,
+    "ohlcv_close": 161.8699951171875,
+    "rel_diff": 0.000247,
+    "status": "MATCH"
+   }
+  ]
+ },
+ "symbols": {
+  "SPY": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "QQQ": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "IWM": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "DIA": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "RSP": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "VTI": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "VOO": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "IVV": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "VT": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "VEA": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "VWO": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "EFA": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "EEM": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "EWJ": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2016-11-07": 0.25
+   }
+  },
+  "EWZ": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "FXI": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "INDA": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "VGK": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "ARKK": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-10-31",
+   "last": "2026-06-10",
+   "rows": 2918,
+   "splits_since_start": {}
+  },
+  "XLK": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2025-12-05": 2.0
+   }
+  },
+  "XLF": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2016-09-19": 1.231
+   }
+  },
+  "XLE": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2025-12-05": 2.0
+   }
+  },
+  "XLV": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "XLI": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "XLY": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2025-12-05": 2.0
+   }
+  },
+  "XLP": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "XLU": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2025-12-05": 2.0
+   }
+  },
+  "XLB": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2025-12-05": 2.0
+   }
+  },
+  "XLC": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2018-06-19",
+   "last": "2026-06-10",
+   "rows": 2005,
+   "splits_since_start": {}
+  },
+  "VNQ": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "IYR": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "SOXX": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2024-03-07": 3.0
+   }
+  },
+  "SMH": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2023-05-05": 2.0
+   }
+  },
+  "XBI": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2015-09-11": 3.0
+   }
+  },
+  "IBB": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2017-12-01": 3.0
+   }
+  },
+  "KRE": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "XRT": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2015-09-11": 2.0
+   }
+  },
+  "ITA": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2020-12-07": 2.0
+   }
+  },
+  "IYT": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2024-03-07": 4.0
+   }
+  },
+  "MTUM": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "QUAL": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "VLUE": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "USMV": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "VIG": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "SCHD": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2024-10-11": 3.0
+   }
+  },
+  "VUG": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2026-04-21": 6.0
+   }
+  },
+  "VTV": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "TLT": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "IEF": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "SHY": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "TIP": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "LQD": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "HYG": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "AGG": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "BND": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "MUB": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "GLD": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "SLV": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "DBC": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "USO": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2020-04-29": 0.125
+   }
+  },
+  "UNG": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2018-01-05": 0.25,
+    "2024-01-24": 0.25
+   }
+  },
+  "UUP": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "FXE": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {}
+  },
+  "VIXY": {
+   "status": "OK",
+   "source": "yfinance",
+   "first": "2014-01-02",
+   "last": "2026-06-10",
+   "rows": 3128,
+   "splits_since_start": {
+    "2016-07-25": 0.2,
+    "2017-07-17": 0.25,
+    "2021-05-26": 0.25,
+    "2023-06-23": 0.2,
+    "2024-11-07": 0.25
+   }
+  }
+ }
+}
