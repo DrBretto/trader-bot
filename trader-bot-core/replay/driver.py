@@ -36,8 +36,8 @@ regime picker) is NOT part of the clean spine's as-of-D substrate; that port is 
 recorded dependency-closure item (surfaced, not worked around by re-marking).
 
 SINK. The append-only, content-addressed equity ledger
-(``src/canon/equity_ledger.EquityLedger`` — KEEP-verbatim; the ``lines/``
-relocation + publish gates are P5) is injected as ``ledger``. Every day appends
+(``lines/ledger.EquityLedger`` — KEEP-verbatim, relocated from ``src/canon`` in P5;
+the publish gates live in ``publish/``) is injected as ``ledger``. Every day appends
 exactly ONE frontier leaf via ``ledger.append`` (append-only + supersede;
 ``_assert_cache_not_shrunk``; ``G-APPEND-ONLY-FRONTIER``); no settled leaf is ever
 overwritten. One leaf carries all three displayed lines: ``value`` = the canon
@@ -286,41 +286,9 @@ def _engine_for_date(date: str, mu: Mapping[str, float], book: Book,
     return run_engine(f, theta_sel, theta_size, portfolio), f
 
 
-def _shadow_intents(engine_out, f, tilt_gain: float = 0.5) -> List[dict]:
-    """The ONE challenger mechanism: an M1-conviction tilt of the SAME selection.
-
-    Same mu (0.0-diff), same selected grid (membership = engine_out.selection),
-    **tilt only**: re-weight the held names by exp(gain * z(mu)) and re-derive
-    integer-lot BUY/SELL/HOLD/REDUCE actions against the same book marks. Nothing
-    about selection/eligibility is touched — this is a Stage-2 re-shape, not a
-    different engine."""
-    sel = engine_out.selection
-    alloc = engine_out.allocation
-    held = [s for s in sel.ordered if s in alloc.held_symbols]
-    if not held:
-        return []
-    mus = np.array([float(f.mu_M1.get(s, 0.0)) for s in held])
-    z = (mus - mus.mean()) / (mus.std() + 1e-12) if len(mus) > 1 else np.zeros_like(mus)
-    tilt = np.exp(tilt_gain * z)
-    base = np.array([float(sel.w_target.get(s, 0.0)) for s in held])
-    w = base * tilt
-    w = w / w.sum() if w.sum() > 0 else base
-    # size against the same realized book the engine sized against
-    price = {it["symbol"]: float(it["price"])
-             for it in alloc.intents if it.get("price")}
-    # gross budget = sum of engine's target dollars over held (same book posture)
-    gross = sum(abs(float(it.get("dollars", 0.0))) for it in alloc.intents
-                if str(it.get("action")).upper() in ("BUY", "HOLD"))
-    intents: List[dict] = []
-    for wi, s in zip(w, held):
-        p = price.get(s, 0.0)
-        if p <= 0:
-            continue
-        target_shares = int((gross * wi) / p)
-        intents.append({"action": "BUY", "symbol": s, "shares": target_shares,
-                        "price": p, "dollars": round(target_shares * p, 2),
-                        "reason": f"SHADOW_M1_TILT_{tilt_gain}"})
-    return intents
+# The ONE challenger mechanism (M1-conviction tilt) lives in ``publish/challenger.py``
+# — its single canonical home. Imported at the call site (below) so there is exactly
+# one copy of the tilt in ``trader-bot-core/``.
 
 
 # --------------------------------------------------------------------------- #
@@ -445,7 +413,8 @@ def replay(
         selected_by_date[D] = selected
 
         # --- shadow: the ONE challenger, M1-tilt of the same selection ---
-        shadow_intents = _shadow_intents(engine_out, f)
+        from publish.challenger import shadow_tilt_intents
+        shadow_intents = shadow_tilt_intents(engine_out, f)
 
         # --- mark RECOMPUTED picks at settled prices (chained WITHIN replay) ---
         # value of the carried book BEFORE today's trades, marked at prevD close
@@ -518,7 +487,7 @@ def _main() -> int:
     ap.add_argument("--sink", default=None, help="dir for brain_selected_universe leaves")
     args = ap.parse_args()
 
-    from src.canon.equity_ledger import EquityLedger
+    from lines.ledger import EquityLedger        # KEEP-verbatim ledger, relocated (P5)
     from replay._fake_s3 import FakeS3            # local in-mem S3 (reality-test sink)
 
     ledger = EquityLedger(FakeS3(), bucket="investment-system-data")
