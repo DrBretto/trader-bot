@@ -1,0 +1,15 @@
+# Bulk GDELT caches are NOT committed (97M daily / 3.3G records class) — same
+# discipline as the PKT-TB-006 prototype (gdelt_cache/ gitignored). The frozen
+# seed is baked/rebuilt at deploy time; the forward store is runtime-writable.
+# Provenance + rebuild recipe: store/seeds/gdelt_README.md
+seeds/gdelt_cache/daily/
+seeds/gdelt_cache/records/
+seeds/gdelt_cache/manifest.jsonl
+seeds/gdelt_cache/.DS_Store
+
+# Runtime-writable forward store (local default; Lambda uses /tmp/gdelt_cache)
+gdelt_cache/
+
+# Built feature panels
+gdelt_features.parquet
+gdelt_features_report.json
