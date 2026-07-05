@@ -26,14 +26,18 @@ and ABORTS on divergence. So mu-parity vs forward and no-future-leak are the SAM
 gate, and it is reality-checked on every replayed date that overlaps the frozen
 reference.
 
-REGIME. The clean spine's own governed reality-test (``forecast-spine-diag``, in
-``src/handler.py``) runs ``run_cutover`` with ``regime_label='neutral'`` — a label
-absent from ``config/regime_compatibility.json``, so ``regime_score_mult`` is 1.0
-for every symbol (raw-mu Stage-1 ranking) and ``regime_exposure_multiplier`` is 1.0
-(identity Stage-2). Replay uses the SAME convention, so it matches the sanctioned
-clean-spine path exactly. Reconstructing the as-of-D *fused* regime (the ``src/``
-regime picker) is NOT part of the clean spine's as-of-D substrate; that port is a
-recorded dependency-closure item (surfaced, not worked around by re-marking).
+REGIME. Each replayed day computes its as-of-D fused regime via the ONE picker
+``forecast.regime.regime(D)`` (PKT-TRADER-BOT-REGIME-AS-OF-D) — the SAME picker the
+forward path (``decide.cutover.run_cutover``) now calls — and feeds that label into
+``build_forecast_bundle`` so ``regime_score_mult`` reflects the real regime tilt
+instead of the constant ``'neutral'`` (which is absent from
+``config/regime_compatibility.json`` and collapses every mult to 1.0 = raw-mu
+ranking). The picker is bounded ``end=D`` (no future leak), deterministic, and
+seeded (OHLCV + FRED + CBOE). It is the DETERMINISTIC ``baseline_regime_model ->
+decide_regime_v3`` fused path; the legacy trained-ensemble regime label is NOT a
+deterministic function of as-of-D seed data (moving deployed vintage + non-seeded
+gdelt + S3-pinned config) and is out of scope for the deterministic spine —
+surfaced in the run receipt, never stubbed to neutral.
 
 SINK. The append-only, content-addressed equity ledger
 (``lines/ledger.EquityLedger`` — KEEP-verbatim, relocated from ``src/canon`` in P5;
@@ -298,6 +302,7 @@ def _engine_for_date(date: str, mu: Mapping[str, float], book: Book,
 class DayResult:
     date: str
     mu_sha16: str
+    regime_label: str
     canon_selected: List[str]
     canon_value: float
     shadow_value: float
@@ -341,6 +346,7 @@ def replay(
     injects a frozen forecast to prove the freeze cannot pass silently.
     """
     from forecast.freeze import load_freeze
+    from forecast.regime import regime
     from decide.cutover import theta_from_freeze, load_brain_config
 
     _ensure_substrate(state_dir)
@@ -404,10 +410,13 @@ def replay(
 
         features_df = _features_df_asof(D, universe_df, ohlcv)
 
+        # --- as-of-D fused regime (the ONE picker, shared with forward) ---
+        reg_label = regime(D)
+
         # --- the SAME run_engine as forward (canon) ---
         engine_out, f = _engine_for_date(
             D, mu, canon, universe_df, features_df, theta_sel, theta_size,
-            regime_compat=regime_compat)
+            regime_compat=regime_compat, regime_label=reg_label)
         canon_intents = engine_out.trade_intents["actions"]
         selected = sorted(engine_out.allocation.held_symbols)
         selected_by_date[D] = selected
@@ -450,7 +459,7 @@ def replay(
             _emit_selected_universe(selected_universe_sink, D, selected, msha)
 
         results.append(DayResult(
-            date=D, mu_sha16=msha, canon_selected=selected,
+            date=D, mu_sha16=msha, regime_label=reg_label, canon_selected=selected,
             canon_value=disp_canon, shadow_value=disp_shadow,
             benchmark_value=disp_bm, canon_return=canon_ret,
             shadow_return=shadow_ret, benchmark_return=bm_ret, leaf=leaf))
@@ -500,6 +509,7 @@ def _main() -> int:
                           for k in ("date", "value", "benchmark", "comparison")},
         "picks_by_date": {r.date: r.canon_selected[:10] for r in res.days},
         "mu_sha_by_date": {r.date: r.mu_sha16 for r in res.days},
+        "regime_by_date": {r.date: r.regime_label for r in res.days},
     }, indent=2))
     return 0
 

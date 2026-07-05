@@ -467,8 +467,11 @@ def _run_forecast_spine_diag(event: dict, bucket: str, region: str) -> dict:
         return {pending[-1]: {'mu': dict(mu_today)}}
 
     with StepTimer("forecast-spine-diag run_cutover(clean)", logger):
+        # regime_label=None -> run_cutover resolves the as-of-D fused regime via the
+        # ONE shared picker forecast.regime.regime(settled) (PKT-TRADER-BOT-REGIME-
+        # AS-OF-D). The forward path now uses the real regime, not a constant neutral.
         res_clean = CUT.run_cutover(
-            date=settled, features_df=None, regime_label='neutral',
+            date=settled, features_df=None, regime_label=None,
             universe_df=universe_df, portfolio_state=pstate,
             forecaster=_closure_forecaster, config=live_cfg,
             incumbent_intents=incumbent)

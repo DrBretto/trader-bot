@@ -246,7 +246,7 @@ def is_live(config: dict, date: str) -> tuple:
 def run_cutover(
     date: str,
     features_df,
-    regime_label: str,
+    regime_label: Optional[str],
     universe_df,
     portfolio_state: dict,
     forecaster: Callable[[List[str]], Dict[str, dict]],
@@ -265,6 +265,16 @@ def run_cutover(
     """
     config = config if config is not None else load_brain_config()
     mode = str(config.get("mode", "shadow"))
+
+    # As-of-D fused regime via the ONE shared picker (PKT-TRADER-BOT-REGIME-AS-OF-D):
+    # the forward path and the history replay call the SAME forecast.regime.regime(D),
+    # exactly as they share run_engine. ``regime_label=None`` means "resolve as-of-D
+    # here"; an explicit label (e.g. a diag passing 'neutral', or an ablation) wins.
+    # No silent neutral fallback — a missing seed raises inside regime(D).
+    if regime_label is None:
+        from forecast.regime import regime as _regime_asof
+        regime_label = _regime_asof(date)
+
     enabled, why = is_live(config, date)
     if not enabled:
         return CutoverResult(ok=False, mode=mode, reason=why, date=date,
