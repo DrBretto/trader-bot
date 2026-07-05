@@ -44,7 +44,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Callable, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 
 from replay.driver import _OHLCVStore, replay, ReplayResult, CORE_ROOT
 from forecast import recorded_regime as RR
@@ -60,6 +60,40 @@ ISSUED_BY = "seed-canon-by-replay@trader-bot"
 # The production (contaminated) ledger prefix and the NEW clean ledger prefix.
 PROD_PREFIX = "canon/equity_ledger/"
 CLEAN_PREFIX = "canon/equity_ledger_clean/"
+
+# The incumbent brain's ACTIVE decision params + regime_compatibility (what the
+# legacy production incumbent trades) — the SAME source the live shadow read
+# (shadow_nightly.build_production_ctx). The INDEPENDENT challenger's incumbent
+# ranker consumes these verbatim.
+INCUMBENT_CONFIG_KEY = "config/decision_params.active.json"
+
+
+def load_incumbent_config(s3=None) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """(decision_params, regime_compatibility) for the ported incumbent, read from
+    the live S3 config the production incumbent uses. Fail-loud (the packet STOP
+    condition): a missing/garbled config is surfaced, never stubbed."""
+    import boto3
+    s3 = s3 or boto3.client("s3", region_name=os.environ.get("AWS_REGION", "us-east-1"))
+    obj = json.loads(s3.get_object(Bucket=RR.S3_BUCKET, Key=INCUMBENT_CONFIG_KEY)["Body"].read())
+    dparams = obj.get("decision_params")
+    rcompat = obj.get("regime_compatibility") or {}
+    if not dparams:
+        raise RuntimeError(
+            f"incumbent config {INCUMBENT_CONFIG_KEY} has no decision_params — "
+            f"STOP; the challenger incumbent cannot run without its frozen params")
+    return dparams, rcompat
+
+
+def build_independent_challenger(a_comp: float, s3=None, log_dir=None):
+    """Construct the INDEPENDENT challenger (ported incumbent + M1 tilt) anchored at
+    the pre-split comparison terminal ``a_comp``. Bound to the EXTENDED core OHLCV
+    store + the organ_inputs dir ``forecast.inference`` writes fresh as-of-D."""
+    from forecast import shadow_lib as SL
+    from challenger.independent import IndependentChallenger
+    dparams, rcompat = load_incumbent_config(s3=s3)
+    return IndependentChallenger(
+        cash_anchor=a_comp, organ_dir=SL.ORGAN_DIR, ohlcv_dir=SL.CACHE_OHLCV,
+        decision_params=dparams, regime_compat=rcompat, log_dir=log_dir)
 
 
 # --------------------------------------------------------------------------- #
@@ -178,23 +212,32 @@ def seed_canon_by_replay(
     regime_fn: Optional[Callable[[str], str]] = None,
     state_dir: Optional[str] = None,
     selected_universe_sink: Optional[str] = None,
+    independent_challenger: bool = True,
+    s3=None,
 ) -> ReplayResult:
     """Reconstruct the post-split window onto the clean ledger (which already holds
     the byte-unchanged pre-split leaves through ``SPLIT_DATE``). Recorded regime,
     recomputed picks, continuous anchor at the pre-split terminal, one leaf per real
-    settled trading day. Non-destructive: append-only at the frontier."""
+    settled trading day. Non-destructive: append-only at the frontier.
+
+    ``independent_challenger`` (default True, the V2 correction): the blue-dotted
+    line is the ported incumbent (decision_engine) selection + the ported M1 tilt,
+    run INDEPENDENTLY (NOT the coupled ``publish.challenger`` M1-tilt-of-two-stage).
+    The challenger anchors at the pre-split comparison terminal and is marked by the
+    SAME settled-close machinery as canon/SPY."""
     window = post_split_window(ohlcv, d1)
     if not window:
         raise RuntimeError("empty post-split window — nothing to reconstruct")
     a_canon, a_bench, a_comp = anchor_from_frontier(clean_ledger, SPLIT_DATE)
     rfn = regime_fn or recorded_regime_fn(window)
+    chal = build_independent_challenger(a_comp, s3=s3) if independent_challenger else None
     return replay(
         window[0], window[-1], ledger=clean_ledger, state_dir=state_dir,
         issued_by=ISSUED_BY, regime_fn=rfn, ohlcv=ohlcv,
         write_genesis=False, genesis_date=SPLIT_DATE,
         genesis_anchor=a_canon, bench_anchor=a_bench, comparison_anchor=a_comp,
         segment="new_brain", source="native_two_stage", model_id_prefix="replay@",
-        selected_universe_sink=selected_universe_sink,
+        selected_universe_sink=selected_universe_sink, challenger=chal,
     )
 
 
@@ -208,6 +251,8 @@ def forward_nightly(
     recorded_map: Mapping[str, str],
     *,
     state_dir: Optional[str] = None,
+    independent_challenger: bool = True,
+    s3=None,
 ) -> dict:
     """Append the next settled day ``D`` onto the corrected frontier as a single
     forward leaf (``forward_confirmed=True``), using the DETERMINISTIC regime picker
@@ -231,12 +276,14 @@ def forward_nightly(
 
     # scratch full-window replay to compute D's chained displayed values
     scratch = EquityLedger(FakeS3(), prefix="scratch/fwd/")
+    chal = build_independent_challenger(a_comp, s3=s3) if independent_challenger else None
     res = replay(
         FIRST_POST_SPLIT, D, ledger=scratch, state_dir=state_dir,
         issued_by=ISSUED_BY, regime_fn=rfn, ohlcv=ohlcv,
         write_genesis=True, genesis_date=SPLIT_DATE,
         genesis_anchor=a_canon, bench_anchor=a_bench, comparison_anchor=a_comp,
         segment="new_brain", source="native_two_stage", model_id_prefix="forward@",
+        challenger=chal,
     )
     term = res.terminal_leaf
     if term.get("date") != D:

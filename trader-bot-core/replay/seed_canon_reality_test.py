@@ -194,13 +194,16 @@ def run(commit: bool, d1: str, out_path: str) -> dict:
     added = [d for d in after if d not in before]
     prior_moved = [d for d in before if before[d] != after.get(d)]
 
-    # replay==forward: independently replay [first..D] and compare D's identity
+    # replay==forward: independently replay [first..D] and compare D's identity.
+    # Inject the SAME INDEPENDENT challenger the forward path uses (V2) so the
+    # comparison line is compared like-for-like (not against the coupled fallback).
     verify_led = EquityLedger(FakeS3(), prefix="verify/")
     vres = SC.replay(SC.FIRST_POST_SPLIT, D, ledger=verify_led, ohlcv=ohlcv,
                      issued_by=SC.ISSUED_BY, regime_fn=SC.mixed_regime_fn(demo_reg),
                      write_genesis=True, genesis_date=SC.SPLIT_DATE,
                      genesis_anchor=a_canon, bench_anchor=a_bench, comparison_anchor=a_comp,
-                     segment="new_brain", source="native_two_stage", model_id_prefix="forward@")
+                     segment="new_brain", source="native_two_stage", model_id_prefix="forward@",
+                     challenger=SC.build_independent_challenger(a_comp, s3=s3))
     replay_id = _leaf_identity(vres.terminal_leaf)
     forward_id = _leaf_identity(fwd_leaf)
     evidence["checks"]["c4_forward_one_leaf"] = {

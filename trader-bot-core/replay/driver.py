@@ -39,18 +39,38 @@ deterministic function of as-of-D seed data (moving deployed vintage + non-seede
 gdelt + S3-pinned config) and is out of scope for the deterministic spine —
 surfaced in the run receipt, never stubbed to neutral.
 
+ONE MARKING MACHINERY (PKT-TRADER-BOT-SEED-CANON-BY-REPLAY §Pinned-1). Every line
+is marked by the SAME ``mark_to_weights(book, target_weights, settled_prices)``:
+carry the prior day's units, value-conservingly rebalance to the day's target
+weights, mark at the settled close. There is exactly ONE code path from (weights,
+prices) to a line value; canon, challenger and SPY ALL call it. The ONLY difference
+between the three lines is the target weights each book holds (the shadow rule,
+``shadow_nightly.py:160``) — NOT the machinery. The broken first attempt marked
+canon by drifting delta trade-intents and the challenger by a full rebalance (two
+machineries → the lines diverged from the marking, not the models); that is designed
+out here.
+
+WEIGHTS (§Pinned-2). ``canon`` = the two-stage engine's allocation weights
+(``allocation.target_weights``); ``challenger`` = the M1-conviction tilt of the SAME
+selection at the SAME gross (``publish.challenger``); ``SPY`` = ``{SPY:1.0}``
+buy-and-hold. All are pure price-marked (no div / cost overlay — an overlay breaks
+the 1:1 comparison), so SPY reproduces real SPY close-to-close to the basis point.
+
+HYSTERESIS (§Pinned-3). The canon book HOLDS with the ported no-churn exposure
+hysteresis (``engine.hysteresis.held_gross``, the clean-engine port of the
+production ``decision_engine.compute_exposure_trims``): the book's gross is held
+unless a breach clears ``trigger_gap``, then trimmed to ``target + hysteresis_gap``
+— so the reconstructed book does not churn ~50%/day. Membership still rotates with
+the two-stage selection (the model's own regime), the gross swing is damped.
+
 SINK. The append-only, content-addressed equity ledger
 (``lines/ledger.EquityLedger`` — KEEP-verbatim, relocated from ``src/canon`` in P5;
 the publish gates live in ``publish/``) is injected as ``ledger``. Every day appends
 exactly ONE frontier leaf via ``ledger.append`` (append-only + supersede;
 ``_assert_cache_not_shrunk``; ``G-APPEND-ONLY-FRONTIER``); no settled leaf is ever
-overwritten. One leaf carries all three displayed lines: ``value`` = the canon
-engine book, ``benchmark`` = the div-reinvested SPY line, ``comparison`` = the
-shadow/challenger M1-tilt line (the dotted line the leaf schema already reserves).
-
-CHALLENGER. Exactly ONE challenger mechanism: the shadow line is the M1-conviction
-tilt of the SAME ``run_engine`` selection — same mu (0.0-diff), same selected grid,
-**tilt only** (Stage-2 weights re-shaped by mu conviction, membership untouched).
+overwritten. One leaf carries all three displayed lines: ``value`` = canon,
+``benchmark`` = SPY, ``comparison`` = challenger (the dotted line the leaf schema
+already reserves).
 """
 from __future__ import annotations
 
@@ -160,7 +180,7 @@ class _OHLCVStore:
 @dataclass
 class Book:
     cash: float
-    positions: Dict[str, int] = field(default_factory=dict)
+    positions: Dict[str, float] = field(default_factory=dict)
 
     def value(self, closes: Mapping[str, float]) -> float:
         """cash + sum(shares * settled close). A symbol with no close for the day
@@ -171,6 +191,16 @@ class Book:
             if sh and sym in closes:
                 v += sh * float(closes[sym])
         return v
+
+    def gross_frac(self, prices: Mapping[str, float]) -> float:
+        """Invested fraction of book value at ``prices`` (the book's current gross
+        exposure the no-churn hysteresis holds). 0 when the book is empty/all-cash."""
+        v = self.value(prices)
+        if v <= 0:
+            return 0.0
+        invested = sum(sh * float(prices[s]) for s, sh in self.positions.items()
+                       if sh and s in prices)
+        return invested / v
 
     def apply(self, intents: List[dict], fill: Mapping[str, float]) -> None:
         """Execute the recomputed intents at the settled OPEN (the fill), moving
@@ -202,6 +232,41 @@ class Book:
             # HOLD: no-op
         # prune flat positions
         self.positions = {s: sh for s, sh in self.positions.items() if sh}
+
+
+def mark_to_weights(book: "Book", weights: Mapping[str, float],
+                    prices: Mapping[str, float]) -> None:
+    """THE ONE VALUATION/MARKING MACHINERY (PKT-TRADER-BOT-SEED-CANON-BY-REPLAY
+    §Pinned-1): carry the book's prior units, value-conservingly rebalance to the
+    day's target dollar-weights at ``prices``, and leave the book holding the new
+    units. There is EXACTLY ONE code path from (target weights, settled prices) to a
+    line value, and ``canon``, ``challenger`` and ``SPY`` ALL call it — the ONLY
+    difference between the three lines is the ``weights`` (the book) each one holds
+    (the shadow rule, ``shadow_nightly.py:160``).
+
+    Units are INTEGER lots — exactly how the real system holds: the target shares
+    are ``int(V*w/p)``, reconciled against the units the book already carries, so a
+    small day-over-day weight drift that does not cross an integer-lot boundary
+    produces NO trade (the position HOLDS). This is the natural no-churn the real
+    two-stage book has (``allocate`` emits integer ``target_shares`` and HOLDs when
+    they equal current), and it bounds turnover to the model's own membership-
+    rotation regime instead of re-matching every micro-drift. A single-name
+    buy-and-hold (SPY) holds its integer share count across days, so its return
+    chain reproduces real SPY close-to-close to the basis point (the constant lot-
+    residual cash cancels in the daily ratio). Cash + invested is conserved at the
+    fill (value continuous through the rebalance); a name with no price is untradable
+    and drops to 0 (the never-drop-cash rule, same as ``Book.value``)."""
+    V = book.value(prices)                             # cash + positions @ fill prices
+    newpos: Dict[str, float] = {}
+    for s, w in weights.items():
+        p = prices.get(s)
+        if p and p > 0 and w > 0:
+            n = int(V * w / p)                          # INTEGER lots — holds on drift
+            if n > 0:
+                newpos[s] = n
+    invested = sum(n * prices[s] for s, n in newpos.items())
+    book.positions = newpos
+    book.cash = V - invested
 
 
 # --------------------------------------------------------------------------- #
@@ -311,6 +376,10 @@ class DayResult:
     shadow_return: float
     benchmark_return: float
     leaf: dict
+    # marking-machinery diagnostics (§Pinned-3 turnover proof)
+    canon_turnover_frac: float = 0.0     # traded $ / prev book value on day D
+    fresh_gross_frac: float = 0.0        # the engine's fresh gross target for D
+    held_gross_frac: float = 0.0         # the hysteresis-held gross actually applied
 
 
 @dataclass
@@ -340,6 +409,7 @@ def replay(
     source: str = "native_two_stage",
     model_id_prefix: str = "replay@",
     leaf_extra: Optional[Dict] = None,
+    challenger=None,
 ) -> ReplayResult:
     """Replay [d0..d1] by RECOMPUTING each settled day's picks on the as-of-D
     substrate and appending ONE settled leaf per day to `ledger`.
@@ -357,6 +427,7 @@ def replay(
     from forecast.freeze import load_freeze
     from forecast.regime import regime
     from decide.cutover import theta_from_freeze, load_brain_config
+    from engine.hysteresis import held_gross
 
     _ensure_substrate(state_dir)
     ohlcv = ohlcv if ohlcv is not None else _OHLCVStore()
@@ -396,10 +467,31 @@ def replay(
                       model_id="genesis-anchor", source="replay-genesis",
                       issued_by=issued_by)
 
+    # canon + challenger start ALL-CASH at their own pre-split anchor and are
+    # deployed by the ONE machinery on day 1 (active strategies: their first
+    # decision fills at the day-1 settled open). Uniform start → the only difference
+    # between those lines is the book each holds, never the machinery.
     canon = Book(cash=anchor_canon)
     shadow = Book(cash=anchor_shadow)
-    spy_close0 = ohlcv.close_asof("SPY", gdate)
-    bm_shares = anchor_bench / spy_close0 if spy_close0 else 0.0
+    spy = Book(cash=anchor_bench)
+    # SPY is a PASSIVE buy-and-hold held THROUGH the split: in continuous-anchor
+    # mode (P6) it is seeded holding SPY at the split-point (genesis) close, so the
+    # benchmark's first reconstructed day is a value-conserving no-op rebalance and
+    # its return is real SPY CLOSE-TO-CLOSE (§Acceptance-6, no ~overnight-gap seam at
+    # the join). In the P4 keystone (write_genesis=True, all lines equal at genesis)
+    # SPY keeps the uniform all-cash open-deployment start. Canon/challenger are
+    # unaffected either way.
+    if not write_genesis:
+        spy_gpx = ohlcv.close_asof("SPY", gdate)
+        if spy_gpx and spy_gpx > 0:
+            n = int(anchor_bench / spy_gpx)
+            if n > 0:
+                spy.positions = {"SPY": n}
+                spy.cash = anchor_bench - n * spy_gpx
+
+    # carried no-churn exposure-hysteresis state for the canon book (the counter the
+    # ported compute_exposure_trims mutates on portfolio_state).
+    canon_hyst_state: Dict[str, object] = {}
 
     prev_canon_v = anchor_canon
     prev_shadow_v = anchor_shadow
@@ -443,33 +535,80 @@ def replay(
         engine_out, f = _engine_for_date(
             D, mu, canon, universe_df, features_df, theta_sel, theta_size,
             regime_compat=regime_compat, regime_label=reg_label)
-        canon_intents = engine_out.trade_intents["actions"]
         selected = sorted(engine_out.allocation.held_symbols)
         selected_by_date[D] = selected
 
-        # --- shadow: the ONE challenger, M1-tilt of the same selection ---
-        from publish.challenger import shadow_tilt_intents
-        shadow_intents = shadow_tilt_intents(engine_out, f)
-
-        # --- mark RECOMPUTED picks at settled prices (chained WITHIN replay) ---
-        # value of the carried book BEFORE today's trades, marked at prevD close
+        # ================================================================= #
+        # THE ONE MARKING MACHINERY (§Pinned-1): every line is marked by
+        # ``mark_to_weights(book, target_weights, settled_prices)``. canon,
+        # challenger and SPY ALL call it; the ONLY difference between the three
+        # lines is the target weights (the book) each holds (the shadow rule).
+        # ================================================================= #
+        # value each carried book BEFORE today's rebalance, at prevD's settled close
         prev_canon_v = canon.value(closes_prev) if results or canon.positions else prev_canon_v
-        prev_shadow_v = shadow.value(closes_prev) if results or shadow.positions else prev_shadow_v
-        canon.apply(canon_intents, open_D)
-        shadow.apply(shadow_intents, open_D)
-        canon_v = canon.value(closes_D)
-        shadow_v = shadow.value(closes_D)
+        if challenger is not None:
+            prev_shadow_v = challenger.value(closes_prev)
+        else:
+            prev_shadow_v = shadow.value(closes_prev) if results or shadow.positions else prev_shadow_v
+        prev_spy_v = spy.value(closes_prev) if results or spy.positions else prev_bm_v
 
-        # SPY benchmark: div-reinvested buy-and-hold
-        spy_D = closes_D.get("SPY") or ohlcv.close_asof("SPY", D)
-        if spy_D and prevD:
-            daily_div = spy_D * (SPY_ANNUAL_DIV / TRADING_DAYS_YR)
-            bm_shares += (bm_shares * daily_div) / spy_D if spy_D else 0.0
-        bm_v = bm_shares * spy_D if spy_D else prev_bm_v
+        # --- canon target weights = the two-stage engine's allocation weights
+        #     (§Pinned-2), with the ported no-churn exposure hysteresis HOLDING the
+        #     book's gross (§Pinned-3). Membership follows the engine (the model's
+        #     own selection regime); only the gross swing is damped. ---
+        canon_weights = dict(engine_out.allocation.target_weights)
+        fresh_gross = sum(canon_weights.values())
+        cur_canon_gross = canon.gross_frac(open_D)      # gross the carried book holds
+        eff_gross = held_gross(cur_canon_gross, fresh_gross, canon_hyst_state, reg_label)
+        if fresh_gross > 0 and abs(eff_gross - fresh_gross) > 1e-12:
+            scale = eff_gross / fresh_gross
+            canon_weights = {s: w * scale for s, w in canon_weights.items()}
+
+        # turnover on day D = traded $ / prev canon book value (the §Pinned-3 proof)
+        canon_before = dict(canon.positions)
+        mark_to_weights(canon, canon_weights, open_D)
+        traded = sum(abs(canon.positions.get(s, 0.0) - canon_before.get(s, 0.0)) * open_D[s]
+                     for s in set(canon_before) | set(canon.positions) if s in open_D)
+        canon_turnover = (traded / prev_canon_v) if prev_canon_v else 0.0
+
+        # --- challenger (§Pinned-2/-4): when an INDEPENDENT challenger is injected
+        #     (PKT-TRADER-BOT-SEED-CANON-BY-REPLAY-V2), the blue-dotted line is the
+        #     ported incumbent (decision_engine) selection + the ported M1 tilt,
+        #     run INDEPENDENTLY on the SAME as-of-D substrate and executed at the
+        #     settled open — it NEVER reads the two-stage's intents / engine_out.
+        #     It is marked at the settled close by the SAME (holdings x close)
+        #     valuation as canon/SPY (the ONE marking machinery). When NOT injected,
+        #     fall back to the legacy coupled M1-tilt-of-two-stage (the P4 keystone
+        #     challenger, `publish.challenger`, which V2 supersedes for seeding). ---
+        if challenger is not None:
+            ohlc_D = {s: {"open": open_D[s], "close": closes_D[s]}
+                      for s in open_D if s in closes_D}
+            challenger.step(D, features_df=features_df, universe_df=universe_df,
+                            regime_label=reg_label, ohlc=ohlc_D)
+        else:
+            from publish.challenger import challenger_target_weights
+            canon_gross_achieved = canon.gross_frac(open_D)
+            mark_to_weights(shadow, challenger_target_weights(engine_out, f, canon_gross_achieved), open_D)
+
+        # --- SPY buy-and-hold, marked at the settled close by the SAME valuation
+        #     (§Acceptance-5/-6). In P4 keystone mode (write_genesis) SPY deploys from
+        #     cash on day 1 via the ONE machinery. In P6 continuous-anchor mode SPY is
+        #     pre-seeded holding SPY (a genuine buy-and-hold held THROUGH the split):
+        #     it HOLDS its fixed integer lots (no daily re-solve — a re-solve would
+        #     reinvest the lot residual on a boundary crossing and add ~1bp jitter),
+        #     so the line reproduces real SPY close-to-close to the basis point. No
+        #     div/cost overlay (an overlay would break the 1:1 comparison). ---
+        if write_genesis:
+            mark_to_weights(spy, {"SPY": 1.0}, open_D)
+        # else: P6 fixed-share hold — the seeded lots carry; value() marks at close.
+
+        canon_v = canon.value(closes_D)
+        shadow_v = challenger.value(closes_D) if challenger is not None else shadow.value(closes_D)
+        bm_v = spy.value(closes_D)
 
         canon_ret = canon_v / prev_canon_v - 1.0 if prev_canon_v else 0.0
         shadow_ret = shadow_v / prev_shadow_v - 1.0 if prev_shadow_v else 0.0
-        bm_ret = bm_v / prev_bm_v - 1.0 if prev_bm_v else 0.0
+        bm_ret = bm_v / prev_spy_v - 1.0 if prev_spy_v else 0.0
 
         disp_canon *= (1.0 + canon_ret)
         disp_shadow *= (1.0 + shadow_ret)
@@ -488,7 +627,9 @@ def replay(
             date=D, mu_sha16=msha, regime_label=reg_label, canon_selected=selected,
             canon_value=disp_canon, shadow_value=disp_shadow,
             benchmark_value=disp_bm, canon_return=canon_ret,
-            shadow_return=shadow_ret, benchmark_return=bm_ret, leaf=leaf))
+            shadow_return=shadow_ret, benchmark_return=bm_ret, leaf=leaf,
+            canon_turnover_frac=canon_turnover, fresh_gross_frac=fresh_gross,
+            held_gross_frac=eff_gross))
         prev_canon_v, prev_shadow_v, prev_bm_v = canon_v, shadow_v, bm_v
 
     return ReplayResult(days=results,
