@@ -59,7 +59,7 @@ import json
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Tuple
+from typing import Callable, Dict, List, Mapping, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -331,6 +331,15 @@ def replay(
     genesis_date: Optional[str] = None,
     freeze_mu_dates: Optional[List[str]] = None,
     selected_universe_sink: Optional[str] = None,
+    regime_fn: Optional[Callable[[str], str]] = None,
+    ohlcv: Optional["_OHLCVStore"] = None,
+    write_genesis: bool = True,
+    bench_anchor: Optional[float] = None,
+    comparison_anchor: Optional[float] = None,
+    segment: str = "new_brain",
+    source: str = "native_two_stage",
+    model_id_prefix: str = "replay@",
+    leaf_extra: Optional[Dict] = None,
 ) -> ReplayResult:
     """Replay [d0..d1] by RECOMPUTING each settled day's picks on the as-of-D
     substrate and appending ONE settled leaf per day to `ledger`.
@@ -350,7 +359,7 @@ def replay(
     from decide.cutover import theta_from_freeze, load_brain_config
 
     _ensure_substrate(state_dir)
-    ohlcv = _OHLCVStore()
+    ohlcv = ohlcv if ohlcv is not None else _OHLCVStore()
     universe_df = pd.read_csv(UNIVERSE_CSV)
     theta_sel, theta_size = theta_from_freeze(load_freeze())
     try:
@@ -368,23 +377,36 @@ def replay(
     if gdate is None:
         raise RuntimeError("no trading day precedes the window; cannot anchor")
 
-    # genesis anchor leaf (frontier seed). All three lines start equal.
-    ledger.append(date=gdate, value=genesis_anchor, benchmark=genesis_anchor,
-                  comparison=genesis_anchor, segment="new_brain",
-                  model_id="genesis-anchor", source="replay-genesis",
-                  issued_by=issued_by)
+    # Per-line anchors. In the P4 keystone proof all three start equal at
+    # ``genesis_anchor``. In the P6 continuous-anchor mode the three displayed
+    # lines each start at their own pre-split terminal (canon/comparison at the
+    # frozen-champion terminal, benchmark at its own SPY terminal), so the
+    # reconstruction joins the byte-unchanged pre-split line with NO seam.
+    anchor_canon = genesis_anchor
+    anchor_bench = bench_anchor if bench_anchor is not None else genesis_anchor
+    anchor_shadow = comparison_anchor if comparison_anchor is not None else genesis_anchor
 
-    canon = Book(cash=genesis_anchor)
-    shadow = Book(cash=genesis_anchor)
+    # genesis anchor leaf (frontier seed) — only when seeding a fresh ledger. In
+    # continuous-anchor mode (write_genesis=False) the ledger ALREADY carries the
+    # byte-unchanged pre-split leaves through ``gdate``; the reconstruction appends
+    # onto that existing frontier without minting (or disturbing) an anchor leaf.
+    if write_genesis:
+        ledger.append(date=gdate, value=anchor_canon, benchmark=anchor_bench,
+                      comparison=anchor_shadow, segment=segment,
+                      model_id="genesis-anchor", source="replay-genesis",
+                      issued_by=issued_by)
+
+    canon = Book(cash=anchor_canon)
+    shadow = Book(cash=anchor_shadow)
     spy_close0 = ohlcv.close_asof("SPY", gdate)
-    bm_shares = genesis_anchor / spy_close0 if spy_close0 else 0.0
+    bm_shares = anchor_bench / spy_close0 if spy_close0 else 0.0
 
-    prev_canon_v = genesis_anchor
-    prev_shadow_v = genesis_anchor
-    prev_bm_v = genesis_anchor
-    disp_canon = genesis_anchor
-    disp_shadow = genesis_anchor
-    disp_bm = genesis_anchor
+    prev_canon_v = anchor_canon
+    prev_shadow_v = anchor_shadow
+    prev_bm_v = anchor_bench
+    disp_canon = anchor_canon
+    disp_shadow = anchor_shadow
+    disp_bm = anchor_bench
 
     freeze_set = set(freeze_mu_dates or [])
     frozen_mu: Optional[Dict[str, float]] = None
@@ -410,8 +432,12 @@ def replay(
 
         features_df = _features_df_asof(D, universe_df, ohlcv)
 
-        # --- as-of-D fused regime (the ONE picker, shared with forward) ---
-        reg_label = regime(D)
+        # --- regime label for D ---
+        # Default (P4 keystone + forward path): the ONE deterministic as-of-D
+        # picker, shared with ``decide.cutover.run_cutover``. P6 reconstruction:
+        # ``regime_fn`` injects the RECORDED regime the algorithm consumed (locked
+        # operator scope #3 — the deterministic picker is FORWARD-only).
+        reg_label = regime_fn(D) if regime_fn is not None else regime(D)
 
         # --- the SAME run_engine as forward (canon) ---
         engine_out, f = _engine_for_date(
@@ -452,8 +478,8 @@ def replay(
         # --- append ONE settled leaf (append-only + supersede; never overwrite) ---
         leaf = ledger.append(
             date=D, value=disp_canon, benchmark=disp_bm, comparison=disp_shadow,
-            segment="new_brain", model_id=f"replay@{msha}",
-            source="native_two_stage", issued_by=issued_by)
+            segment=segment, model_id=f"{model_id_prefix}{msha}",
+            source=source, issued_by=issued_by, extra=leaf_extra)
 
         if selected_universe_sink:
             _emit_selected_universe(selected_universe_sink, D, selected, msha)

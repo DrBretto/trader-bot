@@ -203,9 +203,20 @@ class EquityLedger:
     holds, so the ledger attaches with no new wiring.
     """
 
-    def __init__(self, s3_client, bucket: str = BUCKET):
+    def __init__(self, s3_client, bucket: str = BUCKET, prefix: str = LEDGER_PREFIX):
         self.s3 = s3_client
         self.bucket = bucket
+        # Per-instance key namespace. Defaults to the production ledger prefix
+        # (canon/equity_ledger/); P6 seeds a SEPARATE clean ledger at a distinct
+        # prefix so production is left byte-untouched until the P9 cutover. All
+        # key computation below routes through these instance attributes.
+        self.prefix = prefix if prefix.endswith("/") else prefix + "/"
+        self.points_prefix = self.prefix + "points/"
+        self.manifest_key = self.prefix + "_manifest.json"
+        self.cache_key = self.prefix + "equity_history.jsonl"
+
+    def _leaf_key(self, leaf: Dict[str, Any]) -> str:
+        return f"{self.points_prefix}{leaf['date']}/{leaf['content_sha'][:16]}.json"
 
     # ---- low-level S3 helpers ------------------------------------------- #
     def _get_json(self, key: str) -> Optional[Dict[str, Any]]:
@@ -218,7 +229,7 @@ class EquityLedger:
     def _put_leaf_write_once(self, leaf: Dict[str, Any]) -> bool:
         """Write a leaf with ``IfNoneMatch="*"``. Returns True if newly written,
         False if the content-addressed key already existed (idempotent no-op)."""
-        key = _leaf_key(leaf)
+        key = self._leaf_key(leaf)
         body = json.dumps(leaf, indent=2, sort_keys=True, allow_nan=False).encode()
         try:
             self.s3.put_object(
@@ -262,7 +273,7 @@ class EquityLedger:
     def _put_manifest(self, manifest: Dict[str, Any]) -> None:
         body = _canonical_bytes(manifest)
         self.s3.put_object(
-            Bucket=self.bucket, Key=MANIFEST_KEY, Body=body,
+            Bucket=self.bucket, Key=self.manifest_key, Body=body,
             ContentType="application/json",
         )
 
@@ -294,21 +305,21 @@ class EquityLedger:
         body = fold_cache(leaves)
         self._assert_cache_not_shrunk(body)
         self.s3.put_object(
-            Bucket=self.bucket, Key=CACHE_KEY, Body=body,
+            Bucket=self.bucket, Key=self.cache_key, Body=body,
             ContentType="application/x-ndjson",
         )
         return body
 
     # ---- reads ---------------------------------------------------------- #
     def read_manifest(self) -> Dict[str, Any]:
-        m = self._get_json(MANIFEST_KEY)
+        m = self._get_json(self.manifest_key)
         if m is None:
             return {"schema": MANIFEST_SCHEMA, "entries": [], "frontier": None}
         return m
 
     def read_cache(self) -> bytes:
         try:
-            return self.s3.get_object(Bucket=self.bucket, Key=CACHE_KEY)["Body"].read()
+            return self.s3.get_object(Bucket=self.bucket, Key=self.cache_key)["Body"].read()
         except Exception:  # noqa: BLE001
             return b""
 
@@ -320,7 +331,7 @@ class EquityLedger:
         leaves: List[Dict[str, Any]] = []
         token = None
         while True:
-            kwargs = {"Bucket": self.bucket, "Prefix": POINTS_PREFIX}
+            kwargs = {"Bucket": self.bucket, "Prefix": self.points_prefix}
             if token:
                 kwargs["ContinuationToken"] = token
             resp = self.s3.list_objects_v2(**kwargs)
@@ -393,7 +404,7 @@ class EquityLedger:
 
     def _manifest_from_chain(self, chain: List[Dict[str, Any]]) -> Dict[str, Any]:
         entries = [
-            {"date": leaf["date"], "content_sha": leaf["content_sha"], "key": _leaf_key(leaf)}
+            {"date": leaf["date"], "content_sha": leaf["content_sha"], "key": self._leaf_key(leaf)}
             for leaf in chain
         ]
         frontier = (
@@ -416,7 +427,7 @@ class EquityLedger:
             self._assert_cache_not_shrunk(body)
             self._put_manifest(manifest)
             self.s3.put_object(
-                Bucket=self.bucket, Key=CACHE_KEY, Body=body,
+                Bucket=self.bucket, Key=self.cache_key, Body=body,
                 ContentType="application/x-ndjson",
             )
         return manifest
@@ -435,8 +446,15 @@ class EquityLedger:
         issued_by: str,
         supersedes: Optional[str] = None,
         written_at: Optional[str] = None,
+        extra: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Append one frontier leaf, advance the manifest, re-fold the cache.
+
+        ``extra`` attaches NON-HASHED metadata to the appended leaf (e.g.
+        ``{"forward_confirmed": True}`` on a forward-nightly append). It is carried
+        the same way ``correct()`` carries ``why``/``reason_code``: outside
+        ``_HASHED_FIELDS`` so it never perturbs the content_sha or the cache fold —
+        the leaf's equity identity is unchanged, the tag is auditable on the leaf.
 
         The frontier gate (G-APPEND-ONLY-FRONTIER):
           * date > frontier  -> a new frontier leaf is written + the chain advances.
@@ -484,9 +502,13 @@ class EquityLedger:
             prev_content_hash=(front["content_sha"] if front else None),
             supersedes=supersedes, written_at=written_at,
         )
+        if extra:
+            for k, v in extra.items():
+                if k not in _HASHED_FIELDS and k not in ("content_sha", "written_at"):
+                    leaf[k] = v
         self._put_leaf_write_once(leaf)
         entries.append(
-            {"date": leaf["date"], "content_sha": leaf["content_sha"], "key": _leaf_key(leaf)}
+            {"date": leaf["date"], "content_sha": leaf["content_sha"], "key": self._leaf_key(leaf)}
         )
         manifest = {
             "schema": MANIFEST_SCHEMA,
