@@ -1,0 +1,37 @@
+name: Reality Canaries (nightly)
+
+# P7 — the three-tier reality suite (trader-bot-core/tests). The live-canary +
+# external-cross-check tiers assert against TODAY's real S3/CloudWatch output and
+# the live Yahoo/GDELT feeds, so a frozen store / frozen mu / degraded publish /
+# stored-value drift is caught the DAY it happens — the check missing for the
+# two-week silent freeze. A red run == a real failure mode is live.
+
+on:
+  schedule:
+    - cron: '30 8 * * *'      # 08:30 UTC nightly, after the night pipeline settles
+  workflow_dispatch: {}        # manual re-run
+
+jobs:
+  reality-canaries:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: us-east-1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest pandas pyarrow boto3
+
+      - name: Tier-1 unit (deterministic, real recorded data)
+        run: python trader-bot-core/tests/run_canaries.py commit
+
+      - name: Tier-2 + Tier-3 nightly (live S3 + Yahoo/GDELT cross-check)
+        run: python trader-bot-core/tests/run_canaries.py nightly

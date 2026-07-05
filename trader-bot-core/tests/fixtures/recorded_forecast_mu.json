@@ -1,0 +1,21 @@
+{
+  "settled_trading_day": "2026-07-03",
+  "mu_sha16": "743d697c71129038",
+  "n_mu": 13,
+  "mu": {
+    "AGG": -0.112472,
+    "FXE": -0.239745,
+    "FXI": 0.001992,
+    "ITA": 0.03063,
+    "IYR": -0.026002,
+    "KRE": 0.074316,
+    "MUB": -0.150406,
+    "RSP": 0.107893,
+    "SHY": -0.114384,
+    "SOXX": 0.328036,
+    "TLT": -0.10498,
+    "USO": 0.105515,
+    "XRT": 0.030795
+  },
+  "recorded_from": "diagnose_forecast_freshness live invoke (organ_inputs M1 mu)"
+}

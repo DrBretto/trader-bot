@@ -1,0 +1,19 @@
+{
+  "settled_trading_day": "2026-07-03",
+  "ohlcv_max_date": "2026-07-02",
+  "mu_sha16": "743d697c71129038",
+  "n_mu": 64,
+  "mu_top10": [
+    "SMH",
+    "XLK",
+    "SOXX",
+    "MTUM",
+    "VLUE",
+    "QQQ",
+    "ARKK",
+    "EWJ",
+    "EEM",
+    "RSP"
+  ],
+  "recorded_from": "diagnose_forecast_freshness (live invoke against real S3)"
+}
