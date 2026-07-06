@@ -52,7 +52,12 @@ from src.utils.corrections import (
 logger = logging.getLogger(__name__)
 
 BUCKET = "investment-system-data"
-LEDGER_PREFIX = "canon/equity_ledger/"
+# P9 CUTOVER: the corrected, replay-seeded canon ledger (canon/equity_ledger_clean_v2/)
+# is now the LIVE canon ledger — the clean-core night reads/appends/publishes here.
+# The prior production ledger (canon/equity_ledger/) held the contaminated pre-P6
+# line and is left BYTE-UNTOUCHED as the Phase-A rollback path (do not delete in
+# Phase A). Point the live read/append back at canon/equity_ledger/ to roll back.
+LEDGER_PREFIX = "canon/equity_ledger_clean_v2/"
 POINTS_PREFIX = LEDGER_PREFIX + "points/"
 MANIFEST_KEY = LEDGER_PREFIX + "_manifest.json"
 CACHE_KEY = LEDGER_PREFIX + "equity_history.jsonl"
