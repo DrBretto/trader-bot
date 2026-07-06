@@ -42,7 +42,7 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
                                 production_forecaster, _regime_compat_path)
     from decide.freshness_gate import _latest_settled_trading_day
     from lines.append import append_settled_point_for_publish
-    from publish.dashboard import build_line_surface, publish_line
+    from publish.dashboard import build_publish_surface, publish_line
     from monitors.canary_gate import run_post_pipeline_canaries
     from monitors.watchdog import run_daily_health_check, emit_run_heartbeat
 
@@ -84,7 +84,7 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     # ---- append the settled leaf, then publish non-destructively ----
     append_report = append_settled_point_for_publish(s3.s3, settled, portfolio_state,
                                                       bucket=bucket)
-    dashboard_data = build_line_surface(s3.s3)
+    dashboard_data = build_publish_surface(s3.s3)
     publish_report = publish_line(dashboard_data, s3.s3, phase="night",
                                   run_date=settled)
 

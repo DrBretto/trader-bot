@@ -95,6 +95,31 @@ def build_line_surface(s3_client) -> Dict[str, Any]:
 
 
 # --------------------------------------------------------------------------- #
+def build_publish_surface(s3_client) -> Dict[str, Any]:
+    """The FULL dashboard to publish: the corrected/advancing line surface overlaid
+    onto the last-published dashboard.
+
+    The clean-core night owns the three-line surface (``build_line_surface``) but NOT
+    the non-line panels (``metrics``, ``holdings``, ``trades``, ``weather``,
+    ``timeseries_url`` — the shadow/challenger line loader — etc.). The live front-end
+    reads those top-level keys and **white-screens if they are absent**, so a bare
+    line-only publish would blank the page. This overlays the authoritative line half
+    onto the prior published dashboard so the panels carry forward (they are not
+    rebuilt by the clean-core night; they hold their last snapshot) while the line
+    stays corrected and advances. ``metrics.total_value`` is re-stamped to the canon
+    line terminal (the only published portfolio value — repo single-book invariant).
+    On the very first publish (no prior dashboard) this degrades to the line surface.
+    """
+    line = build_line_surface(s3_client)
+    prev = _read_published(s3_client) or {}
+    surface = {**prev, **line}
+    prev_metrics = prev.get("metrics")
+    if isinstance(prev_metrics, dict):
+        surface["metrics"] = {**prev_metrics, "total_value": line.get("total_value")}
+    return surface
+
+
+# --------------------------------------------------------------------------- #
 # gate 1: parity-or-hold (verbatim logic from _verify_ledger_or_hold)
 # --------------------------------------------------------------------------- #
 def verify_ledger_or_hold(
