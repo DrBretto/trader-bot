@@ -20,6 +20,32 @@ from typing import List
 import numpy as np
 
 
+def challenger_target_weights(engine_out, f, canon_gross: float,
+                              tilt_gain: float = 0.5) -> dict:
+    """The ONE challenger as TARGET WEIGHTS: the M1-conviction tilt of the SAME
+    selection, at the SAME gross exposure the canon achieved.
+
+    Same held names (membership untouched), same total invested fraction
+    (``canon_gross``) — the ONLY difference is a Stage-2 re-shape of the per-name
+    weights by ``exp(gain * z(mu))``. Returned as ``{sym: target_weight}`` where the
+    weights sum to ``canon_gross`` (the rest is cash), so the caller rebalances the
+    challenger book to these targets value-conservingly. This replaces the earlier
+    BUY-only intent generator, which never sold trimmed names and drove the shadow
+    book's cash arbitrarily negative over a multi-day replay (the challenger bug)."""
+    sel = engine_out.selection
+    alloc = engine_out.allocation
+    held = [s for s in sel.ordered if s in alloc.held_symbols]
+    if not held:
+        return {}
+    mus = np.array([float(f.mu_M1.get(s, 0.0)) for s in held])
+    z = (mus - mus.mean()) / (mus.std() + 1e-12) if len(mus) > 1 else np.zeros_like(mus)
+    tilt = np.exp(tilt_gain * z)
+    base = np.array([float(sel.w_target.get(s, 0.0)) for s in held])
+    w = base * tilt
+    w = w / w.sum() if w.sum() > 0 else (base / base.sum() if base.sum() > 0 else base)
+    return {s: float(wi * canon_gross) for s, wi in zip(held, w)}
+
+
 def shadow_tilt_intents(engine_out, f, tilt_gain: float = 0.5) -> List[dict]:
     """The ONE challenger mechanism: an M1-conviction tilt of the SAME selection.
 

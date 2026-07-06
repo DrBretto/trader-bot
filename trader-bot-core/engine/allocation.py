@@ -237,6 +237,13 @@ def allocate(
 
     realized_gross_frac = realized_gross / nav if nav > 0 else 0.0
     lot_residual = sum(d_final[s] for s in held) - realized_gross  # un-lotted cash
+
+    # TARGET WEIGHTS (fraction of NAV per held name) — d_final normalised by NAV.
+    # These are the engine's allocation weights the ONE marking machinery marks the
+    # canon line by (§Pinned-2); they carry the post-cap, post-kappa sizing but are
+    # lot-free (the marking machinery re-derives units), so they are a clean
+    # dimensionless target the challenger tilt and the SPY line are 1:1 comparable to.
+    target_weights = {s: (d_final[s] / nav if nav > 0 else 0.0) for s in held}
     parity_record = {
         "date": f.date,
         "target_gross_frac": target_gross_frac,
@@ -255,4 +262,5 @@ def allocate(
         lot_infeasible=lot_infeasible,
         kappa=kappa,
         parity_record=parity_record,
+        target_weights=target_weights,
     )

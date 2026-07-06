@@ -40,9 +40,14 @@ class TestSpreadLookup:
 
 class TestApplyTransactionCosts:
     def test_buy_fills_above_market(self):
-        fill, cost_bps = apply_transaction_costs(100.0, 'BUY', 'broad', 'equity')
-        assert fill > 100.0
-        assert cost_bps > 0
+        # Slippage is random per draw, so a SINGLE buy fill can land below market
+        # ~25% of the time; assert on the batch mean (matching the SELL test's
+        # 100-sample pattern) so the every-commit gate is not flaky.
+        results = [apply_transaction_costs(100.0, 'BUY', 'broad', 'equity') for _ in range(100)]
+        fills = [fill for fill, _ in results]
+        cost_bps = [c for _, c in results]
+        assert sum(fills) / len(fills) > 100.0
+        assert sum(cost_bps) / len(cost_bps) > 0
 
     def test_sell_fills_near_or_below_market(self):
         fills = [apply_transaction_costs(100.0, 'SELL', 'broad', 'equity')[0] for _ in range(100)]

@@ -82,5 +82,13 @@ ENV SHADOW_LOG_DIR=/tmp/shadow_logs
 ENV OMP_NUM_THREADS=1
 ENV MKL_NUM_THREADS=1
 
-# Set the handler
-CMD ["src.handler.lambda_handler"]
+# P9 CUTOVER: production now runs the clean-spine thin router (trader-bot-core/
+# app/handler.py), not the legacy src.handler. The clean-core package namespace
+# roots at trader-bot-core/ (app, engine, decide, lines, monitors, store, forecast,
+# feeds, adapter, challenger), and its modules also import src.utils.* exactly as
+# the baked brain resolves them — so BOTH trader-bot-core/ and the task root go on
+# the path (mirrors trader-bot-core/tests/conftest.py: _CORE + _REPO on sys.path).
+ENV PYTHONPATH="${LAMBDA_TASK_ROOT}/trader-bot-core:${LAMBDA_TASK_ROOT}"
+
+# Set the handler — the clean thin router (P9 cutover; was src.handler.lambda_handler).
+CMD ["app.handler.lambda_handler"]

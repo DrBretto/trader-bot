@@ -15,9 +15,9 @@ dispatch. Production is pointed at this entrypoint at **P9** (cutover + observe 
 full live night+morning); P8 ships it wired and import-verified but does NOT cut
 prod over, so nothing here is invoked against prod during P8.
 
-Portfolio-load + settled-mark seam: the first-class clean-core portfolio loader is
-a P9 item; until it lands this uses the shared ``src.steps.paper_trader`` loader
-(a first-class shared util, NOT a ``runs/`` prototype import).
+Portfolio-load + settled-mark seam: the first-class clean-core portfolio loader
+(``store.portfolio.load_portfolio_state``) lands at P9 — the night path no longer
+borrows the old ``src.steps.paper_trader`` chassis loader for this read.
 """
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     """Run one forward night. Returns a Lambda-shaped response dict."""
     from src.utils.s3_client import S3Client
     from src.utils.sns_alerts import send_alert
-    from src.steps import paper_trader
+    from store.portfolio import load_portfolio_state
     from decide.cutover import (run_cutover, load_brain_config,
                                 production_forecaster, _regime_compat_path)
     from decide.freshness_gate import _latest_settled_trading_day
@@ -52,7 +52,7 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     config = dict(load_brain_config())
     config["mode"] = "live"
     universe_df = _load_universe_df(_regime_compat_path().parent)
-    portfolio_state = paper_trader.load_portfolio_state(s3)
+    portfolio_state = load_portfolio_state(s3)
 
     # ---- engine decision (feeds→store→freshness→features→forecast→engine→decide)
     incumbent = s3.read_json(f"daily/{settled}/trade_intents.json") or None
