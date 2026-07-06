@@ -172,6 +172,115 @@ def watchdog_diag(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     return result
 
 
+# ------------------------------------------- CU-04 publish-revert fault-injection
+def _fire_publish_revert_test_sns(reason: str, region: str) -> Dict[str, Any]:
+    """Publish the CU-04 guard-block alarm to the REAL SNS topic, CLEARLY MARKED as
+    a reality-test. Its firing IS the 'gate alarms on block' proof. Fail-soft."""
+    try:
+        import boto3
+        from src.utils.sns_alerts import get_sns_topic_arn
+        sns = boto3.client("sns", region_name=region)
+        resp = sns.publish(
+            TopicArn=get_sns_topic_arn(region),
+            Subject="[REALITY-TEST] CU-04 publish-time value-revert guard BLOCKED a publish"[:100],
+            Message=("*** CU-04 PUBLISH-REVERT REALITY-TEST — a deliberately-injected "
+                     "contaminated/reverted value was refused by the publish gate; NOT a "
+                     "live incident. This proves the guard BLOCKS + ALARMS at publish "
+                     "time (would have stopped the original 121147.52 revert). ***\n\n"
+                     + reason),
+        )
+        return {"fired": True, "message_id": resp.get("MessageId"), "error": None}
+    except Exception as e:  # noqa: BLE001
+        return {"fired": False, "message_id": None, "error": f"{type(e).__name__}: {e}"}
+
+
+def publish_revert_diag(event: dict, bucket: str, region: str) -> Dict[str, Any]:
+    """CU-04 reality-test (NON-DESTRUCTIVE; writes NO S3): inject a contaminated /
+    reverted value at the PUBLISH gate and prove it BLOCKS + the alarm fires; and
+    prove the watchdog now flags a CHALLENGER + SPY value-revert (not just canon).
+
+    Uses the REAL guard/gate functions against the REAL corrected clean_v2 ledger on
+    S3; only the injected values are synthetic (the fault). Nothing is written, so
+    the live dashboard line is untouched — the block is proven by the guard's
+    (ok=False) verdict, not by inspecting a mutated object.
+    """
+    from src.utils.s3_client import S3Client
+    from src.steps.publish_artifacts import guard_publish_not_reverted, _verify_ledger_or_hold
+    from monitors.watchdog import _ledger_terminal, evaluate_value_revert
+    s3 = S3Client(bucket, region)
+
+    corr, cerr = _ledger_terminal(s3)
+    if corr is None:
+        return {"phase": "publish-revert-diag", "nondestructive": True,
+                "error": f"corrected clean_v2 ledger unreadable: {cerr}"}
+    d = corr.get("date")
+    base_term = {"date": d, "value": corr.get("value"), "benchmark": corr.get("benchmark")}
+    CONTAM = 121147.52
+
+    def dd(term):  # a one-point dashboard_data carrying `term`
+        return {"equity_curve": [term]}
+
+    # --- (1) publish-time guard: correct line passes; injected faults BLOCK ---
+    ok_base, r_base = guard_publish_not_reverted(dd(dict(base_term)), s3, d)
+    ok_c, r_c = guard_publish_not_reverted(dd({**base_term, "value": CONTAM}), s3, d)
+    ok_r, r_r = guard_publish_not_reverted(dd({**base_term, "value": base_term["value"] + 5000.0}), s3, d)
+    ok_s, r_s = guard_publish_not_reverted(dd({**base_term, "benchmark": base_term["benchmark"] + 5000.0}), s3, d)
+    # full gate blocks the write on the injected contaminated terminal too
+    gate_c_ok, gate_c_reason = _verify_ledger_or_hold(dd({**base_term, "value": CONTAM}), s3, "morning", d)
+
+    guard_pass_on_correct = bool(ok_base)
+    guard_blocks_contaminated = not ok_c
+    guard_blocks_reverted_canon = not ok_r
+    guard_blocks_reverted_spy = not ok_s
+    gate_holds_write = not gate_c_ok
+
+    # fire the marked reality-test alarm iff the guard blocked the contaminated value
+    sns = (_fire_publish_revert_test_sns(r_c, region) if guard_blocks_contaminated
+           else {"fired": False, "message_id": None, "error": "guard did not block contaminated"})
+
+    # --- (2) watchdog detection dry-run: challenger + SPY revert flagged ---
+    clean = evaluate_value_revert(
+        dd(dict(base_term)),
+        {"shadow_A": [[d, corr.get("comparison")]]}, corr)
+    spy_inj = evaluate_value_revert(
+        dd({**base_term, "benchmark": base_term["benchmark"] + 6000.0}),
+        {"shadow_A": [[d, corr.get("comparison")]]}, corr)
+    chal_inj = evaluate_value_revert(
+        dd(dict(base_term)),
+        {"shadow_A": [[d, CONTAM]]}, corr)
+    wd_flags_spy = bool(spy_inj["lines"]["SPY"]["reverted"]) and not clean["reverted"]
+    wd_flags_challenger = bool(chal_inj["lines"]["challenger"]["reverted"]) and not clean["reverted"]
+
+    acceptance = {
+        "guard_no_false_positive_on_correct_line": guard_pass_on_correct,
+        "publish_guard_BLOCKS_contaminated_121147_52": guard_blocks_contaminated,
+        "publish_guard_BLOCKS_reverted_canon": guard_blocks_reverted_canon,
+        "publish_guard_BLOCKS_reverted_SPY": guard_blocks_reverted_spy,
+        "full_gate_HOLDS_the_write": gate_holds_write,
+        "alarm_fired_on_block": bool(sns.get("fired")),
+        "watchdog_flags_SPY_revert": wd_flags_spy,
+        "watchdog_flags_challenger_revert": wd_flags_challenger,
+    }
+    return {
+        "phase": "publish-revert-diag",
+        "nondestructive": True,
+        "corrected_terminal": {"date": d, "value": corr.get("value"),
+                               "benchmark": corr.get("benchmark"),
+                               "comparison": corr.get("comparison")},
+        "publish_guard": {"correct_line": [ok_base, r_base],
+                          "injected_contaminated": [ok_c, r_c],
+                          "injected_reverted_canon": [ok_r, r_r],
+                          "injected_reverted_spy": [ok_s, r_s],
+                          "full_gate_on_contaminated": [gate_c_ok, gate_c_reason]},
+        "alarm": sns,
+        "watchdog_dryrun": {"clean_reverted": clean["reverted"],
+                            "spy_injected": spy_inj["lines"]["SPY"],
+                            "challenger_injected": chal_inj["lines"]["challenger"]},
+        "acceptance": acceptance,
+        "all_pass": all(acceptance.values()),
+    }
+
+
 # ----------------------------------------------------------------- dispatch table
 _PROBES = {
     "forecast-diag": forecast_diag,
@@ -179,6 +288,7 @@ _PROBES = {
     "regime-diag": regime_diag,
     "canary": canary,
     "watchdog-diag": watchdog_diag,
+    "publish-revert-diag": publish_revert_diag,
 }
 
 

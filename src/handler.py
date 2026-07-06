@@ -1432,6 +1432,29 @@ def _run_midday_check(event: dict, bucket: str, region: str) -> dict:
         except Exception as canon_err:
             logger.warning(f"Canon metrics unavailable for midday email: {canon_err}")
 
+        # CU-04 timing-gap closure (G1 Monday / G2 same-cycle): value-revert
+        # DETECTION in-cycle. The 04:00Z watchdog runs BEFORE the day's 13:45Z
+        # morning publish, so a revert was blind until the next day's run (and
+        # Monday had no run at all). Midday (18:00Z Mon-Fri) runs AFTER the morning
+        # publish, so it catches a same-day revert here — canon + SPY + challenger —
+        # and alarms. Detection only (the publish-time guard is the prevention).
+        try:
+            from monitors.watchdog import check_value_revert
+            _vr = check_value_revert(s3_client)
+            if _vr.get('reverted'):
+                send_alert(
+                    subject="[TraderBot] CRITICAL: value-revert detected at midday (in-cycle)",
+                    body=("A displayed line reverted to a contaminated / different-source "
+                          "value since this morning's publish (canon / SPY / challenger):\n\n"
+                          + (_vr.get('reason') or '')
+                          + "\n\nThis is the same-cycle (G2) / Monday (G1) detection net; "
+                          "the publish-time value-revert guard should also have blocked it "
+                          "at publish."),
+                    region=region)
+                logger.error(f"MIDDAY value-revert detected: {_vr.get('reason')}")
+        except Exception as _vr_err:  # noqa: BLE001 — detection must never crash midday
+            logger.warning(f"Midday value-revert check failed (non-fatal): {_vr_err}")
+
         # Send email alert
         send_alert(
             subject=(

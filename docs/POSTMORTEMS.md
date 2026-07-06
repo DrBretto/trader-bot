@@ -42,6 +42,26 @@ Each entry follows this structure:
 
 **DELETE AFTER FIRST REAL ENTRY**
 
+## 2026-07-06 — AWS — Canon line reverted to a contaminated value at publish; date-only gate was blind
+
+**Task**: CU-04 — stop the morning/midday publish path from reverting the displayed canon line.
+**Struggle**: The publish gate (`_verify_ledger_or_hold`) checked only that the rendered
+terminal matched the ledger it read (parity-against-self) and that the terminal DATE did
+not regress. When the source ledger read returned a contaminated same-date value
+(2026-07-02 flipped 114271.38 → 121147.52), parity passed (rendered == contaminated
+source) and the date was unchanged, so the gate published the reverted line with no block
+and no alarm. The watchdog only caught it the next day, only for canon `value`.
+**Resolution**: Added a publish-time value-revert guard (`guard_publish_not_reverted`)
+that checks the rendered canon `value` + SPY `benchmark` against the corrected clean_v2
+ledger (hard-pinned, independent of the parity source) and refuses a known-contaminated
+value or a same-date divergence → HOLD + SNS alarm. Extended the watchdog to canon + SPY +
+challenger, and added an in-cycle midday value-revert detection to close the Monday /
+same-cycle timing gaps. Proven by the non-destructive `publish-revert-diag` reality-test.
+**Retry Count**: 1 (root-caused directly).
+**Prevention**: A publish gate must validate VALUES against an INDEPENDENT corrected
+reference, not parity against the same (possibly contaminated) source it reads; and cover
+every displayed line, not just canon.
+
 ## 2026-06-07 — DEPLOY — Blank dashboard from stale CloudFront index.html after rebuild
 
 **Task**: Dashboard at https://trader-bot.infotrope.io stopped rendering (blank white page) after a model-promotion redeploy.
@@ -327,3 +347,25 @@ rule-label ceiling). Weights set 0.5/0.5 now that both models are healthy (the 0
 crutch for the broken GRU).
 **Retry Count**: 1.
 **Prevention**: Assert training row-count > N before saving a regime model; alert if it falls back to `daily/`.
+
+## 2026-06-26 - AWS - Equity line frozen: Lambda's old boto3 silently dropped every nightly append
+
+**Task**: "The bot didn't do anything again last night / won't run more than one day in a row." Investigate why the displayed line stops advancing.
+**Struggle**: The pipeline was actually firing fine every night (EventBridge → Lambda all green, artifacts published, trades executed). The real failure was buried in the publish step: the equity-ledger append writes its content-addressed leaf with `put_object(..., IfNoneMatch="*")` (S3 conditional write). The Lambda image pins `boto3==1.34.19`, which predates S3 conditional writes, so the call raised `ParamValidationError: Unknown parameter in input: "IfNoneMatch"`. `publish_artifacts.py` swallows any append error as non-fatal ("equity ledger append skipped — line holds"), so the frontier never advanced — frozen at 2026-06-24 while runs kept "succeeding." From the dashboard it looked like the bot did nothing.
+**Resolution**: Made the write-once put version-independent in `src/canon/equity_ledger.py` and `src/utils/corrections.py`: on a `ParamValidationError` for `IfNoneMatch`, fall back to a HEAD-check (idempotent no-op if the leaf exists) + a plain put. The leaf key is a content hash, so write-once is already guaranteed by the key — `IfNoneMatch` was only belt-and-suspenders. Added old-SDK regression tests (`FakeS3OldSdk`) asserting the line advances across consecutive days without the parameter. Rebuilt + redeployed the container; manual night invoke confirmed the frontier advanced 2026-06-24 → 2026-06-26 and the log now reads "equity leaf written WITHOUT IfNoneMatch" instead of "append skipped — line holds".
+**Retry Count**: 1 (root-caused from CloudWatch on first pass).
+**Prevention**: Never let a swallowed-exception path hide a frontier that isn't advancing — the append should at minimum alert when it no-ops on a new run_date. Keep the SDK-version-independent fallback. If `boto3` is ever bumped past ~1.35, true conditional writes resume automatically with no code change. Note: 2026-06-25 has no leaf (skipped before the fix); the append-only frontier invariant means it can't be backfilled mid-chain — a one-point cosmetic gap, not a functional break.
+
+## 2026-06-26 - AWS - Challenger line was laptop-bound + the staleness watchdog was dead code
+
+**Task**: "I need all three lines (canon, SPY, challenger) to run autonomously for weeks without intervention, and to STOP being told it's running when it isn't."
+**Struggle**: Two structural autonomy/trust gaps behind the recurring "works one day then stops":
+  1. The canon + SPY lines run in the night Lambda (autonomous), but the **challenger (dotted blue) line was produced by a local macOS launchd job** (`~/Library/LaunchAgents/com.traderbot.shadow.plist`, `shadow_nightly.py`) at 23:30 local — and that job wasn't even loaded. A laptop cron can never be "autonomous for weeks." `shadow_nightly.py` was never baked into the Lambda image (not in `bake_runtime_subset.CODE_FILES`).
+  2. `src/brain/monitors.py` had a well-built `stale_publish_handler` / `check_stale_publish` (designed for exactly the laptop-asleep failure) but it was **dead code** — nothing called it and no EventBridge schedule pointed at it. So a frozen line was never alerted. The equity-append failure was also swallowed as "non-fatal, line holds" with no alert (see the boto3 postmortem above).
+**Resolution**:
+  - Moved the challenger into the cloud: added `shadow_nightly.py` to the bake, fixed its Lambda-hostile bits (file logging → `/tmp` via `SHADOW_LOG_DIR`; `s3_client()` uses the IAM role instead of the hardcoded `personal` profile when `AWS_LAMBDA_FUNCTION_NAME` is set), added an isolated `shadow-publish` handler phase (appends NO equity leaf — cannot affect the canon line), and a new EventBridge rule `investment-system-shadow-trigger` @ 03:30 UTC Tue–Sat. Verified: a cloud invoke advanced `dashboard/shadow_timeseries.json` `as_of` + `shadow_A` to the current day with zero laptop involvement.
+  - Anti-betrayal watchdog: extended `monitors.py` with `run_daily_health_check` (checks all THREE lines + chassis liveness against the latest trading day) wired to a `healthcheck` handler phase + EventBridge rule `investment-system-healthcheck-trigger` @ 04:00 UTC Tue–Sat. It ALWAYS emails a ✓/✗ status (SNS email to drbretto82@gmail.com is confirmed) so a silent freeze is caught the same morning, not on Friday.
+  - De-swallowed the equity-append failure: it now fires an SNS CRITICAL alert in addition to holding the line.
+  - Backfilled the bug-dropped 2026-06-25 canon leaf and rewound a provisional 06-26 (frontier now correctly 06-25; tonight settles 06-26).
+**Retry Count**: 2 deploy/invoke cycles for the cloud shadow port (1: `personal` profile not in Lambda; 2: success).
+**Prevention**: No producer of a displayed line should live on the laptop. The daily health email is now the single source of "is it actually running" — if it stops arriving or says ✗, that's the signal, no chart-watching required. The laptop `com.traderbot.shadow.plist` is now redundant and should be removed (a loaded copy would double-write shadow_timeseries.json and flap).

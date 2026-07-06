@@ -514,6 +514,59 @@ def _can_publish_dashboard(expert_signals: Optional[Dict[str, Any]]) -> bool:
     return expert_signals is not None
 
 
+def guard_publish_not_reverted(dashboard_data, s3, run_date) -> tuple:
+    """PUBLISH-TIME value-revert / contamination guard (CU-04, prevention).
+
+    The parity+date gate (``_verify_ledger_or_hold`` below) compares the rendered
+    line against the SAME ledger it reads and only checks the terminal DATE for
+    regression — so a same-date/changed-VALUE revert to a contaminated terminal
+    (the 2026-07-02 121147.52 incident) slips through. This guard adds, on top and
+    without weakening it, an INDEPENDENT value check of the rendered terminal
+    (canon ``value`` + SPY ``benchmark``) against the corrected clean_v2 ledger
+    (hard-pinned via ``monitors.watchdog._ledger_terminal``, so it holds even if the
+    parity source is rolled back to the retired contaminated ledger): REFUSE to
+    publish a terminal that (a) equals a known-contaminated value, or (b) diverges
+    from the corrected clean_v2 terminal for the same date. Returns (ok, reason);
+    ok=False => HOLD + alarm (the caller's existing hold path). Never raises.
+
+    (Challenger publish-time revert is prevented separately by the CU-02
+    shadow-publish path, which sources shadow_A directly from the clean_v2
+    ``comparison`` column and blocks a contaminated terminal.)
+    """
+    try:
+        from monitors.watchdog import (
+            CONTAMINATED_TERMINAL_VALUES, VALUE_REVERT_EPS, _ledger_terminal, _cents)
+        ec = (dashboard_data or {}).get('equity_curve') or []
+        if not ec:
+            return True, "value-revert guard: no equity_curve (parity gate owns emptiness)"
+        term = ec[-1] or {}
+        t_date = term.get('date')
+        canon_v, spy_b = term.get('value'), term.get('benchmark')
+        eps_c = int(round(VALUE_REVERT_EPS * 100))
+        # (b) hard contaminated-value sentinel (canon) — fires even if ledger unreadable.
+        cv = _cents(canon_v)
+        if cv is not None and cv in CONTAMINATED_TERMINAL_VALUES:
+            return False, (f"VALUE-REVERT guard: canon terminal {t_date}={canon_v} is a "
+                           f"KNOWN CONTAMINATED value (pre-P6) — refusing to publish")
+        # (a) cross-check canon value + SPY benchmark vs the corrected clean_v2 terminal.
+        corr, reason = _ledger_terminal(s3)
+        if corr is None:
+            return True, (f"value-revert guard: clean_v2 unreadable ({reason}); "
+                          f"contaminated-value sentinel passed")
+        if corr.get('date') == t_date:
+            lc = _cents(corr.get('value'))
+            if cv is None or lc is None or abs(cv - lc) > eps_c:
+                return False, (f"VALUE-REVERT guard: canon {t_date}={canon_v} DIVERGES from "
+                               f"corrected clean_v2 {corr.get('value')} — refusing to publish")
+            bc, lb = _cents(spy_b), _cents(corr.get('benchmark'))
+            if bc is not None and lb is not None and abs(bc - lb) > eps_c:
+                return False, (f"VALUE-REVERT guard: SPY {t_date}={spy_b} DIVERGES from "
+                               f"corrected clean_v2 benchmark {corr.get('benchmark')} — refusing")
+        return True, f"value-revert guard: ok ({t_date} canon+SPY match clean_v2)"
+    except Exception as e:  # noqa: BLE001 — a guard fault holds as a precaution
+        return False, f"value-revert guard raised (held as precaution): {e}"
+
+
 def _verify_ledger_or_hold(dashboard_data, s3, phase, run_date) -> tuple:
     """Parity-or-hold gate (FP-08-3) — replaces the old extender advance guard.
 
@@ -521,6 +574,10 @@ def _verify_ledger_or_hold(dashboard_data, s3, phase, run_date) -> tuple:
     dashboard whose line is empty, has drifted from the stored leaves, or has
     regressed behind the last published terminal. Returns (ok, reason); ok=False
     means HOLD last-known-good + alarm. Never raises.
+
+    CU-04: after the parity/date checks pass, the publish-time value-revert guard
+    (``guard_publish_not_reverted``) runs as an ADDITIONAL block — it does not relax
+    any existing check.
     """
     try:
         from src.canon.equity_ledger import EquityLedger
@@ -561,7 +618,15 @@ def _verify_ledger_or_hold(dashboard_data, s3, phase, run_date) -> tuple:
                 f"last published {prev_term_date} (line would move backward)"
             )
 
-        return True, f"ok (ledger terminal {led_term['date']}={led_term['value']})"
+        # 3. CU-04 PUBLISH-TIME VALUE-REVERT / CONTAMINATION guard (prevention) —
+        #    added on TOP of parity+date; blocks a same-date/changed-value revert or
+        #    a known-contaminated terminal that the parity-against-self gate misses.
+        vok, vreason = guard_publish_not_reverted(dashboard_data, s3, run_date)
+        if not vok:
+            return False, vreason
+
+        return True, (f"ok (ledger terminal {led_term['date']}={led_term['value']}; "
+                      f"{vreason})")
     except Exception as e:
         return False, f"gate raised (held as precaution): {e}"
 

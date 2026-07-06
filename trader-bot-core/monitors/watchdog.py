@@ -196,77 +196,108 @@ def _cents(v: Any) -> Optional[int]:
     return int(round(f * 100))
 
 
-def check_value_revert(s3, terminal: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Value-revert / contamination check (MORNING/MIDDAY PATH REVERT HOTFIX).
-
-    The three-line watchdog caught staleness and non-advancement, but NOT a
-    line whose DATE stayed current while its VALUE reverted to a known-contaminated
-    terminal — exactly what a publish path reading the retired ledger did every
-    weekday morning (07-02 stayed put while the value flipped 114271.38 -> 121147.52).
-
-    This reads the PUBLISHED dashboard terminal and refuses to call the system
-    healthy when that terminal (a) does not match the corrected ledger's terminal
-    for the SAME date within ``VALUE_REVERT_EPS``, or (b) lands on a known
-    contaminated value. Returns {reverted, published, ledger, reason}; reverted=True
-    trips the CRITICAL email. Fail-soft: never raises.
-    """
-    out: Dict[str, Any] = {"reverted": False, "published": None, "ledger": None,
+def _revert_one(kind: str, pub_date: Optional[str], pub_val: Any,
+                led_date: Optional[str], led_val: Any,
+                *, sentinel: bool = True) -> Dict[str, Any]:
+    """Evaluate ONE displayed line's terminal for contamination / same-date value
+    revert vs the corrected ledger. ``sentinel`` gates the known-contaminated-value
+    check (canon + challenger carry the 121147.52 sentinel; SPY has no known
+    contaminated benchmark, so it is divergence-only). Never raises."""
+    out: Dict[str, Any] = {"reverted": False,
+                           "published": {"date": pub_date, "value": pub_val},
+                           "ledger": {"date": led_date, "value": led_val},
                            "reason": ""}
+    pc = _cents(pub_val)
+    # (b) hard contaminated-value sentinel — fires even if the ledger read fails.
+    if sentinel and pc is not None and pc in CONTAMINATED_TERMINAL_VALUES:
+        out["reverted"] = True
+        out["reason"] = (f"{kind} terminal {pub_date}={pub_val} is a KNOWN "
+                         f"CONTAMINATED value (pre-P6 line)")
+        return out
+    if led_date is None or led_val is None:
+        out["reason"] = (f"{kind}: corrected ledger value unreadable/absent; "
+                         f"sentinel check passed")
+        return out
+    # (a) cross-check only when published is on the ledger's terminal date; an
+    # intraday provisional dot on a LATER date is legitimately ahead, not a revert.
+    if pub_date != led_date:
+        out["reason"] = (f"{kind}: published date {pub_date} != ledger date "
+                         f"{led_date} — provisional/ahead, not cross-checked")
+        return out
+    lc = _cents(led_val)
+    if pc is None or lc is None:
+        out["reverted"] = True
+        out["reason"] = (f"{kind}: published value {pub_val} or ledger value "
+                         f"{led_val} is not a finite number")
+    elif abs(pc - lc) > int(round(VALUE_REVERT_EPS * 100)):
+        out["reverted"] = True
+        out["reason"] = (f"{kind} terminal {pub_date}={pub_val} DIVERGES from "
+                         f"corrected ledger {led_date}={led_val} by "
+                         f"${abs(pc - lc) / 100:.2f} (> ${VALUE_REVERT_EPS:.2f}) — "
+                         f"line reverted to a different-source value")
+    else:
+        out["reason"] = f"{kind} terminal matches corrected ledger ({pub_date}={pub_val})"
+    return out
+
+
+def evaluate_value_revert(dash: Dict[str, Any], shadow: Dict[str, Any],
+                          terminal: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """PURE value-revert / contamination evaluation across ALL THREE lines
+    (canon ``value``, SPY ``benchmark`` — G4, challenger ``comparison`` — G3),
+    given already-read snapshots. Shared by ``check_value_revert`` (live S3) and the
+    CU-04 publish-revert fault-injection probe (synthetic snapshots). Never raises.
+
+    Returns {reverted (any line), published, ledger, reason, lines:{canon,SPY,challenger}}.
+    The top-level ``reverted``/``published``/``ledger``/``reason`` stay backward
+    compatible (canon's, with ``reason`` a join when any line reverts).
+    """
+    ec = (dash or {}).get("equity_curve") or []
+    pub = (ec[-1] or {}) if ec else {}
+    led = terminal or {}
+    led_date = led.get("date")
+    canon = _revert_one("canon", pub.get("date"), pub.get("value"),
+                        led_date, led.get("value"))
+    spy = _revert_one("SPY", pub.get("date"), pub.get("benchmark"),
+                      led_date, led.get("benchmark"), sentinel=False)
+    ch_date, ch_val = _last_challenger_point(shadow or {})
+    challenger = _revert_one("challenger", ch_date, ch_val,
+                             led_date, led.get("comparison"))
+    lines = {"canon": canon, "SPY": spy, "challenger": challenger}
+    reverted = any(l["reverted"] for l in lines.values())
+    reasons = [l["reason"] for l in lines.values() if l["reverted"]]
+    return {"reverted": reverted,
+            "published": canon["published"], "ledger": canon["ledger"],
+            "reason": (" | ".join(reasons) if reverted else canon["reason"]),
+            "lines": lines}
+
+
+def check_value_revert(s3, terminal: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Value-revert / contamination check (MORNING/MIDDAY PATH REVERT HOTFIX; CU-04
+    extends it to challenger [G3] + SPY [G4], not just canon ``value``).
+
+    The three-line watchdog caught staleness and non-advancement, but NOT a line
+    whose DATE stayed current while its VALUE reverted to a known-contaminated
+    terminal — exactly what a publish path reading the retired ledger did (07-02
+    stayed put while the value flipped 114271.38 -> 121147.52). This reads the
+    PUBLISHED dashboard + shadow terminals and refuses to call the system healthy
+    when any of canon/SPY/challenger (a) diverges from the corrected clean_v2 ledger
+    terminal for the SAME date, or (b) lands on a known contaminated value. Returns
+    {reverted, published, ledger, reason, lines}; reverted=True trips the CRITICAL
+    email. Fail-soft: never raises.
+    """
     try:
         dash = s3.read_json(PUBLISHED_DASHBOARD_KEY) or {}
     except Exception as e:  # noqa: BLE001
-        out["reason"] = f"could not read published dashboard: {type(e).__name__}: {e}"
-        return out
-    ec = dash.get("equity_curve") or []
-    if not ec:
-        out["reason"] = "published dashboard has no equity_curve (nothing to check)"
-        return out
-    pub = ec[-1] or {}
-    pub_date, pub_val = pub.get("date"), pub.get("value")
-    out["published"] = {"date": pub_date, "value": pub_val}
-
-    pub_cents = _cents(pub_val)
-    # (b) hard contaminated-value sentinel — fires even if the ledger read fails.
-    if pub_cents is not None and pub_cents in CONTAMINATED_TERMINAL_VALUES:
-        out["reverted"] = True
-        out["reason"] = (f"published terminal {pub_date}={pub_val} is a KNOWN "
-                         f"CONTAMINATED value (pre-P6 line) — publish path reverted "
-                         f"the line to the retired ledger")
-        return out
-
-    # (a) cross-check against the corrected ledger terminal for the SAME date.
+        return {"reverted": False, "published": None, "ledger": None,
+                "reason": f"could not read published dashboard: {type(e).__name__}: {e}",
+                "lines": {}}
+    try:
+        shadow = s3.read_json(SHADOW_KEY) or {}
+    except Exception:  # noqa: BLE001 — challenger series optional
+        shadow = {}
     if terminal is None:
-        terminal, term_reason = _ledger_terminal(s3)
-        if terminal is None:
-            out["reason"] = (f"corrected ledger unreadable for value cross-check "
-                             f"({term_reason}); sentinel check passed")
-            return out
-    out["ledger"] = {"date": terminal.get("date"), "value": terminal.get("value")}
-    led_cents = _cents(terminal.get("value"))
-    # Only cross-check when the published terminal is on the ledger's terminal date;
-    # an intraday provisional dot on a LATER date is legitimately ahead of the
-    # settled ledger and is not a revert.
-    if pub_date == terminal.get("date"):
-        if pub_cents is None or led_cents is None:
-            out["reverted"] = True
-            out["reason"] = (f"published terminal value {pub_val} or ledger value "
-                             f"{terminal.get('value')} is not a finite number")
-        elif abs(pub_cents - led_cents) > int(round(VALUE_REVERT_EPS * 100)):
-            out["reverted"] = True
-            out["reason"] = (f"published terminal {pub_date}={pub_val} DIVERGES from "
-                             f"corrected ledger {terminal.get('date')}="
-                             f"{terminal.get('value')} by "
-                             f"${abs(pub_cents - led_cents) / 100:.2f} "
-                             f"(> ${VALUE_REVERT_EPS:.2f}) — line reverted to a "
-                             f"different-source value")
-        else:
-            out["reason"] = (f"published terminal matches corrected ledger "
-                             f"({pub_date}={pub_val})")
-    else:
-        out["reason"] = (f"published terminal date {pub_date} != ledger terminal "
-                         f"date {terminal.get('date')} — provisional/ahead, not "
-                         f"cross-checked for value revert")
-    return out
+        terminal, _term_reason = _ledger_terminal(s3)
+    return evaluate_value_revert(dash, shadow, terminal)
 
 
 # --------------------------------------------------------------------------- #
@@ -356,14 +387,25 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
         f"day(s) over {substrate.get('days_checked')} checked"
         + (f"  [{substrate.get('reason')}]" if substrate.get("stale") else ""),
     ]
-    _vr_pub = value_revert.get("published") or {}
     body_lines += [
         "",
-        "Published-line value integrity (did the line revert to a contaminated value?):",
-        f"  {'✗ REVERTED' if value_revert.get('reverted') else '✓':<10} "
-        f"published terminal {_vr_pub.get('date')}={_vr_pub.get('value')}"
-        + (f"  — {value_revert.get('reason')}" if value_revert.get("reason") else ""),
+        "Published-line value integrity (did any line revert to a contaminated / "
+        "different-source value?)  [canon value · SPY benchmark · challenger]:",
     ]
+    _vr_lines = value_revert.get("lines") or {}
+    if _vr_lines:
+        for _name, _lv in _vr_lines.items():
+            _p = _lv.get("published") or {}
+            body_lines.append(
+                f"  {'✗ REVERTED' if _lv.get('reverted') else '✓':<10} "
+                f"{_name:<11} terminal {_p.get('date')}={_p.get('value')}"
+                + (f"  — {_lv.get('reason')}" if _lv.get("reverted") else ""))
+    else:
+        _vr_pub = value_revert.get("published") or {}
+        body_lines.append(
+            f"  {'✗ REVERTED' if value_revert.get('reverted') else '✓':<10} "
+            f"published terminal {_vr_pub.get('date')}={_vr_pub.get('value')}"
+            + (f"  — {value_revert.get('reason')}" if value_revert.get("reason") else ""))
     body = "\n".join(body_lines)
 
     if any_stale:
