@@ -106,16 +106,22 @@ def build_publish_surface(s3_client) -> Dict[str, Any]:
     line-only publish would blank the page. This overlays the authoritative line half
     onto the prior published dashboard so the panels carry forward (they are not
     rebuilt by the clean-core night; they hold their last snapshot) while the line
-    stays corrected and advances. ``metrics.total_value`` is re-stamped to the canon
-    line terminal (the only published portfolio value — repo single-book invariant).
-    On the very first publish (no prior dashboard) this degrades to the line surface.
+    stays corrected and advances. The line-derived summary stats in ``metrics``
+    (``ytd_return``, ``mtd_return``, ``max_drawdown``, ``current_drawdown``,
+    ``sharpe_ratio``, ``total_value`` — everything the ledger fold recomputes) are
+    re-stamped from the corrected ledger line, so the summary/hero can never show a
+    stale (pre-cutover) return; the non-line ``metrics`` keys (cash, invested,
+    win_rate, trade counts, exposures) carry forward from the prior publish. On the
+    very first publish (no prior dashboard) this degrades to the line surface.
     """
     line = build_line_surface(s3_client)
     prev = _read_published(s3_client) or {}
     surface = {**prev, **line}
     prev_metrics = prev.get("metrics")
     if isinstance(prev_metrics, dict):
-        surface["metrics"] = {**prev_metrics, "total_value": line.get("total_value")}
+        # overlay ALL corrected line-derived stats (ytd_return, drawdowns, sharpe,
+        # total_value, ...) onto the carried-forward panel metrics.
+        surface["metrics"] = {**prev_metrics, **(line.get("line_metrics") or {})}
     return surface
 
 
