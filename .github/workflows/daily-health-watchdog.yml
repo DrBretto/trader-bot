@@ -1,0 +1,42 @@
+name: Daily Health Watchdog (three-line)
+
+# P8 — the always-on three-line watchdog + daily health email. Runs the clean
+# spine's monitors (trader-bot-core/monitors/watchdog.py) against TODAY's real S3
+# surfaces and ALWAYS emails a ✓/✗ status for the three displayed lines (canon,
+# SPY benchmark, challenger) with their real advancing dates. A stale/missed night
+# (a line that stops advancing) trips the alarm (SNS CRITICAL + ✗). This is the
+# check that was missing during the two-week silent freeze.
+#
+# Scheduled NIGHTLY (after the night pipeline settles) AND POST-PIPELINE (after
+# morning execution) so a freeze is caught the SAME day. It reads live S3 only —
+# it does NOT cut production over to the clean handler (that is P9).
+
+on:
+  schedule:
+    - cron: '35 8 * * *'        # 08:35 UTC nightly — just after the night pipeline + canaries
+    - cron: '15 15 * * 1-5'     # 15:15 UTC weekdays — post-pipeline, after morning execution
+  workflow_dispatch: {}         # manual re-run
+
+jobs:
+  three-line-health:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: us-east-1
+      S3_BUCKET: investment-system-data
+      PYTHONPATH: .:trader-bot-core
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install boto3
+
+      - name: Three-line daily health check (emails ✓/✗ per line, real dates)
+        run: python -m app.handler --source daily-health
