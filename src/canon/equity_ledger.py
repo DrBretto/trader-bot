@@ -52,7 +52,23 @@ from src.utils.corrections import (
 logger = logging.getLogger(__name__)
 
 BUCKET = "investment-system-data"
-LEDGER_PREFIX = "canon/equity_ledger/"
+# P9 CUTOVER — MORNING/MIDDAY PATH REVERT HOTFIX (2026-07-06): the corrected,
+# replay-seeded canon ledger (canon/equity_ledger_clean_v2/) is the LIVE canon
+# ledger. The P9 cutover repointed only the clean-core night module
+# (trader-bot-core/lines/ledger.py) here; this legacy src ledger — still read by
+# the PRESERVED morning/midday publish path (src.steps.publish_artifacts ->
+# src.canon.equity_line.load_line_view -> this module) and by the morning
+# parity-or-hold guard (_verify_ledger_or_hold -> EquityLedger.frontier) — was
+# left pointed at the OLD contaminated ledger, so every weekday morning run
+# re-published dashboard.json with the contaminated terminal (07-02 = 121147.52),
+# reverting the night's corrected line (114271.38). Repointed here so ALL src-based
+# read paths fold the SAME corrected ledger the night path publishes. No live
+# deployed route APPENDS through this module (the night appends via
+# lines.append -> lines.ledger); morning re-serves the settled line without an
+# append, so this repoint moves reads only and leaves clean_v2 byte-untouched.
+# The prior production ledger (canon/equity_ledger/) is left BYTE-UNTOUCHED as the
+# Phase-A rollback path. Point back at canon/equity_ledger/ to roll back.
+LEDGER_PREFIX = "canon/equity_ledger_clean_v2/"
 POINTS_PREFIX = LEDGER_PREFIX + "points/"
 MANIFEST_KEY = LEDGER_PREFIX + "_manifest.json"
 CACHE_KEY = LEDGER_PREFIX + "equity_history.jsonl"

@@ -43,9 +43,25 @@ from .substrate import check_substrate_fresh  # VERBATIM freeze-signature check
 
 STALE_TRADING_DAYS = 1          # a line may lag the expected settled day by at most this
 BRAIN_NAMESPACE = "TraderBot/Brain"
-LEDGER_CACHE_KEY = "canon/equity_ledger/equity_history.jsonl"
+# MORNING/MIDDAY PATH REVERT HOTFIX (2026-07-06): the LIVE canon ledger is the
+# corrected, replay-seeded clean_v2 (canon/equity_ledger_clean_v2/) — the same
+# ledger the clean-core night path reads/appends/publishes. The watchdog must
+# check the ledger production actually runs on, not the retired contaminated one.
+LEDGER_CACHE_KEY = "canon/equity_ledger_clean_v2/equity_history.jsonl"
 SHADOW_KEY = "dashboard/shadow_timeseries.json"
 LATEST_KEY = "daily/latest.json"
+# The PUBLISHED dashboard the frontend serves — the value-revert check reads its
+# terminal and confirms it still matches the corrected ledger terminal (below).
+PUBLISHED_DASHBOARD_KEY = "dashboard/dashboard.json"
+# A published terminal must equal the corrected-ledger terminal for the SAME date
+# within this many dollars. A publish path that reverts the line to a different
+# source (the exact failure this hotfix closes) diverges by thousands, not cents.
+VALUE_REVERT_EPS = 1.0
+# Known-contaminated terminal values (the pre-P6 line the retired
+# canon/equity_ledger/ carried). A published terminal landing on one of these is
+# a hard contamination signal even if — for any reason — the corrected-ledger
+# cross-check is unavailable. Compared at cent precision (the line is dollars).
+CONTAMINATED_TERMINAL_VALUES = frozenset({12114752})  # 121147.52 * 100 (07-02 pre-P6)
 CHALLENGER_SERIES_KEYS = (
     "shadow_A", "shadow_F", "shadow_U", "shadow_E",
     "shadow_B", "shadow_R", "shadow_I", "live_line",
@@ -169,6 +185,90 @@ def check_challenger_line(s3, expected: str,
     return st
 
 
+def _cents(v: Any) -> Optional[int]:
+    """Round a dollar value to integer cents, or None if not a finite number."""
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    if f != f or f in (float("inf"), float("-inf")):  # NaN / inf
+        return None
+    return int(round(f * 100))
+
+
+def check_value_revert(s3, terminal: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Value-revert / contamination check (MORNING/MIDDAY PATH REVERT HOTFIX).
+
+    The three-line watchdog caught staleness and non-advancement, but NOT a
+    line whose DATE stayed current while its VALUE reverted to a known-contaminated
+    terminal — exactly what a publish path reading the retired ledger did every
+    weekday morning (07-02 stayed put while the value flipped 114271.38 -> 121147.52).
+
+    This reads the PUBLISHED dashboard terminal and refuses to call the system
+    healthy when that terminal (a) does not match the corrected ledger's terminal
+    for the SAME date within ``VALUE_REVERT_EPS``, or (b) lands on a known
+    contaminated value. Returns {reverted, published, ledger, reason}; reverted=True
+    trips the CRITICAL email. Fail-soft: never raises.
+    """
+    out: Dict[str, Any] = {"reverted": False, "published": None, "ledger": None,
+                           "reason": ""}
+    try:
+        dash = s3.read_json(PUBLISHED_DASHBOARD_KEY) or {}
+    except Exception as e:  # noqa: BLE001
+        out["reason"] = f"could not read published dashboard: {type(e).__name__}: {e}"
+        return out
+    ec = dash.get("equity_curve") or []
+    if not ec:
+        out["reason"] = "published dashboard has no equity_curve (nothing to check)"
+        return out
+    pub = ec[-1] or {}
+    pub_date, pub_val = pub.get("date"), pub.get("value")
+    out["published"] = {"date": pub_date, "value": pub_val}
+
+    pub_cents = _cents(pub_val)
+    # (b) hard contaminated-value sentinel — fires even if the ledger read fails.
+    if pub_cents is not None and pub_cents in CONTAMINATED_TERMINAL_VALUES:
+        out["reverted"] = True
+        out["reason"] = (f"published terminal {pub_date}={pub_val} is a KNOWN "
+                         f"CONTAMINATED value (pre-P6 line) — publish path reverted "
+                         f"the line to the retired ledger")
+        return out
+
+    # (a) cross-check against the corrected ledger terminal for the SAME date.
+    if terminal is None:
+        terminal, term_reason = _ledger_terminal(s3)
+        if terminal is None:
+            out["reason"] = (f"corrected ledger unreadable for value cross-check "
+                             f"({term_reason}); sentinel check passed")
+            return out
+    out["ledger"] = {"date": terminal.get("date"), "value": terminal.get("value")}
+    led_cents = _cents(terminal.get("value"))
+    # Only cross-check when the published terminal is on the ledger's terminal date;
+    # an intraday provisional dot on a LATER date is legitimately ahead of the
+    # settled ledger and is not a revert.
+    if pub_date == terminal.get("date"):
+        if pub_cents is None or led_cents is None:
+            out["reverted"] = True
+            out["reason"] = (f"published terminal value {pub_val} or ledger value "
+                             f"{terminal.get('value')} is not a finite number")
+        elif abs(pub_cents - led_cents) > int(round(VALUE_REVERT_EPS * 100)):
+            out["reverted"] = True
+            out["reason"] = (f"published terminal {pub_date}={pub_val} DIVERGES from "
+                             f"corrected ledger {terminal.get('date')}="
+                             f"{terminal.get('value')} by "
+                             f"${abs(pub_cents - led_cents) / 100:.2f} "
+                             f"(> ${VALUE_REVERT_EPS:.2f}) — line reverted to a "
+                             f"different-source value")
+        else:
+            out["reason"] = (f"published terminal matches corrected ledger "
+                             f"({pub_date}={pub_val})")
+    else:
+        out["reason"] = (f"published terminal date {pub_date} != ledger terminal "
+                         f"date {terminal.get('date')} — provisional/ahead, not "
+                         f"cross-checked for value revert")
+    return out
+
+
 # --------------------------------------------------------------------------- #
 # The daily health report — ALWAYS emails a ✓/✗ status.
 # --------------------------------------------------------------------------- #
@@ -220,8 +320,14 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
     substrate = check_substrate_fresh(s3)
     out["substrate"] = substrate
 
+    # 4) VALUE-REVERT — the published line's DATE can stay current while its VALUE
+    #    reverts to a contaminated terminal (the freshness checks above are blind to
+    #    it). Cross-check the published terminal against the corrected ledger.
+    value_revert = check_value_revert(s3, terminal=terminal)
+    out["value_revert"] = value_revert
+
     any_stale = (chassis_stale or any(v.get("stale") for v in lines.values())
-                 or substrate.get("stale"))
+                 or substrate.get("stale") or value_revert.get("reverted"))
     out["ok"] = not any_stale
 
     # ----- compose the email body: ✓/✗ per line with real advancing dates -----
@@ -250,14 +356,29 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
         f"day(s) over {substrate.get('days_checked')} checked"
         + (f"  [{substrate.get('reason')}]" if substrate.get("stale") else ""),
     ]
+    _vr_pub = value_revert.get("published") or {}
+    body_lines += [
+        "",
+        "Published-line value integrity (did the line revert to a contaminated value?):",
+        f"  {'✗ REVERTED' if value_revert.get('reverted') else '✓':<10} "
+        f"published terminal {_vr_pub.get('date')}={_vr_pub.get('value')}"
+        + (f"  — {value_revert.get('reason')}" if value_revert.get("reason") else ""),
+    ]
     body = "\n".join(body_lines)
 
     if any_stale:
+        only_reverted = (value_revert.get("reverted") and not chassis_stale
+                         and not substrate.get("stale")
+                         and not any(v.get("stale") for v in lines.values()))
         only_frozen = (substrate.get("stale") and not chassis_stale
+                       and not value_revert.get("reverted")
                        and not any(v.get("stale") for v in lines.values()))
-        subject = ("[TraderBot] CRITICAL: forecast substrate FROZEN"
-                   if only_frozen
-                   else "[TraderBot] CRITICAL: a displayed line did NOT advance")
+        if only_reverted:
+            subject = "[TraderBot] CRITICAL: published line REVERTED to a contaminated value"
+        elif only_frozen:
+            subject = "[TraderBot] CRITICAL: forecast substrate FROZEN"
+        else:
+            subject = "[TraderBot] CRITICAL: a displayed line did NOT advance"
         body = ("ONE OR MORE FRESHNESS CHECKS ARE STALE — the dashboard/forecast is "
                 "not current.\n\n" + body +
                 "\n\nCheck CloudWatch /aws/lambda/investment-system-daily-pipeline "
