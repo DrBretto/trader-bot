@@ -43,11 +43,11 @@ from .substrate import check_substrate_fresh  # VERBATIM freeze-signature check
 
 STALE_TRADING_DAYS = 1          # a line may lag the expected settled day by at most this
 BRAIN_NAMESPACE = "TraderBot/Brain"
-# MORNING/MIDDAY PATH REVERT HOTFIX (2026-07-06): the LIVE canon ledger is the
-# corrected, replay-seeded clean_v2 (canon/equity_ledger_clean_v2/) — the same
-# ledger the clean-core night path reads/appends/publishes. The watchdog must
-# check the ledger production actually runs on, not the retired contaminated one.
-LEDGER_CACHE_KEY = "canon/equity_ledger_clean_v2/equity_history.jsonl"
+# REGIME-GATE-FIX RE-SEED (2026-07-08): the LIVE canon ledger is now the fixed-engine
+# replay-seeded clean_v3 (canon/equity_ledger_clean_v3/) — the same ledger the
+# clean-core night path reads/appends/publishes. The watchdog must check the ledger
+# production actually runs on, kept in lockstep with lines.ledger.LEDGER_PREFIX.
+LEDGER_CACHE_KEY = "canon/equity_ledger_clean_v3/equity_history.jsonl"
 SHADOW_KEY = "dashboard/shadow_timeseries.json"
 LATEST_KEY = "daily/latest.json"
 # The PUBLISHED dashboard the frontend serves — the value-revert check reads its

@@ -52,12 +52,15 @@ from src.utils.corrections import (
 logger = logging.getLogger(__name__)
 
 BUCKET = "investment-system-data"
-# P9 CUTOVER: the corrected, replay-seeded canon ledger (canon/equity_ledger_clean_v2/)
-# is now the LIVE canon ledger — the clean-core night reads/appends/publishes here.
-# The prior production ledger (canon/equity_ledger/) held the contaminated pre-P6
-# line and is left BYTE-UNTOUCHED as the Phase-A rollback path (do not delete in
-# Phase A). Point the live read/append back at canon/equity_ledger/ to roll back.
-LEDGER_PREFIX = "canon/equity_ledger_clean_v2/"
+# REGIME-GATE-FIX RE-SEED (2026-07-08, CL-708110): the LIVE canon ledger is now the
+# fixed-engine replay-seeded canon/equity_ledger_clean_v3/ — the post-split window
+# (2026-06-12..07-02) was re-seeded with the corrected θ_sel.regime_admissibility so
+# canon rotates to defensives in historical panics (06-18/24/29: 0 equity), with
+# pre-split byte-copied and SPY/challenger byte-copied from clean_v2 (unchanged); the
+# stale 07-07 forward leaf (CL-708112) is excluded. The prior clean_v2 ledger is left
+# BYTE-UNTOUCHED as the rollback path — point LEDGER_PREFIX back at
+# canon/equity_ledger_clean_v2/ to roll back.
+LEDGER_PREFIX = "canon/equity_ledger_clean_v3/"
 POINTS_PREFIX = LEDGER_PREFIX + "points/"
 MANIFEST_KEY = LEDGER_PREFIX + "_manifest.json"
 CACHE_KEY = LEDGER_PREFIX + "equity_history.jsonl"
