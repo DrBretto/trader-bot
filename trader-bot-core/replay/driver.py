@@ -51,13 +51,15 @@ machineries → the lines diverged from the marking, not the models); that is de
 out here.
 
 WEIGHTS (§Pinned-2). ``canon`` = the two-stage engine's allocation weights
-(``allocation.target_weights``); ``challenger`` = the M1-conviction tilt of the SAME
+(``publish.challenger.canon_target_weights`` — derived in the marking layer from the
+frozen engine output; the frozen decision engine carries no dollar-valued output per
+LIVE_PREREG §3); ``challenger`` = the M1-conviction tilt of the SAME
 selection at the SAME gross (``publish.challenger``); ``SPY`` = ``{SPY:1.0}``
 buy-and-hold. All are pure price-marked (no div / cost overlay — an overlay breaks
 the 1:1 comparison), so SPY reproduces real SPY close-to-close to the basis point.
 
 HYSTERESIS (§Pinned-3). The canon book HOLDS with the ported no-churn exposure
-hysteresis (``engine.hysteresis.held_gross``, the clean-engine port of the
+hysteresis (``replay.hysteresis.held_gross``, the clean-engine port of the
 production ``decision_engine.compute_exposure_trims``): the book's gross is held
 unless a breach clears ``trigger_gap``, then trimmed to ``target + hysteresis_gap``
 — so the reconstructed book does not churn ~50%/day. Membership still rotates with
@@ -427,7 +429,7 @@ def replay(
     from forecast.freeze import load_freeze
     from forecast.regime import regime
     from decide.cutover import theta_from_freeze, load_brain_config
-    from engine.hysteresis import held_gross
+    from replay.hysteresis import held_gross
 
     _ensure_substrate(state_dir)
     ohlcv = ohlcv if ohlcv is not None else _OHLCVStore()
@@ -556,7 +558,8 @@ def replay(
         #     (§Pinned-2), with the ported no-churn exposure hysteresis HOLDING the
         #     book's gross (§Pinned-3). Membership follows the engine (the model's
         #     own selection regime); only the gross swing is damped. ---
-        canon_weights = dict(engine_out.allocation.target_weights)
+        from publish.challenger import canon_target_weights
+        canon_weights = canon_target_weights(engine_out)
         fresh_gross = sum(canon_weights.values())
         cur_canon_gross = canon.gross_frac(open_D)      # gross the carried book holds
         eff_gross = held_gross(cur_canon_gross, fresh_gross, canon_hyst_state, reg_label)

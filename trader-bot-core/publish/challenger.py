@@ -20,6 +20,34 @@ from typing import List
 import numpy as np
 
 
+def canon_target_weights(engine_out) -> dict:
+    """The canon (two-stage) line's marking TARGET WEIGHTS, derived in the MARKING
+    layer from the frozen engine output (§Pinned-2) — NOT emitted by the frozen
+    decision engine.
+
+    Under LIVE_PREREG §3 the deployed engine is byte-identical to the pre-registered
+    ``src/brain/engine`` (engine_sha 4ae7b79d), whose ``AllocationResult`` carries no
+    dollar-valued ``target_weights`` field ("Select reads no dollar value"; the
+    marking weights are a marking concern, not a Select/Allocate output). So the ONE
+    marking machinery derives the canon book here, from the frozen output: the
+    Stage-1 selection weights (``sel.w_target``) held at the gross the Stage-2
+    allocation realized (``parity_record.realized_gross_frac``). This is the SAME
+    ``sel.w_target`` base the challenger tilts, so canon and challenger differ only
+    by the challenger's conviction tilt (the stated §Pinned design). Sum over held ==
+    the realized gross (the rest is cash), matching the marking weights contract."""
+    sel = engine_out.selection
+    alloc = engine_out.allocation
+    held = [s for s in sel.ordered if s in alloc.held_symbols]
+    if not held:
+        return {}
+    realized_gross = float(alloc.parity_record.get("realized_gross_frac", 0.0))
+    base = {s: float(sel.w_target.get(s, 0.0)) for s in held}
+    tot = sum(base.values())
+    if tot <= 0:
+        return {}
+    return {s: (w / tot) * realized_gross for s, w in base.items()}
+
+
 def challenger_target_weights(engine_out, f, canon_gross: float,
                               tilt_gain: float = 0.5) -> dict:
     """The ONE challenger as TARGET WEIGHTS: the M1-conviction tilt of the SAME

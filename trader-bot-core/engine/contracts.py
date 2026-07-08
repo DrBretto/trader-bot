@@ -183,13 +183,6 @@ class AllocationResult:
     lot_infeasible: FrozenSet[str]      # theta_size-INDEPENDENT shrink set (logged distinctly)
     kappa: float                        # uniform cash/gross down-scale in (0,1]
     parity_record: Mapping[str, object]
-    # The engine's TARGET WEIGHTS (fraction of NAV per held name) — the post-cap,
-    # post-kappa d_final normalised by NAV. This is the "two-stage engine's
-    # allocation weights" the ONE marking machinery marks the canon line by
-    # (PKT-TRADER-BOT-SEED-CANON-BY-REPLAY §Pinned-2). Sum over held names = the
-    # realised gross fraction (the rest is cash). Empty default keeps every prior
-    # caller/fixture byte-compatible.
-    target_weights: Mapping[str, float] = field(default_factory=dict)
 
 
 def assert_no_dollar_surface(*contracts: object) -> None:
