@@ -9,6 +9,28 @@ DESIGN_DOSSIER.md §6 (the contents spec), committee
 **This file is the read contract for the LIVE arm. The reads below are the ONLY
 pre-registered LIVE looks. Anything else is exploratory and must be labeled as such.**
 
+> **⚠ RE-PRE-REGISTRATION — 2026-07-08 (start date 2026-07-09).** Under the §3
+> no-mid-stream bound, the LIVE arm is re-frozen and the prior forward reads
+> (registered 2026-06-23, start 2026-06-24) are **terminated**; a fresh forward
+> read begins 2026-07-09. **Reason (operator-authorized, CL-708110 — THE root
+> fix):** the 2026-06-23 re-freeze restored regime only as a SOFT per-name
+> multiplier (`regime_score_mult`) and left `θ_sel.regime_admissibility` **empty
+> `{}`** — so the two-stage's ONLY hard SET-rotation control
+> (`engine/selection.py::_regime_admits`) never gated (an empty map admits all
+> asset classes). A soft multiplier cannot rotate the book because bonds carry
+> negative `mu` (`high_vol_panic` tech `mu×0.40` still outranks TLT `(−mu)×1.25`),
+> so canon held a ~half-growth book through every panic (proven on the real
+> 2026-06-24 panic: pre-fix held ARKK/FXI/SMH/SOXX/XLC/XLK = 6/10 equity). This
+> re-freeze **populates `θ_sel.regime_admissibility`** — derived from the SHARED
+> `config/regime_compatibility.json` at the coarse asset-class granularity the gate
+> reads (cutoff 0.60; only `high_vol_panic` populates: admit `bond/commodity/vol/fx`,
+> exclude `equity`), consistent with the challenger's own panic filter. Regime now
+> hard-gates the eligible SET; `mu` ranks WITHIN it. `θ_sel` content hash moves
+> `f154f3ce…` → `385571b3…`. **No engine `.py` changed** (`engine_sha` unchanged
+> `4ae7b79d…`), **`mu` not down-weighted** (its IC≈0 is a separate logged issue),
+> **no freshness/abort gate weakened**, `θ_size` unchanged. New hashes are in §0.
+> See `PKT-TRADER-BOT-REGIME-GATE-FIX-AND-LINE-RESEED-V1-20260708`.
+
 > **⚠ RE-PRE-REGISTRATION — 2026-06-23 (start date 2026-06-24).** Under the §3
 > no-mid-stream bound, the LIVE arm has been re-frozen and the prior forward reads
 > (registered 2026-06-16, start 2026-06-12) are **terminated**; a fresh forward
@@ -50,7 +72,7 @@ cold start (PKT-TB-012). A hash mismatch is a parity failure that ABORTS the nig
 |---|---|
 | **engine_sha** | `4ae7b79d9d62fa5255ba485e287d4493333225296ad9f82da6200f1413a6c51b` — content hash of `src/brain/engine/*.py` (re-frozen 2026-06-23: `contracts.py` + `selection.py` carry the restored `regime_score_mult` Stage-1 tilt; prior `0e1d22ec…` was the regime-blind cutover). **The live brain is THIS engine, not `tilt_adapter`.** |
 | **model_sha** | `5b2428c66c14` — `forward_inference.model_sha()` over the four `models_out_007/` files (`m1_cast/seed_4242.pt`, `m1_cast/seed_4243.pt`, `m4_evt_a/model.pkl`, `m3_disp/coefs.npz`), per-file sha256 pinned in FREEZE_ORB1. **No retraining, ever, inside this LIVE arm** — a retrained brain is a NEW prereg with a new start date. |
-| **θ_sel** | content hash `f154f3ce…cbd24b5e` (`SelectionParams.content_hash()`). Frozen by hand: `N=10`, `h_min=0.60`, `core_fraction=0.55` (tier edge), `regime_admissibility={}` (admits-all; regime enters only as a Stage-2 book-level multiplier), `tiebreak=(mu_M1_desc, idio_vol_asc, symbol_asc)`, `lot_policy{min_order=$250, reference_nav=$100,000}`. **Each parameter carries a provenance note in FREEZE_ORB1 ("prior to falsify, not fit to any forward read")** — this discharges **C4** (closes defect-B-via-the-human). |
+| **θ_sel** | content hash `385571b3…584e1fc2` (`SelectionParams.content_hash()`; re-frozen 2026-07-08, prior `f154f3ce…cbd24b5e` was the empty-gate). Frozen by hand: `N=10`, `h_min=0.60`, `core_fraction=0.55` (tier edge), **`regime_admissibility={"high_vol_panic": ("bond","commodity","fx","vol")}`** (the hard SET gate — CL-708110 root fix; derived from `config/regime_compatibility.json` coarse asset-classes at cutoff 0.60: `high_vol_panic` excludes `equity` 0.50 and admits `bond/commodity/vol/fx`, every other regime admits-all so is absent), `tiebreak=(mu_M1_desc, idio_vol_asc, symbol_asc)`, `lot_policy{min_order=$250, reference_nav=$100,000}`. **Each parameter carries a provenance note in FREEZE_ORB1 ("prior to falsify, not fit to any forward read")** — this discharges **C4** (closes defect-B-via-the-human). |
 | **θ_size + parity gain** | content hash `9561c1d0…f204b8cf` (re-frozen 2026-06-23; prior `4c4844ae…`). `gross_target=1.0`, `max_position_weight=0.20`, `max_cluster_weight=0.35`, `cash_reserve_pct=0.10`, **`regime_exposure_multiplier={calm 1.0, risk_on 1.0, choppy 0.90, risk_off 0.75, panic 0.50}`** (restored — cuts book-level gross in risk-off/panic), **`parity_gain=0.5`** (closed-loop ex-post parity controller, the F8 fix). θ_size never reaches Stage-1 Select (enforced by `assert_no_dollar_surface`). |
 | **go-live universe** | `config/universe.csv` sha `438abff0…` (64 names, all eligible; the membership/eligibility contract) + `universe_exploitability.json` sha `c3cf5abe…` (the forecast-skill/tradability derivation). **Every tilt name is `forward_confirmed:false`** — a strong in-sample prior to falsify, tilted live before any forward fold confirms it (DESIGN_DOSSIER Attack 2, operator-accepted residual). The `min_fresh_fold_end ≥ 2026-06-11` floor (C2) governs the first forward re-derivation (PKT-TB-013), not this frozen go-live set; the forward `universe_manifest_{T}.json` does not yet exist (see BUILD_RECEIPT executor_concern). |
 

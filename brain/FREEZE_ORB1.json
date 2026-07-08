@@ -3,8 +3,9 @@
   "meta": {
     "packet": "PKT-TB-010-LIVE-PREREG-V1-20260616",
     "frozen_on": "2026-06-16",
-    "re_frozen_on": "2026-06-23",
-    "re_freeze_reason": "Restore the regime chassis into the New Brain (docs/plans/2026-06-23-restore-regime-chassis-into-new-brain.md). The cutover had dropped config/regime_compatibility.json — the regime picker's multiplier series the orthogonal members were specced to add value ON TOP OF (PROPOSAL_ORTHOGONALITY §0) — leaving the live book regime-blind (regime_admissibility {} AND regime_exposure_multiplier {}); it loaded ~51% into one correlated high-beta complex and took −3.37% vs SPY −1.27% on 2026-06-23. This re-freeze (a) restores regime into Stage-1 ranking via ForecastBundle.regime_score_mult (engine_sha moved: contracts.py + selection.py), and (b) restores the Stage-2 regime exposure cut via theta_size.regime_exposure_multiplier (theta_size content_hash moved). theta_sel is unchanged. Per the no-mid-stream bound this terminates the prior LIVE_PREREG reads and opens a fresh forward pre-registration with start date 2026-06-24.",
+    "re_frozen_on": "2026-07-08",
+    "re_frozen_history": ["2026-06-23", "2026-07-08"],
+    "re_freeze_reason": "THE root regime-gate fix (PKT-TRADER-BOT-REGIME-GATE-FIX-AND-LINE-RESEED-V1-20260708 / CL-708110), operator-authorized. The 2026-06-23 re-freeze restored regime as a SOFT per-name multiplier (regime_score_mult) but left theta_sel.regime_admissibility EMPTY {} — so the two-stage's ONLY hard SET-rotation control (engine/selection.py::_regime_admits) never gated: an empty map admits all asset_classes. A soft multiplier mathematically cannot rotate the book because bonds carry negative mu (high_vol_panic tech mu*0.40 still outranks TLT (-mu)*1.25), so canon held a ~half-growth book through every panic (proven on the real 2026-06-24 panic: pre-fix held ARKK/FXI/SMH/SOXX/XLC/XLK = 6/10 equity). This re-freeze POPULATES theta_sel.regime_admissibility (theta_sel content_hash moves f154f3ce->385571b3) so regime hard-gates the eligible SET in high_vol_panic; mu then ranks WITHIN the admissible set (the two-stage finally 'picking the regime first'). NO engine .py changed (engine_sha unchanged 4ae7b79d); NO mu down-weighting (mu IC~0 is a separate logged issue); NO freshness/abort gate weakened; theta_size unchanged. Per the no-mid-stream bound (LIVE_PREREG.md §3) this terminates the prior LIVE_PREREG reads and opens a fresh forward pre-registration with start date 2026-07-09.",
     "decision_authority": "D-AUTO-20260616",
     "design_source": "book-factory/runs/20260616_trader-bot-new-brain-overhaul-committee-v1/DESIGN_DOSSIER.md (committee-governed, Infotropy spine)",
     "purpose": "Forward-only freeze of the LIVE brain. These hashes are asserted at cold start (PKT-TB-012). The LIVE brain is the native two-stage engine, NOT tilt_adapter. No artifact below may move without terminating the LIVE_PREREG reads and opening a fresh pre-registration (LIVE_PREREG.md §3).",
@@ -39,14 +40,14 @@
     }
   },
   "theta_sel": {
-    "content_hash": "f154f3ce33328b87ad79cff4addaf4dd79bfc2b50a08b984ff242c60cbd24b5e",
+    "content_hash": "385571b38c78e61b0e1c7cbf3731c40fdeab8069ec6593e458419bb2584e1fc2",
     "content_hash_method": "SelectionParams.content_hash() — sha256 over dataclasses.asdict(theta_sel) JSON-canonicalised (sort_keys, default=str)",
     "frozen_by_hand": true,
     "values": {
       "N": 10,
       "h_min": 0.60,
       "core_fraction": 0.55,
-      "regime_admissibility": {},
+      "regime_admissibility": {"high_vol_panic": ["bond", "commodity", "fx", "vol"]},
       "tiebreak": ["mu_M1_desc", "idio_vol_asc", "symbol_asc"],
       "lot_policy": {"min_order": 250.0, "reference_nav": 100000.0}
     },
@@ -54,7 +55,7 @@
       "N": "10. Pre-committed from the pre-holdout ENB 4.48 + Friedman separability finding (FREEZE_ORB1 §2/§4). Prior to falsify, not fit to any forward read.",
       "h_min": "0.60. Health is a binary Stage-1 eligibility gate; structural floor chosen by hand before any forward read. Prior to falsify, not fit to any forward read.",
       "core_fraction": "0.55. Rank-based Core/Satellite tier edge (Core = top round(N*0.55) by mu_M1). Replaces the tilt-adapter CORE/COND support-tier table with a sizing-independent rank rule. Prior to falsify, not fit to any forward read.",
-      "regime_admissibility": "{} (empty, unchanged). The regime label is NOT applied as a Stage-1 hard admit/deny gate. Instead — restored 2026-06-23 — it enters Stage-1 ranking as a SOFT per-name multiplier via ForecastBundle.regime_score_mult (a function of f, not theta_sel), the faithful port of the original decision_engine.score_candidates final_score = base x regime_compatibility[regime][sector]. It also enters Stage-2 as the book-level exposure multiplier (theta_size.regime_exposure_multiplier). theta_sel itself is unchanged.",
+      "regime_admissibility": "{\"high_vol_panic\": [\"bond\", \"commodity\", \"fx\", \"vol\"]} (POPULATED 2026-07-08, CL-708110 root fix). The regime label now hard-gates the Stage-1 eligible SET (engine/selection.py::_regime_admits: a symbol is admissible iff its asset_class is in the regime's admit-list; a regime ABSENT from the map admits all). DERIVATION (packet-mandated, not hand-invented): for each regime label in the SHARED config/regime_compatibility.json, admit the COARSE asset_classes {equity,bond,commodity,vol,fx} whose regime multiplier is >= a justified cutoff of 0.60 and exclude the knocked-down ones. The gate reads f.asset_class, which universe.csv populates at the COARSE granularity (equity/bond/commodity/vol/fx); the fine sector granularity (sector_tech, treas_long, ...) lives in the separate 'sector' column that the ForecastBundle does not carry, so admissibility is derived at the coarse level — consistent with the challenger's own panic filter (challenger/incumbent.py: asset_class.isin(['bond','commodity'])). Cutoff 0.60 sits in the wide gap between the sole coarse class the config knocks into the exclusion zone (high_vol_panic equity 0.50) and the next-lowest coarse value across all regimes (0.85), so ONLY high_vol_panic populates: it EXCLUDES equity (0.50) and ADMITS bond (1.20) / commodity (1.10) / vol (1.30) / fx (0.90). Every other regime's lowest coarse value is >= 0.85 (>0.60) so all classes admit -> those regimes are ABSENT from the map (admit-all), and their milder de-risk is handled by the soft regime_score_mult + Stage-2 regime_exposure_multiplier, exactly as the challenger operates outside panic. This value MOVES the content_hash (f154f3ce->385571b3); mu (regime_score_mult) and theta_size are unchanged.",
       "tiebreak": "Frozen ordering after mu_M1 desc: lower idiosyncratic vol first, then symbol ascending. Deterministic, sizing-independent. Prior to falsify, not fit to any forward read.",
       "lot_policy": "min_order $250 at a frozen reference_nav of $100,000 — the theta_size-INDEPENDENT min-order notional hoisted to Stage-1 (C5). The lot-infeasibility partition is therefore byte-identical across the whole theta_size grid. Prior to falsify, not fit to any forward read."
     },
