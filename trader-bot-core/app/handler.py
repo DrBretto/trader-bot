@@ -36,7 +36,8 @@ from typing import Any, Dict, Tuple
 # Ops-probe / diag sources routed to app.ops_probes (governed, non-destructive).
 _OPS_PROBE_SOURCES = frozenset({
     "ops-probe", "forecast-diag", "freshness-diag", "regime-diag",
-    "canary", "config-canary", "watchdog-diag", "publish-revert-diag",
+    "canary", "config-canary", "advance-challenger",
+    "watchdog-diag", "publish-revert-diag",
 })
 # Health-report sources routed to the three-line watchdog + daily email.
 _HEALTH_SOURCES = frozenset({"daily-health", "healthcheck"})

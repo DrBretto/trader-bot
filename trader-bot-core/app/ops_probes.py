@@ -64,6 +64,103 @@ def regime_diag(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     return {"phase": "regime-diag", "nondestructive": True, "result": result}
 
 
+def advance_challenger(event: dict, bucket: str, region: str) -> Dict[str, Any]:
+    """Advance the independent-challenger (dotted) line to the latest settled day.
+
+    The forward night appends the canon leaf with ``comparison=None`` (canon-only),
+    so the challenger series (``shadow_A``, the dashboard dotted line) freezes at the
+    last reconstructed day while canon+SPY advance — the "chart stuck on July 2"
+    symptom. This reconstructs the challenger FORWARD in-Lambda (fresh as-of-D
+    organ_inputs, the SAME machinery that seeded the historical dotted line) and
+    fills the missing ``comparison`` onto the forward canon leaf(s) via
+    ``ledger.correct`` — the canon ``value``/``benchmark`` are NEVER changed, only
+    the absent challenger mark is added. Then it re-publishes the shadow line.
+
+    Safety: DRY-RUN by default (``commit`` unset) — reports the continuity check +
+    the planned comparison. It only writes when ``commit=true`` AND the reconstruction
+    reproduces the live comparison terminal (continuity_ok) — a reconstruction that
+    does not reproduce the existing dotted line is REFUSED (never writes a divergent
+    or faked challenger value)."""
+    import boto3
+    from replay import seed_canon as SC
+    from replay._fake_s3 import FakeS3
+    from lines.ledger import EquityLedger
+
+    s3 = boto3.client("s3", region_name=region)
+    ohlcv = SC.prepare_substrate()
+    window = SC.post_split_window(ohlcv)
+    latest = window[-1]
+
+    prod = EquityLedger(s3, bucket)                       # live clean_v3
+    live_leaves = {l["date"]: l for l in prod.list_leaves()}
+    comp_dates = sorted(d for d, l in live_leaves.items() if l.get("comparison") is not None)
+    last_comp = comp_dates[-1] if comp_dates else SC.SPLIT_DATE
+    live_comp_term = float(live_leaves[last_comp]["comparison"])
+
+    # Full-window reconstruction to a SCRATCH ledger (recorded regime <= last_comp,
+    # deterministic forward). mu_asof runs first each day so the challenger's tilt
+    # reads FRESH as-of-D organ_inputs -> the exact challenger mark.
+    scratch = EquityLedger(FakeS3(), prefix="scratch/advchal/")
+    SC.copy_presplit(prod, scratch, SC.SPLIT_DATE)
+    recorded_window = [d for d in window if d <= last_comp]
+    rmap = SC.recorded_regime_map(recorded_window, s3=s3) if hasattr(SC, "recorded_regime_map") \
+        else SC.RR.recorded_regime_map(recorded_window, s3=s3, verify=True)
+    SC.seed_canon_by_replay(scratch, ohlcv, d1=latest,
+                            regime_fn=SC.mixed_regime_fn(rmap))
+    recon = {l["date"]: l for l in scratch.list_leaves()}
+
+    recon_at_lastcomp = recon.get(last_comp, {}).get("comparison")
+    recon_at_lastcomp = float(recon_at_lastcomp) if recon_at_lastcomp is not None else None
+    continuity_ok = (recon_at_lastcomp is not None
+                     and abs(recon_at_lastcomp / live_comp_term - 1.0) < 1e-4)
+
+    # canon leaves past the comparison frontier that lack a comparison (to fill)
+    fill_days = [d for d in window if d > last_comp and d in live_leaves
+                 and live_leaves[d].get("comparison") is None]
+    planned = {d: round(float(recon[d]["comparison"]), 6)
+               for d in fill_days if recon.get(d, {}).get("comparison") is not None}
+
+    out: Dict[str, Any] = {
+        "phase": "advance-challenger", "nondestructive": not bool(event.get("commit")),
+        "latest_settled": latest, "last_comparison_date": last_comp,
+        "live_comparison_terminal": round(live_comp_term, 2),
+        "recon_reproduces_terminal": round(recon_at_lastcomp, 2) if recon_at_lastcomp else None,
+        "continuity_ok": continuity_ok,
+        "fill_days": fill_days, "planned_comparison": planned,
+    }
+
+    if not event.get("commit"):
+        out["note"] = "DRY-RUN — pass commit=true to fill the comparison + re-publish"
+        return out
+
+    if not continuity_ok:
+        out["committed"] = False
+        out["reason"] = ("continuity REFUSED — reconstruction did not reproduce the live "
+                         f"comparison terminal ({recon_at_lastcomp} vs {live_comp_term}); "
+                         "not writing a divergent challenger value")
+        return out
+
+    corrected = []
+    for d in fill_days:
+        lv = live_leaves[d]
+        if recon.get(d, {}).get("comparison") is None:
+            continue
+        prod.correct(date=d, value=float(lv["value"]), benchmark=float(lv["benchmark"]),
+                     comparison=float(recon[d]["comparison"]),
+                     issued_by="challenger-advance@trader-bot",
+                     why=("fill missing independent-challenger comparison on the forward "
+                          "canon leaf (canon value/benchmark unchanged); dotted line was "
+                          "frozen while canon+SPY advanced"),
+                     reason_code="challenger_comparison_backfill",
+                     model_id=lv.get("model_id"))
+        corrected.append(d)
+    out["committed"] = True
+    out["corrected_dates"] = corrected
+    from app.shadow_publish import run_shadow_publish
+    out["shadow_publish"] = run_shadow_publish({"run_date": latest}, bucket, region)
+    return out
+
+
 def config_canary(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     """CL-708150 empty-but-critical config canary probe. With no args it runs the
     LIVE verdict (alerting OFF — a diag must not page) and confirms the load-bearing
@@ -310,6 +407,7 @@ _PROBES = {
     "regime-diag": regime_diag,
     "canary": canary,
     "config-canary": config_canary,
+    "advance-challenger": advance_challenger,
     "watchdog-diag": watchdog_diag,
     "publish-revert-diag": publish_revert_diag,
 }
