@@ -22,10 +22,31 @@ borrows the old ``src.steps.paper_trader`` chassis loader for this read.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict
 
 EXPIRES_AFTER_DAYS = 3
+
+# A US session for day D is not SETTLED until after its close. Close is 16:00 ET
+# (20:00 UTC in EDT / 21:00 UTC in EST); use a conservative 21:15 UTC buffer that
+# covers both DST regimes AND the settle lag. The scheduled night fires at 03:00
+# UTC (well past the prior day's settle) so it is never blocked; this only trips a
+# night mis-invoked DURING market hours (e.g. a fall-through), which must NEVER
+# produce an unsettled bar or append an intraday leaf (the frozen-then-locked-in
+# corruption class).
+_SETTLE_BUFFER_UTC = (21, 15)
+
+
+def _is_settled_session(date_str: str) -> bool:
+    """True iff day ``date_str``'s US market session has closed (settled)."""
+    now = datetime.now(timezone.utc)
+    h, m = _SETTLE_BUFFER_UTC
+    try:
+        close = datetime.fromisoformat(date_str[:10]).replace(
+            tzinfo=timezone.utc) + timedelta(hours=h, minutes=m)
+    except Exception:  # noqa: BLE001 — a malformed date is treated as not-settled
+        return False
+    return now >= close
 
 
 def _load_universe_df(config_dir):
@@ -48,6 +69,21 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
 
     s3 = S3Client(bucket, region)
     settled = event.get("run_date") or _latest_settled_trading_day()
+
+    # HARD SETTLED-SESSION GUARD: the night produces the settled bar and appends a
+    # canon leaf for ``settled``. If ``settled``'s session has NOT closed yet (a
+    # night mis-invoked during market hours, e.g. an unrouted source falling through
+    # to this default path), producing a live intraday bar and appending an
+    # unsettled leaf would corrupt the line — and because the frontier append is
+    # write-once, the real settled leaf could never land. Abort BEFORE any produce /
+    # extend / append / publish. Nothing is written; the scheduled post-close night
+    # advances the line correctly.
+    if not _is_settled_session(settled):
+        return {"statusCode": 409, "body": json.dumps({
+            "status": "skipped", "phase": "night", "date": settled,
+            "reason": (f"session {settled} not settled yet (market open / pre-close); "
+                       "night refuses to produce an unsettled bar or append an "
+                       "intraday leaf — no writes")})}
 
     config = dict(load_brain_config())
     config["mode"] = "live"
