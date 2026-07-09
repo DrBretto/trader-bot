@@ -54,6 +54,23 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     universe_df = _load_universe_df(_regime_compat_path().parent)
     portfolio_state = load_portfolio_state(s3)
 
+    # ---- settled-bar PRODUCTION (CL-708001) — RESTORED. The clean night path is a
+    #      pure CONSUMER of settled bars (production_forecaster's extend downloads
+    #      daily/<D>/prices.parquet and splices it); the P9 cutover dropped the
+    #      chassis writer (src/steps/publish_artifacts.py) that produced them, so the
+    #      store froze at 07-02 and every night ABORTED stale. Produce the settled
+    #      bar HERE (Yahoo v8 primary + fallbacks) so the store can advance. Never
+    #      fabricates: a genuine feed outage writes nothing and the (untouched)
+    #      freshness gate downstream aborts and surfaces it.
+    from feeds.produce import produce_settled_prices
+    try:
+        produce_report = produce_settled_prices(settled, universe_df, s3, bucket=bucket)
+    except Exception as e:  # noqa: BLE001 — production is best-effort; the freshness
+        # gate is the safety net. A crash here must not bypass the gate: log it and
+        # let the extend+gate run over whatever bars ARE in S3 (aborts if stale).
+        produce_report = {"produced": False, "reason": f"producer crashed: {type(e).__name__}: {e}"}
+    print(f"  [PRODUCE] settled-bar production: {json.dumps(produce_report, default=str)}")
+
     # ---- engine decision (feeds→store→freshness→features→forecast→engine→decide)
     incumbent = s3.read_json(f"daily/{settled}/trade_intents.json") or None
     res = run_cutover(
