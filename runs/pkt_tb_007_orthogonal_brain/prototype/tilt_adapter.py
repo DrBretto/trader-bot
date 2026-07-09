@@ -60,7 +60,7 @@ for _p in (str(PROTO), str(REPO)):
 from genome_007 import Genome007                       # noqa: E402
 from lot_fix_007 import aggregate_book                 # noqa: E402
 from risk_stats_007 import RiskStats                   # noqa: E402
-from src.utils.three_line_replay.strategies import Strategy, StrategyContext  # noqa: E402
+from chassis.utils.three_line_replay.strategies import Strategy, StrategyContext  # noqa: E402
 
 # ---------------------------------------------------------------- frozen constants
 # §2.2 support tiers (FROZEN — Phase-0 table, TOURNAMENT G15/A9)

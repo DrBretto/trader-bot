@@ -50,7 +50,7 @@ def _alert_canary_red(result: dict) -> None:
         f"returncode   = {result['returncode']}\n\n"
         f"{result['output_tail']}\n")
     try:
-        from src.utils.sns_alerts import send_alert
+        from chassis.utils.sns_alerts import send_alert
         send_alert(subject="[TraderBot] CRITICAL: post-pipeline reality canary RED",
                    body=body)
     except Exception as e:  # noqa: BLE001 — alerting must never crash the pipeline

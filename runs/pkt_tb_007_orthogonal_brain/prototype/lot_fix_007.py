@@ -94,7 +94,7 @@ def _execute_intents_lotfix(portfolio, intents: List[Dict[str, Any]],
                 pos.peak_price = max(pos.peak_price, morning_price)
                 pos.shares = tot
             else:
-                from src.utils.three_line_replay.replay_engine import Position
+                from chassis.utils.three_line_replay.replay_engine import Position
                 portfolio.positions.append(Position(
                     symbol=sym, shares=float(shares),
                     entry_price=morning_price, entry_date=date,

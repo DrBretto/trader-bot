@@ -22,8 +22,8 @@ from genome_007 import Genome007                                     # noqa: E40
 from lot_fix_007 import aggregate_book, _execute_intents_lotfix      # noqa: E402
 import run_replay_007 as RR                                          # noqa: E402
 import tilt_adapter as TA                                            # noqa: E402
-from src.utils.three_line_replay.replay_engine import Portfolio, Position  # noqa: E402
-from src.utils.three_line_replay.strategies import StrategyContext   # noqa: E402
+from chassis.utils.three_line_replay.replay_engine import Portfolio, Position  # noqa: E402
+from chassis.utils.three_line_replay.strategies import StrategyContext   # noqa: E402
 
 D = "2026-02-10"          # a real pre-holdout date (RiskStats uses the ohlcv cache)
 

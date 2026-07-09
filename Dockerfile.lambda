@@ -4,7 +4,7 @@
 # extract the brain's runtime subset out of the 4.2 GB research trees into the
 # small, deployable staging dir this image bakes:
 #
-#     python -m src.brain.bake_runtime_subset      # -> build/brain_bake/
+#     PYTHONPATH=trader-bot-core python -m chassis.brain.bake_runtime_subset      # -> build/brain_bake/
 #     docker build -f Dockerfile.lambda -t trader-bot:latest .
 #
 # The bake carves the runtime CODE (forward_inference + its imports), the four
@@ -45,9 +45,11 @@ RUN pip install --no-cache-dir --only-binary=:all: scikit-learn==1.7.2 "numpy==1
 COPY requirements-lambda.txt ./
 RUN pip install --no-cache-dir -r requirements-lambda.txt
 
-# Copy application code (includes src/brain: the two-stage engine + the live
-# cutover runtime — the live brain is the engine, NOT tilt_adapter).
-COPY src/ ${LAMBDA_TASK_ROOT}/src/
+# CU-05: the legacy ``src/`` package is GONE. It was relocated wholesale into
+# ``trader-bot-core/chassis/`` (git mv + import rewrite) and is baked via the
+# COPY trader-bot-core/ line below. Nothing on the image imports ``src`` anymore
+# (grep -rE "from src|import src" on the image == 0); every scheduled/on-demand
+# path (night/morning/midday/ops/canary/shadow/health) executes trader-bot-core/.
 COPY training/models/ ${LAMBDA_TASK_ROOT}/training/models/
 # Configuration files read by publish_artifacts (chart_markers, etc.) and the
 # cutover switch config/brain.active.json (live/shadow) + the frozen champion

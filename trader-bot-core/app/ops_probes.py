@@ -64,6 +64,28 @@ def regime_diag(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     return {"phase": "regime-diag", "nondestructive": True, "result": result}
 
 
+def config_canary(event: dict, bucket: str, region: str) -> Dict[str, Any]:
+    """CL-708150 empty-but-critical config canary probe. With no args it runs the
+    LIVE verdict (alerting OFF — a diag must not page) and confirms the load-bearing
+    tables are non-empty. With ``inject_empty`` (a name or list from
+    {regime_compatibility, regime_admissibility}) it PROVES the canary fails loud on
+    a deliberately-emptied table WITHOUT touching the real config — the un-fakeable
+    acceptance test. ``fires_on_injected_empty`` is True iff the injected run went
+    RED."""
+    from monitors.config_canary import run_config_canary
+    inj = event.get("inject_empty")
+    if isinstance(inj, str):
+        inj = [inj]
+    live = run_config_canary(alert=False)
+    out = {"phase": "config-canary", "nondestructive": True, "live": live}
+    if inj:
+        injected = run_config_canary(alert=False, force_empty=inj)
+        out["injected_empty"] = inj
+        out["injected_result"] = injected
+        out["fires_on_injected_empty"] = not injected.get("ok")
+    return out
+
+
 def canary(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     """Run the post-pipeline reality-canary tier (live) with alerting OFF (a diag
     canary must not page). Returns the tier result."""
@@ -93,7 +115,7 @@ def _fire_reality_test_sns(subject: str, body: str, region: str) -> Dict[str, An
     a live incident. Fail-soft — a publish error is reported, never raised."""
     try:
         import boto3
-        from src.utils.sns_alerts import get_sns_topic_arn
+        from chassis.utils.sns_alerts import get_sns_topic_arn
         sns = boto3.client("sns", region_name=region)
         resp = sns.publish(
             TopicArn=get_sns_topic_arn(region),
@@ -118,7 +140,7 @@ def watchdog_diag(event: dict, bucket: str, region: str) -> Dict[str, Any]:
         now lag — the check flags ✗ and the missed-run/stale alarm FIRES (a real,
         clearly-marked reality-test SNS with a captured MessageId).
     """
-    from src.utils.s3_client import S3Client
+    from chassis.utils.s3_client import S3Client
     s3 = S3Client(bucket, region)
     today = (event or {}).get("today") or _dt.date.today().isoformat()
     days_ahead = int((event or {}).get("days_ahead", 7))
@@ -178,7 +200,7 @@ def _fire_publish_revert_test_sns(reason: str, region: str) -> Dict[str, Any]:
     a reality-test. Its firing IS the 'gate alarms on block' proof. Fail-soft."""
     try:
         import boto3
-        from src.utils.sns_alerts import get_sns_topic_arn
+        from chassis.utils.sns_alerts import get_sns_topic_arn
         sns = boto3.client("sns", region_name=region)
         resp = sns.publish(
             TopicArn=get_sns_topic_arn(region),
@@ -204,8 +226,8 @@ def publish_revert_diag(event: dict, bucket: str, region: str) -> Dict[str, Any]
     the live dashboard line is untouched — the block is proven by the guard's
     (ok=False) verdict, not by inspecting a mutated object.
     """
-    from src.utils.s3_client import S3Client
-    from src.steps.publish_artifacts import guard_publish_not_reverted, _verify_ledger_or_hold
+    from chassis.utils.s3_client import S3Client
+    from chassis.steps.publish_artifacts import guard_publish_not_reverted, _verify_ledger_or_hold
     from monitors.watchdog import _ledger_terminal, evaluate_value_revert
     s3 = S3Client(bucket, region)
 
@@ -287,6 +309,7 @@ _PROBES = {
     "freshness-diag": freshness_diag,
     "regime-diag": regime_diag,
     "canary": canary,
+    "config-canary": config_canary,
     "watchdog-diag": watchdog_diag,
     "publish-revert-diag": publish_revert_diag,
 }

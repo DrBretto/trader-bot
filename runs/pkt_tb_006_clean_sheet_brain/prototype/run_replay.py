@@ -112,7 +112,7 @@ def cost_overlay(result: Dict[str, Any], universe_df, seed: int = COST_SEED,
     fixed) order, applies src.utils.transaction_costs.apply_transaction_costs
     with ONE shared random.Random(seed) sequence, and returns raw +
     cost-adjusted daily value series (cumulative cost cash-flow subtracted)."""
-    from src.utils.transaction_costs import apply_transaction_costs
+    from chassis.utils.transaction_costs import apply_transaction_costs
     rng = random.Random(seed)
     sector = dict(zip(universe_df["symbol"], universe_df["sector"]))
     aclass = dict(zip(universe_df["symbol"], universe_df["asset_class"]))
@@ -226,8 +226,8 @@ def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
 
     import pandas as pd
     from data_layer import DiskCachedS3Cache
-    from src.utils.three_line_replay import replay_engine as RE
-    from src.utils.transaction_costs import get_cost_config_snapshot
+    from chassis.utils.three_line_replay import replay_engine as RE
+    from chassis.utils.transaction_costs import get_cost_config_snapshot
 
     cache = DiskCachedS3Cache(s3_client=None)          # offline, disk-cache only
     trading_dates = build_trading_dates(cache, args.window, args.smoke)

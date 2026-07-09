@@ -71,10 +71,10 @@ for p in (str(PROTO), str(REPO), str(TB006_PROTO)):
 import tilt_adapter as TA                                    # noqa: E402
 from genome_007 import Genome007                             # noqa: E402
 from risk_stats_007 import RiskStats                         # noqa: E402
-from src.models.baseline_health import baseline_health_model # noqa: E402
-from src.utils.feature_utils import (compute_asset_features, # noqa: E402
+from chassis.models.baseline_health import baseline_health_model # noqa: E402
+from chassis.utils.feature_utils import (compute_asset_features, # noqa: E402
                                      compute_relative_strength)
-from src.utils.transaction_costs import get_half_spread_bps  # noqa: E402
+from chassis.utils.transaction_costs import get_half_spread_bps  # noqa: E402
 
 HOLDOUT_START = "2026-03-11"          # absolute firewall — asserted everywhere
 FITNESS_END = "2026-02-06"            # fitness/selection data ends here
@@ -750,7 +750,7 @@ def _read_deployed_config() -> dict:
     """Read the deployed variant config and check the 0.65/0.35 blend (L2c)."""
     try:
         from data_layer import DiskCachedS3Cache
-        from src.utils.three_line_replay import replay_engine as RE
+        from chassis.utils.three_line_replay import replay_engine as RE
         cache = DiskCachedS3Cache(s3_client=None)
         variant, _ = RE.load_variant_configs(cache)
         blend = float(variant.decision_engine_overrides.get("ranking_blend", 0) or 0)

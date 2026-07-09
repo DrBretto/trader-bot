@@ -31,7 +31,7 @@ import ea                                   # noqa: E402
 import run_replay as RR                     # noqa: E402
 import strategy_adapter as SA               # noqa: E402
 from strategy_adapter import delta_to_intents, guarded_marks, make_syn1_strategy  # noqa: E402
-from src.utils.three_line_replay.strategies import StrategyContext  # noqa: E402
+from chassis.utils.three_line_replay.strategies import StrategyContext  # noqa: E402
 
 SYMS = ["SPY", "QQQ", "TLT", "GLD"]
 UNI = {s: {"symbol": s, "asset_class": "equity", "sector": "broad",

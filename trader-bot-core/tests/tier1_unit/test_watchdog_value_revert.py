@@ -64,7 +64,11 @@ def test_nonsentinel_divergence_from_ledger_is_flagged():
 
 
 def test_matching_corrected_terminal_is_not_flagged():
-    s3 = _FakeS3({"date": _LEDGER_TERM["date"], "value": _LEDGER_TERM["value"]})
+    # A real published dashboard terminal carries BOTH the canon value and the SPY
+    # benchmark (the equity_curve row shape publish writes); a complete terminal
+    # matching the corrected ledger on both dimensions must NOT be flagged.
+    s3 = _FakeS3({"date": _LEDGER_TERM["date"], "value": _LEDGER_TERM["value"],
+                  "benchmark": _LEDGER_TERM["benchmark"]})
     out = W.check_value_revert(s3)
     assert out["reverted"] is False
 

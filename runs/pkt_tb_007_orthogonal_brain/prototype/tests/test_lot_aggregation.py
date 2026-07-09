@@ -21,8 +21,8 @@ for p in (str(PROTO), str(REPO)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from src.utils.three_line_replay import replay_engine as RE          # noqa: E402
-from src.utils.three_line_replay.replay_engine import Portfolio, Position  # noqa: E402
+from chassis.utils.three_line_replay import replay_engine as RE          # noqa: E402
+from chassis.utils.three_line_replay.replay_engine import Portfolio, Position  # noqa: E402
 from lot_fix_007 import (aggregate_book, _execute_intents_lotfix,    # noqa: E402
                          harness_lot_patch)
 

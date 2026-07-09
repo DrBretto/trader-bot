@@ -42,7 +42,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 # Reuse the already-tested write-once / content-addressing primitives.
-from src.utils.corrections import (
+from chassis.utils.corrections import (
     _canonical_bytes,
     _is_unsupported_param,
     _utcnow_iso,

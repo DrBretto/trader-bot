@@ -61,7 +61,7 @@ ROLE_ARN="arn:aws:iam::$ACCOUNT_ID:role/$ROLE_NAME"
 # sprawl in this repo. If any BAKED source path has uncommitted changes the image
 # is ungoverned and tags `<sha>-dirty` so it can never masquerade as a clean SHA.
 GIT_SHA=$(git rev-parse --short=12 HEAD 2>/dev/null || echo "nogit")
-BAKE_PATHS=(src/ config/ training/models/ brain/FREEZE_ORB1.json \
+BAKE_PATHS=(config/ training/models/ brain/FREEZE_ORB1.json \
     trader-bot-core/ \
     requirements-lambda.txt Dockerfile.lambda \
     runs/pkt_tb_007_orthogonal_brain/shadow \

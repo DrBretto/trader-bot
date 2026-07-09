@@ -54,7 +54,7 @@ def _alert_stale_substrate(verdict: dict, fresh: dict) -> None:
         "The incumbent intents are retained (fail-safe). Check CloudWatch "
         "/aws/lambda/investment-system-daily-pipeline for the [FRESHNESS] lines.")
     try:
-        from src.utils.sns_alerts import send_alert
+        from chassis.utils.sns_alerts import send_alert
         send_alert(
             subject="[TraderBot] CRITICAL: forecast substrate STALE — night ABORTED (fail-loud gate)",
             body=body)

@@ -139,8 +139,8 @@ def test_paired_walk_matches_adapter_projection(tmp_path):
     """Same genome + same inputs => the SAME tilt decisions through the
     replay adapter (post_decision, expression log) and through the walk's
     input derivation + shared solve, to 1e-9 (log precision 1e-8)."""
-    from src.utils.three_line_replay.replay_engine import Portfolio, Position
-    from src.utils.three_line_replay.strategies import StrategyContext
+    from chassis.utils.three_line_replay.replay_engine import Portfolio, Position
+    from chassis.utils.three_line_replay.strategies import StrategyContext
 
     D = "2025-03-03"
     genome = Genome007(organ_trust={"M1": 0.5, "M2": -0.3}, tilt_gain=0.6,

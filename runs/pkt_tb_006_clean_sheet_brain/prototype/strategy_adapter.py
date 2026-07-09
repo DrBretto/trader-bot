@@ -63,7 +63,7 @@ for p in (str(PROTO), str(REPO)):
 
 import books as bk                      # noqa: E402
 from ea import Genome, FEATURE_GATE_NAMES, FEATURE_GATE_Z_MAP, EVENT_MEMBER_IDX  # noqa: E402
-from src.utils.three_line_replay.strategies import Strategy, StrategyContext  # noqa: E402
+from chassis.utils.three_line_replay.strategies import Strategy, StrategyContext  # noqa: E402
 
 EPS_TAU = 0.05
 N_MEMBERS = 3

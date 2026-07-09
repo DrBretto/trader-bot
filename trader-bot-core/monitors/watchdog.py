@@ -434,7 +434,7 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
         if alert is not None:
             alert(subject, body)
         else:
-            from src.utils.sns_alerts import send_alert
+            from chassis.utils.sns_alerts import send_alert
             send_alert(subject=subject, body=body)
     except Exception as e:  # noqa: BLE001 — emailing must never crash the check
         print(f"  daily health email failed (non-fatal): {e}")
@@ -468,7 +468,7 @@ def emit_run_heartbeat(region: str = "us-east-1", ok: bool = True) -> None:
 def daily_health_handler(event: dict, context) -> dict:
     """Lambda entry for the scheduled daily three-line health report."""
     import os
-    from src.utils.s3_client import S3Client
+    from chassis.utils.s3_client import S3Client
     bucket = (event or {}).get("bucket") or os.environ.get("S3_BUCKET",
                                                             "investment-system-data")
     region = (event or {}).get("region") or os.environ.get("AWS_REGION", "us-east-1")

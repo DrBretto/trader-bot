@@ -35,8 +35,8 @@ def _load_universe_df(config_dir):
 
 def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     """Run one forward night. Returns a Lambda-shaped response dict."""
-    from src.utils.s3_client import S3Client
-    from src.utils.sns_alerts import send_alert
+    from chassis.utils.s3_client import S3Client
+    from chassis.utils.sns_alerts import send_alert
     from store.portfolio import load_portfolio_state
     from decide.cutover import (run_cutover, load_brain_config,
                                 production_forecaster, _regime_compat_path)
@@ -108,6 +108,12 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     # ---- post-pipeline watchdogs (the check missing during the silent freeze) ----
     canary = run_post_pipeline_canaries(tier="live", alert=True)
     health = run_daily_health_check(s3)
+    # CL-708150: empty-but-critical config canary — fails LOUD if a load-bearing
+    # table (regime_compatibility / theta_sel.regime_admissibility) is present-but-
+    # empty (the silent-inert class that let the regime gate sit dead). Alerting,
+    # non-abort (the engine already ran under the assert_regime_chassis_loaded gate).
+    from monitors.config_canary import run_config_canary
+    config_canary = run_config_canary(alert=True, config=config)
     emit_run_heartbeat(region=region, ok=True)
 
     return {"statusCode": 200, "body": json.dumps({
@@ -116,5 +122,6 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
         "selected": res.selected_universe, "engine": res.engine,
         "append": append_report, "publish": publish_report,
         "post_pipeline": {"canary_ok": canary.get("ok"),
-                          "health_ok": health.get("ok")},
+                          "health_ok": health.get("ok"),
+                          "config_canary_ok": config_canary.get("ok")},
     }, default=str)}

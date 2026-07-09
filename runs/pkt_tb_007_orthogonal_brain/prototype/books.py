@@ -56,7 +56,7 @@ def load_half_spread_bps(universe_csv: Path | None = None) -> np.ndarray:
     import sys
     if str(_REPO) not in sys.path:
         sys.path.insert(0, str(_REPO))
-    from src.utils.transaction_costs import get_half_spread_bps
+    from chassis.utils.transaction_costs import get_half_spread_bps
 
     path = universe_csv or (_REPO / "config" / "universe.csv")
     out = []

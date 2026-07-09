@@ -21,7 +21,7 @@ for p in (str(PROTO), str(REPO)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from src.utils.three_line_replay.replay_engine import Portfolio, Position  # noqa: E402
+from chassis.utils.three_line_replay.replay_engine import Portfolio, Position  # noqa: E402
 from lot_fix_007 import _execute_intents_lotfix                             # noqa: E402
 
 

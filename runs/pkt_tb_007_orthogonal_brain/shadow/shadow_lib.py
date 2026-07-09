@@ -371,7 +371,7 @@ def save_state(state: dict) -> None:
 
 # ---------------------------------------------------------------- paper books
 def _replay_engine():
-    from src.utils.three_line_replay import replay_engine as RE
+    from chassis.utils.three_line_replay import replay_engine as RE
     return RE
 
 
@@ -427,7 +427,7 @@ def _load_migration_plan() -> dict:
     Guards that the registry's ladder still matches this engine's BOOKS — a
     registry edit that diverges from the actual ladder raises (refuse to guess),
     rather than silently mis-migrating."""
-    from src.brain.component_registry import ladder_migration_plan
+    from chassis.brain.component_registry import ladder_migration_plan
     plan = ladder_migration_plan()
     if tuple(plan["books"]) != BOOKS:
         raise RuntimeError(
@@ -657,7 +657,7 @@ def process_book_date(books: Dict[str, Any], date: str,
     import pandas as pd
     RE = _replay_engine()
     from lot_fix_007 import _execute_intents_lotfix
-    from src.utils.three_line_replay.strategies import StrategyContext
+    from chassis.utils.three_line_replay.strategies import StrategyContext
 
     sector_by_symbol = dict(zip(universe_df["symbol"], universe_df["sector"]))
     current_marks = RE._latest_close_per_symbol(features_df)

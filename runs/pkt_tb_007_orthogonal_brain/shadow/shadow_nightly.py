@@ -176,7 +176,7 @@ def settle_dates(ctx: Ctx, state: dict, decision_dates: List[str],
     carries none, and mixing one in breaks the 1:1 comparison. Mutates state
     (books, last_settled_date). Returns the list of newly-marked dates."""
     import pandas as pd
-    from src.utils.three_line_replay import replay_engine as RE
+    from chassis.utils.three_line_replay import replay_engine as RE
 
     required = ["trade_intents.json", "portfolio_state.json", "features.parquet"]
     decision_set = set(decision_dates)
@@ -270,7 +270,7 @@ def provisional_marks(ctx: Ctx, state: dict, date: str) -> Optional[dict]:
     own morning_prices.parquet (open fill + intraday mark). Computed on
     DEEP COPIES — state is never mutated; it settles for real next night."""
     import pandas as pd
-    from src.utils.three_line_replay import replay_engine as RE
+    from chassis.utils.three_line_replay import replay_engine as RE
     ddir = ctx.cache_daily / date
     mp = ddir / "morning_prices.parquet"
     if state["books"] is None or not mp.exists():

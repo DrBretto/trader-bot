@@ -95,7 +95,7 @@ def cost_overlay(result: Dict[str, Any], universe_df, seed: int = COST_SEED,
     """Post-hoc transaction-cost overlay — TB-006 wiring adjudication #2
     carried verbatim: executed actions walked in stored order, ONE shared
     random.Random(seed) sequence, raw + cost-adjusted series emitted."""
-    from src.utils.transaction_costs import apply_transaction_costs
+    from chassis.utils.transaction_costs import apply_transaction_costs
     rng = random.Random(seed)
     sector = dict(zip(universe_df["symbol"], universe_df["sector"]))
     aclass = dict(zip(universe_df["symbol"], universe_df["asset_class"]))
@@ -230,8 +230,8 @@ def main(argv: Optional[List[str]] = None) -> Dict[str, Any]:
 
     import pandas as pd
     from data_layer import DiskCachedS3Cache          # TB-006 import (read-only)
-    from src.utils.three_line_replay import replay_engine as RE
-    from src.utils.transaction_costs import get_cost_config_snapshot
+    from chassis.utils.three_line_replay import replay_engine as RE
+    from chassis.utils.transaction_costs import get_cost_config_snapshot
     from lot_fix_007 import harness_lot_patch
     from genome_007 import Genome007
 
