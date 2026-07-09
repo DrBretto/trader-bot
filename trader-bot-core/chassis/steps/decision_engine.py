@@ -127,9 +127,21 @@ def score_candidates(
     regime_compat: Dict[str, Dict[str, float]],
     ranking_scores: Optional[Dict[str, float]] = None,
     ranking_blend: float = 0.0,
+    mu_stage: Optional[Dict[str, Any]] = None,
 ) -> pd.DataFrame:
     """
     Score all eligible candidates for buying.
+
+    ``mu_stage`` (canon-line ONLY; RESTORE-ORIGINAL-BASE packet): an OPTIONAL,
+    default-off extra forecast stage layered ON TOP of the original health x regime
+    selection. ``{"mu": {sym: val}, "blend": float}``. When present with blend>0 the
+    M1 forecast mu (used AS-IS, rank-normalized over the scored field, centered at
+    0.5) is ADDED to base_score before the regime multiply:
+        base_score += blend * (mu_rank - 0.5)
+    This is ADDITIVE, never mu-primary: the health x regime base is untouched and mu
+    is a bounded nudge. With ``mu_stage is None`` or ``blend<=0`` this block is inert,
+    so the champion base + tilt line are byte-for-byte unchanged (Phase-1 exactness
+    preserved). blend->0 => canon collapses EXACTLY to the original (canon ⊇ original).
 
     Returns:
         DataFrame with: symbol, score, health_score, vol_bucket, reason_code
@@ -187,6 +199,23 @@ def score_candidates(
             (1.0 - blend) * merged['health_score'] +
             blend * merged['ranking_score']
         )
+
+    # Canon-line extra forecast stage (RESTORE-ORIGINAL-BASE packet): ADD the M1
+    # forecast mu as-is, on top of the health x regime base. Inert unless mu_stage
+    # is supplied with blend>0 (so the champion base + tilt line are unchanged).
+    if mu_stage:
+        mu_map = mu_stage.get('mu') or {}
+        mu_blend = float(mu_stage.get('blend', 0.0) or 0.0)
+        if mu_map and mu_blend > 0:
+            mu_series = merged['symbol'].map(lambda s: mu_map.get(s))
+            has_mu = mu_series.notna()
+            if has_mu.any():
+                # rank-normalize mu over the symbols that HAVE a forecast, centered
+                # at 0.5; symbols without a forecast get a neutral 0.5 (no nudge).
+                mu_rank = mu_series[has_mu].rank(pct=True)
+                mu_centered = pd.Series(0.0, index=merged.index)
+                mu_centered.loc[has_mu] = mu_blend * (mu_rank - 0.5)
+                merged['base_score'] = merged['base_score'] + mu_centered
 
     # Apply regime multiplier
     merged['final_score'] = (merged['base_score'] * merged['regime_multiplier']).clip(0, 1)
@@ -1100,6 +1129,7 @@ def run(
         regime_compat,
         ranking_scores=ranking_scores,
         ranking_blend=ranking_blend,
+        mu_stage=decision_engine_overrides.get('mu_forecast_stage'),
     )
 
     buy_candidates = filter_buy_candidates(

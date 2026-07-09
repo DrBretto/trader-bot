@@ -52,15 +52,17 @@ from chassis.utils.corrections import (
 logger = logging.getLogger(__name__)
 
 BUCKET = "investment-system-data"
-# REGIME-GATE-FIX RE-SEED (2026-07-08, CL-708110): the LIVE canon ledger is now the
-# fixed-engine replay-seeded canon/equity_ledger_clean_v3/ — the post-split window
-# (2026-06-12..07-02) was re-seeded with the corrected θ_sel.regime_admissibility so
-# canon rotates to defensives in historical panics (06-18/24/29: 0 equity), with
-# pre-split byte-copied and SPY/challenger byte-copied from clean_v2 (unchanged); the
-# stale 07-07 forward leaf (CL-708112) is excluded. The prior clean_v2 ledger is left
-# BYTE-UNTOUCHED as the rollback path — point LEDGER_PREFIX back at
-# canon/equity_ledger_clean_v2/ to roll back.
-LEDGER_PREFIX = "canon/equity_ledger_clean_v3/"
+# RESTORE-ORIGINAL-BASE RE-SEED (2026-07-09, PKT-TRADER-BOT-RESTORE-ORIGINAL-BASE):
+# the LIVE canon ledger is now canon/equity_ledger_restored_v1/ — BOTH forward lines
+# were rebuilt as the RECOVERED ORIGINAL CHAMPION as the shared base + one addition
+# each (value = champion base + additive M1 mu forecast stage; comparison = champion
+# base + <=8% M1 tilt), replacing the drifted two-stage (mu-primary canon) + health-
+# blind tilt. The recovered original reproduces the frozen champion line to the penny
+# (terminal 114772.39 @ 2026-06-11); the frozen champion segment (<=06-11) is byte-
+# copied and SPY (benchmark) is byte-copied from clean_v3 (UNCHANGED). The prior
+# clean_v3 ledger is left BYTE-UNTOUCHED as the rollback path — point LEDGER_PREFIX
+# back at canon/equity_ledger_clean_v3/ to roll back.
+LEDGER_PREFIX = "canon/equity_ledger_restored_v1/"
 POINTS_PREFIX = LEDGER_PREFIX + "points/"
 MANIFEST_KEY = LEDGER_PREFIX + "_manifest.json"
 CACHE_KEY = LEDGER_PREFIX + "equity_history.jsonl"
