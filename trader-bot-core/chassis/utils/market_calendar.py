@@ -12,9 +12,9 @@ Two sources, most-truthful first:
     freshly-ingested price panel. This is holiday- AND weekend-aware by
     construction (a non-trading day simply has no bar) and is the night's source
     of truth ("the actual close date the book is marked at").
-  * ``latest_settled_session()`` — the latest NY weekday on/before the ET date of
-    "now". A cheap calendar proxy (weekend-aware; conservative on holidays) used by
-    the intraday phases that run during the live session and hold no fresh panel.
+  * ``latest_settled_session()`` — the latest regular NYSE session on/before the ET
+    date of "now". It is weekend- and holiday-aware and is used by intraday phases
+    that hold no fresh settled panel.
 
 The equity ledger's append-only frontier guard (``run_date <= frontier`` is a
 no-op) is what turns a duplicate/holiday key into "no leaf" — so keying by the
@@ -23,11 +23,108 @@ settled day here is sufficient to guarantee weekends/holidays produce no leaf.
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta, timezone
+from functools import lru_cache
 from typing import Optional
 
 import pandas as pd
+from dateutil.relativedelta import MO, TH
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    nearest_workday,
+)
+from pandas.tseries.offsets import DateOffset
 
 _NY_TZ = "America/New_York"
+
+
+class _NYSEHolidayCalendar(AbstractHolidayCalendar):
+    """Regular full-day NYSE closures used by the daily simulator.
+
+    Early closes remain trading sessions, which is correct for this daily system.
+    Unscheduled national closures are represented by the settled-price grid and can
+    be added here when they occur.
+    """
+
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=nearest_workday),
+        Holiday(
+            "Martin Luther King Jr. Day",
+            month=1,
+            day=1,
+            offset=DateOffset(weekday=MO(3)),
+            start_date="1998-01-01",
+        ),
+        Holiday(
+            "Washington's Birthday",
+            month=2,
+            day=1,
+            offset=DateOffset(weekday=MO(3)),
+        ),
+        GoodFriday,
+        Holiday(
+            "Memorial Day",
+            month=5,
+            day=31,
+            offset=DateOffset(weekday=MO(-1)),
+        ),
+        Holiday(
+            "Juneteenth",
+            month=6,
+            day=19,
+            observance=nearest_workday,
+            start_date="2022-01-01",
+        ),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        Holiday("Labor Day", month=9, day=1, offset=DateOffset(weekday=MO(1))),
+        Holiday("Thanksgiving", month=11, day=1, offset=DateOffset(weekday=TH(4))),
+        Holiday("Christmas", month=12, day=25, observance=nearest_workday),
+    ]
+
+
+def _as_date(value) -> date:
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    return date.fromisoformat(str(value)[:10])
+
+
+@lru_cache(maxsize=16)
+def _holiday_dates(year: int) -> frozenset:
+    start = pd.Timestamp(year=year - 1, month=1, day=1)
+    end = pd.Timestamp(year=year + 1, month=12, day=31)
+    return frozenset(ts.date() for ts in _NYSEHolidayCalendar().holidays(start, end))
+
+
+def is_trading_session(value) -> bool:
+    """Whether ``value`` is a regular NYSE trading session."""
+    d = _as_date(value)
+    return d.weekday() < 5 and d not in _holiday_dates(d.year)
+
+
+def latest_session_on_or_before(value) -> date:
+    """Walk backward to the latest regular NYSE session."""
+    d = _as_date(value)
+    while not is_trading_session(d):
+        d -= timedelta(days=1)
+    return d
+
+
+def trading_sessions_between(start, end) -> int:
+    """Count NYSE sessions strictly after ``start`` through ``end``."""
+    a = _as_date(start)
+    b = _as_date(end)
+    if b < a:
+        return -1
+    count = 0
+    cur = a
+    while cur < b:
+        cur += timedelta(days=1)
+        if is_trading_session(cur):
+            count += 1
+    return count
 
 
 def _now_utc(now_utc: Optional[datetime] = None) -> datetime:
@@ -58,16 +155,8 @@ def ny_today(now_utc: Optional[datetime] = None) -> date:
 
 
 def latest_settled_session(now_utc: Optional[datetime] = None) -> str:
-    """Latest NY weekday on/before ET-today as ``YYYY-MM-DD``.
-
-    A calendar proxy: weekend-aware, and conservative on holidays (it never
-    invents a session that the append-only frontier guard wouldn't already reject).
-    Used by the intraday phases; the night prefers ``settled_day_from_prices``.
-    """
-    d = ny_today(now_utc)
-    while d.weekday() >= 5:  # 5 = Sat, 6 = Sun
-        d -= timedelta(days=1)
-    return d.isoformat()
+    """Latest regular NYSE session on/before ET-today as ``YYYY-MM-DD``."""
+    return latest_session_on_or_before(ny_today(now_utc)).isoformat()
 
 
 def settled_day_from_prices(

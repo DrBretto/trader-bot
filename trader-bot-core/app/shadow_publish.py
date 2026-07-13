@@ -1,25 +1,16 @@
-"""CU-02 — shadow-publish: publish the P6 INDEPENDENT challenger (dotted) line.
+"""Publish the canonical TILT mirror and dotted two-stage comparison.
 
 The clean router (``app/handler.py``) dispatches ``source=shadow-publish`` here
 (NOT to ``run_night``). This is a thin publish step — no data-science compute; the
-independent incumbent+tilt challenger has ALREADY been computed and stored in the
-corrected clean ledger's ``comparison`` column (written by
-``replay/seed_canon.seed_canon_by_replay`` with ``independent_challenger=True`` —
-the ported incumbent selection + M1 tilt, run INDEPENDENTLY, NOT the coupled
-``publish.challenger`` M1-tilt-of-two-stage). This publisher surfaces that corrected
-series onto the dashboard.
+promoted replay ledger has already stored TILT in ``value`` and the reconstructed
+two-stage book in ``comparison``. This publisher mirrors those stored facts into the
+legacy shadow payload shape consumed by the frontend.
 
-It reads the supersede-folded ``canon/equity_ledger_clean_v2/`` cache and writes
+It reads the active ``lines.ledger`` cache and writes
 ``dashboard/shadow_timeseries.json``:
 
-  * ``shadow_A``  = the INDEPENDENT challenger series (``comparison`` column) — the
-                    dotted line the frontend renders (``lines/seed.py`` reads
-                    ``shadow_A`` as the comparison line; the tier-2 canary reads the
-                    dotted line from ``shadow_A``).
-  * ``live_line`` = the corrected canon ``value`` series on the REAL trading-day grid
-                    — this OVERWRITES the known-contaminated ``121147.52`` terminal
-                    (which sat on the old contaminated grid with phantom
-                    weekend/holiday points).
+  * ``live_line`` = canonical TILT ``value`` on the real settled-session grid.
+  * ``shadow_A``  = reconstructed two-stage ``comparison`` for the dotted yellow line.
 
 Every other key in the existing payload (the ``shadow_I/R/F/E/U/B`` attribution
 ladder, ``ic_series``, ``organ_ledger``, ``stats``, prereg pointers) is preserved
@@ -47,10 +38,7 @@ def _cents(v: float) -> int:
 
 def _series_from_cache(cache_body: bytes, start_date: str
                        ) -> Tuple[List[List[Any]], List[List[Any]], str]:
-    """Fold the clean_v2 cache (ndjson displayed leaves) into the two published
-    series: ``live_line`` = canon ``value`` on the real settled grid (dates >=
-    ``start_date``), ``shadow_A`` = independent challenger ``comparison`` (every leaf
-    that carries one). Returns (live_line, shadow_A, latest_settled)."""
+    """Fold the active ledger into canon TILT and two-stage comparison mirrors."""
     rows = [json.loads(ln) for ln in cache_body.decode().splitlines() if ln.strip()]
     rows.sort(key=lambda r: r["date"])
     live_line = [[r["date"], round(float(r["value"]), 2)]
@@ -58,10 +46,10 @@ def _series_from_cache(cache_body: bytes, start_date: str
     shadow_A = [[r["date"], round(float(r["comparison"]), 2)]
                 for r in rows if r.get("comparison") is not None]
     if not live_line:
-        raise RuntimeError("clean_v2 has no canon leaves at/after start_date "
+        raise RuntimeError("active ledger has no canon leaves at/after start_date "
                            f"{start_date} — cannot publish live_line")
     if not shadow_A:
-        raise RuntimeError("clean_v2 carries no challenger comparison values — "
+        raise RuntimeError("active ledger carries no two-stage comparison values — "
                            "cannot publish the dotted line")
     return live_line, shadow_A, live_line[-1][0]
 
@@ -77,7 +65,7 @@ def build_payload(existing: Dict[str, Any], cache_body: bytes) -> Dict[str, Any]
     if _cents(live_line[-1][1]) in CONTAMINATED_TERMINAL_CENTS:
         raise RuntimeError(
             f"REFUSING to publish: live_line terminal {live_line[-1][1]} is the "
-            f"known-contaminated value — the corrected clean_v2 ledger did not clear it")
+            f"known-contaminated value — the active ledger did not clear it")
     if _cents(shadow_A[-1][1]) in CONTAMINATED_TERMINAL_CENTS:
         raise RuntimeError(
             f"REFUSING to publish: shadow_A terminal {shadow_A[-1][1]} is the "
@@ -89,24 +77,24 @@ def build_payload(existing: Dict[str, Any], cache_body: bytes) -> Dict[str, Any]
     payload["start_date"] = start_date
     payload.setdefault("schema", "shadow_timeseries.v2")
     payload["as_of"] = _dt.datetime.now(_dt.timezone.utc).isoformat()
-    payload["challenger_source"] = ("independent incumbent+tilt "
-                                    "(canon/equity_ledger_clean_v2 comparison, P6)")
+    payload["challenger_source"] = (
+        "two-stage comparison (active promoted ledger comparison)"
+    )
     return payload
 
 
 def run_shadow_publish(event: dict, bucket: str, region: str) -> Dict[str, Any]:
-    """Publish the independent challenger dotted line + corrected canon mirror to
+    """Publish canonical TILT + dotted two-stage mirrors to
     ``dashboard/shadow_timeseries.json``. Returns a status dict (routed through the
     handler's ``_ok``)."""
     import boto3
     from lines.ledger import EquityLedger
 
     s3 = boto3.client("s3", region_name=region)
-    ledger = EquityLedger(s3, bucket)          # defaults to clean_v2 prefix
+    ledger = EquityLedger(s3, bucket)
     cache_body = ledger.read_cache()
     if not cache_body:
-        raise RuntimeError("clean_v2 cache is empty/unreadable — cannot publish "
-                           "the challenger (refuse to write an empty line)")
+        raise RuntimeError("active canon cache is empty/unreadable — refuse to publish")
 
     try:
         existing = json.loads(
@@ -122,9 +110,9 @@ def run_shadow_publish(event: dict, bucket: str, region: str) -> Dict[str, Any]:
 
     ll_term = payload["live_line"][-1]
     sa_term = payload["shadow_A"][-1]
-    print(f"  shadow-publish OK: live_line terminal {ll_term} (canon, "
-          f"contaminated 121147.52 cleared); shadow_A terminal {sa_term} "
-          f"(independent challenger); {len(payload['shadow_A'])} challenger points",
+    print(f"  shadow-publish OK: live_line terminal {ll_term} (TILT canon); "
+          f"shadow_A terminal {sa_term} (two-stage comparison); "
+          f"{len(payload['shadow_A'])} comparison points",
           flush=True)
     return {
         "phase": "shadow-publish",

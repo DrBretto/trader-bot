@@ -292,7 +292,7 @@ def build_dashboard_data(
     # recompute. The trade/exposure stats are the non-line half (FIFO round-trips +
     # current posture). Nothing here reads sim_book_value into the line, and the old
     # extend_dashboard re-anchor is gone.
-    from chassis.canon.equity_line import load_line_view
+    from lines.line import load_line_view
     line = load_line_view(s3.s3)
     line_metrics = line['line_metrics']
     trade_exp = compute_trade_and_exposure_metrics(
@@ -521,17 +521,14 @@ def guard_publish_not_reverted(dashboard_data, s3, run_date) -> tuple:
     line against the SAME ledger it reads and only checks the terminal DATE for
     regression — so a same-date/changed-VALUE revert to a contaminated terminal
     (the 2026-07-02 121147.52 incident) slips through. This guard adds, on top and
-    without weakening it, an INDEPENDENT value check of the rendered terminal
-    (canon ``value`` + SPY ``benchmark``) against the corrected clean_v2 ledger
-    (hard-pinned via ``monitors.watchdog._ledger_terminal``, so it holds even if the
-    parity source is rolled back to the retired contaminated ledger): REFUSE to
+    without weakening it, a value check of the rendered terminal (canon ``value``
+    + SPY ``benchmark``) against the active canonical ledger resolved by
+    ``monitors.watchdog._ledger_terminal``: REFUSE to
     publish a terminal that (a) equals a known-contaminated value, or (b) diverges
-    from the corrected clean_v2 terminal for the same date. Returns (ok, reason);
+    from the canonical terminal for the same date. Returns (ok, reason);
     ok=False => HOLD + alarm (the caller's existing hold path). Never raises.
 
-    (Challenger publish-time revert is prevented separately by the CU-02
-    shadow-publish path, which sources shadow_A directly from the clean_v2
-    ``comparison`` column and blocks a contaminated terminal.)
+    The comparison mirror is checked against the same ledger by the watchdog.
     """
     try:
         from monitors.watchdog import (
@@ -548,21 +545,21 @@ def guard_publish_not_reverted(dashboard_data, s3, run_date) -> tuple:
         if cv is not None and cv in CONTAMINATED_TERMINAL_VALUES:
             return False, (f"VALUE-REVERT guard: canon terminal {t_date}={canon_v} is a "
                            f"KNOWN CONTAMINATED value (pre-P6) — refusing to publish")
-        # (a) cross-check canon value + SPY benchmark vs the corrected clean_v2 terminal.
+        # (a) cross-check canon value + SPY benchmark vs the active ledger terminal.
         corr, reason = _ledger_terminal(s3)
         if corr is None:
-            return True, (f"value-revert guard: clean_v2 unreadable ({reason}); "
+            return True, (f"value-revert guard: canonical ledger unreadable ({reason}); "
                           f"contaminated-value sentinel passed")
         if corr.get('date') == t_date:
             lc = _cents(corr.get('value'))
             if cv is None or lc is None or abs(cv - lc) > eps_c:
                 return False, (f"VALUE-REVERT guard: canon {t_date}={canon_v} DIVERGES from "
-                               f"corrected clean_v2 {corr.get('value')} — refusing to publish")
+                               f"canonical ledger {corr.get('value')} — refusing to publish")
             bc, lb = _cents(spy_b), _cents(corr.get('benchmark'))
             if bc is not None and lb is not None and abs(bc - lb) > eps_c:
                 return False, (f"VALUE-REVERT guard: SPY {t_date}={spy_b} DIVERGES from "
-                               f"corrected clean_v2 benchmark {corr.get('benchmark')} — refusing")
-        return True, f"value-revert guard: ok ({t_date} canon+SPY match clean_v2)"
+                               f"canonical benchmark {corr.get('benchmark')} — refusing")
+        return True, f"value-revert guard: ok ({t_date} canon+SPY match active ledger)"
     except Exception as e:  # noqa: BLE001 — a guard fault holds as a precaution
         return False, f"value-revert guard raised (held as precaution): {e}"
 
@@ -580,7 +577,7 @@ def _verify_ledger_or_hold(dashboard_data, s3, phase, run_date) -> tuple:
     any existing check.
     """
     try:
-        from chassis.canon.equity_ledger import EquityLedger
+        from lines.ledger import EquityLedger
         ec = dashboard_data.get('equity_curve', []) or []
         if not ec:
             return False, "PARITY check failed: equity_curve is empty (ledger not readable / unseeded)"
@@ -592,7 +589,7 @@ def _verify_ledger_or_hold(dashboard_data, s3, phase, run_date) -> tuple:
         if front is None:
             return False, "PARITY check failed: ledger has no frontier (unseeded)"
         # value parity against the stored frontier (read the leaf via the cache row)
-        from chassis.canon.equity_line import read_cache_rows
+        from lines.line import read_cache_rows
         cache_rows = read_cache_rows(s3.s3)
         if not cache_rows:
             return False, "PARITY check failed: ledger cache empty"
@@ -927,21 +924,10 @@ def run(
             print(f"Failed to publish timeseries: {e}")
             failed.append("timeseries.parquet")
 
-    # 13. Generate dashboard.json for frontend
-    #     CLEAN CORE: first APPEND today's settled frontier leaf to the stored
-    #     ledger (the advance mechanism — capital carried from yesterday's STORED
-    #     leaf, value from the canon series, NEVER sim_book), then render the line
-    #     from the ledger. The append is the only write to the line; the render is
-    #     a pure fold. A parity-or-hold gate guards the publish.
-    from chassis.canon.equity_append import append_settled_point_for_publish
-    try:
-        _append_res = append_settled_point_for_publish(s3.s3, run_date, portfolio_state)
-        print(f"  equity ledger append: {_append_res.get('action')} "
-              f"{_append_res.get('date')}={_append_res.get('value')}")
-    except Exception as e:
-        # An append failure must NOT crash the publish — the line holds at its last
-        # stored leaf (no revert possible) and the gate below renders that.
-        print(f"  equity ledger append skipped (non-fatal, line holds): {e}")
+    # 13. Generate dashboard.json for frontend. Model-line advancement belongs only
+    #     to lines.replay_refresh; this legacy publisher is read-only with respect to
+    #     the promoted ledger and cannot turn portfolio-state dollars into a return.
+    print("  equity ledger append: deferred to replay refresh")
 
     dashboard_publishable = _can_publish_dashboard(expert_signals)
     dashboard_held = False
@@ -1199,10 +1185,11 @@ def publish_morning_artifacts(
         print(f"Failed to publish dashboard.json: {e}")
         failed.append("dashboard.json")
 
-    # 6. Update latest.json only if the dashboard snapshot is publishable AND
-    #    the advance guard did not hold the dashboard.
+    # 6. Advance the operational state pointer whenever the portfolio state landed.
+    #    Dashboard parity may hold a visual publish, but it must not make tomorrow's
+    #    executor reload an older portfolio and re-execute from stale state.
     try:
-        if dashboard_publishable and not dashboard_held:
+        if "portfolio_state.json" in published:
             latest = s3.read_json('daily/latest.json') or {}
             latest.update({
                 'date': run_date,
@@ -1219,12 +1206,9 @@ def publish_morning_artifacts(
             latest.pop('positions_count', None)
             s3.write_json(latest, 'daily/latest.json')
             published.append("latest.json")
-        elif dashboard_held:
-            print("  WARNING: Skipping morning latest.json update — dashboard held by advance guard.")
-            failed.append("latest.json (skipped: dashboard held by advance guard)")
         else:
-            print("  WARNING: Skipping morning latest.json update — dashboard snapshot was not publishable.")
-            failed.append("latest.json (skipped: invalid dashboard snapshot)")
+            print("  WARNING: Skipping morning latest.json update — portfolio state was not written.")
+            failed.append("latest.json (skipped: portfolio state write failed)")
     except Exception as e:
         print(f"Failed to update latest.json: {e}")
         failed.append("latest.json")

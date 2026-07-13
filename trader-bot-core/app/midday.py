@@ -17,7 +17,7 @@ from typing import Any, Dict
 from chassis.config_loader import load_config_from_s3
 from chassis.steps import midday_checker
 from chassis.utils.logging_utils import StepTimer
-from chassis.utils.market_calendar import latest_settled_session
+from chassis.utils.market_calendar import is_trading_session, ny_today
 from chassis.utils.s3_client import S3Client
 from chassis.utils.sns_alerts import (
     send_alert, format_midday_summary, format_error_alert,
@@ -30,8 +30,12 @@ def run_midday(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     """Midday check: trailing-stop re-eval, VIX circuit breaker, skipped-buy
     re-check + in-cycle value-revert detection (CU-04). Clean-core."""
     start_time = datetime.now()
-    # Settled NY trading day, not UTC now (PKT-4). Midday fires 18:00 UTC = 13:00 ET.
-    run_date = event.get('run_date') or latest_settled_session()
+    run_date = event.get('run_date') or ny_today().isoformat()
+    if not is_trading_session(run_date):
+        return {'statusCode': 200, 'body': json.dumps({
+            'status': 'skipped', 'phase': 'midday-check', 'date': run_date,
+            'reason': 'NYSE closed; no simulated intraday action taken',
+        })}
     logger.info(f"Midday check started at {start_time}")
 
     s3_client = S3Client(bucket, region)

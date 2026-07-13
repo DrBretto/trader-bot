@@ -139,12 +139,12 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
       <div style={{ color: '#94a3b8', marginBottom: 4, fontWeight: 600 }}>
         <span>{dateStr}</span>
       </div>
-      <div style={{ color: '#f59e0b' }}>
-        {point.newModel != null ? 'Portfolio (two-stage)' : 'Portfolio'}: <span style={{ fontWeight: 600 }}>{formatCurrency(point.newModel ?? point.valuePre ?? point.value)}</span>
+      <div style={{ color: '#3b82f6' }}>
+        Portfolio (TILT canon): <span style={{ fontWeight: 600 }}>{formatCurrency(point.value)}</span>
       </div>
       {point.championForward !== null && point.championForward !== undefined && (
-        <div style={{ color: '#3b82f6', opacity: 0.9 }}>
-          Tilt (comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.championForward)}</span>
+        <div style={{ color: '#f59e0b', opacity: 0.9 }}>
+          Two-stage (comparison): <span style={{ fontWeight: 500 }}>{formatCurrency(point.championForward)}</span>
         </div>
       )}
       <div style={{ color: '#94a3b8' }}>
@@ -183,17 +183,10 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
   const ddMap = new Map(drawdownData.map((d) => [d.date, d.drawdown]));
   const regimeByDate = new Map(timeseries.map((pt) => [pt.date, pt.final_regime_label]));
 
-  // Dual forward shadow (paper books, PKT-TB-007 follow-on). Absent or
-  // armed-but-empty payloads render nothing new.
-  // The NEW MODEL (canon, yellow from the boundary) = the live two-stage engine,
-  // i.e. the canon `value` line forward. The COMPARISON (dotted blue) = the tilt
-  // (deterministic rules + small M1 nudge = shadow_A). The two are what the
-  // performance lens + rent ladder evaluate against each other.
-  // The challenger (dotted-blue tilt comparison). Pick the first available
-  // challenger series so the line keeps rendering even if the producer's series
-  // set changes (varying N) — never assume exactly shadow_A + shadow_B.
-  const tiltByDate = new Map(pickChallengerSeries(shadow));
-  const hasTilt = tiltByDate.size > 0;
+  // Canon is the ledger `value` (TILT). shadow_A mirrors the ledger `comparison`
+  // (the reconstructed two-stage book) for the dotted yellow diagnostic line.
+  const comparisonByDate = new Map(pickChallengerSeries(shadow));
+  const hasComparison = comparisonByDate.size > 0;
 
   // Trim leading flat zone
   const startVal = equityData[0]?.value ?? 0;
@@ -235,14 +228,10 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
       championFrozen,
       newBrain,
       incumbent,
-      // Canon line split at the boundary: solid BLUE = the real champion history
-      // through 06-11; solid YELLOW from 06-11 = the NEW MODEL (the live two-stage
-      // engine = the canon `value` forward). championForward (dotted BLUE) = the
-      // TILT (shadow_A) — the comparison model.
-      valuePre: point.date <= NEW_BRAIN_BOUNDARY ? primaryValue : null,
-      newModel: point.date >= NEW_BRAIN_BOUNDARY ? primaryValue : null,
-      championForward: point.date >= NEW_BRAIN_BOUNDARY ? (tiltByDate.get(point.date) ?? null) : null,
-      shadowA: tiltByDate.get(point.date) ?? null,
+      valuePre: primaryValue,
+      newModel: null,
+      championForward: point.date >= NEW_BRAIN_BOUNDARY ? (comparisonByDate.get(point.date) ?? null) : null,
+      shadowA: comparisonByDate.get(point.date) ?? null,
       benchmark: point.benchmark,
       drawdownPct: (ddMap.get(point.date) ?? 0) * 100,
       peak,
@@ -272,7 +261,8 @@ export function PerformanceChart({ equityData, drawdownData, monthlyReturns, tim
   const hybridDate = hybridIdx >= 0 ? merged[hybridIdx]?.date : undefined;
 
   // Compute Y domains
-  const allValues = merged.flatMap((p) => [p.value, p.benchmark]);
+  const allValues = merged.flatMap((p) => [p.value, p.benchmark, p.championForward]
+    .filter((v): v is number => v != null));
   const yMin = Math.floor(Math.min(...allValues) / 1000) * 1000;
   const yMax = Math.ceil(Math.max(...allValues) / 1000) * 1000;
 
@@ -474,44 +464,27 @@ Background color bands show the detected market regime at each point in time.`}
             legendType="none"
           />
 
-          {/* CANON, part 1 — solid BLUE through the boundary: the real champion
-              history up to 2026-06-11 (the OLD model; stays blue). The NEW two-stage
-              model forward of the boundary is yellow. */}
+          {/* Canon TILT line. The stored `value` field also owns the fill,
+              drawdown, total value, and SPY-relative metrics. */}
           <Line
             yAxisId="equity"
             type="monotone"
-            dataKey="valuePre"
+            dataKey="value"
             stroke="#3b82f6"
             strokeWidth={2.5}
             dot={false}
             legendType="none"
-            connectNulls={false}
-          />
-
-          {/* CANON, part 2 — solid YELLOW from the boundary forward: the NEW MODEL
-              = the live two-stage engine (the canon `value` forward). One
-              continuous yellow canon line with the yellow champion history. */}
-          <Line
-            yAxisId="equity"
-            type="monotone"
-            dataKey="newModel"
-            stroke="#f59e0b"
-            strokeWidth={2.5}
-            dot={false}
-            legendType="none"
             connectNulls
-            activeDot={{ r: 4, fill: '#f59e0b', stroke: '#0f172a', strokeWidth: 2 }}
+            activeDot={{ r: 4, fill: '#3b82f6', stroke: '#0f172a', strokeWidth: 2 }}
           />
 
-          {/* COMPARISON (dotted BLUE) = the TILT (deterministic rules + small M1
-              nudge = shadow_A), from the boundary forward. Yellow continuous = canon
-              (two-stage); blue dotted = the tilt comparison. */}
-          {hasTilt && (
+          {/* Demoted reconstructed two-stage comparison. */}
+          {hasComparison && (
             <Line
               yAxisId="equity"
               type="monotone"
               dataKey="championForward"
-              stroke="#3b82f6"
+              stroke="#f59e0b"
               strokeWidth={1.5}
               strokeDasharray="3 4"
               dot={false}
@@ -559,11 +532,11 @@ Background color bands show the detected market regime at each point in time.`}
       {/* Legend */}
       <div className="performance-legend">
         <span className="legend-item">
-          <span className="legend-swatch" style={{ background: '#f59e0b' }} /> Portfolio (canon — two-stage live)
+          <span className="legend-swatch" style={{ background: '#3b82f6' }} /> Portfolio (TILT - canon)
         </span>
-        {hasTilt && (
+        {hasComparison && (
           <span className="legend-item">
-            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#3b82f6', opacity: 0.9 }} /> Tilt (comparison)
+            <span className="legend-swatch legend-swatch-dashed" style={{ background: '#f59e0b', opacity: 0.9 }} /> Two-stage (comparison)
           </span>
         )}
         <span className="legend-item">
@@ -572,9 +545,9 @@ Background color bands show the detected market regime at each point in time.`}
         <span className="legend-item">
           <span className="legend-swatch" style={{ background: '#ef4444', opacity: 0.5 }} /> Drawdown
         </span>
-        {shadow && !hasTilt && (
+        {shadow && !hasComparison && (
           <span className="legend-item">
-            <span className="legend-swatch" style={{ background: '#3b82f6', opacity: 0.45 }} /> Tilt (comparison): armed — accruing
+            <span className="legend-swatch" style={{ background: '#f59e0b', opacity: 0.45 }} /> Two-stage comparison: accruing
           </span>
         )}
         <span className="legend-item legend-item-regime">
@@ -596,7 +569,7 @@ Background color bands show the detected market regime at each point in time.`}
         <div className="shadow-note">
           {hasNewBrain ? (
             <>
-              <strong style={{ color: '#fbbf24' }}>New Brain</strong> (native two-stage engine) — live from {newBrainGoLiveDate}, re-anchored C0-continuous to the frozen champion ($114.9k, Jun 11).
+              <strong style={{ color: '#60a5fa' }}>TILT canon</strong> — live from {newBrainGoLiveDate}, re-anchored C0-continuous to the frozen champion ($114.9k, Jun 11). The reconstructed two-stage model remains the dotted yellow comparison.
               {' '}
               {forecastRung
                 ? <>Forecast-rung rent (exposure-stripped): <strong>{formatShadowStat(forecastRung.stripped_bp_day)}</strong> bp/day
@@ -617,9 +590,9 @@ Background color bands show the detected market regime at each point in time.`}
           language before the pre-registered read dates. */}
       {shadow && (
         <div className="shadow-note">
-          {hasTilt ? (
+          {hasComparison ? (
             <>
-              New model (live): {shadow.stats.days_accrued} day{shadow.stats.days_accrued === 1 ? '' : 's'} accrued
+              Two-stage comparison: {shadow.stats.days_accrued} day{shadow.stats.days_accrued === 1 ? '' : 's'} accrued
               {' · '}mean IC {formatShadowStat(shadow.stats.mean_ic, 3)} (t={formatShadowStat(shadow.stats.ic_t, 2)})
               {' · '}utility diff {formatShadowStat(shadow.stats.utility_diff_bp_day)} bp/day
               {shadow.stats.utility_diff_bp_day_ci ?? shadow.stats.ci
@@ -628,7 +601,7 @@ Background color bands show the detected market regime at each point in time.`}
               {' — '}accruing; verdict reads pre-registered for {SHADOW_READ_DATES}.
             </>
           ) : (
-            <>Shadow (paper): armed — accruing. Verdict reads pre-registered for {SHADOW_READ_DATES}.</>
+            <>Two-stage comparison: accruing. Verdict reads pre-registered for {SHADOW_READ_DATES}.</>
           )}
         </div>
       )}

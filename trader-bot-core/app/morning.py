@@ -17,7 +17,7 @@ from typing import Any, Dict
 from chassis.config_loader import load_config_from_s3
 from chassis.steps import morning_executor, publish_artifacts
 from chassis.utils.logging_utils import StepTimer
-from chassis.utils.market_calendar import latest_settled_session
+from chassis.utils.market_calendar import is_trading_session, ny_today
 from chassis.utils.s3_client import S3Client
 from chassis.utils.sns_alerts import (
     send_alert, format_morning_summary, format_error_alert,
@@ -30,8 +30,15 @@ def run_morning(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     """Morning execution phase: validate intents and execute trades at market
     prices, then publish updated portfolio state + dashboard. Clean-core."""
     start_time = datetime.now()
-    # Settled NY trading day, not UTC now (PKT-4). Morning fires 14:45 UTC = 09:45 ET.
-    run_date = event.get('run_date') or latest_settled_session()
+    # Morning executes only on the actual ET session date. EventBridge's Mon-Fri
+    # schedule also fires on exchange holidays, so reject those before fetching a
+    # quote or writing a trade.
+    run_date = event.get('run_date') or ny_today().isoformat()
+    if not is_trading_session(run_date):
+        return {'statusCode': 200, 'body': json.dumps({
+            'status': 'skipped', 'phase': 'morning', 'date': run_date,
+            'reason': 'NYSE closed; no simulated execution or price artifact written',
+        })}
     logger.info(f"Morning execution started at {start_time}")
 
     s3_client = S3Client(bucket, region)
@@ -41,7 +48,7 @@ def run_morning(event: dict, bucket: str, region: str) -> Dict[str, Any]:
             config = load_config_from_s3(s3_client)
 
         with StepTimer("Morning execution", logger):
-            result = morning_executor.run(bucket, config)
+            result = morning_executor.run(bucket, config, run_date=run_date)
 
         portfolio_state = result['portfolio_state']
         trades = result['trades']

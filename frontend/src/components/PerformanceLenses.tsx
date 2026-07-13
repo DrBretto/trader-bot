@@ -18,6 +18,8 @@ interface Props {
   shadow?: ShadowTimeseries | null;
 }
 
+const MODEL_COMPARISON_BOUNDARY = '2026-06-11';
+
 function formatPct(value: number): string {
   const sign = value >= 0 ? '+' : '';
   return `${sign}${value.toFixed(1)}%`;
@@ -63,45 +65,44 @@ function buildModelComparisonData(equityCurve: EquityCurvePoint[]) {
     .filter((point): point is NonNullable<typeof point> => point !== null);
 }
 
-// Two-stage (live, canon) vs the tilt — the two models the operator watches.
-// The live two-stage book is the canon equity value; the tilt (deterministic
-// rules + small M1 nudge) is shadow_A. Both rebased to 100 at the first common
-// settled date so their relative paths are directly comparable.
+// TILT canon vs the reconstructed two-stage comparison, both rebased to 100 at
+// the first common settled date.
 function buildShadowComparisonData(
   equityCurve: EquityCurvePoint[],
   shadow: ShadowTimeseries | null | undefined,
 ) {
   // First available challenger series (robust to a varying number of series).
-  const tiltPts = pickChallengerSeries(shadow);
-  if (tiltPts.length === 0) return [];
-  const tiltByDate = new Map(tiltPts);
+  const comparisonPts = pickChallengerSeries(shadow);
+  if (comparisonPts.length === 0) return [];
+  const comparisonByDate = new Map(comparisonPts);
 
-  const rows = equityCurve.filter((point) => tiltByDate.has(point.date));
+  const rows = equityCurve.filter((point) =>
+    point.date >= MODEL_COMPARISON_BOUNDARY && comparisonByDate.has(point.date));
   const first = rows.find((point) => {
-    const twoStage = getCurrentModelValue(point);
-    const tv = tiltByDate.get(point.date);
-    return twoStage > 0 && tv != null && tv > 0;
+    const tilt = getCurrentModelValue(point);
+    const twoStage = comparisonByDate.get(point.date);
+    return tilt > 0 && twoStage != null && twoStage > 0;
   });
   if (!first) return [];
 
-  const firstTwoStage = getCurrentModelValue(first);
-  const firstTilt = tiltByDate.get(first.date)!;
+  const firstTilt = getCurrentModelValue(first);
+  const firstTwoStage = comparisonByDate.get(first.date)!;
 
   return rows
     .map((point) => {
-      const twoStage = getCurrentModelValue(point);
-      const tv = tiltByDate.get(point.date);
-      if (twoStage <= 0 || tv == null || tv <= 0) return null;
+      const tilt = getCurrentModelValue(point);
+      const twoStage = comparisonByDate.get(point.date);
+      if (tilt <= 0 || twoStage == null || twoStage <= 0) return null;
 
-      const currentModelIndex = (twoStage / firstTwoStage) * 100;  // two-stage (live)
-      const tiltIndex = (tv / firstTilt) * 100;                     // tilt (comparison)
+      const currentModelIndex = (tilt / firstTilt) * 100;
+      const twoStageIndex = (twoStage / firstTwoStage) * 100;
 
       return {
         date: point.date,
         dateLabel: format(parseISO(point.date), 'MMM d'),
         currentModelIndex,
-        previousModelIndex: tiltIndex,
-        modelDeltaPct: currentModelIndex - tiltIndex,
+        previousModelIndex: twoStageIndex,
+        modelDeltaPct: currentModelIndex - twoStageIndex,
       };
     })
     .filter((point): point is NonNullable<typeof point> => point !== null);
@@ -138,12 +139,12 @@ export function PerformanceLenses({ equityCurve, shadow }: Props) {
     return null;
   }
 
-  const lensTitle = usingShadowLens || shadowArmed ? 'Two-stage (live) vs Tilt' : 'Current Model vs Previous';
+  const lensTitle = usingShadowLens || shadowArmed ? 'TILT (canon) vs Two-stage' : 'Current Model vs Previous';
   const lensSubtitle = usingShadowLens || shadowArmed
-    ? 'Rebased to 100 at the boundary — the live two-stage engine vs the tilt (rules + small M1 nudge).'
+    ? 'Rebased to 100 at the boundary — canonical TILT vs the reconstructed two-stage comparison.'
     : 'Rebased to 100 so the active canon and prior model are directly comparable.';
-  const lensNewLabel = usingShadowLens ? 'Tilt' : 'Previous Model';
-  const lensDeltaLabel = usingShadowLens ? 'Two-stage − Tilt' : 'Current - Previous';
+  const lensNewLabel = usingShadowLens ? 'Two-stage' : 'Previous Model';
+  const lensDeltaLabel = usingShadowLens ? 'TILT - Two-stage' : 'Current - Previous';
 
   return (
     <div className="performance-lenses-section">
@@ -213,7 +214,7 @@ export function PerformanceLenses({ equityCurve, shadow }: Props) {
                 formatter={(value: number, name: string) => [
                   name === 'modelDeltaPct' ? formatPct(value) : value.toFixed(2),
                   name === 'currentModelIndex'
-                    ? (usingShadowLens ? 'Two-stage (live)' : 'Current Model')
+                    ? (usingShadowLens ? 'TILT (canon)' : 'Current Model')
                     : name === 'previousModelIndex'
                       ? lensNewLabel
                       : lensDeltaLabel,
@@ -223,7 +224,7 @@ export function PerformanceLenses({ equityCurve, shadow }: Props) {
               <Line
                 type="monotone"
                 dataKey="currentModelIndex"
-                stroke={usingShadowLens ? '#f59e0b' : '#34d399'}
+                stroke={usingShadowLens ? '#3b82f6' : '#34d399'}
                 strokeWidth={2.5}
                 dot={false}
                 name="currentModelIndex"
@@ -231,7 +232,7 @@ export function PerformanceLenses({ equityCurve, shadow }: Props) {
               <Line
                 type="monotone"
                 dataKey="previousModelIndex"
-                stroke="#60a5fa"
+                stroke={usingShadowLens ? '#f59e0b' : '#60a5fa'}
                 strokeWidth={1.75}
                 strokeDasharray="3 4"
                 dot={false}

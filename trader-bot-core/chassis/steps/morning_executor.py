@@ -5,10 +5,15 @@ Pure trading simulation: executes via paper_trader logic.
 
 import logging
 import pandas as pd
-from datetime import datetime
+from datetime import date, datetime
 from typing import Dict, Any, List, Tuple, Optional
 
 from chassis.steps import ingest_prices, paper_trader
+from chassis.utils.market_calendar import (
+    is_trading_session,
+    ny_today,
+    trading_sessions_between,
+)
 from chassis.utils.s3_client import S3Client
 
 logger = logging.getLogger(__name__)
@@ -17,9 +22,10 @@ DUST_SHARE_EPSILON = 0.001
 DUST_VALUE_EPSILON = 0.01
 
 
-# Maximum age for trade intents (calendar days).
-# Friday night → Monday morning = 3 days, so 3 is the minimum safe value.
-MAX_INTENT_AGE_DAYS = 3
+# Overnight intents are valid for the next real market session only. Counting NYSE
+# sessions makes Friday->Monday and a pre-holiday night->next open valid without
+# making a several-session-old instruction executable.
+MAX_INTENT_AGE_SESSIONS = 1
 
 # Maximum price gap allowed for BUY intents.
 # If morning price differs from intent price by more than this, skip the buy.
@@ -39,15 +45,23 @@ def load_trade_intents(s3: S3Client) -> Optional[Dict[str, Any]]:
     return s3.read_json(f'daily/{intents_date}/trade_intents.json')
 
 
-def validate_intent_freshness(intents: Dict[str, Any]) -> bool:
-    """Check that intents are not stale (within MAX_INTENT_AGE_DAYS)."""
+def validate_intent_freshness(
+    intents: Dict[str, Any],
+    as_of_date: Optional[str] = None,
+) -> bool:
+    """Check that intents belong to this or the immediately next NYSE session."""
     generated_date = intents.get('generated_date')
     if not generated_date:
         return False
-
-    gen_dt = datetime.strptime(generated_date, '%Y-%m-%d')
-    age_days = (datetime.now() - gen_dt).days
-    return age_days <= MAX_INTENT_AGE_DAYS
+    try:
+        generated = date.fromisoformat(str(generated_date)[:10])
+        current = date.fromisoformat(as_of_date) if as_of_date else ny_today()
+    except (TypeError, ValueError):
+        return False
+    if not is_trading_session(generated) or not is_trading_session(current):
+        return False
+    age_sessions = trading_sessions_between(generated, current)
+    return 0 <= age_sessions <= MAX_INTENT_AGE_SESSIONS
 
 
 def validate_buy_intent(intent: Dict, morning_price: float) -> Tuple[bool, str]:
@@ -169,7 +183,11 @@ def _update_valuations_from_quotes(
     return portfolio
 
 
-def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
+def run(
+    bucket: str,
+    config: Dict[str, Any],
+    run_date: Optional[str] = None,
+) -> Dict[str, Any]:
     """
     Execute morning phase: validate intents, fetch prices, execute trades.
 
@@ -226,11 +244,13 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
             'intents_executed': 0
         }
 
-    # Check freshness
-    if not validate_intent_freshness(intents):
+    execution_date = run_date or ny_today().isoformat()
+
+    # Check freshness in real market sessions, not calendar days.
+    if not validate_intent_freshness(intents, as_of_date=execution_date):
         validation_log.append(
             f"Intents stale (generated {intents.get('generated_date')}, "
-            f"max age {MAX_INTENT_AGE_DAYS} days)"
+            f"max age {MAX_INTENT_AGE_SESSIONS} trading session)"
         )
         portfolio = paper_trader.load_portfolio_state(s3)
         held_symbols = [h['symbol'] for h in portfolio.get('holdings', [])]
@@ -289,7 +309,7 @@ def run(bucket: str, config: Dict[str, Any]) -> Dict[str, Any]:
 
     regime_label = intents.get('regime', 'risk_on_trend')
     holding_map = {h['symbol']: h for h in portfolio.get('holdings', [])}
-    run_date = datetime.now().strftime('%Y-%m-%d')
+    run_date = execution_date
 
     # Process each intent
     trades: List[Dict[str, Any]] = []

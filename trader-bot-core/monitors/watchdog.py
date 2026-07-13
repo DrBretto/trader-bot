@@ -39,15 +39,17 @@ from __future__ import annotations
 import datetime as _dt
 from typing import Any, Callable, Dict, Optional, Tuple
 
+from chassis.utils.market_calendar import (
+    latest_session_on_or_before,
+    trading_sessions_between,
+)
+from lines.ledger import CACHE_KEY as LEDGER_CACHE_KEY
 from .substrate import check_substrate_fresh  # VERBATIM freeze-signature check
 
 STALE_TRADING_DAYS = 1          # a line may lag the expected settled day by at most this
 BRAIN_NAMESPACE = "TraderBot/Brain"
-# REGIME-GATE-FIX RE-SEED (2026-07-08): the LIVE canon ledger is now the fixed-engine
-# replay-seeded clean_v3 (canon/equity_ledger_clean_v3/) — the same ledger the
-# clean-core night path reads/appends/publishes. The watchdog must check the ledger
-# production actually runs on, kept in lockstep with lines.ledger.LEDGER_PREFIX.
-LEDGER_CACHE_KEY = "canon/equity_ledger_clean_v3/equity_history.jsonl"
+# Imported from lines.ledger so a canon promotion cannot leave the watchdog pinned
+# to an old prefix.
 SHADOW_KEY = "dashboard/shadow_timeseries.json"
 LATEST_KEY = "daily/latest.json"
 # The PUBLISHED dashboard the frontend serves — the value-revert check reads its
@@ -74,28 +76,15 @@ CHALLENGER_SERIES_KEYS = (
 # far ahead, and STALE_TRADING_DAYS absorbs exactly that).
 # --------------------------------------------------------------------------- #
 def _trading_days_between(d0: Optional[str], d1: Optional[str]) -> int:
-    """Weekday count strictly between two YYYY-MM-DD dates."""
+    """NYSE-session count strictly after d0 through d1."""
     try:
-        a = _dt.date.fromisoformat(str(d0))
-        b = _dt.date.fromisoformat(str(d1))
+        return trading_sessions_between(str(d0), str(d1))
     except Exception:  # noqa: BLE001
         return 0
-    if b <= a:
-        return 0
-    n = 0
-    cur = a
-    while cur < b:
-        cur += _dt.timedelta(days=1)
-        if cur.weekday() < 5:
-            n += 1
-    return n
 
 
 def _latest_weekday_on_or_before(today: _dt.date) -> str:
-    d = today
-    while d.weekday() >= 5:  # Sat/Sun -> step back to Friday
-        d -= _dt.timedelta(days=1)
-    return d.isoformat()
+    return latest_session_on_or_before(today).isoformat()
 
 
 # --------------------------------------------------------------------------- #
@@ -280,7 +269,7 @@ def check_value_revert(s3, terminal: Optional[Dict[str, Any]] = None) -> Dict[st
     terminal — exactly what a publish path reading the retired ledger did (07-02
     stayed put while the value flipped 114271.38 -> 121147.52). This reads the
     PUBLISHED dashboard + shadow terminals and refuses to call the system healthy
-    when any of canon/SPY/challenger (a) diverges from the corrected clean_v2 ledger
+    when any of canon/SPY/comparison (a) diverges from the active canonical ledger
     terminal for the SAME date, or (b) lands on a known contaminated value. Returns
     {reverted, published, ledger, reason, lines}; reverted=True trips the CRITICAL
     email. Fail-soft: never raises.

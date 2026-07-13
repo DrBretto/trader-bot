@@ -39,6 +39,10 @@ _SETTLE_BUFFER_UTC = (21, 15)
 
 def _is_settled_session(date_str: str) -> bool:
     """True iff day ``date_str``'s US market session has closed (settled)."""
+    from chassis.utils.market_calendar import is_trading_session
+
+    if not is_trading_session(date_str):
+        return False
     now = datetime.now(timezone.utc)
     h, m = _SETTLE_BUFFER_UTC
     try:
@@ -62,7 +66,6 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     from decide.cutover import (run_cutover, load_brain_config,
                                 production_forecaster, _regime_compat_path)
     from decide.freshness_gate import _latest_settled_trading_day
-    from lines.append import append_settled_point_for_publish
     from publish.dashboard import build_publish_surface, publish_line
     from monitors.canary_gate import run_post_pipeline_canaries
     from monitors.watchdog import run_daily_health_check, emit_run_heartbeat
@@ -88,7 +91,7 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     config = dict(load_brain_config())
     config["mode"] = "live"
     universe_df = _load_universe_df(_regime_compat_path().parent)
-    portfolio_state = load_portfolio_state(s3)
+    portfolio_state = load_portfolio_state(s3, as_of=settled)
 
     # ---- settled-bar PRODUCTION (CL-708001) — RESTORED. The clean night path is a
     #      pure CONSUMER of settled bars (production_forecaster's extend downloads
@@ -134,9 +137,26 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     trade_intents.setdefault("expires_after_days", EXPIRES_AFTER_DAYS)
     s3.write_json(trade_intents, f"daily/{settled}/trade_intents.json")
 
-    # ---- append the settled leaf, then publish non-destructively ----
-    append_report = append_settled_point_for_publish(s3.s3, settled, portfolio_state,
-                                                      bucket=bucket)
+    # Operational pointers advance independently of the chart publish. Coupling
+    # this pointer to a dashboard guard left the morning executor reading days-old
+    # intents/state even though newer artifacts existed.
+    latest = s3.read_json("daily/latest.json") or {}
+    latest.update({
+        "intents_date": settled,
+        "phase": "night",
+        "timestamp": datetime.now().isoformat(),
+    })
+    latest.pop("portfolio_value", None)
+    latest.pop("positions_count", None)
+    s3.write_json(latest, "daily/latest.json")
+
+    # The scheduled replay refresh owns BOTH model lines. The night must never turn
+    # this internal sizing state into a displayed return ratio.
+    append_report = {
+        "action": "deferred_to_replay_refresh",
+        "date": settled,
+        "writer": "advance-challenger",
+    }
     dashboard_data = build_publish_surface(s3.s3)
     publish_report = publish_line(dashboard_data, s3.s3, phase="night",
                                   run_date=settled)

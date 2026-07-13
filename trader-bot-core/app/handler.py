@@ -16,9 +16,7 @@ event contract):
     daily-health / healthcheck → monitors.run_daily_health_check (three-line email)
     ops-probe / *-diag /       → app.ops_probes.dispatch (governed, non-destructive
       canary / watchdog-diag                              reality-test branches)
-    shadow-publish             → app.shadow_publish (CU-02: publish the independent
-                                               challenger dotted line + clear the
-                                               contaminated canon-mirror point)
+    shadow-publish             → app.shadow_publish (publish canon + comparison mirrors)
     <anything else>            → app.night    (feeds→store→freshness_gate→features→
                                                forecast→engine→decide→lines→publish)
 
@@ -86,10 +84,7 @@ def lambda_handler(event: dict, context) -> Dict[str, Any]:
         return _ok(result.get("phase", "ops-probe"), {"result": result})
 
     if source == "shadow-publish":
-        # CU-02: publish the INDEPENDENT challenger dotted line + clear the
-        # contaminated canon-mirror point. NOT a second run_night (the prior
-        # fall-through bug ran a duplicate clean night and never published the
-        # challenger).
+        # Publish the stored canon + comparison mirrors. NOT a second run_night.
         from app.shadow_publish import run_shadow_publish
         return _ok("shadow-publish", run_shadow_publish(event, bucket, region))
 

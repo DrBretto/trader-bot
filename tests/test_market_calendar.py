@@ -3,9 +3,14 @@ from datetime import datetime, timezone
 
 import pandas as pd
 
-from src.utils.market_calendar import (
-    ny_today, latest_settled_session, settled_day_from_prices,
+from chassis.utils.market_calendar import (
+    is_trading_session,
+    latest_settled_session,
+    ny_today,
+    settled_day_from_prices,
+    trading_sessions_between,
 )
+from chassis.steps.morning_executor import validate_intent_freshness
 
 
 def _utc(y, m, d, hh, mm=0):
@@ -38,6 +43,18 @@ def test_settled_day_from_prices_holiday_frozen_close():
     which the append-only frontier guard then treats as a no-op (no leaf)."""
     panel = pd.DataFrame([{"symbol": "SPY", "date": "2026-07-02"}])  # 07-03 mkt closed
     assert settled_day_from_prices(panel, now_utc=_utc(2026, 7, 3, 22)) == "2026-07-02"
+
+
+def test_july_3_2026_is_a_market_holiday_not_an_execution_day():
+    assert not is_trading_session("2026-07-03")
+    assert latest_settled_session(now_utc=_utc(2026, 7, 3, 14)) == "2026-07-02"
+
+
+def test_intent_freshness_counts_sessions_not_calendar_days():
+    intents = {"generated_date": "2026-07-02"}
+    assert trading_sessions_between("2026-07-02", "2026-07-06") == 1
+    assert validate_intent_freshness(intents, as_of_date="2026-07-06")
+    assert not validate_intent_freshness(intents, as_of_date="2026-07-07")
 
 
 def test_settled_day_from_prices_empty_panel_falls_back_to_session():

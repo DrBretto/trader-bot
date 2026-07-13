@@ -52,17 +52,13 @@ from chassis.utils.corrections import (
 logger = logging.getLogger(__name__)
 
 BUCKET = "investment-system-data"
-# RESTORE-ORIGINAL-BASE RE-SEED (2026-07-09, PKT-TRADER-BOT-RESTORE-ORIGINAL-BASE):
-# the LIVE canon ledger is now canon/equity_ledger_restored_v1/ — BOTH forward lines
-# were rebuilt as the RECOVERED ORIGINAL CHAMPION as the shared base + one addition
-# each (value = champion base + additive M1 mu forecast stage; comparison = champion
-# base + <=8% M1 tilt), replacing the drifted two-stage (mu-primary canon) + health-
-# blind tilt. The recovered original reproduces the frozen champion line to the penny
-# (terminal 114772.39 @ 2026-06-11); the frozen champion segment (<=06-11) is byte-
-# copied and SPY (benchmark) is byte-copied from clean_v3 (UNCHANGED). The prior
-# clean_v3 ledger is left BYTE-UNTOUCHED as the rollback path — point LEDGER_PREFIX
-# back at canon/equity_ledger_clean_v3/ to roll back.
-LEDGER_PREFIX = "canon/equity_ledger_restored_v1/"
+# TILT CANON PROMOTION (2026-07-13): one replay-owned ledger stores the independently
+# reconstructed TILT as ``value`` (solid blue + every line-derived metric) and the
+# repaired two-stage book as ``comparison`` (dotted yellow). The clean_v3 and
+# restored_v1 prefixes remain byte-untouched rollback/evidence surfaces. Only
+# ``lines.replay_refresh`` may append post-split leaves to this prefix; portfolio-
+# state ratio appenders are deliberately not wired to it.
+LEDGER_PREFIX = "canon/equity_ledger_tilt_canon_v1/"
 POINTS_PREFIX = LEDGER_PREFIX + "points/"
 MANIFEST_KEY = LEDGER_PREFIX + "_manifest.json"
 CACHE_KEY = LEDGER_PREFIX + "equity_history.jsonl"

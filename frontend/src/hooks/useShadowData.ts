@@ -105,12 +105,9 @@ export interface ShadowTimeseries {
   stats: ShadowStats;
 }
 
-// Challenger (comparison) series in display priority. The bottom model-comparison
-// chart renders the FIRST non-empty one, so it stays robust to a varying number of
-// challenger series and NEVER assumes a fixed set (e.g. exactly shadow_A + shadow_B):
-// a series being absent, or N changing, degrades to "the next available challenger"
-// rather than a blank/crashing chart. shadow_A and shadow_F are the same M1 tilt
-// (the producer aliases shadow_A := shadow_F), so either renders the tilt line.
+// Comparison-series display priority. shadow_A is the promoted ledger's two-stage
+// comparison; fallback keys preserve compatibility with older payloads. The chart
+// stays total when a payload is armed but temporarily has no comparison points.
 export const CHALLENGER_SERIES_KEYS: (keyof ShadowTimeseries)[] = [
   'shadow_A', 'shadow_F', 'shadow_U', 'shadow_E', 'shadow_B', 'shadow_R', 'shadow_I',
 ];

@@ -390,7 +390,7 @@ def compute_portfolio_stats(
 
     # LINE stats from the stored ledger (the displayed, anchored series).
     try:
-        from chassis.canon.equity_line import load_line_view
+        from lines.line import load_line_view
         lm = load_line_view(s3.s3).get('line_metrics', {}) or {}
     except Exception:
         lm = {}

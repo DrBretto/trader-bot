@@ -41,7 +41,10 @@ function MobileTooltip({ active, payload }: TooltipProps<number, string>) {
   return (
     <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 8, padding: '6px 10px', fontSize: 11 }}>
       <div style={{ color: '#94a3b8' }}>{dateStr}</div>
-      <div style={{ color: '#f59e0b' }}>{formatCurrency(point.value)}</div>
+      <div style={{ color: '#3b82f6' }}>TILT: {formatCurrency(point.value)}</div>
+      {point.shadowA != null && (
+        <div style={{ color: '#f59e0b' }}>Two-stage: {formatCurrency(point.shadowA)}</div>
+      )}
       <div style={{ color: '#64748b' }}>SPY: {formatCurrency(point.benchmark)}</div>
     </div>
   );
@@ -103,8 +106,8 @@ export function MobileChart({ equityData, timeseries, shadow }: Props) {
         <ComposedChart data={merged} margin={{ top: 4, right: 4, bottom: 0, left: -12 }}>
           <defs>
             <linearGradient id="mobileEquityGlow" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.15} />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.0} />
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.15} />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
@@ -134,17 +137,17 @@ export function MobileChart({ equityData, timeseries, shadow }: Props) {
           <Area yAxisId="eq" type="monotone" dataKey="value" fill="url(#mobileEquityGlow)" stroke="none" />
           <Line yAxisId="eq" type="monotone" dataKey="benchmark" stroke="#64748b" strokeWidth={1.5} strokeDasharray="6 4" dot={false} />
           {hasShadowA && (
-            <Line yAxisId="eq" type="monotone" dataKey="shadowA" stroke="#3b82f6" strokeWidth={1.5} strokeDasharray="3 4" dot={false} connectNulls />
+            <Line yAxisId="eq" type="monotone" dataKey="shadowA" stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="3 4" dot={false} connectNulls />
           )}
-          <Line yAxisId="eq" type="monotone" dataKey="value" stroke="#f59e0b" strokeWidth={2} dot={false} activeDot={{ r: 3, fill: '#f59e0b', stroke: '#0f172a', strokeWidth: 2 }} />
+          <Line yAxisId="eq" type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={false} activeDot={{ r: 3, fill: '#3b82f6', stroke: '#0f172a', strokeWidth: 2 }} />
         </ComposedChart>
       </ResponsiveContainer>
       {(hasShadowA || shadowArmed) && (
         <div style={{ fontSize: 10, color: '#94a3b8', padding: '2px 8px 0' }}>
-          <span style={{ color: '#3b82f6' }}>—</span>{' '}
+          <span style={{ color: '#f59e0b' }}>- -</span>{' '}
           {hasShadowA
-            ? 'Shadow: new brain tilt (paper), accruing'
-            : 'Shadow (paper): armed — accruing from tonight'}
+            ? 'Two-stage comparison'
+            : 'Two-stage comparison: accruing'}
         </div>
       )}
     </div>
