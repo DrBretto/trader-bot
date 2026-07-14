@@ -68,7 +68,16 @@ def ensure_seed_caches(logf: Optional[Path] = None) -> None:
         if dst.exists() and any(dst.iterdir()):
             continue
         log_line(f"seeding cache {dst.name} from {src}", logf)
-        shutil.copytree(src, dst, dirs_exist_ok=True)
+        # Seed directories are runtime data, not workspace metadata. Local editor /
+        # agent state can appear inside them in a dirty worktree and may carry modes
+        # Lambda cannot reproduce (the 2026-07-13 `.claude/.cc-writes` failure).
+        # Never hydrate that metadata into the writable runtime cache.
+        shutil.copytree(
+            src,
+            dst,
+            dirs_exist_ok=True,
+            ignore=shutil.ignore_patterns(".claude", ".DS_Store", "__pycache__", "*.pyc"),
+        )
     GDELT_RECORDS_DIR.mkdir(parents=True, exist_ok=True)
     STORE.mkdir(parents=True, exist_ok=True)
     llm = SEED_ROOT / "store" / "llm_features.parquet"

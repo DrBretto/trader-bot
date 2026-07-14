@@ -41,6 +41,9 @@ dotted yellow comparison.
 - 2026-07-13: Seeded `canon/equity_ledger_tilt_canon_v1/` non-destructively: 255
   verified points through July 10. A second dry-run reproduced both the TILT and
   two-stage terminals exactly, found a complete grid, and planned zero writes.
+- 2026-07-13: First deployed canary refused before replay because local `.claude`
+  metadata had entered the baked seed cache. Seed hydration now excludes workspace
+  metadata; no ledger or dashboard write occurred on the failed canary.
 
 ## Follow-ups
 
