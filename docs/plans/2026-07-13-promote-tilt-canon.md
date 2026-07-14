@@ -61,6 +61,10 @@ dotted yellow comparison.
 - 2026-07-14: Repaired `daily/latest.json` from stale July 8 state to the verified
   July 13 midday portfolio artifact. The deployed night/morning code now advances
   state and intent pointers independently of chart publication.
+- 2026-07-14: The next autonomous morning cycle then advanced the pointer to July 14,
+  loaded July 13 intents with `intents_stale=false`, and executed 11 trades. The
+  chart correctly remained at the latest settled session (July 13), proving line
+  publication and operational state advancement are now decoupled.
 - 2026-07-14: The documented frontend `--delete` sync removed three historical
   `.bak` objects because the recipe protected active data but not backups. Active
   production data was not affected. S3 versioning was suspended and the exact
