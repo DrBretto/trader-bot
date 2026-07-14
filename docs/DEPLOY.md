@@ -151,6 +151,7 @@ aws s3 sync dist/ s3://investment-system-data/dashboard/ \
   --exclude "timeseries.json" \
   --exclude "timeseries.parquet" \
   --exclude "shadow_timeseries.json" \
+  --exclude "*.bak*" \
   --exclude "data/*" \
   --delete --region us-east-1
 

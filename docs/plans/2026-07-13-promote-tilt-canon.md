@@ -27,7 +27,7 @@ dotted yellow comparison.
   sessions; measure intent freshness in trading sessions.
 - [x] Render canon as solid blue and the former canon as dotted yellow on desktop,
   mobile, and the model-comparison lens.
-- [ ] Add regression coverage, run backend tests and the production frontend build,
+- [x] Add regression coverage, run backend tests and the production frontend build,
   seed the promoted ledger, deploy, and verify the public JSON and page.
 
 ## Execution Log
@@ -44,8 +44,30 @@ dotted yellow comparison.
 - 2026-07-13: First deployed canary refused before replay because local `.claude`
   metadata had entered the baked seed cache. Seed hydration now excludes workspace
   metadata; no ledger or dashboard write occurred on the failed canary.
+- 2026-07-13: Focused backend coverage passed (13 tests), the TypeScript check and
+  production Vite build passed, and Lambda image digest
+  `sha256:9e047d3e1fa857be2454c794f1ae452663a256cca79f4b095c40a608c61b5b79`
+  deployed successfully.
+- 2026-07-13: Published frontend bundle `assets/index-BFt4SGXI.js`; CloudFront
+  invalidation `IZ116AWM0AQ6GRS6G2IFI84HX` completed for `/*`. Browser inspection
+  confirmed TILT as an undashed blue line (`#3b82f6`) and two-stage as dotted yellow
+  (`#f59e0b`, `3 4`), with no browser warnings or errors.
+- 2026-07-14: The enabled `advance-challenger` schedule autonomously appended the
+  settled July 13 session. The immutable linked leaf is
+  `cda1731b4c5ce5a9ce5ffaf0d21bac4809c016d738f14d8b72ec960a83e6d6de`:
+  TILT `$114,983.92395947811`, two-stage `$114,310.89774002078`, SPY
+  `$108,605.49389097832`. The manifest frontier, public dashboard, comparison
+  payload, and rendered page all agree on July 13.
+- 2026-07-14: Repaired `daily/latest.json` from stale July 8 state to the verified
+  July 13 midday portfolio artifact. The deployed night/morning code now advances
+  state and intent pointers independently of chart publication.
+- 2026-07-14: The documented frontend `--delete` sync removed three historical
+  `.bak` objects because the recipe protected active data but not backups. Active
+  production data was not affected. S3 versioning was suspended and the exact
+  backups were not recoverable; the deploy recipe now excludes `*.bak*`.
 
 ## Follow-ups
 
-- None. This task is not complete until the live line and metrics are verified from
-  the promoted ledger and the recurring schedules remain active.
+- The focused repair tests and production build pass. Several older broad tests
+  still fail during collection because they import the already-removed legacy
+  `src` package; that pre-existing relocation gap is outside this line repair.
