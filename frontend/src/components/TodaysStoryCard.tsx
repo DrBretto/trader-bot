@@ -1,4 +1,4 @@
-import { BuyCandidate, ExpertSignals, PortfolioMetrics } from '../types';
+import { BuyCandidate, ExpertSignals, PortfolioMetrics, WeatherReport } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
 interface FusionRule {
@@ -9,18 +9,12 @@ interface FusionRule {
   effect: string;
 }
 
-interface WeatherData {
-  headline: string;
-  summary: string;
-  risks?: string[];
-}
-
 interface Props {
   signals?: ExpertSignals;
   metrics: PortfolioMetrics;
   candidates: BuyCandidate[];
   fusionRules?: FusionRule[];
-  weather: WeatherData;
+  weather: WeatherReport;
 }
 
 const CHANGE_HINTS: Record<string, string> = {
@@ -31,14 +25,27 @@ const CHANGE_HINTS: Record<string, string> = {
   calm_uptrend: 'Sharp vol spike could trigger defensive posture.',
 };
 
-export function TodaysStoryCard({ signals, metrics, candidates, fusionRules, weather }: Props) {
-  if (!signals) return null;
+function formatRegime(regime: string) {
+  return regime
+    .split('_')
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
 
-  const regime = signals.final_regime_label || 'unknown';
+export function TodaysStoryCard({ signals, metrics, candidates, fusionRules, weather }: Props) {
+  const regime = signals?.final_regime_label || weather.regime?.regime || 'unknown';
+  const regimeLabel = formatRegime(regime) || 'Unknown';
   const cashPct = metrics.cash_pct ?? (metrics.total_value > 0 ? metrics.cash / metrics.total_value : 0);
-  const firedRules = (fusionRules ?? []).filter(r => r.fired);
+  const firedRules = signals ? (fusionRules ?? []).filter(r => r.fired) : [];
   const top3 = candidates.slice(0, 3);
   const changeHint = CHANGE_HINTS[regime] || '';
+  const hasWeatherNarrative = Boolean(weather.summary?.trim());
+  const headline = hasWeatherNarrative && weather.headline?.trim()
+    ? weather.headline
+    : `${regimeLabel} posture`;
+  const summary = weather.summary?.trim()
+    || `The stored execution snapshot reports a ${regimeLabel.toLowerCase()} market posture.`;
 
   return (
     <div className="card todays-story-card">
@@ -46,14 +53,18 @@ export function TodaysStoryCard({ signals, metrics, candidates, fusionRules, wea
         <div className="card-title" style={{ marginBottom: 0 }}>
           <span>Today's Story</span>
           <InfoTooltip
-            content="What the system decided today and why. The headline comes from an LLM summarizing current market conditions. Cash %, position sizing, and throttle levels reflect the fusion rules acting on live signal data."
+            content={signals
+              ? "What the system decided today and why. Cash %, position sizing, and throttle levels reflect the fusion rules acting on the stored signal data."
+              : "What the stored execution snapshot says today. Regime, cash, and candidates remain visible even when detailed signal attribution is unavailable."}
             label="Today's story"
           />
         </div>
         <div className="story-meta-cluster">
           <span className="story-meta-chip">Cash {(cashPct * 100).toFixed(1)}%</span>
-          <span className="story-meta-chip">Size {((signals.position_size_modifier ?? 1) * 100).toFixed(0)}%</span>
-          {signals.risk_throttle_factor > 0 && (
+          {signals && (
+            <span className="story-meta-chip">Size {((signals.position_size_modifier ?? 1) * 100).toFixed(0)}%</span>
+          )}
+          {signals && signals.risk_throttle_factor > 0 && (
             <span className="story-meta-chip">Throttle {(signals.risk_throttle_factor * 100).toFixed(0)}%</span>
           )}
         </div>
@@ -62,10 +73,10 @@ export function TodaysStoryCard({ signals, metrics, candidates, fusionRules, wea
       <div className="story-body">
         <div className="story-copy-block">
           <div className="story-headline">
-            {weather.headline}
+            {headline}
           </div>
           <div className="story-summary">
-            {weather.summary}
+            {summary}
           </div>
         </div>
 
@@ -84,9 +95,10 @@ export function TodaysStoryCard({ signals, metrics, candidates, fusionRules, wea
             {top3.length > 0 && `Top: ${top3.map(c => c.symbol).join(', ')}`}
           </div>
 
-          {(changeHint || (weather.risks && weather.risks.length > 0)) && (
+          {(!signals || changeHint || (weather.risks && weather.risks.length > 0)) && (
             <div className="story-hint-block">
-              {changeHint}
+              {!signals && <div>Detailed signal attribution is unavailable in this snapshot.</div>}
+              {changeHint && <div>{changeHint}</div>}
               {weather.risks && weather.risks.length > 0 && (
                 <details style={{ marginTop: 2, fontStyle: 'normal' }}>
                   <summary style={{ cursor: 'pointer' }}>{weather.risks.length} risk{weather.risks.length !== 1 ? 's' : ''}</summary>
