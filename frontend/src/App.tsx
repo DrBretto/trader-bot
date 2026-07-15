@@ -128,7 +128,12 @@ export function App() {
           </header>
 
           <LearnModeOverlay paneId="status-bar">
-            <SystemStatusBar signals={data.expert_signals} metrics={m} candidateBundle={optimizerCandidateBundle} />
+            <SystemStatusBar
+              signals={data.expert_signals}
+              regimeFallback={data.weather.regime.regime}
+              metrics={m}
+              candidateBundle={optimizerCandidateBundle}
+            />
           </LearnModeOverlay>
         </div>
 

@@ -19,6 +19,7 @@ const REGIME_POSTURE: Record<string, string> = {
 
 interface Props {
   signals?: ExpertSignals;
+  regimeFallback?: string;
   metrics: PortfolioMetrics;
   candidateBundle: CandidateBundleSummary | null;
 }
@@ -38,8 +39,8 @@ function PipelineNode({ label, active, color, learnTooltip }: {
   );
 }
 
-export function SystemStatusBar({ signals, metrics, candidateBundle }: Props) {
-  const regime = signals?.final_regime_label || 'unknown';
+export function SystemStatusBar({ signals, regimeFallback, metrics, candidateBundle }: Props) {
+  const regime = signals?.final_regime_label || regimeFallback || 'unknown';
   const regimeColor = REGIME_COLORS[regime] || '#64748b';
   const isLive = candidateBundle?.promotion_status === 'live_active';
   const version = isLive ? candidateBundle?.version_id : 'opt-bootstrap';
