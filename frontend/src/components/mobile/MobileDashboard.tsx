@@ -51,7 +51,7 @@ export function MobileDashboard({ data, timeseries, shadow }: Props) {
 
   const m = data.metrics;
   const signals = data.expert_signals;
-  const regime = signals?.final_regime_label || 'unknown';
+  const regime = signals?.final_regime_label || data.weather.regime.regime || 'unknown';
   const vsSpySpread = computeVsSpySpread(data.equity_curve);
   const realHoldings = data.holdings.filter(h => h.market_value >= 0.01);
   const cashPct = m.cash_pct ?? (m.total_value > 0 ? m.cash / m.total_value : 0);

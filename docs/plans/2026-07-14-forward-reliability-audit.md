@@ -20,7 +20,7 @@ repair, rather than accepting one successful cycle as sufficient evidence.
   their own contaminated source.
 - [x] Run focused and broad automated checks; add regression coverage and repair any
   forward-reliability defects found.
-- [ ] Commit and push the audit evidence and fixes. If code changes are required,
+- [x] Commit and push the audit evidence and fixes. If code changes are required,
   deploy after the documented checkpoint and verify the live next-run path.
 
 ## Execution Log
@@ -71,14 +71,46 @@ repair, rather than accepting one successful cycle as sufficient evidence.
   workflow/IAM parsing, and diff checks are
   clean. The external checker correctly remains red until the pending live repair:
   lines stop at July 13 after today's close and the operational snapshot is July 8.
+- 2026-07-15: Committed and pushed the owned audit slice as `0c804b3`, then
+  deployed image digest
+  `sha256:520e6ccd2ca47bb78b30ae1bdc627edb7afb3a8d633f74bc30b04373bce4af7f`.
+  The deployed function reports `Active/Successful` on that exact digest.
+- 2026-07-15: Rechecked the intervening market data before writing. July 13 closes
+  were unchanged across successive daily artifacts; July 14 contained all 64
+  symbols with no duplicate, missing, non-finite, or invalid OHLC rows. An
+  independent refetch matched SPY exactly and all closes to the cent except a
+  two-cent QQQ provider revision.
+- 2026-07-15: Both the isolated and production replays reproduced every stored
+  blue, SPY, and yellow value across all 20 post-split sessions. Production
+  appended only July 14: TILT `115072.69288721618`, SPY
+  `108988.53881285334`, two-stage `114580.79758132937`.
+- 2026-07-15: Replayed the already-executed July 14 publication through a prepared
+  checkpoint. The operational snapshot advanced from July 8 to July 14 while
+  `trades.jsonl` remained exactly 11 rows, proving zero duplicate fills.
+- 2026-07-15: Live target inspection found one old second line-writer target and
+  a missing midday retry policy. Removed the duplicate, added retries, made every
+  setup script enforce exactly one expected target, and pushed `25f9db6`.
+  All seven active rules now have one target with retries; the retired shadow
+  rule is disabled.
+- 2026-07-15: Installed 11 CloudWatch alarms for Lambda errors/throttles, explicit
+  red health, missing health heartbeat, and failed EventBridge deliveries. The
+  health alarms are green and the SNS email subscription is confirmed.
+- 2026-07-15: The real 09:45 EDT EventBridge run created and completed the July 15
+  checkpoint without manual invocation, published all six required artifacts,
+  and wrote seven fills with seven unique execution IDs. Replaying the identical
+  event returned `idempotent_replay:true` and left the trade file at seven rows.
+  The public morning-required checker and internal post-morning watchdog are green.
+- 2026-07-15: Live visual QA confirmed solid blue TILT canon, dotted yellow
+  two-stage comparison, and ledger-owned total value/drawdown/SPY spread. Fixed
+  the optional-signal regime fallback and UTC timestamp rendering; the page now
+  shows `risk off trend` and the actual `9:45 AM` run time with no console
+  warnings or errors.
 
-## Follow-ups
+## Closeout
 
-- Commit and push only the owned audit slice, then deploy the image and reconcile
-  schedules/alarms at the documented live-change checkpoint.
-- After deployment, advance the July 14 settled replay, republish the already-run
-  July 14 morning state through a prepared checkpoint without re-executing fills,
-  and require the public checker plus both internal health modes to return green.
+- Live acceptance is complete: settled line frontier July 14, operational snapshot
+  July 15 morning, zero replay mismatches, zero duplicate fills, current public
+  checker green, internal health green, and autonomous morning execution observed.
 - The public GitHub watchdog workflow becomes scheduled only when these changes
   reach the default branch; AWS health checks and alarms are the immediate live
   independent path.

@@ -55,6 +55,12 @@ function formatPct(v: number, digits = 2): string {
   return `${sign}${(v * 100).toFixed(digits)}%`;
 }
 
+function parsePipelineTimestamp(value: string): Date {
+  // Lambda's historical snapshot timestamps are UTC but omit an offset.
+  const hasZone = /(?:Z|[+-]\d{2}:?\d{2})$/.test(value);
+  return parseISO(hasZone ? value : `${value}Z`);
+}
+
 function computeVsSpySpread(equityCurve: { value: number; benchmark: number }[]): number | null {
   if (equityCurve.length < 2) return null;
   const first = equityCurve.find(p => p.value > 0 && p.benchmark > 0);
@@ -90,7 +96,7 @@ export function App() {
     if (!isStrictlyIncreasingByDate(data.drawdowns)) {
       warnings.push('Drawdown timestamps not strictly increasing.');
     }
-    const snapshotYear = parseISO(data.metrics.timestamp).getFullYear();
+    const snapshotYear = parsePipelineTimestamp(data.metrics.timestamp).getFullYear();
     const monthlyYtd = computeCompoundedYtd(data.monthly_returns, snapshotYear);
     if (monthlyYtd != null && Math.abs(monthlyYtd - data.metrics.ytd_return) > 1e-6) {
       warnings.push(`YTD mismatch (header=${data.metrics.ytd_return.toFixed(6)}, monthly=${monthlyYtd.toFixed(6)}).`);
@@ -121,7 +127,7 @@ export function App() {
           <header className="zone-1-header">
             <h1>Hybrid Ranking System</h1>
             <span className="zone-1-timestamp">
-              {format(parseISO(m.timestamp), 'MMM d, yyyy h:mm a')}
+              {format(parsePipelineTimestamp(m.timestamp), 'MMM d, yyyy h:mm a')}
               <InfoTooltip content={`Data from snapshot ${data.snapshot?.id ?? m.snapshot_id ?? '?'}. All values on this page reflect this single pipeline run.`} label="Snapshot" align="right" />
               <LearnButton />
             </span>
