@@ -29,6 +29,35 @@ echo "Setting up EventBridge rule: $RULE_NAME"
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 LAMBDA_ARN="arn:aws:lambda:$REGION:$ACCOUNT_ID:function:$FUNCTION_NAME"
 
+reconcile_single_target() {
+    local rule_name="$1"
+    local expected_id="$2"
+    local extra_ids
+    extra_ids=$(aws events list-targets-by-rule \
+        --rule "$rule_name" \
+        --query "Targets[?Id!='$expected_id'].Id" \
+        --output text \
+        --region "$REGION")
+    if [ -n "$extra_ids" ] && [ "$extra_ids" != "None" ]; then
+        # EventBridge target IDs cannot contain whitespace; split the text result.
+        # shellcheck disable=SC2086
+        aws events remove-targets \
+            --rule "$rule_name" \
+            --ids $extra_ids \
+            --region "$REGION"
+    fi
+    local target_count
+    target_count=$(aws events list-targets-by-rule \
+        --rule "$rule_name" \
+        --query "length(Targets)" \
+        --output text \
+        --region "$REGION")
+    if [ "$target_count" -ne 1 ]; then
+        echo "ERROR: $rule_name has $target_count targets after reconciliation" >&2
+        exit 1
+    fi
+}
+
 # Create the EventBridge rule
 # Schedule: 3 AM UTC = 10 PM ET (previous day)
 # Run Tue-Sat to catch Mon-Fri market data
@@ -61,6 +90,7 @@ aws events put-targets \
         \"RetryPolicy\": {\"MaximumRetryAttempts\": 2, \"MaximumEventAgeInSeconds\": 7200}
     }]" \
     --region "$REGION"
+reconcile_single_target "$RULE_NAME" "investment-system-lambda"
 
 # --- Morning execution rule ---
 MORNING_RULE_NAME="investment-system-morning-trigger"
@@ -99,6 +129,7 @@ aws events put-targets \
         \"RetryPolicy\": {\"MaximumRetryAttempts\": 2, \"MaximumEventAgeInSeconds\": 7200}
     }]" \
     --region "$REGION"
+reconcile_single_target "$MORNING_RULE_NAME" "investment-system-lambda-morning"
 
 # Standard-time companion: 14:45 UTC = 09:45 EST. In EDT this is a harmless
 # idempotent replay of the already-completed morning checkpoint.
@@ -127,6 +158,7 @@ aws events put-targets \
         \"RetryPolicy\": {\"MaximumRetryAttempts\": 2, \"MaximumEventAgeInSeconds\": 7200}
     }]" \
     --region "$REGION"
+reconcile_single_target "$MORNING_EST_RULE_NAME" "investment-system-lambda-morning-est"
 
 # --- Midday check rule ---
 MIDDAY_RULE_NAME="investment-system-midday-trigger"
@@ -159,9 +191,11 @@ aws events put-targets \
     --targets "[{
         \"Id\": \"investment-system-lambda-midday\",
         \"Arn\": \"$LAMBDA_ARN\",
-        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"midday-check\\\"}\"
+        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"midday-check\\\"}\",
+        \"RetryPolicy\": {\"MaximumRetryAttempts\": 2, \"MaximumEventAgeInSeconds\": 7200}
     }]" \
     --region "$REGION"
+reconcile_single_target "$MIDDAY_RULE_NAME" "investment-system-lambda-midday"
 
 echo ""
 echo "EventBridge rules created successfully!"

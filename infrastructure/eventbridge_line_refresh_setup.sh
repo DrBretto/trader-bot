@@ -36,6 +36,30 @@ aws events put-targets \
     }]" \
     --region "$REGION"
 
+EXTRA_TARGET_IDS=$(aws events list-targets-by-rule \
+    --rule "$RULE_NAME" \
+    --query "Targets[?Id!='advance-challenger-target'].Id" \
+    --output text \
+    --region "$REGION")
+if [ -n "$EXTRA_TARGET_IDS" ] && [ "$EXTRA_TARGET_IDS" != "None" ]; then
+    # EventBridge target IDs cannot contain whitespace; split the text result.
+    # shellcheck disable=SC2086
+    aws events remove-targets \
+        --rule "$RULE_NAME" \
+        --ids $EXTRA_TARGET_IDS \
+        --region "$REGION"
+fi
+
+TARGET_COUNT=$(aws events list-targets-by-rule \
+    --rule "$RULE_NAME" \
+    --query "length(Targets)" \
+    --output text \
+    --region "$REGION")
+if [ "$TARGET_COUNT" -ne 1 ]; then
+    echo "ERROR: $RULE_NAME has $TARGET_COUNT targets after reconciliation" >&2
+    exit 1
+fi
+
 # The promoted replay already publishes shadow_timeseries.json. Leaving the old
 # 03:30 mirror enabled creates a transient stale write before the authoritative
 # 04:30 refresh and adds no independent recovery value.
