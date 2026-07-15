@@ -54,6 +54,14 @@ def _ok(phase: str, payload: Dict[str, Any]) -> Dict[str, Any]:
                                default=str)}
 
 
+def _raise_on_server_error(response: Dict[str, Any], phase: str) -> Dict[str, Any]:
+    """Turn caught phase failures into real Lambda failures and async retries."""
+    status = int(response.get("statusCode", 200) or 200)
+    if status >= 500:
+        raise RuntimeError(f"{phase} returned {status}: {response.get('body')}")
+    return response
+
+
 def lambda_handler(event: dict, context) -> Dict[str, Any]:
     """Route one invocation to its clean-core path. Pure dispatch — the heavy
     lifting is behind the module each branch lazily imports."""
@@ -63,20 +71,28 @@ def lambda_handler(event: dict, context) -> Dict[str, Any]:
 
     if source == "morning-execution":
         from app.morning import run_morning
-        return run_morning(event, bucket, region)
+        return _raise_on_server_error(
+            run_morning(event, bucket, region), "morning-execution"
+        )
 
     if source == "midday-check":
         from app.midday import run_midday
-        return run_midday(event, bucket, region)
+        return _raise_on_server_error(
+            run_midday(event, bucket, region), "midday-check"
+        )
 
     if source in _HEALTH_SOURCES:
         from chassis.utils.s3_client import S3Client
         from monitors.watchdog import run_daily_health_check
         status = run_daily_health_check(S3Client(bucket, region),
-                                        today=event.get("today"))
+                                        today=event.get("today"),
+                                        require_morning=bool(event.get("require_morning")))
+        print(json.dumps({"daily_health": status}, default=str), flush=True)
         return _ok("daily-health", {"ok": status.get("ok"),
                                     "subject": status.get("subject"),
-                                    "lines": status.get("lines")})
+                                    "lines": status.get("lines"),
+                                    "dashboard": status.get("dashboard"),
+                                    "chassis": status.get("chassis")})
 
     if source in _OPS_PROBE_SOURCES:
         from app.ops_probes import dispatch as ops_dispatch
@@ -90,7 +106,7 @@ def lambda_handler(event: dict, context) -> Dict[str, Any]:
 
     # default: the night forward pipeline
     from app.night import run_night
-    return run_night(event, bucket, region)
+    return _raise_on_server_error(run_night(event, bucket, region), "night")
 
 
 # For local testing / manual invoke.

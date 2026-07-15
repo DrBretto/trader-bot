@@ -16,12 +16,55 @@ enter the grid because the grid comes from settled SPY bars.
 """
 from __future__ import annotations
 
+import os
+import shutil
+import tempfile
+from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
 from lines.ledger import BUCKET, EquityLedger
 
 REFERENCE_PREFIX = "canon/equity_ledger_clean_v3/"
 ISSUED_BY = "tilt-canon-replay@trader-bot"
+
+
+def _reset_ephemeral_replay_state() -> Dict[str, Any]:
+    """Start every scheduled replay from the same baked seed state.
+
+    Lambda execution environments retain ``/tmp`` across warm invocations. Reusing
+    that mutable forecast tree makes replay output depend on which phase happened
+    to run in the same container. The production image explicitly configures
+    ``BRAIN_STATE_DIR`` under ``/tmp``; refuse to delete anything outside a system
+    temp root, then clear that one ephemeral tree before seed hydration.
+    """
+    configured = os.environ.get("BRAIN_STATE_DIR")
+    if not configured:
+        raise RuntimeError(
+            "BRAIN_STATE_DIR is required for deterministic replay-state isolation"
+        )
+
+    from forecast import shadow_lib as SL
+
+    state = SL.STATE.expanduser().resolve()
+    configured_state = Path(configured).expanduser().resolve()
+    if state != configured_state:
+        raise RuntimeError(
+            f"cached replay state {state} does not match BRAIN_STATE_DIR "
+            f"{configured_state}; refusing an ambiguous reset"
+        )
+    temp_roots = {
+        Path("/tmp").resolve(),
+        Path(tempfile.gettempdir()).expanduser().resolve(),
+    }
+    if not any(state != root and root in state.parents for root in temp_roots):
+        raise RuntimeError(
+            f"BRAIN_STATE_DIR {state} is not below an approved temp root; "
+            "refusing destructive replay-state reset"
+        )
+    if state.exists():
+        shutil.rmtree(state)
+    state.mkdir(parents=True, exist_ok=True)
+    return {"reset": True, "path": str(state)}
 
 
 def _active_rows(ledger: EquityLedger) -> List[Dict[str, Any]]:
@@ -83,6 +126,60 @@ def _grid_check(
     }
 
 
+def _recorded_regime_dates(
+    settled_window: List[str],
+    continuity_date: str,
+    reference_frontier: str,
+) -> List[str]:
+    """Keep reconstructed history recorded and promoted-forward history forward.
+
+    The frozen reference frontier is the lineage boundary. Dates appended after
+    promotion used the deterministic as-of-day picker and must keep using it on
+    every later replay; switching those dates to a subsequently recorded regime
+    changes the book retroactively and breaks replay continuity.
+    """
+    recorded_through = min(continuity_date, reference_frontier)
+    return [d for d in settled_window if d <= recorded_through]
+
+
+def _history_parity(
+    target_rows: List[Mapping[str, Any]],
+    native_by_date: Mapping[str, Mapping[str, Any]],
+    split_date: str,
+) -> Dict[str, Any]:
+    """Compare every promoted post-split point with the clean replay."""
+    checks: List[Dict[str, Any]] = []
+    for row in target_rows:
+        date = str(row["date"])
+        if date <= split_date:
+            continue
+        native = native_by_date.get(date)
+        if native is None:
+            checks.append({
+                "series": "all",
+                "date": date,
+                "expected": None,
+                "replayed": None,
+                "ok": False,
+                "reason": "replay omitted stored date",
+            })
+            continue
+        promoted = promoted_values(native)
+        for series, field in (
+            ("tilt_canon", "value"),
+            ("SPY", "benchmark"),
+            ("two_stage_comparison", "comparison"),
+        ):
+            checks.append(_cent_check(series, date, row.get(field), promoted[field]))
+    mismatches = [check for check in checks if not check["ok"]]
+    return {
+        "ok": not mismatches,
+        "points_checked": len({check["date"] for check in checks}),
+        "checks_run": len(checks),
+        "mismatches": mismatches,
+    }
+
+
 def refresh_promoted_ledger(
     s3,
     *,
@@ -96,6 +193,8 @@ def refresh_promoted_ledger(
     pin both promoted lines at the promoted frontier. A failed continuity or grid
     check is a hard no-write result.
     """
+    state_reset = _reset_ephemeral_replay_state()
+
     from replay import seed_canon as SC
     from replay._fake_s3 import FakeS3
 
@@ -109,6 +208,10 @@ def refresh_promoted_ledger(
     reference = EquityLedger(s3, bucket, prefix=REFERENCE_PREFIX)
     target_rows = _active_rows(target)
     reference_rows = _active_rows(reference)
+    if not reference_rows:
+        raise RuntimeError(
+            "frozen reference ledger is empty; cannot determine regime lineage"
+        )
     target_by_date = _by_date(target_rows)
     reference_by_date = _by_date(reference_rows)
 
@@ -144,7 +247,12 @@ def refresh_promoted_ledger(
 
     scratch = EquityLedger(FakeS3(), prefix="scratch/tilt-canon-refresh/")
     SC.copy_presplit(base, scratch, SC.SPLIT_DATE)
-    recorded_dates = [d for d in window if d <= continuity_date]
+    reference_frontier = str(reference_rows[-1]["date"])
+    recorded_dates = _recorded_regime_dates(
+        window,
+        continuity_date,
+        reference_frontier,
+    )
     recorded_map = (
         SC.RR.recorded_regime_map(recorded_dates, s3=s3, verify=True)
         if recorded_dates else {}
@@ -181,6 +289,7 @@ def refresh_promoted_ledger(
         )
     continuity_ok = all(check["ok"] for check in checks)
     grid = _grid_check(target_rows, window, SC.SPLIT_DATE)
+    history_parity = _history_parity(target_rows, native_by_date, SC.SPLIT_DATE)
 
     frontier_before = str(target_rows[-1]["date"]) if target_rows else SC.SPLIT_DATE
     planned_dates = [d for d in window if d > frontier_before]
@@ -200,6 +309,9 @@ def refresh_promoted_ledger(
         "continuity_date": continuity_date,
         "continuity_checks": checks,
         "continuity_ok": continuity_ok,
+        "history_parity_ok": history_parity["ok"],
+        "history_points_checked": history_parity["points_checked"],
+        "history_mismatches": history_parity["mismatches"],
         "grid_ok": grid["ok"],
         "grid_missing": grid["missing"],
         "grid_extra": grid["extra"],
@@ -207,14 +319,17 @@ def refresh_promoted_ledger(
         "planned_values": planned,
         "canonical_series": "tilt",
         "comparison_series": "two_stage",
+        "replay_state": state_reset,
+        "recorded_regime_through": recorded_dates[-1] if recorded_dates else None,
+        "deterministic_forward_dates": [d for d in window if d not in recorded_map],
     }
 
     if not commit:
         report["committed"] = False
         return report
-    if not continuity_ok or not grid["ok"]:
+    if not continuity_ok or not history_parity["ok"] or not grid["ok"]:
         report["committed"] = False
-        report["reason"] = "continuity/grid check refused the write"
+        report["reason"] = "continuity/history/grid check refused the write"
         return report
 
     if not target_rows:

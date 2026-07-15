@@ -13,7 +13,8 @@ This document covers deployment procedures for the investment system.
 - **Region**: us-east-1
 - **S3 Bucket**: investment-system-data
 - **Lambda Function**: investment-system-daily-pipeline
-- **EventBridge Rules**: investment-system-daily-trigger (night), investment-system-morning-trigger (morning)
+- **EventBridge Rules**: night, DST-safe morning pair, midday, promoted replay,
+  post-replay health, and post-morning health (all defined under `infrastructure/`)
 - **SNS Topic**: investment-system-alerts
 
 ---
@@ -59,22 +60,50 @@ For deployments without PyTorch (baseline models only):
 
 ---
 
-## Set Up Schedule
+## Set Up Schedules And Alarms
 
-The pipeline runs in two phases: night analysis (10 PM ET) and morning execution (9:45 AM ET). Both are set up by a single script:
+Reconcile the execution schedules first:
 
 ```bash
 ./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline investment-system-data us-east-1
+./infrastructure/eventbridge_line_refresh_setup.sh investment-system-daily-pipeline investment-system-data us-east-1
+./infrastructure/eventbridge_daily_health_setup.sh investment-system-daily-pipeline investment-system-data us-east-1
 ```
 
-This creates two rules:
-- **Night** (`investment-system-daily-trigger`): 3 AM UTC Tue-Sat (10 PM ET Mon-Fri)
-- **Morning** (`investment-system-morning-trigger`): 14:45 UTC Mon-Fri (9:45 AM ET Mon-Fri)
+These scripts define the complete autonomous order:
 
-To disable both:
+- **Night** (`investment-system-daily-trigger`): 03:00 UTC Tue-Sat; produces the
+  settled bar, intents, and operational pointers.
+- **Morning** (`investment-system-morning-trigger` plus the `-est-` companion):
+  09:45 New York in both daylight and standard time. The app's checkpoint makes
+  the second UTC invocation an idempotent no-op.
+- **Midday** (`investment-system-midday-trigger`): 18:00 UTC Mon-Fri.
+- **Promoted replay** (`investment-system-advance-challenger-trigger`): 04:30 UTC
+  Tue-Sat; the sole writer of solid-blue TILT and dotted-yellow two-stage history.
+- **Post-replay health** (`investment-system-healthcheck-trigger`): 05:15 UTC daily.
+- **Post-morning health** (`investment-system-post-morning-healthcheck-trigger`):
+  15:15 UTC Mon-Fri; requires the current public snapshot and execution receipt.
+
+Then reconcile CloudWatch alarms for Lambda errors/throttles, failed EventBridge
+deliveries, explicit red health verdicts, and missing health heartbeats:
+
+```bash
+./infrastructure/cloudwatch_reliability_alarms.sh investment-system-daily-pipeline us-east-1
+```
+
+The promoted replay starts from a clean ephemeral state on every invocation. Its
+frozen reference frontier is the regime-lineage boundary: reconstructed dates use
+their recorded regimes, while every date appended after promotion permanently uses
+the deterministic forward regime. It verifies every stored blue, SPY, and yellow
+point to the cent before appending anything.
+
+To disable the primary execution rules:
 ```bash
 aws events disable-rule --name investment-system-daily-trigger --region us-east-1
 aws events disable-rule --name investment-system-morning-trigger --region us-east-1
+aws events disable-rule --name investment-system-morning-est-trigger --region us-east-1
+aws events disable-rule --name investment-system-midday-trigger --region us-east-1
+aws events disable-rule --name investment-system-advance-challenger-trigger --region us-east-1
 ```
 
 ---
@@ -233,12 +262,15 @@ Use this sequence for a full first-time go-live:
 1. **S3 bucket** – From repo root: `./infrastructure/s3_setup.sh investment-system-data us-east-1`
 2. **Secrets** – `./infrastructure/secrets_setup.sh us-east-1` (enter OpenAI, FRED, Alpha Vantage)
 3. **Lambda** – `./infrastructure/lambda_deploy.sh investment-system-daily-pipeline investment-system-data us-east-1`
-4. **EventBridge** – `./infrastructure/eventbridge_setup.sh investment-system-daily-pipeline investment-system-data us-east-1` (creates both night + morning rules)
+4. **EventBridge execution** – Run `eventbridge_setup.sh`,
+   `eventbridge_line_refresh_setup.sh`, and `eventbridge_daily_health_setup.sh` as
+   shown above.
 5. **SNS Alerts** – `./infrastructure/sns_setup.sh us-east-1 drbretto82@gmail.com` (confirm subscription via email)
-6. **Dashboard (optional)** – First-time bucket policy and static website per "Deploy Frontend Dashboard" above; then build and sync per the commands in that section (includes `--exclude` flags to protect data files).
-7. **Verify daily pipeline** – Invoke Lambda once (see "Verify Deployment" above); check `daily/latest.json`, `daily/<date>/*`, and `dashboard/dashboard.json` in S3.
-8. **After enough daily data (e.g. 30+ days)** – Run training: `python training/train.py --bucket investment-system-data --region us-east-1`; then evolution: `python evolution/evolve.py --bucket investment-system-data --generations 25`.
-9. **Monthly automation** – Edit the launchd plist path to point to your repo's `automation/run_training.sh`, then run `./automation/install_launchd.sh`.
+6. **Reliability alarms** – Run `cloudwatch_reliability_alarms.sh` as shown above.
+7. **Dashboard (optional)** – First-time bucket policy and static website per "Deploy Frontend Dashboard" above; then build and sync per the commands in that section (includes `--exclude` flags to protect data files).
+8. **Verify daily pipeline** – Invoke Lambda once (see "Verify Deployment" above); check `daily/latest.json`, `daily/<date>/*`, and `dashboard/dashboard.json` in S3.
+9. **After enough daily data (e.g. 30+ days)** – Run training: `python training/train.py --bucket investment-system-data --region us-east-1`; then evolution: `python evolution/evolve.py --bucket investment-system-data --generations 25`.
+10. **Monthly automation** – Edit the launchd plist path to point to your repo's `automation/run_training.sh`, then run `./automation/install_launchd.sh`.
 
 ---
 

@@ -81,6 +81,11 @@ def _restore_internal_keys(state: Dict[str, Any]) -> Dict[str, Any]:
     return restored
 
 
+def from_published_state(state: Dict[str, Any]) -> Dict[str, Any]:
+    """Restore a role-marked sim state for private execution/checkpoint use."""
+    return _restore_internal_keys(state)
+
+
 def _normalize_loaded_portfolio_state(
     state: Dict[str, Any],
     state_date: Optional[str],

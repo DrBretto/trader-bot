@@ -68,7 +68,7 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     from decide.freshness_gate import _latest_settled_trading_day
     from publish.dashboard import build_publish_surface, publish_line
     from monitors.canary_gate import run_post_pipeline_canaries
-    from monitors.watchdog import run_daily_health_check, emit_run_heartbeat
+    from monitors.watchdog import emit_run_heartbeat
 
     s3 = S3Client(bucket, region)
     settled = event.get("run_date") or _latest_settled_trading_day()
@@ -133,22 +133,46 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
 
     # ---- persist intents (EXACT schema the morning executor consumes) ----
     trade_intents = dict(res.trade_intents)
-    trade_intents.setdefault("generated_timestamp", datetime.now().isoformat())
-    trade_intents.setdefault("expires_after_days", EXPIRES_AFTER_DAYS)
-    s3.write_json(trade_intents, f"daily/{settled}/trade_intents.json")
+    if not trade_intents.get("generated_timestamp"):
+        trade_intents["generated_timestamp"] = datetime.now().isoformat()
+    if not trade_intents.get("expires_after_days"):
+        trade_intents["expires_after_days"] = EXPIRES_AFTER_DAYS
+    if not s3.write_json(trade_intents, f"daily/{settled}/trade_intents.json"):
+        raise RuntimeError("trade_intents.json write returned false")
+
+    selected_universe = list(
+        res.selected_universe
+        or trade_intents.get("expert_metrics", {}).get("held_symbols", [])
+    )
+    universe_fingerprint = {
+        "date": settled,
+        "selected_universe": selected_universe,
+        "engine": res.engine,
+        "generated_timestamp": trade_intents["generated_timestamp"],
+        "source": "clean_core_night",
+    }
+    if not s3.write_json(
+        universe_fingerprint,
+        f"daily/{settled}/brain_selected_universe.json",
+    ):
+        raise RuntimeError("brain_selected_universe.json write returned false")
 
     # Operational pointers advance independently of the chart publish. Coupling
     # this pointer to a dashboard guard left the morning executor reading days-old
     # intents/state even though newer artifacts existed.
-    latest = s3.read_json("daily/latest.json") or {}
+    latest = s3.read_json_strict("daily/latest.json") or {}
     latest.update({
+        "date": settled,
         "intents_date": settled,
+        "regime": trade_intents.get("regime", "unknown"),
+        "actions_count": len(trade_intents.get("actions", [])),
         "phase": "night",
         "timestamp": datetime.now().isoformat(),
     })
     latest.pop("portfolio_value", None)
     latest.pop("positions_count", None)
-    s3.write_json(latest, "daily/latest.json")
+    if not s3.write_json(latest, "daily/latest.json"):
+        raise RuntimeError("daily/latest.json write returned false")
 
     # The scheduled replay refresh owns BOTH model lines. The night must never turn
     # this internal sizing state into a displayed return ratio.
@@ -160,24 +184,34 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     dashboard_data = build_publish_surface(s3.s3)
     publish_report = publish_line(dashboard_data, s3.s3, phase="night",
                                   run_date=settled)
+    if publish_report.get("held"):
+        raise RuntimeError(
+            "night line re-publish held: " + str(publish_report.get("reason"))
+        )
 
-    # ---- post-pipeline watchdogs (the check missing during the silent freeze) ----
+    # These in-band canaries validate the freshly-written chassis. Displayed-line
+    # freshness is checked only after the 04:30 replay writer, never before it.
     canary = run_post_pipeline_canaries(tier="live", alert=True)
-    health = run_daily_health_check(s3)
     # CL-708150: empty-but-critical config canary — fails LOUD if a load-bearing
     # table (regime_compatibility / theta_sel.regime_admissibility) is present-but-
     # empty (the silent-inert class that let the regime gate sit dead). Alerting,
     # non-abort (the engine already ran under the assert_regime_chassis_loaded gate).
     from monitors.config_canary import run_config_canary
     config_canary = run_config_canary(alert=True, config=config)
-    emit_run_heartbeat(region=region, ok=True)
+    post_ok = bool(canary.get("ok") and config_canary.get("ok"))
+    emit_run_heartbeat(region=region, ok=post_ok)
+    if not post_ok:
+        raise RuntimeError(
+            "night post-pipeline checks failed: "
+            f"canary_ok={canary.get('ok')} config_canary_ok={config_canary.get('ok')}"
+        )
 
     return {"statusCode": 200, "body": json.dumps({
         "status": "success", "phase": "night", "date": settled,
         "intents_count": len(trade_intents.get("actions", [])),
-        "selected": res.selected_universe, "engine": res.engine,
+        "selected": selected_universe, "engine": res.engine,
         "append": append_report, "publish": publish_report,
         "post_pipeline": {"canary_ok": canary.get("ok"),
-                          "health_ok": health.get("ok"),
+                          "line_health": "deferred_to_post_replay_healthcheck",
                           "config_canary_ok": config_canary.get("ok")},
     }, default=str)}

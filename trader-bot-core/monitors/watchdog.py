@@ -40,13 +40,16 @@ import datetime as _dt
 from typing import Any, Callable, Dict, Optional, Tuple
 
 from chassis.utils.market_calendar import (
+    is_trading_session,
+    latest_settled_session,
     latest_session_on_or_before,
+    ny_today,
     trading_sessions_between,
 )
 from lines.ledger import CACHE_KEY as LEDGER_CACHE_KEY
 from .substrate import check_substrate_fresh  # VERBATIM freeze-signature check
 
-STALE_TRADING_DAYS = 1          # a line may lag the expected settled day by at most this
+STALE_TRADING_DAYS = 0          # post-replay checks require the exact settled frontier
 BRAIN_NAMESPACE = "TraderBot/Brain"
 # Imported from lines.ledger so a canon promotion cannot leave the watchdog pinned
 # to an old prefix.
@@ -64,16 +67,13 @@ VALUE_REVERT_EPS = 1.0
 # a hard contamination signal even if — for any reason — the corrected-ledger
 # cross-check is unavailable. Compared at cent precision (the line is dollars).
 CONTAMINATED_TERMINAL_VALUES = frozenset({12114752})  # 121147.52 * 100 (07-02 pre-P6)
-CHALLENGER_SERIES_KEYS = (
-    "shadow_A", "shadow_F", "shadow_U", "shadow_E",
-    "shadow_B", "shadow_R", "shadow_I", "live_line",
-)
+CHALLENGER_SERIES_KEYS = ("shadow_A",)
 
 
 # --------------------------------------------------------------------------- #
-# Calendar helpers (cheap NYSE proxy — holidays make it CONSERVATIVE, never
-# falsely loud: a holiday can only make the "expected" day one trading day too
-# far ahead, and STALE_TRADING_DAYS absorbs exactly that).
+# Calendar helpers. The shared market calendar is holiday-aware; production uses
+# the latest actually completed session, while an explicit ``today`` argument is
+# treated as a settled-date override for deterministic tests/fault injection.
 # --------------------------------------------------------------------------- #
 def _trading_days_between(d0: Optional[str], d1: Optional[str]) -> int:
     """NYSE-session count strictly after d0 through d1."""
@@ -172,6 +172,72 @@ def check_challenger_line(s3, expected: str,
     st = _line_status(last_date, value, expected, max_trading_days)
     st["as_of"] = (shadow.get("as_of") or "")[:19]
     return st
+
+
+def check_dashboard_freshness(
+    s3,
+    expected: str,
+    latest: Optional[Dict[str, Any]] = None,
+    *,
+    require_morning: bool = False,
+    operational_date: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Verify the public page snapshot, not only its overlaid model line."""
+    try:
+        dashboard = s3.read_json(PUBLISHED_DASHBOARD_KEY) or {}
+    except Exception as e:  # noqa: BLE001
+        return {
+            "stale": True,
+            "snapshot_date": None,
+            "phase": None,
+            "reason": f"could not read dashboard: {type(e).__name__}: {e}",
+        }
+
+    snapshot = dashboard.get("snapshot") or {}
+    snapshot_date = snapshot.get("date")
+    phase = snapshot.get("phase")
+    lag = _trading_days_between(snapshot_date, expected) if snapshot_date else None
+    reasons = []
+    if snapshot_date is None:
+        reasons.append("dashboard snapshot date is absent")
+    elif lag is not None and lag > 0:
+        reasons.append(
+            f"dashboard snapshot {snapshot_date} lags settled {expected} by {lag} session(s)"
+        )
+
+    latest = latest or {}
+    morning_expected = bool(
+        require_morning
+        and operational_date
+        and is_trading_session(operational_date)
+    )
+    receipt = None
+    if morning_expected:
+        try:
+            receipt = s3.read_json(
+                f"daily/{operational_date}/morning_execution.json"
+            ) or None
+        except Exception:  # noqa: BLE001
+            receipt = None
+        if snapshot_date != operational_date or phase != "morning":
+            reasons.append(
+                f"post-morning dashboard is {snapshot_date}/{phase}, expected "
+                f"{operational_date}/morning"
+            )
+        if latest.get("date") != operational_date or not latest.get("morning_executed"):
+            reasons.append("daily/latest.json does not confirm today's morning execution")
+        if not receipt or receipt.get("run_date") != operational_date:
+            reasons.append("today's morning_execution.json receipt is absent")
+
+    return {
+        "stale": bool(reasons),
+        "snapshot_date": snapshot_date,
+        "phase": phase,
+        "lag_trading_days": lag,
+        "morning_required": morning_expected,
+        "morning_receipt": bool(receipt) if morning_expected else None,
+        "reason": "; ".join(reasons),
+    }
 
 
 def _cents(v: Any) -> Optional[int]:
@@ -292,8 +358,12 @@ def check_value_revert(s3, terminal: Optional[Dict[str, Any]] = None) -> Dict[st
 # --------------------------------------------------------------------------- #
 # The daily health report — ALWAYS emails a ✓/✗ status.
 # --------------------------------------------------------------------------- #
-def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None,
-                           today: Optional[str] = None) -> Dict[str, Any]:
+def run_daily_health_check(
+    s3,
+    alert: Optional[Callable[[str, str], Any]] = None,
+    today: Optional[str] = None,
+    require_morning: bool = False,
+) -> Dict[str, Any]:
     """Check all three lines + chassis liveness + substrate currency and ALWAYS
     email a status. Returns a status dict with real advancing dates per line and
     sends ONE email: ``✓`` when every line is current+populated, ``CRITICAL ✗``
@@ -309,8 +379,12 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
         latest = {}
         out["latest_read_error"] = f"{type(e).__name__}: {e}"
     chassis_date = latest.get("intents_date") or latest.get("date")
-    today_str = today or _dt.date.today().isoformat()
-    expected = _latest_weekday_on_or_before(_dt.date.fromisoformat(today_str))
+    if today:
+        expected = _latest_weekday_on_or_before(_dt.date.fromisoformat(today))
+        operational_date = today
+    else:
+        expected = latest_settled_session()
+        operational_date = ny_today().isoformat()
 
     # 1) chassis liveness — did a night invocation land recently? A chassis whose
     #    intents_date stops advancing IS the skipped-night / missed-run signal.
@@ -324,9 +398,9 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
     spy = check_spy_line(s3, expected, terminal=terminal)
     challenger = check_challenger_line(s3, expected)
     lines = {
-        "canon (New Brain)": canon,
+        "TILT canon (solid blue)": canon,
         "SPY benchmark": spy,
-        "challenger (dotted)": challenger,
+        "two-stage comparison (dotted yellow)": challenger,
     }
     out["lines"] = {name: {"stale": v.get("stale"), "at": v.get("last_date"),
                            "populated": v.get("populated"),
@@ -346,8 +420,21 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
     value_revert = check_value_revert(s3, terminal=terminal)
     out["value_revert"] = value_revert
 
+    # 5) PUBLIC SNAPSHOT freshness. The replay writer can overlay a current line
+    #    onto a days-old dashboard, so line checks alone are not sufficient.
+    dashboard = check_dashboard_freshness(
+        s3,
+        expected,
+        latest,
+        require_morning=require_morning,
+        operational_date=operational_date,
+    )
+    out["dashboard"] = dashboard
+
+    substrate_red = bool(substrate.get("stale") or not substrate.get("observable"))
     any_stale = (chassis_stale or any(v.get("stale") for v in lines.values())
-                 or substrate.get("stale") or value_revert.get("reverted"))
+                 or substrate_red or value_revert.get("reverted")
+                 or dashboard.get("stale"))
     out["ok"] = not any_stale
 
     # ----- compose the email body: ✓/✗ per line with real advancing dates -----
@@ -370,11 +457,18 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
         )
     body_lines += [
         "",
+        "Public dashboard snapshot:",
+        f"  {'✗ STALE' if dashboard.get('stale') else '✓':<8} "
+        f"snapshot={dashboard.get('snapshot_date')}/{dashboard.get('phase')}"
+        + (f"  [{dashboard.get('reason')}]" if dashboard.get('reason') else ""),
+    ]
+    body_lines += [
+        "",
         "Substrate currency (is mu actually advancing?):",
-        f"  {'✗ FROZEN' if substrate.get('stale') else '✓':<8} "
+        f"  {'✗ FROZEN' if substrate.get('stale') else ('✗ UNKNOWN' if not substrate.get('observable') else '✓'):<8} "
         f"brain selected_universe identical-run = {substrate.get('identical_run')} "
         f"day(s) over {substrate.get('days_checked')} checked"
-        + (f"  [{substrate.get('reason')}]" if substrate.get("stale") else ""),
+        + (f"  [{substrate.get('reason')}]" if substrate_red else ""),
     ]
     body_lines += [
         "",
@@ -399,25 +493,33 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
 
     if any_stale:
         only_reverted = (value_revert.get("reverted") and not chassis_stale
-                         and not substrate.get("stale")
+                         and not substrate_red
+                         and not dashboard.get("stale")
                          and not any(v.get("stale") for v in lines.values()))
-        only_frozen = (substrate.get("stale") and not chassis_stale
+        only_frozen = (substrate_red and not chassis_stale
                        and not value_revert.get("reverted")
+                       and not dashboard.get("stale")
                        and not any(v.get("stale") for v in lines.values()))
+        only_dashboard = (dashboard.get("stale") and not chassis_stale
+                          and not substrate_red
+                          and not value_revert.get("reverted")
+                          and not any(v.get("stale") for v in lines.values()))
         if only_reverted:
             subject = "[TraderBot] CRITICAL: published line REVERTED to a contaminated value"
         elif only_frozen:
             subject = "[TraderBot] CRITICAL: forecast substrate FROZEN"
+        elif only_dashboard:
+            subject = "[TraderBot] CRITICAL: public dashboard snapshot did NOT advance"
         else:
-            subject = "[TraderBot] CRITICAL: a displayed line did NOT advance"
+            subject = "[TraderBot] CRITICAL: forward health check failed"
         body = ("ONE OR MORE FRESHNESS CHECKS ARE STALE — the dashboard/forecast is "
                 "not current.\n\n" + body +
                 "\n\nCheck CloudWatch /aws/lambda/investment-system-daily-pipeline "
                 "and the shadow-publish run.")
     else:
-        subject = f"[TraderBot] daily health ✓ all three lines current ({expected})"
-        body = ("All three displayed lines advanced to the latest settled trading "
-                "day and are populated.\n\n" + body)
+        subject = f"[TraderBot] daily health ✓ lines and dashboard current ({expected})"
+        body = ("All displayed lines and the public dashboard snapshot are current.\n\n"
+                + body)
 
     try:
         if alert is not None:
@@ -427,6 +529,8 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
             send_alert(subject=subject, body=body)
     except Exception as e:  # noqa: BLE001 — emailing must never crash the check
         print(f"  daily health email failed (non-fatal): {e}")
+    if alert is None:
+        emit_health_heartbeat(ok=out["ok"])
     out["subject"] = subject
     out["body"] = body
     return out
@@ -435,6 +539,20 @@ def run_daily_health_check(s3, alert: Optional[Callable[[str, str], Any]] = None
 # --------------------------------------------------------------------------- #
 # Missed-run heartbeat metric (the CloudWatch "no datapoints" alarm watches this).
 # --------------------------------------------------------------------------- #
+def emit_health_heartbeat(region: str = "us-east-1", ok: bool = True) -> None:
+    """Emit the independent post-replay/post-morning health verdict."""
+    try:
+        import boto3
+        cw = boto3.client("cloudwatch", region_name=region)
+        cw.put_metric_data(
+            Namespace=BRAIN_NAMESPACE,
+            MetricData=[{"MetricName": "DailyHealthOK",
+                         "Value": 1.0 if ok else 0.0, "Unit": "Count"}],
+        )
+    except Exception as e:  # noqa: BLE001
+        print(f"  daily health heartbeat metric failed (non-fatal): {e}")
+
+
 def emit_run_heartbeat(region: str = "us-east-1", ok: bool = True) -> None:
     """Put the custom CloudWatch metric the missed-run alarm watches. Call at the
     END of a successful night invocation; a "no datapoints in N hours" alarm on
@@ -462,4 +580,8 @@ def daily_health_handler(event: dict, context) -> dict:
                                                             "investment-system-data")
     region = (event or {}).get("region") or os.environ.get("AWS_REGION", "us-east-1")
     s3 = S3Client(bucket, region)
-    return run_daily_health_check(s3, today=(event or {}).get("today"))
+    return run_daily_health_check(
+        s3,
+        today=(event or {}).get("today"),
+        require_morning=bool((event or {}).get("require_morning")),
+    )

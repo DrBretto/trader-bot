@@ -2,9 +2,18 @@
 
 import json
 
+import pytest
+
 from app.shadow_publish import build_payload
 from lines.line import build_line_view
-from lines.replay_refresh import _cent_check, _grid_check, promoted_values
+from lines.replay_refresh import (
+    _cent_check,
+    _grid_check,
+    _history_parity,
+    _recorded_regime_dates,
+    _reset_ephemeral_replay_state,
+    promoted_values,
+)
 
 
 def test_native_replay_roles_are_swapped_for_promoted_storage():
@@ -39,6 +48,53 @@ def test_existing_promoted_grid_cannot_skip_a_real_session():
     )
     assert not check["ok"]
     assert check["missing"] == ["2026-06-15"]
+
+
+def test_promoted_forward_dates_never_flip_to_later_recorded_regimes():
+    dates = ["2026-07-09", "2026-07-10", "2026-07-13", "2026-07-14"]
+
+    assert _recorded_regime_dates(
+        dates,
+        continuity_date="2026-07-14",
+        reference_frontier="2026-07-10",
+    ) == ["2026-07-09", "2026-07-10"]
+
+
+def test_replay_refuses_to_run_without_isolated_ephemeral_state(monkeypatch):
+    monkeypatch.delenv("BRAIN_STATE_DIR", raising=False)
+
+    with pytest.raises(RuntimeError, match="BRAIN_STATE_DIR is required"):
+        _reset_ephemeral_replay_state()
+
+
+def test_history_parity_checks_every_displayed_series_on_every_date():
+    target = [
+        {"date": "2026-06-11", "value": 100.0, "benchmark": 100.0,
+         "comparison": 100.0},
+        {"date": "2026-06-12", "value": 101.0, "benchmark": 99.0,
+         "comparison": 98.0},
+    ]
+    native = {
+        "2026-06-12": {
+            "date": "2026-06-12",
+            "value": 97.0,
+            "benchmark": 99.0,
+            "comparison": 101.0,
+        }
+    }
+
+    parity = _history_parity(target, native, "2026-06-11")
+
+    assert parity["points_checked"] == 1
+    assert parity["checks_run"] == 3
+    assert not parity["ok"]
+    assert parity["mismatches"] == [{
+        "series": "two_stage_comparison",
+        "date": "2026-06-12",
+        "expected": 98.0,
+        "replayed": 97.0,
+        "ok": False,
+    }]
 
 
 def test_line_metrics_follow_tilt_value_not_comparison():

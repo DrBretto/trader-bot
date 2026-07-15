@@ -8,8 +8,8 @@ import pandas as pd
 
 import json as _json
 
-from src.steps import publish_artifacts
-from src.canon.equity_ledger import CACHE_KEY, MANIFEST_KEY
+from chassis.steps import publish_artifacts
+from lines.ledger import CACHE_KEY, MANIFEST_KEY
 
 
 MINIMAL_EXPERT_SIGNALS = {
@@ -79,12 +79,18 @@ class FakeS3:
             return self.json_writes.get(key, {})
         return self.json_writes.get(key)
 
+    def read_json_strict(self, key: str):
+        return self.read_json(key)
+
     def append_jsonl(self, obj: Dict[str, Any], key: str) -> bool:
         self.jsonl_writes.setdefault(key, []).append(obj)
         return True
 
     def read_jsonl(self, key: str):
         return self.jsonl_writes.get(key, [])
+
+    def read_jsonl_strict(self, key: str):
+        return self.read_jsonl(key)
 
     def write_parquet(self, df: pd.DataFrame, key: str) -> bool:
         return True
@@ -130,12 +136,12 @@ def test_night_publish_stamps_portfolio_state_date(monkeypatch):
     assert written["date"] == run_date
 
 
-def test_night_publish_does_not_advance_latest_when_signals_missing(monkeypatch):
+def test_night_publish_advances_with_optional_signals_missing(monkeypatch):
     FakeS3.instances.clear()
     monkeypatch.setattr(
         publish_artifacts,
         "build_dashboard_data",
-        lambda *args, **kwargs: {"metrics": {}, "equity_curve": [], "drawdowns": []},
+        lambda *args, **kwargs: {"metrics": {}, **_LEDGER_LINE},
     )
 
     run_date = "2026-03-12"
@@ -163,9 +169,10 @@ def test_night_publish_does_not_advance_latest_when_signals_missing(monkeypatch)
         expert_signals=None,
     )
 
-    assert result["success"] is False
+    assert result["success"] is True
     latest = s3.json_writes["daily/latest.json"]
-    assert latest["date"] == "2026-03-11"
+    assert latest["date"] == run_date
+    assert "dashboard/dashboard.json" in s3.json_writes
 
 
 def test_morning_publish_stamps_portfolio_state_date(monkeypatch):
@@ -198,12 +205,12 @@ def test_morning_publish_stamps_portfolio_state_date(monkeypatch):
     assert written["date"] == run_date
 
 
-def test_morning_publish_does_not_advance_latest_when_signals_missing(monkeypatch):
+def test_morning_publish_advances_with_optional_signals_missing(monkeypatch):
     FakeS3.instances.clear()
     monkeypatch.setattr(
         publish_artifacts,
         "build_dashboard_data",
-        lambda *args, **kwargs: {"metrics": {}, "equity_curve": [], "drawdowns": []},
+        lambda *args, **kwargs: {"metrics": {}, **_LEDGER_LINE},
     )
 
     run_date = "2026-03-12"
@@ -227,6 +234,8 @@ def test_morning_publish_does_not_advance_latest_when_signals_missing(monkeypatc
         expert_signals=None,
     )
 
-    assert result["success"] is False
+    assert result["success"] is True
     latest = s3.json_writes["daily/latest.json"]
-    assert latest["date"] == "2026-03-11"
+    assert latest["date"] == run_date
+    assert latest["morning_executed"] is True
+    assert "dashboard/dashboard.json" in s3.json_writes

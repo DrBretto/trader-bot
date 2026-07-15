@@ -45,11 +45,18 @@ def run_midday(event: dict, bucket: str, region: str) -> Dict[str, Any]:
             config = load_config_from_s3(s3_client)
 
         with StepTimer("Midday check", logger):
-            result = midday_checker.run(bucket, config)
+            result = midday_checker.run(bucket, config, run_date=run_date)
 
         actions = result['actions_taken']
         check_log = result['check_log']
         circuit_breaker = result['circuit_breaker_active']
+        if result.get('idempotent_replay'):
+            return {'statusCode': 200, 'body': json.dumps({
+                'status': 'success', 'phase': 'midday-check', 'date': run_date,
+                'idempotent_replay': True,
+                'actions_taken': len(actions),
+                'circuit_breaker_active': circuit_breaker,
+            })}
 
         duration = (datetime.now() - start_time).total_seconds()
         logger.info(f"Midday check completed in {duration:.1f}s")
@@ -98,6 +105,7 @@ def run_midday(event: dict, bucket: str, region: str) -> Dict[str, Any]:
         return {'statusCode': 200, 'body': json.dumps({
             'status': 'success', 'phase': 'midday-check', 'date': run_date,
             'duration_seconds': duration, 'actions_taken': len(actions),
+            'checkpoint_replayed': result.get('checkpoint_replayed', False),
             'circuit_breaker_active': circuit_breaker,
             'canon_total_value': canon_total_value})}
 

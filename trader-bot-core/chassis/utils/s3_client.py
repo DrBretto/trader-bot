@@ -50,6 +50,18 @@ class S3Client:
             print(f"Error reading JSON from {key}: {e}")
             return None
 
+    def read_json_strict(self, key: str) -> Optional[Dict[str, Any]]:
+        """Read JSON while preserving the difference between missing and failed.
+
+        Retry/idempotency checkpoints must never treat a permissions, network, or
+        decode failure as "checkpoint absent" and execute a transaction twice.
+        """
+        try:
+            response = self.s3.get_object(Bucket=self.bucket, Key=key)
+            return json.loads(response['Body'].read().decode('utf-8'))
+        except self.s3.exceptions.NoSuchKey:
+            return None
+
     def write_json(self, data: Dict[str, Any], key: str) -> bool:
         """Write a dict as JSON to S3."""
         try:
@@ -102,6 +114,16 @@ class S3Client:
             print(f"Error reading JSONL from {key}: {e}")
             return []
 
+    def read_jsonl_strict(self, key: str) -> List[Dict[str, Any]]:
+        """Read JSONL while raising on transport/decode failures."""
+        try:
+            response = self.s3.get_object(Bucket=self.bucket, Key=key)
+            content = response['Body'].read().decode('utf-8')
+            lines = [line.strip() for line in content.splitlines() if line.strip()]
+            return [json.loads(line) for line in lines]
+        except self.s3.exceptions.NoSuchKey:
+            return []
+
     def read_csv(self, key: str) -> pd.DataFrame:
         """Read a CSV file from S3."""
         try:
@@ -138,7 +160,7 @@ class S3Client:
         try:
             self.s3.head_object(Bucket=self.bucket, Key=key)
             return True
-        except:
+        except Exception:
             return False
 
     def list_keys(self, prefix: str) -> list:

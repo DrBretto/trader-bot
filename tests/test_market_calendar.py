@@ -6,6 +6,7 @@ import pandas as pd
 from chassis.utils.market_calendar import (
     is_trading_session,
     latest_settled_session,
+    morning_execution_window_open,
     ny_today,
     settled_day_from_prices,
     trading_sessions_between,
@@ -48,6 +49,17 @@ def test_settled_day_from_prices_holiday_frozen_close():
 def test_july_3_2026_is_a_market_holiday_not_an_execution_day():
     assert not is_trading_session("2026-07-03")
     assert latest_settled_session(now_utc=_utc(2026, 7, 3, 14)) == "2026-07-02"
+
+
+def test_current_session_is_not_settled_before_close_buffer():
+    assert latest_settled_session(now_utc=_utc(2026, 7, 14, 15)) == "2026-07-13"
+    assert latest_settled_session(now_utc=_utc(2026, 7, 14, 21)) == "2026-07-14"
+
+
+def test_morning_window_is_dst_aware():
+    assert not morning_execution_window_open(_utc(2026, 1, 15, 13, 45))  # 08:45 EST
+    assert morning_execution_window_open(_utc(2026, 1, 15, 14, 45))      # 09:45 EST
+    assert morning_execution_window_open(_utc(2026, 7, 15, 13, 45))      # 09:45 EDT
 
 
 def test_intent_freshness_counts_sessions_not_calendar_days():

@@ -1,0 +1,11 @@
+.git
+.venv
+**/.claude
+**/.DS_Store
+**/__pycache__
+**/*.pyc
+.pytest_cache
+trader-bot-core/forecast/_state
+trader-bot-core/forecast/logs
+frontend/node_modules
+frontend/dist

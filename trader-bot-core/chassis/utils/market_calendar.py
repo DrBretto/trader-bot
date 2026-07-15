@@ -22,7 +22,7 @@ settled day here is sufficient to guarantee weekends/holidays produce no leaf.
 """
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from functools import lru_cache
 from typing import Optional
 
@@ -136,6 +136,17 @@ def _now_utc(now_utc: Optional[datetime] = None) -> datetime:
     return now_utc.astimezone(timezone.utc)
 
 
+def ny_now(now_utc: Optional[datetime] = None) -> datetime:
+    """The timezone-aware New-York datetime for ``now_utc``."""
+    u = _now_utc(now_utc)
+    try:
+        from zoneinfo import ZoneInfo
+
+        return u.astimezone(ZoneInfo(_NY_TZ))
+    except Exception:  # noqa: BLE001 - tzdata missing in the runtime image
+        return u.astimezone(timezone(timedelta(hours=-5)))
+
+
 def ny_today(now_utc: Optional[datetime] = None) -> date:
     """The New-York calendar date of ``now_utc`` (current UTC instant by default).
 
@@ -145,18 +156,26 @@ def ny_today(now_utc: Optional[datetime] = None) -> date:
     summer, −5h in winter) land on the SAME ET calendar day, so the fallback is
     date-safe even in EDT.
     """
-    u = _now_utc(now_utc)
-    try:
-        from zoneinfo import ZoneInfo
-
-        return u.astimezone(ZoneInfo(_NY_TZ)).date()
-    except Exception:  # noqa: BLE001 — tzdata missing in the runtime image
-        return (u.astimezone(timezone(timedelta(hours=-5)))).date()
+    return ny_now(now_utc).date()
 
 
 def latest_settled_session(now_utc: Optional[datetime] = None) -> str:
-    """Latest regular NYSE session on/before ET-today as ``YYYY-MM-DD``."""
-    return latest_session_on_or_before(ny_today(now_utc)).isoformat()
+    """Latest completed regular NYSE session as ``YYYY-MM-DD``.
+
+    A session is not settled merely because its New-York calendar date has
+    started. Before 16:15 ET, walk back from today so morning and overnight
+    watchdogs never demand an intraday leaf that cannot exist yet.
+    """
+    local_now = ny_now(now_utc)
+    candidate = local_now.date()
+    if local_now.time() < time(16, 15):
+        candidate -= timedelta(days=1)
+    return latest_session_on_or_before(candidate).isoformat()
+
+
+def morning_execution_window_open(now_utc: Optional[datetime] = None) -> bool:
+    """Whether the scheduled morning execution window has opened in New York."""
+    return ny_now(now_utc).time() >= time(9, 40)
 
 
 def settled_day_from_prices(

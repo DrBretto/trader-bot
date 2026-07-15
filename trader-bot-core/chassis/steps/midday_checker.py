@@ -18,6 +18,65 @@ logger = logging.getLogger(__name__)
 # VIX circuit breaker thresholds (conservative — fires only during genuine panic)
 VIX_ABSOLUTE_THRESHOLD = 35.0
 VIX_INTRADAY_JUMP_THRESHOLD = 0.25  # 25% intraday jump from previous close
+CHECKPOINT_SCHEMA = "midday_execution_checkpoint.v1"
+CHECKPOINT_PREFIX = "ops/midday_checkpoints"
+
+
+def _checkpoint_key(run_date: str) -> str:
+    return f"{CHECKPOINT_PREFIX}/{run_date}.json"
+
+
+def _checkpoint_result(
+    checkpoint: Dict[str, Any],
+    *,
+    checkpoint_replayed: bool,
+    idempotent_replay: bool,
+) -> Dict[str, Any]:
+    return {
+        'actions_taken': list(checkpoint.get('actions_taken') or []),
+        'check_log': list(checkpoint.get('check_log') or []),
+        'circuit_breaker_active': bool(checkpoint.get('circuit_breaker_active')),
+        'portfolio_state': paper_trader.from_published_state(
+            checkpoint['portfolio_state']
+        ),
+        'checkpoint_replayed': checkpoint_replayed,
+        'idempotent_replay': idempotent_replay,
+    }
+
+
+def _persist_prepared_checkpoint(
+    s3: S3Client,
+    checkpoint: Dict[str, Any],
+    checkpoint_key: str,
+    *,
+    checkpoint_replayed: bool,
+) -> Dict[str, Any]:
+    """Idempotently finish writes from an already-computed midday result."""
+    run_date = checkpoint['run_date']
+    circuit_artifact = checkpoint.get('circuit_breaker_artifact')
+    if circuit_artifact and not s3.write_json(
+        circuit_artifact, f'daily/{run_date}/circuit_breaker.json'
+    ):
+        raise RuntimeError("circuit_breaker.json write returned false")
+    if not s3.write_json(
+        checkpoint['portfolio_state'], f'daily/{run_date}/portfolio_state.json'
+    ):
+        raise RuntimeError("midday portfolio_state.json write returned false")
+    if not s3.write_json(
+        checkpoint['midday_report'], f'daily/{run_date}/midday_check_report.json'
+    ):
+        raise RuntimeError("midday_check_report.json write returned false")
+
+    completed = dict(checkpoint)
+    completed['status'] = 'completed'
+    completed['completed_at'] = datetime.now().isoformat()
+    if not s3.write_json(completed, checkpoint_key):
+        raise RuntimeError("midday writes landed but checkpoint completion did not")
+    return _checkpoint_result(
+        completed,
+        checkpoint_replayed=checkpoint_replayed,
+        idempotent_replay=False,
+    )
 
 
 def check_vix_circuit_breaker(
@@ -142,6 +201,7 @@ def find_skipped_buys(s3: S3Client) -> List[Dict[str, Any]]:
 def run(
     bucket: str,
     config: Dict[str, Any],
+    run_date: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Execute the midday check: trailing stops, VIX breaker, skipped-buy re-check.
 
@@ -158,7 +218,32 @@ def run(
     check_log: List[str] = []
     actions_taken: List[Dict[str, Any]] = []
     circuit_breaker_active = False
-    run_date = datetime.now().strftime('%Y-%m-%d')
+    run_date = run_date or datetime.now().strftime('%Y-%m-%d')
+    checkpoint_key = _checkpoint_key(run_date)
+    checkpoint = s3.read_json_strict(checkpoint_key)
+    if checkpoint:
+        if checkpoint.get('schema') != CHECKPOINT_SCHEMA:
+            raise RuntimeError(
+                f"unsupported midday checkpoint schema: {checkpoint.get('schema')!r}"
+            )
+        if checkpoint.get('run_date') != run_date:
+            raise RuntimeError("midday checkpoint run_date does not match its key")
+        if checkpoint.get('status') == 'completed':
+            return _checkpoint_result(
+                checkpoint,
+                checkpoint_replayed=True,
+                idempotent_replay=True,
+            )
+        if checkpoint.get('status') == 'prepared':
+            return _persist_prepared_checkpoint(
+                s3,
+                checkpoint,
+                checkpoint_key,
+                checkpoint_replayed=True,
+            )
+        raise RuntimeError(
+            f"unsupported midday checkpoint status: {checkpoint.get('status')!r}"
+        )
 
     # Load portfolio state
     portfolio = paper_trader.load_portfolio_state(s3)
@@ -175,13 +260,7 @@ def run(
     midday_quotes = ingest_prices.fetch_morning_quotes(all_symbols)
 
     if len(midday_quotes) == 0:
-        check_log.append("ABORT: No midday quotes fetched")
-        return {
-            'actions_taken': [],
-            'check_log': check_log,
-            'circuit_breaker_active': False,
-            'portfolio_state': portfolio,
-        }
+        raise RuntimeError("ABORT: no midday quotes fetched")
 
     price_map = {row['symbol']: row['price'] for _, row in midday_quotes.iterrows()}
     check_log.append(f"Fetched midday prices for {len(price_map)} symbols")
@@ -197,6 +276,7 @@ def run(
     if night_context:
         vix_previous_close = float(night_context.get('vix_close', 0) or 0)
 
+    circuit_breaker_artifact = None
     if vix_current is not None:
         breaker_active, breaker_reason = check_vix_circuit_breaker(
             vix_current, vix_previous_close
@@ -204,16 +284,13 @@ def run(
         if breaker_active:
             circuit_breaker_active = True
             check_log.append(f"CIRCUIT BREAKER ACTIVE: {breaker_reason}")
-            s3.write_json(
-                {
-                    'active': True,
-                    'reason': breaker_reason,
-                    'vix_current': vix_current,
-                    'vix_previous_close': vix_previous_close,
-                    'timestamp': datetime.now().isoformat(),
-                },
-                f'daily/{run_date}/circuit_breaker.json'
-            )
+            circuit_breaker_artifact = {
+                'active': True,
+                'reason': breaker_reason,
+                'vix_current': vix_current,
+                'vix_previous_close': vix_previous_close,
+                'timestamp': datetime.now().isoformat(),
+            }
         else:
             check_log.append(
                 f"VIX check OK: {vix_current:.1f} "
@@ -367,15 +444,12 @@ def run(
         if midday_price and midday_price > holding.get('peak_price', 0):
             holding['peak_price'] = midday_price
 
-    # Save updated portfolio state to S3 (single-book invariant: published under
-    # the role-marked sim-book shape, never a raw live-portfolio shape).
+    # Prepare every state mutation before publishing any of it. A retry resumes
+    # these exact computed results rather than executing skipped buys twice.
     portfolio['date'] = run_date
-    s3.write_json(
-        paper_trader.to_published_state(portfolio),
-        f'daily/{run_date}/portfolio_state.json',
+    check_log.append(
+        f"Midday check complete: {len(actions_taken)} actions taken"
     )
-
-    # Save midday check report
     midday_report = {
         'run_date': run_date,
         'timestamp': datetime.now().isoformat(),
@@ -386,15 +460,23 @@ def run(
         'total_actions': len(actions_taken),
         'check_log': check_log,
     }
-    s3.write_json(midday_report, f'daily/{run_date}/midday_check_report.json')
-
-    check_log.append(
-        f"Midday check complete: {len(actions_taken)} actions taken"
-    )
-
-    return {
+    checkpoint = {
+        'schema': CHECKPOINT_SCHEMA,
+        'status': 'prepared',
+        'run_date': run_date,
+        'prepared_at': datetime.now().isoformat(),
+        'portfolio_state': paper_trader.to_published_state(portfolio),
         'actions_taken': actions_taken,
         'check_log': check_log,
         'circuit_breaker_active': circuit_breaker_active,
-        'portfolio_state': portfolio,
+        'circuit_breaker_artifact': circuit_breaker_artifact,
+        'midday_report': midday_report,
     }
+    if not s3.write_json(checkpoint, checkpoint_key):
+        raise RuntimeError("failed to persist resumable midday checkpoint")
+    return _persist_prepared_checkpoint(
+        s3,
+        checkpoint,
+        checkpoint_key,
+        checkpoint_replayed=False,
+    )

@@ -61,6 +61,20 @@ DUST_SHARE_EPSILON = 0.001
 DUST_VALUE_EPSILON = 0.01
 
 
+def _trade_execution_fingerprint(trade: Dict[str, Any]) -> str:
+    """Stable same-day identity for rows written before execution IDs existed."""
+    fields = (
+        'symbol', 'action', 'shares', 'market_price', 'price', 'reason',
+        'notional', 'commission', 'slippage',
+    )
+    return json.dumps(
+        {field: trade.get(field) for field in fields},
+        sort_keys=True,
+        separators=(',', ':'),
+        default=str,
+    )
+
+
 def run_brain_cutover_night(
     s3: S3Client,
     run_date: str,
@@ -468,6 +482,12 @@ def build_dashboard_data(
         'trade_summary': trade_exp.get('trade_summary', {}),
         'round_trips': trade_exp.get('round_trips', []),
         'reset_boundary': None,
+        'data_quality': {
+            'expert_signals': {
+                'status': 'current' if expert_signals is not None else 'unavailable',
+                'as_of': snapshot_date if expert_signals is not None else None,
+            },
+        },
     }
 
     # Add expert signals if available
@@ -510,8 +530,14 @@ def build_dashboard_data(
 
 
 def _can_publish_dashboard(expert_signals: Optional[Dict[str, Any]]) -> bool:
-    """Return whether the current snapshot is safe to expose as live dashboard truth."""
-    return expert_signals is not None
+    """Legacy analytical signals are optional; ledger parity owns publish safety.
+
+    The clean-core night does not emit the retired ``signals.parquet`` bundle.
+    Holding the entire dashboard when that optional panel is absent left every
+    operational section stale for days. ``build_dashboard_data`` marks the panel
+    unavailable, while the ledger parity/value guards still protect all line data.
+    """
+    return True
 
 
 def guard_publish_not_reverted(dashboard_data, s3, run_date) -> tuple:
@@ -820,10 +846,11 @@ def run(
     # 7. Portfolio State JSON (internal sim book — published under renamed,
     #    role-marked fields so it can never read as a second live portfolio)
     try:
-        s3.write_json(
+        if not s3.write_json(
             paper_trader.to_published_state(portfolio_state),
             f"{base_path}/portfolio_state.json",
-        )
+        ):
+            raise IOError("S3 write returned false")
         published.append("portfolio_state.json")
     except Exception as e:
         print(f"Failed to publish portfolio_state.json: {e}")
@@ -949,13 +976,11 @@ def run(
         dashboard_data = attach_new_brain_surface(dashboard_data, _shadow_payload)
         # NaN/inf from incomplete bars or degraded data must not crash the publish.
         dashboard_data = sanitize_nan_for_json(dashboard_data)
-        # Publish guard: do not overwrite a valid dashboard with broken data.
-        # When expert_signals is None the frontend shows "unknown" posture and
-        # hides Today's Story.  Preserving the last known good dashboard.json
-        # is strictly better than publishing a degraded snapshot.
+        # Optional legacy signals may be absent on the clean-core path. The
+        # dashboard publishes the current operational snapshot and marks that
+        # panel unavailable; the ledger guards below still own line safety.
         if not dashboard_publishable:
-            print("  WARNING: Skipping dashboard.json publish — expert_signals is null. "
-                  "Preserving last known good dashboard state.")
+            print("  WARNING: Skipping dashboard.json publish — snapshot unpublishable.")
             failed.append("dashboard.json (skipped: null signals)")
         else:
             # Parity-or-hold gate: never publish an empty/drifted/regressed line.
@@ -1076,10 +1101,11 @@ def publish_morning_artifacts(
     # 1. Portfolio state (overwrite night's valuation-only snapshot).
     #    Internal sim book — renamed/role-marked at the write boundary.
     try:
-        s3.write_json(
+        if not s3.write_json(
             paper_trader.to_published_state(portfolio_state),
             f"{base_path}/portfolio_state.json",
-        )
+        ):
+            raise IOError("S3 write returned false")
         published.append("portfolio_state.json")
     except Exception as e:
         print(f"Failed to publish portfolio_state.json: {e}")
@@ -1087,8 +1113,27 @@ def publish_morning_artifacts(
 
     # 2. Trades
     try:
+        existing_trades = s3.read_jsonl_strict(f"{base_path}/trades.jsonl")
+        existing_ids = {
+            row.get('execution_id')
+            for row in existing_trades
+            if row.get('execution_id')
+        }
+        existing_fingerprints = {
+            _trade_execution_fingerprint(row) for row in existing_trades
+        }
         for trade in trades:
-            s3.append_jsonl(trade, f"{base_path}/trades.jsonl")
+            execution_id = trade.get('execution_id')
+            if execution_id and execution_id in existing_ids:
+                continue
+            fingerprint = _trade_execution_fingerprint(trade)
+            if fingerprint in existing_fingerprints:
+                continue
+            if not s3.append_jsonl(trade, f"{base_path}/trades.jsonl"):
+                raise IOError("S3 append returned false")
+            if execution_id:
+                existing_ids.add(execution_id)
+            existing_fingerprints.add(fingerprint)
         if trades:
             published.append("trades.jsonl")
     except Exception as e:
@@ -1097,7 +1142,10 @@ def publish_morning_artifacts(
 
     # 3. Morning execution report
     try:
-        s3.write_json(morning_execution, f"{base_path}/morning_execution.json")
+        if not s3.write_json(
+            morning_execution, f"{base_path}/morning_execution.json"
+        ):
+            raise IOError("S3 write returned false")
         published.append("morning_execution.json")
     except Exception as e:
         print(f"Failed to publish morning_execution.json: {e}")
@@ -1107,7 +1155,7 @@ def publish_morning_artifacts(
     #    per quoted symbol, every row dated run_date. Schema matches what the
     #    replay's _ohlc_for_date / mark / fill read (date/symbol/open/close) plus
     #    high/low/volume. close = intraday last (quote 'price') -> provisional
-    #    close. Non-fatal: a write failure must never crash the morning run.
+    #    close. A failed write makes the resumable morning publish retry.
     if morning_prices is not None and len(morning_prices) > 0:
         try:
             rows = []
@@ -1125,7 +1173,10 @@ def publish_morning_artifacts(
             provisional_df = pd.DataFrame(
                 rows, columns=['date', 'symbol', 'open', 'high', 'low', 'close', 'volume']
             )
-            s3.write_parquet(provisional_df, f"{base_path}/morning_prices.parquet")
+            if not s3.write_parquet(
+                provisional_df, f"{base_path}/morning_prices.parquet"
+            ):
+                raise IOError("S3 parquet write returned false")
             published.append("morning_prices.parquet")
         except Exception as e:
             print(f"Failed to publish morning_prices.parquet: {e}")
@@ -1153,10 +1204,9 @@ def publish_morning_artifacts(
         dashboard_data = attach_new_brain_surface(dashboard_data, _shadow_payload)
         # NaN/inf from incomplete bars or degraded data must not crash the publish.
         dashboard_data = sanitize_nan_for_json(dashboard_data)
-        # Publish guard: do not overwrite a valid dashboard with broken data.
+        # Optional legacy signals do not hold the current operational snapshot.
         if not dashboard_publishable:
-            print("  WARNING: Skipping morning dashboard.json publish — expert_signals is null. "
-                  "Preserving last known good dashboard state.")
+            print("  WARNING: Skipping morning dashboard.json publish — snapshot unpublishable.")
             failed.append("dashboard.json (skipped: null signals)")
         else:
             # Parity-or-hold gate (same as night path).
@@ -1177,8 +1227,10 @@ def publish_morning_artifacts(
                 failed.append("dashboard.json (HELD: failed parity-or-hold gate)")
                 dashboard_held = True
             else:
-                s3.write_json(dashboard_data, "dashboard/data/dashboard.json")
-                s3.write_json(dashboard_data, "dashboard/dashboard.json")
+                if not s3.write_json(dashboard_data, "dashboard/data/dashboard.json"):
+                    raise IOError("dashboard/data/dashboard.json write returned false")
+                if not s3.write_json(dashboard_data, "dashboard/dashboard.json"):
+                    raise IOError("dashboard/dashboard.json write returned false")
                 published.append("dashboard.json")
                 canon_total_value = dashboard_data.get('metrics', {}).get('total_value')
     except Exception as e:
@@ -1190,7 +1242,7 @@ def publish_morning_artifacts(
     #    executor reload an older portfolio and re-execute from stale state.
     try:
         if "portfolio_state.json" in published:
-            latest = s3.read_json('daily/latest.json') or {}
+            latest = s3.read_json_strict('daily/latest.json') or {}
             latest.update({
                 'date': run_date,
                 'morning_executed': True,
@@ -1204,7 +1256,8 @@ def publish_morning_artifacts(
             # unknown keys, so an explicit pop is required once).
             latest.pop('portfolio_value', None)
             latest.pop('positions_count', None)
-            s3.write_json(latest, 'daily/latest.json')
+            if not s3.write_json(latest, 'daily/latest.json'):
+                raise IOError("daily/latest.json write returned false")
             published.append("latest.json")
         else:
             print("  WARNING: Skipping morning latest.json update — portfolio state was not written.")

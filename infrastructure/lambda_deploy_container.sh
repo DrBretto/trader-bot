@@ -201,6 +201,17 @@ EOF
     rm /tmp/trust-policy.json
 fi
 
+# Reconcile the inline policy on EVERY deploy. Previously this only ran during
+# first-time role creation, so committed IAM changes silently never reached an
+# existing production role.
+aws iam put-role-policy \
+    --role-name "$ROLE_NAME" \
+    --policy-name "investment-system-policy" \
+    --policy-document file://infrastructure/iam_policies.json
+aws iam attach-role-policy \
+    --role-name "$ROLE_NAME" \
+    --policy-arn "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
 # Check if function exists and its package type
 EXISTING_FUNCTION=$(aws lambda get-function --function-name "$FUNCTION_NAME" --region "$REGION" 2>/dev/null || true)
 

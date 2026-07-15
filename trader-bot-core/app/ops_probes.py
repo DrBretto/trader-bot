@@ -82,8 +82,13 @@ def advance_challenger(event: dict, bucket: str, region: str) -> Dict[str, Any]:
         commit=bool(event.get("commit")),
     )
     out["phase"] = "advance-challenger"
-    if not event.get("commit") or not out.get("committed"):
+    if not event.get("commit"):
         return out
+    if not out.get("committed"):
+        raise RuntimeError(
+            "promoted replay refresh refused commit: "
+            + str(out.get("reason") or out)
+        )
 
     from publish.dashboard import build_publish_surface, publish_line
     dashboard = build_publish_surface(s3)
@@ -93,6 +98,11 @@ def advance_challenger(event: dict, bucket: str, region: str) -> Dict[str, Any]:
         phase="replay-refresh",
         run_date=out["latest_settled"],
     )
+    if not out["dashboard_publish"].get("published"):
+        raise RuntimeError(
+            "promoted replay committed but dashboard publish held: "
+            + str(out["dashboard_publish"].get("reason"))
+        )
     from app.shadow_publish import run_shadow_publish
     out["shadow_publish"] = run_shadow_publish(
         {"run_date": out["latest_settled"]}, bucket, region

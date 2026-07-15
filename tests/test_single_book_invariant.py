@@ -1,7 +1,7 @@
 """Single-book invariant (PKT-TB-001 regression lock) — clean-core edition.
 
 There is exactly ONE displayed book: the canon line, now the STORED equity
-ledger (src/canon/equity_ledger.py), surfaced as dashboard.json
+ledger (lines/ledger.py), surfaced as dashboard.json
 metrics.total_value / equity_curve. The dead paper-broker account survives only
 as an internal intent-sizing simulation (``sim_book_value`` + role markers) whose
 value must NEVER be published under a live-book name or become the displayed line.
@@ -20,8 +20,8 @@ from typing import Any, Dict, List
 import pandas as pd
 import pytest
 
-from src.steps import publish_artifacts, paper_trader
-from src.canon.equity_ledger import CACHE_KEY, MANIFEST_KEY
+from chassis.steps import paper_trader, publish_artifacts
+from lines.ledger import CACHE_KEY, MANIFEST_KEY
 
 
 PORTFOLIO_VALUE_SHAPED = {
@@ -109,12 +109,18 @@ class CaptureS3:
     def read_json(self, key: str):
         return self.json_writes.get(key)
 
+    def read_json_strict(self, key: str):
+        return self.read_json(key)
+
     def append_jsonl(self, obj: Dict[str, Any], key: str) -> bool:
         self.jsonl_writes.setdefault(key, []).append(obj)
         return True
 
     def read_jsonl(self, key: str):
         return self.jsonl_writes.get(key, [])
+
+    def read_jsonl_strict(self, key: str):
+        return self.read_jsonl(key)
 
     def write_parquet(self, df: pd.DataFrame, key: str) -> bool:
         self.parquet_writes[key] = df

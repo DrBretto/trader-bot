@@ -57,7 +57,8 @@ aws events put-targets \
     --targets "[{
         \"Id\": \"investment-system-lambda\",
         \"Arn\": \"$LAMBDA_ARN\",
-        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"eventbridge-scheduled\\\"}\"
+        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"eventbridge-scheduled\\\"}\",
+        \"RetryPolicy\": {\"MaximumRetryAttempts\": 2, \"MaximumEventAgeInSeconds\": 7200}
     }]" \
     --region "$REGION"
 
@@ -67,12 +68,14 @@ MORNING_RULE_NAME="investment-system-morning-trigger"
 echo ""
 echo "Setting up morning execution rule: $MORNING_RULE_NAME"
 
-# Schedule: 14:45 UTC = 9:45 AM ET, Mon-Fri
+# Primary schedule: 13:45 UTC = 9:45 AM during EDT. A second 14:45 UTC
+# standard-time rule is installed below. The app rejects pre-09:40 ET invokes,
+# and its daily checkpoint makes the later summer invoke an idempotent no-op.
 aws events put-rule \
     --name "$MORNING_RULE_NAME" \
-    --schedule-expression "cron(45 14 ? * MON-FRI *)" \
+    --schedule-expression "cron(45 13 ? * MON-FRI *)" \
     --state ENABLED \
-    --description "Triggers morning trade execution at 9:45 AM ET on weekdays" \
+    --description "Primary morning execution at 09:45 New York during EDT" \
     --region "$REGION"
 
 # Add Lambda permission for morning rule
@@ -92,7 +95,36 @@ aws events put-targets \
     --targets "[{
         \"Id\": \"investment-system-lambda-morning\",
         \"Arn\": \"$LAMBDA_ARN\",
-        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"morning-execution\\\"}\"
+        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"morning-execution\\\"}\",
+        \"RetryPolicy\": {\"MaximumRetryAttempts\": 2, \"MaximumEventAgeInSeconds\": 7200}
+    }]" \
+    --region "$REGION"
+
+# Standard-time companion: 14:45 UTC = 09:45 EST. In EDT this is a harmless
+# idempotent replay of the already-completed morning checkpoint.
+MORNING_EST_RULE_NAME="investment-system-morning-est-trigger"
+aws events put-rule \
+    --name "$MORNING_EST_RULE_NAME" \
+    --schedule-expression "cron(45 14 ? * MON-FRI *)" \
+    --state ENABLED \
+    --description "Standard-time companion for 09:45 New York morning execution" \
+    --region "$REGION"
+
+aws lambda add-permission \
+    --function-name "$FUNCTION_NAME" \
+    --statement-id "EventBridgeMorningESTInvoke" \
+    --action "lambda:InvokeFunction" \
+    --principal "events.amazonaws.com" \
+    --source-arn "arn:aws:events:$REGION:$ACCOUNT_ID:rule/$MORNING_EST_RULE_NAME" \
+    --region "$REGION" 2>/dev/null || true
+
+aws events put-targets \
+    --rule "$MORNING_EST_RULE_NAME" \
+    --targets "[{
+        \"Id\": \"investment-system-lambda-morning-est\",
+        \"Arn\": \"$LAMBDA_ARN\",
+        \"Input\": \"{\\\"bucket\\\": \\\"$BUCKET_NAME\\\", \\\"source\\\": \\\"morning-execution\\\"}\",
+        \"RetryPolicy\": {\"MaximumRetryAttempts\": 2, \"MaximumEventAgeInSeconds\": 7200}
     }]" \
     --region "$REGION"
 
@@ -135,7 +167,7 @@ echo ""
 echo "EventBridge rules created successfully!"
 echo ""
 echo "Night schedule:   Every weeknight at 10 PM ET (3 AM UTC next day, Tue-Sat)"
-echo "Morning schedule: Every weekday at 9:45 AM ET (14:45 UTC, Mon-Fri)"
+echo "Morning schedule: DST-safe 9:45 AM New York pair (13:45 + 14:45 UTC)"
 echo "Midday schedule:  Every weekday at 1:00 PM ET (18:00 UTC, Mon-Fri)"
 echo ""
 echo "Night rule ARN:   arn:aws:events:$REGION:$ACCOUNT_ID:rule/$RULE_NAME"

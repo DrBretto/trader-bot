@@ -52,6 +52,27 @@
         "sns:Publish"
       ],
       "Resource": "arn:aws:sns:us-east-1:*:investment-system-alerts"
+    },
+    {
+      "Sid": "CloudFrontInvalidation",
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateInvalidation"
+      ],
+      "Resource": "arn:aws:cloudfront::767398003959:distribution/E10EHVNQ0CELM2"
+    },
+    {
+      "Sid": "CloudWatchMetrics",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricData"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringLike": {
+          "cloudwatch:namespace": "TraderBot/*"
+        }
+      }
     }
   ]
 }
