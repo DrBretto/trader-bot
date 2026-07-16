@@ -119,6 +119,33 @@ def _result_from_checkpoint(checkpoint: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _repair_completed_pointer(s3_client, checkpoint: Dict[str, Any]) -> bool:
+    """Restore morning pointer metadata without replaying a completed execution."""
+    run_date = str(checkpoint.get('run_date') or '')
+    if not run_date:
+        raise RuntimeError("completed morning checkpoint has no run_date")
+    latest = s3_client.read_json_strict('daily/latest.json') or {}
+    if latest.get('date') == run_date and latest.get('morning_executed') is True:
+        return False
+
+    timestamp = (checkpoint.get('completed_at') or checkpoint.get('prepared_at')
+                 or datetime.now().isoformat())
+    latest.update({
+        'date': run_date,
+        'intents_date': checkpoint.get('intents_date') or latest.get('intents_date'),
+        'morning_executed': True,
+        'trades_count': len(checkpoint.get('trades') or []),
+        'phase': 'morning',
+        'timestamp': timestamp,
+    })
+    latest.setdefault('snapshot_id', f"{run_date}:morning:{timestamp}")
+    latest.pop('portfolio_value', None)
+    latest.pop('positions_count', None)
+    if not s3_client.write_json(latest, 'daily/latest.json'):
+        raise RuntimeError("completed checkpoint pointer repair write returned false")
+    return True
+
+
 def run_morning(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     """Morning execution phase: validate intents and execute trades at market
     prices, then publish updated portfolio state + dashboard. Clean-core."""
@@ -147,11 +174,15 @@ def run_morning(event: dict, bucket: str, region: str) -> Dict[str, Any]:
         checkpoint_key = _checkpoint_key(run_date)
         checkpoint = s3_client.read_json_strict(checkpoint_key)
         if checkpoint and checkpoint.get('status') == 'completed':
+            pointer_repaired = _repair_completed_pointer(
+                s3_client, checkpoint
+            )
             dashboard = s3_client.read_json_strict('dashboard/dashboard.json') or {}
             canon_total = (dashboard.get('metrics') or {}).get('total_value')
             return {'statusCode': 200, 'body': json.dumps({
                 'status': 'success', 'phase': 'morning', 'date': run_date,
                 'idempotent_replay': True,
+                'pointer_repaired': pointer_repaired,
                 'trades_executed': len(checkpoint.get('trades') or []),
                 'canon_total_value': canon_total,
             })}

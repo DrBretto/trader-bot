@@ -15,7 +15,11 @@ sys.path.insert(0, str(CORE_ROOT / "tests"))
 
 from _reality import LiveS3Reader, CANON_CACHE_KEY  # noqa: E402
 from app.night import _merge_night_pointer, _persist_forecast_record  # noqa: E402
-from app.morning import _build_checkpoint, _result_from_checkpoint  # noqa: E402
+from app.morning import (  # noqa: E402
+    _build_checkpoint,
+    _repair_completed_pointer,
+    _result_from_checkpoint,
+)
 from chassis.steps.midday_checker import (  # noqa: E402
     CHECKPOINT_SCHEMA as MIDDAY_CHECKPOINT_SCHEMA,
     _persist_prepared_checkpoint,
@@ -83,6 +87,9 @@ class FakeWriteS3:
         self.docs[key] = payload
         return True
 
+    def read_json_strict(self, key):
+        return self.docs.get(key)
+
 
 def test_morning_checkpoint_round_trip_preserves_exact_execution():
     result = {
@@ -114,6 +121,34 @@ def test_morning_checkpoint_round_trip_preserves_exact_execution():
     assert restored["portfolio_state"]["portfolio_value"] == pytest.approx(101234.5)
     assert restored["trades"] == first["trades"]
     assert restored["morning_prices"].iloc[0]["symbol"] == "SPY"
+
+
+def test_completed_morning_checkpoint_repairs_pointer_without_execution():
+    store = FakeWriteS3()
+    store.docs["daily/latest.json"] = {
+        "date": DATE,
+        "intents_date": DATE,
+        "phase": "night",
+        "morning_executed": True,
+        "snapshot_id": "2026-07-16:morning:original",
+    }
+    checkpoint = {
+        "status": "completed",
+        "run_date": "2026-07-16",
+        "intents_date": DATE,
+        "completed_at": "2026-07-16T14:00:00",
+        "trades": [{"execution_id": "already-executed"}],
+    }
+
+    repaired = _repair_completed_pointer(store, checkpoint)
+
+    latest = store.docs["daily/latest.json"]
+    assert repaired is True
+    assert latest["date"] == "2026-07-16"
+    assert latest["phase"] == "morning"
+    assert latest["morning_executed"] is True
+    assert latest["trades_count"] == 1
+    assert latest["snapshot_id"] == "2026-07-16:morning:original"
 
 
 def test_legacy_trade_and_checkpoint_trade_share_a_dedupe_fingerprint():

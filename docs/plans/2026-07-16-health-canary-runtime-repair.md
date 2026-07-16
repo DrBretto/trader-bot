@@ -76,6 +76,10 @@ when those artifacts were weeks behind the settled frontier.
   successful night rerun after morning could overwrite the later operational pointer
   date/phase with the settled night date. Added a monotonic pointer merge and tests;
   today’s pointer will be restored through the resumable morning checkpoint.
+- 2026-07-16: The completed-checkpoint fast path correctly skipped execution but
+  also skipped pointer repair. Added a metadata-only repair on completed replay so a
+  regressed/missing pointer is restored without touching fills, portfolio state, or
+  trade logs.
 
 ## Closeout
 
