@@ -20,9 +20,9 @@ when those artifacts were weeks behind the settled frontier.
   understand the current `mu` record schema.
 - [x] Persist the successful clean-core forecast record every night and require the
   forecast canary to reach the current settled session.
-- [ ] Surface CBOE refresh failures that are currently swallowed and inspect the live
+- [x] Surface CBOE refresh failures that are currently swallowed and inspect the live
   Lambda-context result.
-- [ ] Run focused and broad tests, commit and push only the owned files, deploy the
+- [x] Run focused and broad tests, commit and push only the owned files, deploy the
   image, then prove the live canary and three-line health checks are green.
 
 ## Execution Log
@@ -80,7 +80,27 @@ when those artifacts were weeks behind the settled frontier.
   also skipped pointer repair. Added a metadata-only repair on completed replay so a
   regressed/missing pointer is restored without touching fills, portfolio state, or
   trade logs.
+- 2026-07-16: Deployed the final code checkpoint `2b1cc57` as immutable digest
+  `sha256:2272a54a67bcd177c0d17e92cf9c4afd05c2ebc6e32efd2eb38a19bec701f133`.
+  The completed July 16 checkpoint returned `idempotent_replay:true` and
+  `pointer_repaired:true`; `daily/latest.json` is back on the July 16 morning
+  snapshot and the existing trade artifact remains six rows, last modified at the
+  original 09:45 execution.
+- 2026-07-16: Final independent production acceptance is green: all 10 live canaries
+  pass under Lambda Python 3.11, all three displayed lines have zero settled-session
+  lag, the public morning snapshot and receipt are current, and all 11 trader-bot
+  CloudWatch alarms are OK. Public values match the promoted ledger: TILT
+  `114848.72179181811`, SPY `109417.65600035332`, and two-stage comparison
+  `114480.69094528201` (published to cents as `114480.69`).
+- 2026-07-16: One operator-induced diagnostic alert was sent when the first manual
+  health probe explicitly forced `today=2026-07-16` before that market session had
+  settled. The subsequent real-clock health probe is green and the health-red alarm
+  returned to OK; this was not a line or pipeline failure.
 
 ## Closeout
 
-Pending implementation and live acceptance.
+The exit-code incident is closed. The production image contains the canary runtime,
+nightly forecasts persist from the exact decision record, canaries follow promoted
+TILT canon and require the current settled frontier, CBOE is current and visible,
+and retry paths cannot regress or strand the morning pointer. No duplicate execution
+occurred during repair.
