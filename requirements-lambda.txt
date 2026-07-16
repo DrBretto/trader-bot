@@ -7,3 +7,6 @@ openai==1.6.1
 httpx<0.28
 python-dateutil==2.8.2
 yfinance>=0.2.37
+# The post-pipeline reality gate intentionally executes the pytest-based live
+# canary suite inside Lambda. Keep the runner in the production image.
+pytest==9.0.2

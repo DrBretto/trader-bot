@@ -1,0 +1,67 @@
+# 2026-07-16 - Health canary runtime repair
+
+## Context
+
+The July 16 night completed settled-price production, inference, and artifact writes,
+then failed its post-pipeline gate with exit code 1. The independent three-line
+watchdog remained green: promoted TILT, SPY, and the two-stage comparison all reached
+July 15 with matching ledger and dashboard values. The failing process was the live
+reality-canary subprocess, whose deployed image did not contain pytest.
+
+The incident exposed two additional false-green risks. The live canary still read the
+retired clean-v2 ledger instead of the promoted TILT ledger, and the forecast-rotation
+check selected the newest two dates that happened to contain inference artifacts even
+when those artifacts were weeks behind the settled frontier.
+
+## Plan
+
+- [x] Package the canary runner in the Lambda image and lock that deployment contract.
+- [x] Point reality checks at the promoted ledger and make the forecast fingerprint
+  understand the current `mu` record schema.
+- [x] Persist the successful clean-core forecast record every night and require the
+  forecast canary to reach the current settled session.
+- [ ] Surface CBOE refresh failures that are currently swallowed and inspect the live
+  Lambda-context result.
+- [ ] Run focused and broad tests, commit and push only the owned files, deploy the
+  image, then prove the live canary and three-line health checks are green.
+
+## Execution Log
+
+- 2026-07-16: Reproduced the inbox error from CloudWatch. Three EventBridge attempts
+  failed after otherwise successful night work because `/var/lang/bin/python3.11`
+  reported `No module named pytest`.
+- 2026-07-16: Invoked the production canary directly and reproduced the exact exit 1.
+  Separately verified both post-replay and post-morning three-line health checks green
+  through July 15, with TILT `114848.72179181811`, SPY `109417.65600035332`, and
+  two-stage comparison `114480.69094528201`.
+- 2026-07-16: Confirmed all 11 reliability alarms are currently OK. The Lambda-errors
+  alarm correctly entered ALARM for the failed night and recovered after retries.
+- 2026-07-16: Found the live canary pinned to `equity_ledger_clean_v2`, while the
+  watchdog correctly follows `lines.ledger.CACHE_KEY` to promoted TILT canon.
+- 2026-07-16: Found no `daily/<D>/inference.json` artifacts after July 2. The clean
+  night computes current `mu` but drops the record before persistence, allowing the
+  rotation canary to pass against July 1 and July 2 indefinitely.
+- 2026-07-16: Found CBOE history stuck at June 9 in Lambda while all seven official
+  endpoints are current through July 15 from a local fetch. Per-index HTTP failures
+  are returned by the fetcher but discarded by the forward path, leaving no usable
+  production diagnosis.
+- 2026-07-16: Added the production pytest dependency, carried the exact inference
+  record through `CutoverResult`, persisted it as `daily/<D>/inference.json`, and
+  made the canary reject any artifact frontier behind the latest settled session.
+- 2026-07-16: Made forecast fingerprints canonical over predictions rather than
+  timestamps, imported the promoted ledger pointer instead of duplicating a retired
+  prefix, and updated the promotion-era model-id and comparison-line assertions.
+- 2026-07-16: Added a browser-header CBOE primary plus a named Yahoo/yfinance tail
+  fallback, and returned per-index status through the non-destructive forecast diag.
+- 2026-07-16: Verification passes: 14 focused reliability tests, the 40-test commit
+  canary selection (39 passed, one expected xfail), and 32 active clean-core replay,
+  single-book, publish-date, and market-calendar tests. The pre-deploy live canary
+  now has exactly one red: its newest forecast is July 2 while the settled frontier
+  is July 15, the production artifact gap this deployment is intended to close.
+- 2026-07-16: Rechecked infrastructure. All scheduled trader-bot rules remain in
+  their expected enabled/disabled states and all 11 current trader-bot reliability
+  alarms are OK.
+
+## Closeout
+
+Pending implementation and live acceptance.

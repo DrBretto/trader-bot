@@ -49,6 +49,10 @@ SNAPSHOT_FILES = [
 
 CBOE_INDICES = ["VIX", "VIX9D", "VIX3M", "VVIX", "SKEW", "COR3M", "VXN"]
 CBOE_URL = "https://cdn.cboe.com/api/global/us_indices/daily_prices/{idx}_History.csv"
+CBOE_HEADERS = {
+    "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                   "AppleWebKit/537.36 Chrome/124 Safari/537.36")
+}
 
 # S3 FRED edge series + context-rebuild series (BUILD_SPEC §2.3 / §2.4).
 FRED_SERIES = [
@@ -426,6 +430,27 @@ def cross_check_ohlcv_vs_s3(n: int = 5, seed: int = CROSSCHECK_SEED,
 
 # --------------------------------------------------------------------------- CBOE S1
 
+def _cboe_fallback(idx: str, path: Path) -> Optional[pd.DataFrame]:
+    """Merge a recent Yahoo/yfinance tail into the seeded full CBOE history."""
+    from feeds.prices import fetch_vol_index
+
+    tail = fetch_vol_index(f"^{idx}", lookback_days=730)
+    if tail is None or tail.empty:
+        return None
+    tail = tail[["date", "close"]].copy()
+    tail["date"] = pd.to_datetime(tail["date"]).dt.tz_localize(None)
+    tail["close"] = pd.to_numeric(tail["close"], errors="coerce")
+    tail = tail.dropna()
+    if path.exists():
+        seeded = pd.read_parquet(path)[["date", "close"]]
+        seeded["date"] = pd.to_datetime(seeded["date"]).dt.tz_localize(None)
+        tail = pd.concat([seeded, tail], ignore_index=True)
+    out = (tail.drop_duplicates("date", keep="last")
+           .sort_values("date").reset_index(drop=True))
+    out.to_parquet(path, index=False)
+    return out
+
+
 def fetch_cboe(out_dir: Path = CACHE / "cboe", force: bool = False) -> Dict[str, Any]:
     """S1: clean (date, close) series per CBOE index. Features computed downstream."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -434,25 +459,42 @@ def fetch_cboe(out_dir: Path = CACHE / "cboe", force: bool = False) -> Dict[str,
         p = out_dir / f"{idx}.parquet"
         if p.exists() and not force:
             df = pd.read_parquet(p)
+            source = "cache"
         else:
-            r = requests.get(CBOE_URL.format(idx=idx), timeout=60)
-            if r.status_code != 200:
-                report[idx] = {"status": f"HTTP {r.status_code}"}
-                continue
-            raw = pd.read_csv(io.StringIO(r.text))
-            raw.columns = [str(c).strip().lower().lstrip("﻿") for c in raw.columns]
-            # most files: DATE,OPEN,HIGH,LOW,CLOSE; VVIX/SKEW: DATE,<IDX>
-            value_col = "close" if "close" in raw.columns else idx.lower()
-            if "date" not in raw.columns or value_col not in raw.columns:
-                report[idx] = {"status": f"unexpected columns {list(raw.columns)[:8]}"}
-                continue
-            df = raw[["date", value_col]].rename(columns={value_col: "close"})
-            df["date"] = pd.to_datetime(df["date"])
-            df["close"] = pd.to_numeric(df["close"], errors="coerce")
-            df = df.dropna().sort_values("date").reset_index(drop=True)
-            df.to_parquet(p, index=False)
+            failure = ""
+            try:
+                r = requests.get(CBOE_URL.format(idx=idx), headers=CBOE_HEADERS,
+                                 timeout=60)
+                if r.status_code != 200:
+                    failure = f"HTTP {r.status_code}"
+                else:
+                    raw = pd.read_csv(io.StringIO(r.text))
+                    raw.columns = [str(c).strip().lower().lstrip("﻿")
+                                   for c in raw.columns]
+                    # most files: DATE,OPEN,HIGH,LOW,CLOSE; VVIX/SKEW: DATE,<IDX>
+                    value_col = "close" if "close" in raw.columns else idx.lower()
+                    if "date" not in raw.columns or value_col not in raw.columns:
+                        failure = f"unexpected columns {list(raw.columns)[:8]}"
+                    else:
+                        df = raw[["date", value_col]].rename(
+                            columns={value_col: "close"})
+                        df["date"] = pd.to_datetime(df["date"])
+                        df["close"] = pd.to_numeric(df["close"], errors="coerce")
+                        df = df.dropna().sort_values("date").reset_index(drop=True)
+                        df.to_parquet(p, index=False)
+                        source = "cboe_csv"
+            except Exception as e:  # noqa: BLE001 — try the named fallback
+                failure = f"{type(e).__name__}: {e}"
+
+            if failure:
+                df = _cboe_fallback(idx, p)
+                if df is None:
+                    report[idx] = {"status": failure, "fallback": "empty"}
+                    continue
+                source = "yahoo_yfinance_fallback"
         report[idx] = {"status": "OK", "first": str(df["date"].min().date()),
-                       "last": str(df["date"].max().date()), "rows": int(len(df))}
+                       "last": str(df["date"].max().date()), "rows": int(len(df)),
+                       "source": source}
     (out_dir / "coverage_report.json").write_text(json.dumps(report, indent=1))
     return report
 

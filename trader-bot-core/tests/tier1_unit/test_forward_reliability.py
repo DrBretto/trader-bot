@@ -1,14 +1,20 @@
 """Forward reliability locks for checkpoints, settled dates, and page freshness."""
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+CORE_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = CORE_ROOT.parent
+sys.path.insert(0, str(CORE_ROOT))
+sys.path.insert(0, str(CORE_ROOT / "tests"))
 
+from _reality import LiveS3Reader, CANON_CACHE_KEY  # noqa: E402
+from app.night import _persist_forecast_record  # noqa: E402
 from app.morning import _build_checkpoint, _result_from_checkpoint  # noqa: E402
 from chassis.steps.midday_checker import (  # noqa: E402
     CHECKPOINT_SCHEMA as MIDDAY_CHECKPOINT_SCHEMA,
@@ -17,6 +23,7 @@ from chassis.steps.midday_checker import (  # noqa: E402
 from chassis.steps.paper_trader import to_published_state  # noqa: E402
 from chassis.steps.publish_artifacts import _trade_execution_fingerprint  # noqa: E402
 from monitors import watchdog as W  # noqa: E402
+from lines.ledger import CACHE_KEY as PROMOTED_LEDGER_CACHE_KEY  # noqa: E402
 
 pytestmark = pytest.mark.unit
 
@@ -226,3 +233,80 @@ def test_substrate_monitor_rejects_insufficient_evidence():
 
     assert status["ok"] is False
     assert status["substrate"]["observable"] is False
+
+
+def test_lambda_runtime_packages_the_post_pipeline_canary_runner():
+    requirements = (REPO_ROOT / "requirements-lambda.txt").read_text().splitlines()
+    assert any(line.startswith("pytest==") for line in requirements)
+
+
+def test_reality_canary_follows_the_promoted_ledger_pointer():
+    assert CANON_CACHE_KEY == PROMOTED_LEDGER_CACHE_KEY
+
+
+def test_forecast_fingerprint_ignores_date_and_timestamp_but_not_mu():
+    docs = {
+        "daily/2026-07-14/inference.json": json.dumps({
+            "date": "2026-07-14", "recorded_at": "first",
+            "mu": {"SPY": 0.1, "QQQ": -0.2},
+        }).encode(),
+        "daily/2026-07-15/inference.json": json.dumps({
+            "date": "2026-07-15", "recorded_at": "second",
+            "mu": {"QQQ": -0.2, "SPY": 0.1},
+        }).encode(),
+    }
+    reader = LiveS3Reader(client=object())
+    reader.get_bytes = lambda key: docs[key]
+
+    prior, prior_vec = reader.inference_fingerprint("2026-07-14")
+    current, current_vec = reader.inference_fingerprint("2026-07-15")
+    assert current == prior
+    assert current_vec == prior_vec
+
+    docs["daily/2026-07-15/inference.json"] = json.dumps({
+        "date": "2026-07-15", "recorded_at": "third",
+        "mu": {"QQQ": -0.2, "SPY": 0.11},
+    }).encode()
+    changed, _ = reader.inference_fingerprint("2026-07-15")
+    assert changed != prior
+
+
+def test_night_persists_the_exact_successful_forecast_record():
+    store = FakeWriteS3()
+    record = {"date": DATE, "recorded_at": "now", "mu": {"SPY": 0.1}}
+
+    persisted = _persist_forecast_record(store, DATE, record)
+
+    assert persisted == record
+    assert store.docs[f"daily/{DATE}/inference.json"] == record
+
+
+def test_cboe_fetch_uses_visible_fallback_and_browser_headers(
+    monkeypatch, tmp_path
+):
+    from feeds import prices as price_feeds
+    from forecast import data_layer as data_layer
+
+    seen = {}
+
+    class Forbidden:
+        status_code = 403
+        text = ""
+
+    def reject(url, **kwargs):
+        seen.update(kwargs)
+        return Forbidden()
+
+    fallback = pd.DataFrame([
+        {"date": pd.Timestamp("2026-07-15"), "symbol": "^VIX", "close": 16.7}
+    ])
+    monkeypatch.setattr(data_layer, "CBOE_INDICES", ["VIX"])
+    monkeypatch.setattr(data_layer.requests, "get", reject)
+    monkeypatch.setattr(price_feeds, "fetch_vol_index", lambda *a, **k: fallback)
+
+    report = data_layer.fetch_cboe(tmp_path, force=True)
+
+    assert seen["headers"] == data_layer.CBOE_HEADERS
+    assert report["VIX"]["status"] == "OK"
+    assert report["VIX"]["source"] == "yahoo_yfinance_fallback"
+    assert report["VIX"]["last"] == "2026-07-15"

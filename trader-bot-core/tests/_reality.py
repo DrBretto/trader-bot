@@ -38,6 +38,12 @@ for _p in (str(_CORE), str(_REPO)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from lines.ledger import (  # noqa: E402
+    CACHE_KEY as CANON_CACHE_KEY,
+    LEDGER_PREFIX as CANON_CLEAN_PREFIX,
+    MANIFEST_KEY as CANON_MANIFEST_KEY,
+)
+
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 # --- literal reality endpoints (independent of the production feed code) ---
@@ -47,12 +53,8 @@ GDELT_V2_BASE = "http://data.gdeltproject.org/gdeltv2"
 _BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 
-# canon equity-ledger (the LINE) — the only source of truth for performance.
-# The CLEAN, P6-corrected ledger is the new-spine line of record; the old
-# ``canon/equity_ledger/`` holds the contaminated pre-P6 line that P9 will retire.
-CANON_CLEAN_PREFIX = "canon/equity_ledger_clean_v2/"
-CANON_CACHE_KEY = CANON_CLEAN_PREFIX + "equity_history.jsonl"
-CANON_MANIFEST_KEY = CANON_CLEAN_PREFIX + "_manifest.json"
+# Canon equity-ledger (the LINE) — import the production pointer instead of
+# duplicating a prefix. A canon promotion must move watchdog and canary together.
 SHADOW_TS_KEY = "dashboard/shadow_timeseries.json"
 
 
@@ -280,11 +282,28 @@ class LiveS3Reader:
 
     # ---- forecast fingerprint ---------------------------------------------
     def inference_fingerprint(self, date: str) -> Tuple[bytes, List[float]]:
-        """(raw bytes, asset_health vector) for daily/<D>/inference.json — the
-        S3-observable forecast fingerprint. A frozen mu produces byte-identical
-        inference.json day over day; the vector gives a numeric distance."""
+        """(canonical prediction bytes, numeric vector) for inference.json.
+
+        Volatile metadata such as date and ``recorded_at`` is deliberately
+        excluded. Otherwise a frozen prediction gets a fresh timestamp and the
+        byte-identity guard reports a false rotation.
+        """
         raw = self.get_bytes(f"daily/{date}/inference.json")
         doc = json.loads(raw)
+        mu = doc.get("mu")
+        if isinstance(mu, dict) and mu:
+            clean_mu = {
+                str(symbol): float(value)
+                for symbol, value in mu.items()
+                if isinstance(value, (int, float))
+            }
+            canonical = json.dumps(
+                {"mu": clean_mu}, sort_keys=True, separators=(",", ":")
+            ).encode()
+            return canonical, [clean_mu[s] for s in sorted(clean_mu)]
+
+        # Legacy artifact compatibility during the transition to clean-core mu
+        # records. This branch is also metadata-free.
         health = doc.get("asset_health") or []
         vec: List[float] = []
         for h in health:
@@ -298,7 +317,12 @@ class LiveS3Reader:
         reg = doc.get("regime")
         if isinstance(reg, dict) and isinstance(reg.get("probs"), dict):
             vec.extend(float(v) for v in reg["probs"].values())
-        return raw, vec
+        canonical = json.dumps(
+            {"asset_health": health, "regime_probs":
+             reg.get("probs", {}) if isinstance(reg, dict) else {}},
+            sort_keys=True, separators=(",", ":"), default=str,
+        ).encode()
+        return canonical, vec
 
     # ---- canon line (the ONLY source of truth for performance) -------------
     def canon_cache_rows(self) -> List[dict]:

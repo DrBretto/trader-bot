@@ -34,29 +34,33 @@ def _l2(a, b) -> float:
 def _two_most_recent_with_inference(reader: LiveS3Reader):
     dates = [d for d in reversed(reader.settled_dates())
              if reader.exists(f"daily/{d}/inference.json")]
+    latest_settled = reader.latest_settled_date()
+    assert dates and dates[0] == latest_settled, (
+        f"latest forecast artifact is {dates[0] if dates else 'missing'}, but "
+        f"the settled frontier is {latest_settled} — forecast persistence is stale")
     if len(dates) < 2:
-        pytest.skip("fewer than two settled days carry inference.json")
+        pytest.fail("fewer than two settled days carry inference.json")
     return dates[0], dates[1]
 
 
 @pytest.mark.live_canary
 def test_forecast_rotates_day_over_day(reality):
     d_today, d_prior = _two_most_recent_with_inference(reality)
-    raw_t, vec_t = reality.inference_fingerprint(d_today)
-    raw_p, vec_p = reality.inference_fingerprint(d_prior)
+    fingerprint_t, vec_t = reality.inference_fingerprint(d_today)
+    fingerprint_p, vec_p = reality.inference_fingerprint(d_prior)
 
-    # HARD-FAIL if byte-identical (the frozen-mu signature).
-    sha_t = hashlib.sha256(raw_t).hexdigest()
-    sha_p = hashlib.sha256(raw_p).hexdigest()
+    # HARD-FAIL if the timestamp-free prediction bytes are identical.
+    sha_t = hashlib.sha256(fingerprint_t).hexdigest()
+    sha_p = hashlib.sha256(fingerprint_p).hexdigest()
     assert sha_t != sha_p, (
         f"brain forecast is BYTE-IDENTICAL between {d_prior} and {d_today} "
         f"(sha {sha_t[:16]}) — the frozen-mu signature that shipped the same "
         f"line for two weeks")
 
-    # And the asset-health vector actually moved.
+    # And the forecast vector actually moved.
     dist = _l2(vec_t, vec_p)
     assert dist > EPS, (
-        f"asset-health vector unchanged {d_prior}->{d_today} (L2={dist:.2e}) — "
+        f"forecast vector unchanged {d_prior}->{d_today} (L2={dist:.2e}) — "
         f"forecast substrate is frozen")
 
 

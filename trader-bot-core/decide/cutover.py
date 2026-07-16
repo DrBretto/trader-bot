@@ -78,6 +78,7 @@ class CutoverResult:
     invariant_green: bool = False
     freeze_detail: str = ""
     parity_record: Mapping[str, object] = field(default_factory=dict)
+    forecast_record: Mapping[str, object] = field(default_factory=dict)
 
 
 def _config_path() -> Path:
@@ -367,6 +368,7 @@ def run_cutover(
         invariant_green=True,
         freeze_detail=freeze_assert.detail,
         parity_record=dict(out.allocation.parity_record),
+        forecast_record=dict(rec),
     )
 
 
@@ -422,8 +424,9 @@ def diagnose_forecast_freshness(pending: Optional[List[str]] = None,
         FI.gdelt_forward()
     except Exception as e:  # noqa: BLE001
         print(f"  [FRESHNESS] gdelt_forward soft-fail: {type(e).__name__}: {e}")
+    cboe_report = {}
     try:
-        FI.cboe_forward()
+        cboe_report = FI.cboe_forward()
     except Exception as e:  # noqa: BLE001
         print(f"  [FRESHNESS] cboe_forward soft-fail: {type(e).__name__}: {e}")
 
@@ -442,7 +445,9 @@ def diagnose_forecast_freshness(pending: Optional[List[str]] = None,
     out = {"pending": pending, "settled_trading_day": run_date,
            "ohlcv_max_date": ohlcv_max, "ohlcv_rows": ohlcv_rows,
            "freshness": fresh, "n_mu": len(mu), "mu_top10": top10,
-           "mu_sha16": mu_sha, "gate": verdict}
+           "mu_sha16": mu_sha, "gate": verdict,
+           "cboe": {"last_date": str(FI.cboe_last_date()),
+                    "report": cboe_report}}
     return out
 
 

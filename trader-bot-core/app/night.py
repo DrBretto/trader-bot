@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone, timedelta
-from typing import Any, Dict
+from typing import Any, Dict, Mapping
 
 EXPIRES_AFTER_DAYS = 3
 
@@ -56,6 +56,24 @@ def _is_settled_session(date_str: str) -> bool:
 def _load_universe_df(config_dir):
     import pandas as pd  # pipeline glue (universe DataFrame), not compute
     return pd.read_csv(config_dir / "universe.csv")
+
+
+def _persist_forecast_record(s3, settled: str,
+                             record: Mapping[str, object]) -> dict:
+    """Persist the exact successful forecast consumed by the decision engine."""
+    if not isinstance(record, Mapping):
+        raise RuntimeError("successful cutover returned no forecast record")
+    payload = dict(record)
+    if str(payload.get("date") or "") != settled:
+        raise RuntimeError(
+            f"forecast record date {payload.get('date')!r} != settled {settled}"
+        )
+    mu = payload.get("mu")
+    if not isinstance(mu, Mapping) or not mu:
+        raise RuntimeError("successful cutover returned an empty forecast mu")
+    if not s3.write_json(payload, f"daily/{settled}/inference.json"):
+        raise RuntimeError("inference.json write returned false")
+    return payload
 
 
 def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
@@ -130,6 +148,11 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
         return {"statusCode": 500, "body": json.dumps(
             {"status": "aborted", "phase": "night", "date": settled,
              "reason": res.reason})}
+
+    # Preserve the exact forecast that the successful engine run consumed. The
+    # live rotation canary reads this artifact; recomputing or synthesizing it
+    # after the decision would let the canary validate a different prediction.
+    _persist_forecast_record(s3, settled, res.forecast_record)
 
     # ---- persist intents (EXACT schema the morning executor consumes) ----
     trade_intents = dict(res.trade_intents)

@@ -178,16 +178,23 @@ def gdelt_forward(logf: Optional[Path] = None) -> int:
     return n_new
 
 
-def cboe_forward(logf: Optional[Path] = None) -> None:
+def cboe_forward(logf: Optional[Path] = None) -> Dict[str, object]:
     """Refresh the CBOE index histories (full-history CSVs). Fail-soft: on
     failure the old parquets stay; disp_z staleness nulling covers it."""
     try:
         from .data_layer import fetch_cboe
-        fetch_cboe(out_dir=CACHE_CBOE, force=True)
+        report = fetch_cboe(out_dir=CACHE_CBOE, force=True)
+        failed = {idx: row for idx, row in report.items()
+                  if row.get("status") != "OK"}
+        if failed:
+            log_line("ALERT cboe refresh incomplete: "
+                     + json.dumps(failed, sort_keys=True), logf)
+        return report
     except Exception as e:                                      # noqa: BLE001
         log_line(f"ALERT cboe refresh failed ({type(e).__name__}: {e}); "
                  f"disp_z will be nulled when stale > {CBOE_STALE_DAYS}d",
                  logf)
+        return {"_fetch": {"status": f"ERROR {type(e).__name__}: {e}"}}
 
 
 def cboe_last_date() -> Optional[dt.date]:
