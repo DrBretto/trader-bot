@@ -61,6 +61,21 @@ when those artifacts were weeks behind the settled frontier.
 - 2026-07-16: Rechecked infrastructure. All scheduled trader-bot rules remain in
   their expected enabled/disabled states and all 11 current trader-bot reliability
   alarms are OK.
+- 2026-07-16: Deployed commit `6e550fd` as immutable image digest
+  `sha256:5321f44a172010f1c71bc248ae810f82ec34bdae6a0b3c4896f303f21d2ea184`.
+  A fresh Lambda canary proved pytest is present and correctly rejected only the
+  stale July 2 forecast before the repair run.
+- 2026-07-16: Re-ran the settled July 15 night. It persisted the exact 64-symbol
+  forecast, kept the replay-owned TILT terminal unchanged at `114848.72179181811`,
+  and returned both reality and config canaries green. An independent invocation
+  then passed all 10 live canaries under Lambda's Python 3.11 runtime.
+- 2026-07-16: The Lambda-context forecast diagnostic is current and green: OHLCV
+  through July 15, 64 forecasts, no settled gap, and all seven CBOE series refreshed
+  from their official CSVs through July 15.
+- 2026-07-16: The post-morning health probe exposed one final retry edge case. A
+  successful night rerun after morning could overwrite the later operational pointer
+  date/phase with the settled night date. Added a monotonic pointer merge and tests;
+  today’s pointer will be restored through the resumable morning checkpoint.
 
 ## Closeout
 

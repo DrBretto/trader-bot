@@ -76,6 +76,36 @@ def _persist_forecast_record(s3, settled: str,
     return payload
 
 
+def _merge_night_pointer(latest: Mapping[str, object], settled: str,
+                         trade_intents: Mapping[str, object],
+                         timestamp: str) -> dict:
+    """Advance night-owned fields without regressing a later morning snapshot."""
+    out = dict(latest or {})
+    current_date = str(out.get("date") or "")
+    current_intents = str(out.get("intents_date") or "")
+
+    # A historical retry must not point tomorrow's executor at older intents.
+    if not current_intents or settled >= current_intents:
+        out.update({
+            "intents_date": settled,
+            "regime": trade_intents.get("regime", "unknown"),
+            "actions_count": len(trade_intents.get("actions", [])),
+        })
+
+    # Morning uses `date` as the operational snapshot date. If morning has
+    # already advanced beyond this settled session, it owns date/phase/time.
+    if not current_date or settled >= current_date:
+        out.update({
+            "date": settled,
+            "phase": "night",
+            "timestamp": timestamp,
+        })
+
+    out.pop("portfolio_value", None)
+    out.pop("positions_count", None)
+    return out
+
+
 def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     """Run one forward night. Returns a Lambda-shaped response dict."""
     from chassis.utils.s3_client import S3Client
@@ -183,17 +213,12 @@ def run_night(event: dict, bucket: str, region: str) -> Dict[str, Any]:
     # Operational pointers advance independently of the chart publish. Coupling
     # this pointer to a dashboard guard left the morning executor reading days-old
     # intents/state even though newer artifacts existed.
-    latest = s3.read_json_strict("daily/latest.json") or {}
-    latest.update({
-        "date": settled,
-        "intents_date": settled,
-        "regime": trade_intents.get("regime", "unknown"),
-        "actions_count": len(trade_intents.get("actions", [])),
-        "phase": "night",
-        "timestamp": datetime.now().isoformat(),
-    })
-    latest.pop("portfolio_value", None)
-    latest.pop("positions_count", None)
+    latest = _merge_night_pointer(
+        s3.read_json_strict("daily/latest.json") or {},
+        settled,
+        trade_intents,
+        datetime.now().isoformat(),
+    )
     if not s3.write_json(latest, "daily/latest.json"):
         raise RuntimeError("daily/latest.json write returned false")
 

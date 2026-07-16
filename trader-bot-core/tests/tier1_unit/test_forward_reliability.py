@@ -14,7 +14,7 @@ sys.path.insert(0, str(CORE_ROOT))
 sys.path.insert(0, str(CORE_ROOT / "tests"))
 
 from _reality import LiveS3Reader, CANON_CACHE_KEY  # noqa: E402
-from app.night import _persist_forecast_record  # noqa: E402
+from app.night import _merge_night_pointer, _persist_forecast_record  # noqa: E402
 from app.morning import _build_checkpoint, _result_from_checkpoint  # noqa: E402
 from chassis.steps.midday_checker import (  # noqa: E402
     CHECKPOINT_SCHEMA as MIDDAY_CHECKPOINT_SCHEMA,
@@ -279,6 +279,50 @@ def test_night_persists_the_exact_successful_forecast_record():
 
     assert persisted == record
     assert store.docs[f"daily/{DATE}/inference.json"] == record
+
+
+def test_night_retry_cannot_regress_a_later_morning_pointer():
+    morning = {
+        "date": "2026-07-16",
+        "intents_date": DATE,
+        "phase": "morning",
+        "timestamp": "morning-time",
+        "snapshot_id": "2026-07-16:morning",
+        "morning_executed": True,
+    }
+
+    merged = _merge_night_pointer(
+        morning,
+        DATE,
+        {"regime": "risk_off_trend", "actions": [{}, {}]},
+        "night-retry-time",
+    )
+
+    assert merged["date"] == "2026-07-16"
+    assert merged["phase"] == "morning"
+    assert merged["timestamp"] == "morning-time"
+    assert merged["snapshot_id"] == "2026-07-16:morning"
+    assert merged["morning_executed"] is True
+    assert merged["intents_date"] == DATE
+    assert merged["actions_count"] == 2
+
+
+def test_night_pointer_advances_normally_before_morning():
+    merged = _merge_night_pointer(
+        {"date": "2026-07-14", "intents_date": "2026-07-14"},
+        DATE,
+        {"regime": "risk_off_trend", "actions": [{}]},
+        "night-time",
+    )
+
+    assert merged == {
+        "date": DATE,
+        "intents_date": DATE,
+        "regime": "risk_off_trend",
+        "actions_count": 1,
+        "phase": "night",
+        "timestamp": "night-time",
+    }
 
 
 def test_cboe_fetch_uses_visible_fallback_and_browser_headers(
